@@ -122,7 +122,7 @@ alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-d
 alias config-zsh="$EDITOR ~/.zshrc"
 alias config-tmux="$EDITOR ~/.tmux.conf"
 
-alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/bunny.txt --config paleofetch"
+alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
 alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
 # Shopify Hydrogen alias to local projects
