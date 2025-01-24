@@ -12,11 +12,11 @@ adjust-cell-height = 7
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
-font-size = 14
+font-size = 12.5
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = Zenbones Proto
+font-family = Input Mono
 font-family = Symbols Nerd Font Mono
 
 background = #07090D

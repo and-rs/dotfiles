@@ -128,14 +128,6 @@ alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 # Shopify Hydrogen alias to local projects
 alias h2='$(npm prefix -s)/node_modules/.bin/shopify hydrogen'
 
-#remaps
-bindkey -r '^F'
-bindkey -r '^B'
-
-bindkey '^L' forward-char
-bindkey '^H' backward-char
-bindkey '^B' backward-delete-char
-
 # Set shell options: http://zsh.sourceforge.net/Doc/Release/Options.html.
 setopt glob_dots     # no special treatment for file names with a leading dot
 setopt no_auto_menu  # require an extra TAB press to open the completion menu
