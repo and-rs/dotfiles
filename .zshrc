@@ -12,7 +12,7 @@ zstyle ':z4h:' auto-update-days '28'
 zstyle ':z4h:bindkey' keyboard  'pc'
 
 # Start tmux if not already in tmux.
-zstyle ':z4h:' start-tmux command tmux -u new -A -D -t z4h
+#zstyle ':z4h:' start-tmux command tmux -u new -A -D -t z4h
 
 # Whether to move prompt to the bottom when zsh starts and on Ctrl+L.
 zstyle ':z4h:' prompt-at-bottom 'no'
@@ -118,7 +118,7 @@ alias dev=". $SCRIPTS/fzf/dev_search.sh"
 alias box=". $SCRIPTS/fzf/box_search.sh"
 alias u-wsl="sudo nixos-rebuild switch --flake '$HOME/box/wslnixos#default'"
 alias u-nixos="sudo nixos-rebuild switch --flake '$HOME/box/nixos#default'"
-alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ~/box/nixdarwin"
+alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ~/box/nix-darwin"
 alias config-zsh="$EDITOR ~/.zshrc"
 alias config-tmux="$EDITOR ~/.tmux.conf"
 
