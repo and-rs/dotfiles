@@ -91,11 +91,11 @@ alias sw="stow -t $HOME"
 alias f=". $SCRIPTS/fzf/search.sh"
 alias dev=". $SCRIPTS/fzf/dev_search.sh"
 alias box=". $SCRIPTS/fzf/box_search.sh"
-alias u-wsl="sudo nixos-rebuild switch --flake '$HOME/box/wslnixos#default'"
-alias u-nixos="sudo nixos-rebuild switch --flake '$HOME/box/nixos#default'"
-alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ~/box/nix-darwin"
 alias config-zsh="$EDITOR ~/.zshrc"
 alias config-tmux="$EDITOR ~/.tmux.conf"
+
+alias u-nixos="sudo nixos-rebuild switch --flake '$HOME/box/nixos#default'"
+alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ~/box/nix-darwin"
 
 alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
 alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'

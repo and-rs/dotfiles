@@ -1,5 +1,5 @@
 { pkgs, ... }: {
- home.packages = with pkgs; [
+  home.packages = with pkgs; [
     bun
     deno
     yarn
@@ -27,10 +27,10 @@
     basedpyright
     python3Full
     virtualenv
-    ruff-lsp
     tesseract
     poetry
     black
+    ruff
     pdm
 
     go
