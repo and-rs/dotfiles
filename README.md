@@ -14,30 +14,33 @@
 
 Clone the repo
 ```sh
-git clone
+git clone https://github.com/and-rs/dotfiles.git
 ```
 
-Use this repo with stow.
+Using this repo with stow, linking the base `.config` and ignoring the rest
 ```sh
 stow -t "$HOME" .
 ```
 
-Setup macOS.
+Linking the MacOS package.
 ```sh
 stow -t "$HOME" -S macos
 ```
 
 ## Considerations
+- `./scripts/`, `./utils/`, `./wallpapers/` and `./xorg/`:
+    - These are NOT packages to stow, there is no point in linking them and stow will ignore them
+
 - ```./macos```:
-    - Symlinks for files that can also be used on nixos
+    - Symlinks for files that can also be used on nixos (eg. `.zshrc`)
     - Files that have specific changes for macos
     - Custom icons.
     I do this because I want to be able to have everything in one repo, and be linked by
-    stow, make changes to one (for example) .zshrc and have the changes shared
+    stow, make changes to one (for example) `.zshrc` and have the changes shared
     across nixos and macos.
 
 - ```./tower/```
-    - NixOS setup that I use on a desktop sometimes
+    - Dotfiles for a NixOS setup that I use on a desktop sometimes
     - Not usable yet
 
 - ```./xorg```:
