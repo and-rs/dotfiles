@@ -1,5 +1,6 @@
 [core]
   pager = delta
+	excludesFile = '~/.gitignore'
 
 [interactive]
   diffFilter = delta --color-only
@@ -17,8 +18,8 @@
   colorMoved = default
 
 [user]
+	name = and-rs
 	email = deserd@protonmail.com
-	name = JuanBaut
 
 [credential "https://github.com"]
 	helper = 
