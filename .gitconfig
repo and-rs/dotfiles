@@ -1,6 +1,6 @@
 [core]
   pager = delta
-	excludesFile = '~/box/dotfiles/ignore'
+	excludesfile = ~/.gitignore_global
 
 [interactive]
   diffFilter = delta --color-only
