@@ -99,6 +99,18 @@ alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-d
 alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
 alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
+# History options
+HISTSIZE=7000
+SAVEHIST=$HISTSIZE
+HISTDUP=erase
+
+setopt hist_ignore_all_dups
+setopt hist_find_no_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt appendhistory
+setopt sharehistory
+
 # Set shell options: http://zsh.sourceforge.net/Doc/Release/Options.html.
 setopt glob_dots     # no special treatment for file names with a leading dot
 setopt no_auto_menu  # require an extra TAB press to open the completion menu
