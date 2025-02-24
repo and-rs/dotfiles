@@ -16,7 +16,9 @@ font-size = 13
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = CommitMonoFucker
+# font-family = Input Mono
+# font-family = CommitMonoFucker
+font-family = Iosevka Custom
 font-family = Symbols Nerd Font Mono
 
 background = #07090D
