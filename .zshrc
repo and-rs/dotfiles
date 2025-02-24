@@ -8,9 +8,6 @@ zstyle ':z4h:' auto-update      'ask'
 # Ask whether to auto-update this often; has no effect if auto-update is 'no'.
 zstyle ':z4h:' auto-update-days '28'
 
-# Keyboard type: 'mac' or 'pc'.
-zstyle ':z4h:bindkey' keyboard  'pc'
-
 # Start tmux if not already in tmux.
 zstyle ':z4h:' start-tmux command tmux -u new -A -D -t sesh
 
@@ -35,8 +32,8 @@ zstyle ':z4h:direnv:success' notify 'yes'
 
 # Enable ('yes') or disable ('no') automatic teleportation of z4h over
 # SSH when connecting to these hosts.
-zstyle ':z4h:ssh:example-hostname1'   enable 'yes'
-zstyle ':z4h:ssh:*.example-hostname2' enable 'no'
+# zstyle ':z4h:ssh:example-hostname1'   enable 'yes'
+# zstyle ':z4h:ssh:*.example-hostname2' enable 'no'
 # The default value if none of the overrides above match the hostname.
 zstyle ':z4h:ssh:*'                   enable 'no'
 
@@ -85,6 +82,7 @@ SCRIPTS="$HOME/box/dotfiles/scripts"
 
 # Define aliases.
 alias l="eza -liha"
+alias lt="eza -lihaT --git-ignore"
 alias c="clear -x"
 alias nv="nvim"
 alias nd="neovide --fork --title-hidden --frame=transparent"
