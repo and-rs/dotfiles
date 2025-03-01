@@ -18,7 +18,10 @@ font-feature = -calt
 font-feature = -dlig
 # font-family = Input Mono
 # font-family = CommitMonoFucker
+
 font-family = Iosevka Custom
+font-family-italic = Iosevka Custom Italic
+
 font-family = Symbols Nerd Font Mono
 
 background = #07090D
