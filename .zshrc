@@ -9,7 +9,7 @@ zstyle ':z4h:' auto-update      'ask'
 zstyle ':z4h:' auto-update-days '28'
 
 # Start tmux if not already in tmux.
-zstyle ':z4h:' start-tmux command tmux -u new -A -D -t sesh
+zstyle ':z4h:' start-tmux command tmux -u new -s init -A -D
 
 # Whether to move prompt to the bottom when zsh starts and on Ctrl+L.
 zstyle ':z4h:' prompt-at-bottom 'no'
@@ -45,7 +45,7 @@ zstyle ':z4h:ssh:*' send-extra-files '~/.nanorc' '~/.env.zsh'
 z4h init || return
 
 # Extend PATH.
-path=(~/bin $path)
+path=(~/bin $path $HOME/box/zig)
 
 # Export environment variables.
 export GPG_TTY=$TTY
