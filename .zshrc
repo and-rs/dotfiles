@@ -100,6 +100,11 @@ alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-d
 alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
 alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
+alias gac='git add . && git commit -m'
+alias gc='git commit'
+alias ga='git add'
+alias gp='git push'
+
 # History options
 HISTSIZE=7000
 SAVEHIST=$HISTSIZE
