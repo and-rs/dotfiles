@@ -8,7 +8,7 @@ window-padding-x = 2
 window-padding-y = 0
 window-padding-balance = true
 
-adjust-cell-height = 8
+adjust-cell-height = 9
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
@@ -16,11 +16,9 @@ font-size = 13
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-# font-family = Input Mono
+font-family = Input Mono
 # font-family = CommitMonoFucker
-
-font-family = Iosevka Custom
-font-family-italic = Iosevka Custom Italic
+# font-family = Iosevka Custom
 
 font-family = Symbols Nerd Font Mono
 
