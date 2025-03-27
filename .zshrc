@@ -44,9 +44,6 @@ zstyle ':z4h:ssh:*' send-extra-files '~/.nanorc' '~/.env.zsh'
 # Init z4h
 z4h init || return
 
-# Extend PATH.
-path=(~/bin $path $HOME/box/zig)
-
 # Export environment variables.
 export GPG_TTY=$TTY
 
@@ -77,33 +74,37 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --color=border:4,query:7
   --marker=":" --pointer="»"'
 
-UTILS="$HOME/box/dotfiles/utils"
-SCRIPTS="$HOME/box/dotfiles/scripts"
+UTILS="$HOME/vault/personal/dotfiles/utils"
+SCRIPTS="$HOME/vault/personal/dotfiles/scripts"
+BOX="$HOME/vault/personal"
+
+# Extend PATH.
+path=(~/bin $path $BOX/zig)
 
 # Define aliases.
 alias l="eza -liha"
 alias lt="eza -lihaT --git-ignore"
 alias c="clear -x"
-# alias nv=". $SCRIPTS/fzf/nvim_search.sh"
 alias nv="nvim"
 alias nd="neovide --fork --title-hidden --frame=transparent"
 alias sw="stow -t $HOME"
 alias f=". $SCRIPTS/fzf/search.sh"
-alias dev=". $SCRIPTS/fzf/dev_search.sh"
-alias box=". $SCRIPTS/fzf/box_search.sh"
+alias s=". $SCRIPTS/fzf/dev_search.sh"
+alias ts=". $SCRIPTS/fzf/box_search.sh"
 alias config-zsh="$EDITOR ~/.zshrc"
 alias config-tmux="$EDITOR ~/.tmux.conf"
 
-alias u-nixos="sudo nixos-rebuild switch --flake '$HOME/box/nixos#default'"
-alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake ~/box/nix-darwin"
+alias u-nixos="sudo nixos-rebuild switch --flake '$BOX/nixos#default'"
+alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $BOX/nix-darwin"
 
 alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
 alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
 alias gac='git add . && git commit -m'
-alias gc='git commit'
 alias ga='git add'
 alias gp='git push'
+alias gc='git commit'
+alias gs='git status'
 
 # History options
 HISTSIZE=7000
