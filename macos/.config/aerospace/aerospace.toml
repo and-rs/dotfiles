@@ -2,52 +2,26 @@ after-login-command = []
 after-startup-command = []
 start-at-login = true
 
-# Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
-enable-normalization-flatten-containers = false
-enable-normalization-opposite-orientation-for-nested-containers = false
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
 
-# See: https://nikitabobko.github.io/AeroSpace/guide#layouts
-# The 'accordion-padding' specifies the size of accordion padding
-# You can set 0 to disable the padding feature
-accordion-padding = 30
+accordion-padding = 0
 
-# Possible values: tiles|accordion
-default-root-container-layout = 'tiles'
-
-# Possible values: horizontal|vertical|auto
-# 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,
-#               tall monitor (anything higher than wide) gets vertical orientation
+default-root-container-layout = 'accordion'
 default-root-container-orientation = 'auto'
+automatically-unhide-macos-hidden-apps = true
 
-# Mouse follows focus when focused monitor changes
-# Drop it from your config, if you don't like this behavior
-# See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
-# See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
-# Fallback value (if you omit the key): on-focused-monitor-changed = []
-on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
-
-# You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
-# Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
-# Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
-automatically-unhide-macos-hidden-apps = false
-
-# Possible values: (qwerty|dvorak)
-# See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]
     preset = 'qwerty'
 
 [gaps]
-    inner.horizontal = 0
-    inner.vertical =   0
-    outer.left =       0
-    outer.bottom =     0
-    outer.top =        0
-    outer.right =      0
+    inner.horizontal = 20
+    inner.vertical =   20
+    outer.left =       20
+    outer.bottom =     20
+    outer.top =        20
+    outer.right =      20
 
-# 'main' binding mode declaration
-# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
-# 'main' binding mode must be always presented
-# Fallback value (if you omit the key): mode.main.binding = {}
 [mode.main.binding]
 
     # All possible keys:
@@ -81,20 +55,16 @@ automatically-unhide-macos-hidden-apps = false
     cmd-comma = 'layout accordion horizontal vertical'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
-    cmd-ctrl-h = 'focus left'
-    cmd-ctrl-j = 'focus down'
-    cmd-ctrl-k = 'focus up'
-    cmd-ctrl-l = 'focus right'
+    alt-ctrl-h = 'focus left'
+    alt-ctrl-j = 'focus down'
+    alt-ctrl-k = 'focus up'
+    alt-ctrl-l = 'focus right'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move
     cmd-shift-h = 'move left'
     cmd-shift-j = 'move down'
     cmd-shift-k = 'move up'
     cmd-shift-l = 'move right'
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#resize
-    cmd-minus = 'resize smart -50'
-    cmd-equal = 'resize smart +50'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
     cmd-1 = 'workspace 1'
