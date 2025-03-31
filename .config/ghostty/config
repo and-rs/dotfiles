@@ -1,0 +1,44 @@
+quit-after-last-window-closed = true
+gtk-adwaita = false
+
+window-decoration = none
+window-padding-x = 2
+window-padding-y = 0
+window-padding-balance = true
+
+adjust-cell-height = 9
+adjust-font-baseline = 0
+adjust-underline-position = 5
+
+font-size = 11
+font-feature = -liga
+font-feature = -calt
+font-feature = -dlig
+font-family = Input Mono
+font-family = Symbols Nerd Font Mono
+
+background = #07090D
+
+palette = 0=#1a1b26
+palette = 8=#636da6
+
+palette = 1=#f7768e
+palette = 9=#f7768e
+
+palette = 2=#9ece6a
+palette = 10=#9ece6a
+
+palette = 3=#e0af68
+palette = 11=#e0af68
+
+palette = 4=#7aa2f7
+palette = 12=#7aa2f7
+
+palette = 5=#bb9af7
+palette = 13=#bb9af7
+
+palette = 6=#4abaaf
+palette = 14=#4abaaf
+
+palette = 7=#a9b1d6
+palette = 15=#c0caf5

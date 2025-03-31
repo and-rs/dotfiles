@@ -1,6 +1,6 @@
 * {
-  font-family: "ZedMono Nerd Font";
-  font-size: 21px;
+  font-family: "Input Mono";
+  font-size: 12.5px;
   font-weight: 500;
 }
 
@@ -9,6 +9,7 @@ window {
   transition-property: background-color;
   transition-duration: 0.5s;
 
+  border: 1px solid #202020;
   border-radius: 8px;
 }
 
@@ -19,7 +20,7 @@ tooltip {
 
 tooltip label {
   color: white;
-  margin: 10px;
+  margin: 5px;
 }
 
 #window {
@@ -32,8 +33,9 @@ tooltip label {
 #cpu,
 #memory,
 #disk,
-#battery{
-  margin: 0 12 0 12;
+#battery {
+  margin: 0 0 0 0;
+  padding: 0 6 0 4;
   color: white;
 }
 
@@ -47,7 +49,8 @@ tooltip label {
 #scratchpad,
 #systray,
 #mpd {
-  padding: 0 12 0 12;
+  margin: 0 0 0 0;
+  padding: 0 3 0 3;
   color: white;
 }
 
@@ -60,15 +63,19 @@ tooltip label {
 
 #workspaces {
   color: rgba(255, 255, 255, 1);
-  margin: 0 0 0 0;
 }
 
 #workspaces button {
   transition: all 0.4s ease-out;
   animation-timing-function: steps(12);
+  min-height: 16px;
+  min-width: 16px;
 
-  padding: 0 6 0 6;
-  margin: 8 0 8 8;
+  border: solid #707070 1px;
+  border-radius: 4px;
+
+  padding: 0 1 0 1;
+  margin: 6 0 6 6;
   color: #101010;
   background-color: #707070;
 }
@@ -77,10 +84,11 @@ tooltip label {
   animation-duration: 0.1s;
   animation-timing-function: steps(12);
 
-  font-weight: 800;
   color: #101010;
   background-color: #989898;
-  padding: 0 32 0 32;
+  border: solid #989898 1px;
+
+  padding: 0 16 0 16;
 }
 
 #workspaces button.urgent {
@@ -103,6 +111,7 @@ tooltip label {
 
   color: #606060;
   background-color: #202020;
+  border: solid #cacaca 1px;
 }
 
 #workspaces button.occupied {
@@ -157,6 +166,5 @@ tooltip label {
   color: rgba(255, 255, 255, 1);
   border: 0.19em solid rgba(246, 82, 79, 1);
   background-color: rgba(0, 43, 54, 0.7);
-  padding: 0 14;
   color: rgba(245, 60, 60, 1);
 }

@@ -14,7 +14,7 @@
     "locale": "en_US.utf8",
     "format": "{:%a %d %b %H:%M}",
     "format-alt": "{:%a %d %b %H:%M:%S}",
-    "tooltip-format": "<span font='ZedMono Nerd Font'>{calendar}</span>",
+    "tooltip-format": "<span font='Inter'>{calendar}</span>",
     "calendar": {
       "mode": "month",
       "mode-mon-col": 4,
@@ -36,32 +36,12 @@
       "on-scroll-down": "shift_down"
     }
   },
-  // Battery
-  "battery": {
-    "states": {
-      "warning": 30,
-      "critical": 13
-    },
-    "format-icons": [
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf8ae;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf147;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf155;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf8af;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf8b0;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-9.3pt' baseline_shift='subscript' line_height='-1'>&#xf13b;</span>"
-    ],
-    "format": "{icon} <span rise='0.3pt'>{capacity}</span>",
-    "format-full": "{icon} <span rise='0.3pt'>{capacity}</span>",
-    "format-charging": "{icon} <span rise='0.3pt'>{capacity}</span>",
-    "format-plugged": "{icon} <span rise='0.3pt'>{capacity}</span>",
-    "format-alt": "{time}"
-  },
   // Audio Information
-  "pulseaudio": {
+  "wireplumber": {
     "format-icons": [
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15.5 @FILL=1,opsz=24' rise='-8.7pt'>&#xe04e;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15.5 @FILL=1,opsz=24' rise='-8.7pt'>&#xe04d;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15.5 @FILL=1,opsz=24' rise='-8.7pt'>&#xe050;</span>"
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15 @FILL=1,opsz=24' rise='-5.8pt'>&#xe04e;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15 @FILL=1,opsz=24' rise='-5.8pt'>&#xe04d;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 15 @FILL=1,opsz=24' rise='-5.8pt'>&#xe050;</span>"
     ],
     "format": "{icon} {volume}",
     "format-source": "{icon} {volume}",
@@ -74,25 +54,45 @@
   "backlight": {
     "format": "{icon} {percent}",
     "format-icons": [
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xF7E8;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xe3a9;</span>",
-      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xE1AC;</span>"
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xF7E8;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xe3a9;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xE1AC;</span>"
     ],
     "reverse-scrolling": true,
     "tooltip": false
   },
   "cpu": {
-    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xE30D;</span> {usage}"
+    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xE30D;</span> {usage}"
   },
   "memory": {
-    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xF7A3;</span> {}"
+    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xF7A3;</span> {}"
   },
   "disk": {
-    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-7pt'>&#xf80e;</span> {percentage_used}"
+    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xf80e;</span> {percentage_used}"
+  },
+  // Battery
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 13
+    },
+    "format-icons": [
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf8ae;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf147;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf155;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf8af;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf8b0;</span>",
+      "<span color='#c2c2c2' font_desc='Material Symbols Rounded 21.5 @FILL=1,opsz=40,wght=300' rise='-5pt' baseline_shift='subscript' line_height='-1'>&#xf13b;</span>"
+    ],
+    "format": "{icon} <span>{capacity}</span>",
+    "format-full": "{icon} <span>{capacity}</span>",
+    "format-charging": "{icon} <span>{capacity}</span>",
+    "format-plugged": "{icon} <span>{capacity}</span>",
+    "format-alt": "{time}"
   },
   // System Tray
   "tray": {
-    "icon-size": 28,
-    "spacing": 5
+    "icon-size": 20,
+    "spacing": 4
   }
 }

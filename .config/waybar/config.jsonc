@@ -1,6 +1,6 @@
 [
   {
-    "margin": "10px 10px 0 10px",
+    "margin": "6px 6px 0 6px",
     "layer": "bottom",
     "position": "top",
     "spacing": 6,
@@ -14,12 +14,12 @@
       "clock"
     ],
     "modules-right": [
-      "battery",
-      "pulseaudio",
+      "wireplumber",
       "backlight",
       "cpu",
       "memory",
       "disk",
+      "battery",
       "tray"
     ],
     "include": [

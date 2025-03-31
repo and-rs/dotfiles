@@ -10,17 +10,17 @@
     grey: #909090;
 
     width: 500;
-    font: "ZedMono Nerd Font Propo 18";
+    font: "Input Mono 12";
 }
 
-element-text, element-icon , mode-switcher {
+element-text, element-icon {
     background-color: inherit;
     text-color:       inherit;
 }
 
 window {
-    height: 300px;
-    border: 2px;
+    height: 238px;
+    border: 1px;
     border-radius: 6px;
     border-color: @border-col;
     background-color: @bg-col;
@@ -34,7 +34,7 @@ inputbar {
     children: [prompt,entry];
     background-color: @bg-col;
     border-radius: 6px;
-    padding: 2px;
+    padding: 1px;
 }
 
 prompt {
@@ -42,7 +42,7 @@ prompt {
     text-color: @black;
     padding: 6px;
     border-radius: 6px;
-    margin: 20px 0px 0px 20px;
+    margin: 10px 0px 0px 10px;
 }
 
 textbox-prompt-colon {
@@ -52,7 +52,7 @@ textbox-prompt-colon {
 
 entry {
     padding: 6px;
-    margin: 20px 0px 0px 10px;
+    margin: 10px 0px 0px 10px;
     text-color: @white;
     background-color: @bg-col;
 }
@@ -60,7 +60,7 @@ entry {
 listview {
     border: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
-    margin: 10px 20px 0px 20px;
+    margin: 10px 10px 0px 10px;
     columns: 1;
     lines: 4;
     background-color: @bg-col;
@@ -84,10 +84,12 @@ element selected {
 
 mode-switcher {
     spacing: 0;
+    border: 1px 0px 0px 0px;
+    border-color: @bg-col-light;
 }
 
 button {
-    padding: 10px;
+    padding: 6px;
     background-color: @bg-col-light;
     text-color: @grey;
     vertical-align: 0.5; 
@@ -95,8 +97,8 @@ button {
 }
 
 button selected {
-  background-color: @bg-col;
-  text-color: @white;
+    background-color: @bg-col;
+    text-color: @white;
 }
 
 message {
@@ -108,7 +110,7 @@ message {
 
 textbox {
     padding: 6px;
-    margin: 20px 0px 0px 20px;
+    margin: 10px 0px 0px 10px;
     text-color: @white;
     background-color: @bg-col-light;
     border-color: @fg-col2;

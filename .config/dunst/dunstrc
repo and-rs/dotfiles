@@ -1,24 +1,25 @@
 [global]
-font = ZedMono Nerd Font Propo 16
+font = Input Mono 9
 origin = top-right
 
-offset = 10x10 
-width = 480
+width = 400
+height = (0, 300)
+offset = (8, 8) 
 
 progress_bar = true
 progress_bar_height = 10
 progress_bar_max_width = 468
 progress_bar_corner_radius = 6
 
-min_icon_size = 64
-max_icon_size = 64
+min_icon_size = 42
+max_icon_size = 42
 icon_corner_radius = 6
 
-frame_width = 2
-corner_radius = 8ffffff
+frame_width = 1
+corner_radius = 6
 frame_color = "#c2c2c2"
 separator_color = frame
 
-background = "#202020"
+background = "#101010"
 foreground = "#ffffff"
 highlight = "#ffffff"
