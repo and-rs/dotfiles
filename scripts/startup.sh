@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
-# Check if alacritty is running
-if ! pgrep alacritty > /dev/null; then
-    alacritty &
+if ! pgrep kitty > /dev/null; then
+    kitty &
 fi
 
-# Check if firefox is running
-if ! pgrep firefox > /dev/null; then
-    firefox &
+if ! pgrep zen > /dev/null; then
+    zen &
 fi
 
-# Check if spotify is running
 if ! pgrep spotify > /dev/null; then
     spotify &
 fi
 
-## Check if chromium is running
-#if ! pgrep chromium > /dev/null; then
-#    chromium &
-#fi
+if ! pgrep google-chrome > /dev/null; then
+    google-chrome &
+fi

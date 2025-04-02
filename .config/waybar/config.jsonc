@@ -7,8 +7,8 @@
     "exclusive": true,
     "fixed-center": true,
     "modules-left": [
-      "hyprland/workspaces",
-      "hyprland/window"
+      "niri/workspaces",
+      "niri/window"
     ],
     "modules-center": [
       "clock"

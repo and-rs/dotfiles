@@ -1,11 +1,10 @@
 {
   // Workspaces
-  "hyprland/workspaces": {
-    "active-only": false,
-    "format": "{name}"
+  "niri/workspaces": {
+    "active-only": true
   },
   //Taskbar
-  "hyprland/window": {
+  "niri/window": {
     "max-length": 40
   },
   // Clock

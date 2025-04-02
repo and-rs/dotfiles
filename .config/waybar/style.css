@@ -9,7 +9,7 @@ window {
   transition-property: background-color;
   transition-duration: 0.5s;
 
-  border: 1px solid #202020;
+  border: 2px solid #707070;
   border-radius: 8px;
 }
 
