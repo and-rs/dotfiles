@@ -98,8 +98,8 @@ layout {
 
     border {
         width 2
-        active-gradient from="#707070" to="#101010" angle=180 relative-to="workspace-view"
-        inactive-color "#505050"
+        active-gradient from="#000000" to="#808080" angle=180 relative-to="workspace-view"
+        inactive-color "#101010"
 
         // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
     }
@@ -138,7 +138,7 @@ layout {
         offset x=0 y=5
 
         // You can also change the shadow color and opacity.
-        color "#0007"
+        color "#202020"
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.

@@ -5,11 +5,11 @@
 }
 
 window {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.8);
   transition-property: background-color;
   transition-duration: 0.5s;
 
-  border: 2px solid #707070;
+  /* border: 2px solid #707070; */
   border-radius: 8px;
 }
 
@@ -71,7 +71,7 @@ tooltip label {
   min-height: 16px;
   min-width: 16px;
 
-  border: solid #707070 1px;
+  border: solid #707070 2px;
   border-radius: 4px;
 
   padding: 0 1 0 1;
@@ -86,7 +86,7 @@ tooltip label {
 
   color: #101010;
   background-color: #989898;
-  border: solid #989898 1px;
+  border: solid #989898 2px;
 
   padding: 0 16 0 16;
 }
@@ -111,7 +111,7 @@ tooltip label {
 
   color: #606060;
   background-color: #202020;
-  border: solid #cacaca 1px;
+  border: solid #707070 2px;
 }
 
 #workspaces button.occupied {
