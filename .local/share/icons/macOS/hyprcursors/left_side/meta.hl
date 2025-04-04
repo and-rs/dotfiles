@@ -1,9 +1,0 @@
-resize_algorithm = none
-hotspot_x = 0.44
-hotspot_y = 0.44
-
-
-define_override = right_side
-define_override = e-resize
-define_override = w-resize
-define_size = 0, left_side.svg

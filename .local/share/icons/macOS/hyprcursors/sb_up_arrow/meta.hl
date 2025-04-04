@@ -1,7 +1,0 @@
-resize_algorithm = none
-hotspot_x = 0.44
-hotspot_y = 0.38
-
-
-define_override = up-arrow
-define_size = 0, sb_up_arrow.svg

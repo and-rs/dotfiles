@@ -1,5 +1,0 @@
-resize_algorithm = none
-hotspot_x = 0.38
-hotspot_y = 0.38
-
-define_size = 0, zoom-in.svg

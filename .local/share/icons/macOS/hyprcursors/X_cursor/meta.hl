@@ -1,8 +1,0 @@
-resize_algorithm = none
-hotspot_x = 0.44
-hotspot_y = 0.44
-
-
-define_override = pirate
-define_override = x-cursor
-define_size = 0, X_cursor.svg
