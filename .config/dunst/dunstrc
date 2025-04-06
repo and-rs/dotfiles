@@ -2,14 +2,14 @@
 font = Input Mono 9
 origin = top-right
 
-width = 400
-height = (0, 300)
+width = (300, 400)
+height = (0, 400)
 offset = (8, 8) 
 
 progress_bar = true
-progress_bar_height = 10
+progress_bar_height = 8
 progress_bar_max_width = 468
-progress_bar_corner_radius = 6
+progress_bar_corner_radius = 4
 
 min_icon_size = 42
 max_icon_size = 42

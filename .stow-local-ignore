@@ -22,7 +22,6 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 
-scripts
 utils
 xorg
 macos

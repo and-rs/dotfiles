@@ -74,6 +74,8 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --color=border:4,query:7
   --marker=":" --pointer="»"'
 
+export MANPAGER='nvim +Man!'
+
 UTILS="$HOME/vault/personal/dotfiles/utils"
 SCRIPTS="$HOME/vault/personal/dotfiles/scripts"
 BOX="$HOME/vault/personal"

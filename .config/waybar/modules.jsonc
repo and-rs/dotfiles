@@ -1,8 +1,6 @@
 {
   // Workspaces
-  "niri/workspaces": {
-    "active-only": true
-  },
+  "niri/workspaces": {},
   //Taskbar
   "niri/window": {
     "max-length": 40
@@ -13,7 +11,7 @@
     "locale": "en_US.utf8",
     "format": "{:%a %d %b %H:%M}",
     "format-alt": "{:%a %d %b %H:%M:%S}",
-    "tooltip-format": "<span font='Inter'>{calendar}</span>",
+    "tooltip-format": "<span font='Input Mono'>{calendar}</span>",
     "calendar": {
       "mode": "month",
       "mode-mon-col": 4,
@@ -47,7 +45,10 @@
     "format-bluetooth": "{icon} {volume}",
     "format-muted": "<span color='#c2c2c2'>MUTE</span>",
     "format-bluetooth-muted": "<span color='#c2c2c2'>MUTE</span>",
-    "on-click": "pavucontrol"
+    "on-click-right": "amixer -D pipewire set Master 1+ toggle",
+    "reverse-scrolling": true,
+    "on-click": "pavucontrol",
+    "scroll-step": 5
   },
   // Brightness Information
   "backlight": {
@@ -58,8 +59,10 @@
       "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xE1AC;</span>"
     ],
     "reverse-scrolling": true,
+    "scroll-step": 5,
     "tooltip": false
   },
+  // Hardware info
   "cpu": {
     "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24' rise='-5pt'>&#xE30D;</span> {usage}"
   },

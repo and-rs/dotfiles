@@ -1,12 +1,29 @@
 #!/usr/bin/env bash
 
-amixer -q sset Master,0 toggle
+icon=""
 
-volume="$(amixer get Master | tail -1 | awk '{print $5}' | sed 's/[^0-9]*//g')"
-mute="$(amixer get Master | tail -1 | awk '{print $6}' | sed 's/[^a-z]*//g')"
-
-if [[ $volume == 0 || $mute == "off" ]]; then
-    dunstify "Volume" "Sound OFF" -u low -t 1000 -r 797
+if ! wpctl set-mute @DEFAULT_SINK@ toggle; then
+    dunstify "Error lowering volume"
 else
-    dunstify "Volume" "$volume %" -u low -t 1000 -r 797 -h int:value:"$volume"
+    status=$(wpctl get-volume @DEFAULT_SINK@)
+
+    volume=$( echo "$status" | awk '{print $2 * 100}')
+
+    if [ -z "$status" ]; then
+        dunstify "Error getting volume status"
+    elif grep -q 'MUTED' <<< "$status" || [ "$volume" == 0 ]; then
+        icon="--raw_icon=$HOME/scripts/volume/volume_x.png"
+
+    elif [ "$volume" -lt 33 ]; then
+        icon="--raw_icon=$HOME/scripts/volume/volume.png"
+
+    elif [ "$volume" -gt 33 ] && [ "$volume" -lt 66 ]; then
+        icon="--raw_icon=$HOME/scripts/volume/volume_1.png"
+
+    elif [ "$volume" -gt 66 ]; then
+        icon="--raw_icon=$HOME/scripts/volume/volume_2.png"
+    fi
 fi
+
+dunstify "Volume" "$icon" --category='vol' --urgency=low \
+    --timeout=1000 --replace=790 --hints=int:value:"$volume"

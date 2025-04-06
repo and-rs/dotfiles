@@ -7,6 +7,7 @@ prefer-no-csd
 
 environment {
     DISPLAY ":0"
+    WAYLAND "1"
 }
 
 cursor {
@@ -216,13 +217,20 @@ binds {
     Mod+Return { spawn "kitty"; }
     Alt+Space { spawn "bash" "-c" "rofi -show drun"; }
 
-    // Example volume keys mappings for PipeWire & WirePlumber.
-    // The allow-when-locked=true property makes them work even when the session is locked.
-    // XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
-    // XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
-    // XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    // XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86AudioPlay        allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
 
+    XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_up.sh"; }
+    XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_down.sh"; }
+
+    XF86AudioMute    cooldown-ms=200 { spawn "~/scripts/volume/vol_mute.sh"; }
+    XF86AudioMicMute cooldown-ms=200 { spawn "~/scripts/volume/mic_mute.sh"; }
+
+    XF86MonBrightnessUp   { spawn "~/scripts/brightness/scr_brightness_up.sh"; }
+    XF86MonBrightnessDown { spawn "~/scripts/brightness/scr_brightness_down.sh"; }
+    XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
+    XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
