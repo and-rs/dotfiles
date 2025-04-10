@@ -6,7 +6,7 @@ directories=(fd --type d)
 directories+=(--hidden --exclude .git --exclude node_module --exclude .cache --exclude .npm --exclude .mozilla --exclude .meteor --exclude .nv)
 
 # Use the array to execute the fd command and pipe to fzf-tmux for fuzzy finding in a tmux pane
-selected_dir=$("${directories[@]}" | fzf --tmux )
+selected_dir=$("${directories[@]}" | fzf --tmux --border='sharp' --info='right' --prompt='...')
 
 if [ -n "$selected_dir" ]; then
     cd "$selected_dir" || exit
