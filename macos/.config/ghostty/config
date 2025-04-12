@@ -8,7 +8,8 @@ window-padding-x = 2
 window-padding-y = 0
 window-padding-balance = true
 
-adjust-cell-height = 9
+adjust-cell-height = 12
+adjust-cursor-height = 12
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
