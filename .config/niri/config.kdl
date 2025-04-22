@@ -27,14 +27,14 @@ input {
     touchpad {
         tap
         // off
-        // dwt
-        // dwtp
+        dwt
+        dwtp
         // drag false
-        // drag-lock
+        drag-lock
         natural-scroll
         accel-speed 0.1
         accel-profile "flat"
-        scroll-factor 0.2
+        scroll-factor 0.1
         middle-emulation
     }
 
