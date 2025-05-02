@@ -213,10 +213,10 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Mod+Ctrl+H     { focus-column-left; }
-    Mod+Ctrl+J     { focus-window-down; }
-    Mod+Ctrl+K     { focus-window-up; }
-    Mod+Ctrl+L     { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
 
     Mod+Shift+H     { move-column-left; }
     Mod+Shift+J     { move-window-down; }
@@ -293,21 +293,16 @@ binds {
     Mod+Shift+Equal { set-window-height "+10%"; }
 
     // Move the focused window between the floating and the tiling layout.
-    // Mod+V       { toggle-window-floating; }
-    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+G       { toggle-window-floating; }
+    Mod+Shift+G { switch-focus-between-floating-and-tiling; }
 
     // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
     Mod+W { toggle-column-tabbed-display; }
 
-    // Actions to switch layouts.
-    // Note: if you uncomment these, make sure you do NOT have
-    // a matching layout switch hotkey configured in xkb options above.
-    // Having both at once on the same hotkey will break the switching,
-    // since it will switch twice upon pressing the hotkey (once by xkb, once by niri).
-    // Mod+Space       { switch-layout "next"; }
-    // Mod+Shift+Space { switch-layout "prev"; }
+    Mod+O       { switch-layout "next"; }
+    Mod+Shift+O { switch-layout "prev"; }
 
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
