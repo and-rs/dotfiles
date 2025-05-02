@@ -25,7 +25,7 @@
   "modules": [
     {
       "type": "custom",
-      "format": "┌{$1}{$1}{$1}┐"
+      "format": "\u001b[37m┌{$1}{$1}{$1}┐"
     },
     {
       "key": "{$2}{#32}User \u001b[57C{$2}",
@@ -84,12 +84,16 @@
     {
       "key": "{$2}{#33}Stats \u001b[56C{$2}",
       "type": "cpu",
-      "format": "{cores-online} cores @ {freq-max} - {temperature}",
+      "format": "{cores-online} cores @ {freq-max} {temperature}",
       "temp": true
     },
     {
       "key": "{$2}{#33}Storage \u001b[54C{$2}",
       "type": "disk"
+    },
+    {
+      "key": "{$2}{#33}Battery \u001b[54C{$2}",
+      "type": "battery"
     },
     {
       "key": "{$2}{#33}Resolution \u001b[51C{$2}",
@@ -98,12 +102,11 @@
     },
     {
       "type": "custom",
-      "format": "└{$1}{$1}{$1}┘"
+      "format": "\u001b[37m└{$1}{$1}{$1}┘"
     },
     {
       "type": "colors",
-      "symbol": "block",
-      "paddingLeft": 1
+      "symbol": "block"
     }
   ]
 }
