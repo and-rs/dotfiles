@@ -213,27 +213,40 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Alt+Ctrl+H     { focus-column-left; }
-    Alt+Ctrl+J     { focus-window-down; }
-    Alt+Ctrl+K     { focus-window-up; }
-    Alt+Ctrl+L     { focus-column-right; }
+    Mod+Ctrl+H     { focus-column-left; }
+    Mod+Ctrl+J     { focus-window-down; }
+    Mod+Ctrl+K     { focus-window-up; }
+    Mod+Ctrl+L     { focus-column-right; }
 
-    Alt+Shift+H     { move-column-left; }
-    Alt+Shift+J     { move-window-down; }
-    Alt+Shift+K     { move-window-up; }
-    Alt+Shift+L     { move-column-right; }
+    Mod+Shift+H     { move-column-left; }
+    Mod+Shift+J     { move-window-down; }
+    Mod+Shift+K     { move-window-up; }
+    Mod+Shift+L     { move-column-right; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
 
     Mod+Shift+Page_Down { move-workspace-down; }
     Mod+Shift+Page_Up   { move-workspace-up; }
     Mod+Shift+U         { move-workspace-down; }
     Mod+Shift+I         { move-workspace-up; }
 
-    // You can bind mouse wheel scroll ticks using the following syntax.
-    // These binds will change direction based on the natural-scroll setting.
-    //
-    // To avoid scrolling through workspaces really fast, you can use
-    // the cooldown-ms property. The bind will be rate-limited to this value.
-    // You can set a cooldown on any bind, but it's most useful for the wheel.
     Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
 
@@ -242,37 +255,8 @@ binds {
     Mod+Ctrl+WheelScrollRight { move-column-right; }
     Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
-    // Usually scrolling up and down with Shift in applications results in
-    // horizontal scrolling; these binds replicate that.
     Mod+Shift+WheelScrollDown      { focus-column-right; }
     Mod+Shift+WheelScrollUp        { focus-column-left; }
-
-    // You can refer to workspaces by index. However, keep in mind that
-    // niri is a dynamic workspace system, so these commands are kind of
-    // "best effort". Trying to refer to a workspace index bigger than
-    // the current workspace count will instead refer to the bottommost
-    // (empty) workspace.
-    //
-    // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
-    // will all refer to the 3rd workspace.
-    Alt+1 { focus-workspace 1; }
-    Alt+2 { focus-workspace 2; }
-    Alt+3 { focus-workspace 3; }
-    Alt+4 { focus-workspace 4; }
-    Alt+5 { focus-workspace 5; }
-    Alt+6 { focus-workspace 6; }
-    Alt+7 { focus-workspace 7; }
-    Alt+8 { focus-workspace 8; }
-    Alt+9 { focus-workspace 9; }
-    Alt+Shift+1 { move-column-to-workspace 1; }
-    Alt+Shift+2 { move-column-to-workspace 2; }
-    Alt+Shift+3 { move-column-to-workspace 3; }
-    Alt+Shift+4 { move-column-to-workspace 4; }
-    Alt+Shift+5 { move-column-to-workspace 5; }
-    Alt+Shift+6 { move-column-to-workspace 6; }
-    Alt+Shift+7 { move-column-to-workspace 7; }
-    Alt+Shift+8 { move-column-to-workspace 8; }
-    Alt+Shift+9 { move-column-to-workspace 9; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -288,9 +272,6 @@ binds {
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
-
-    Alt+F { maximize-column; }
-    Alt+Shift+F { fullscreen-window; }
 
     // Expand the focused column to space not taken up by other fully visible columns.
     // Makes the column "fill the rest of the space".
