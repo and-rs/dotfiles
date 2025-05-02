@@ -98,7 +98,8 @@ alias config-tmux="$EDITOR ~/.tmux.conf"
 alias u-nixos="sudo nixos-rebuild switch --flake '$BOX/nixos#default'"
 alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $BOX/nix-darwin"
 
-alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config paleofetch"
+alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt"
+alias ffn="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config neofetch"
 # alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
 alias gac="git add . && git commit -m"

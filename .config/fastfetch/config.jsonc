@@ -1,0 +1,109 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "none",
+    "padding": {
+      "left": 0,
+      "right": 0,
+      "top": 0
+    }
+  },
+  "display": {
+    "separator": "",
+    "color": {
+      "separator": "light_black"
+    },
+    "constants": [
+      "─────────────────────",
+      "\u001b[37m│ "
+    ],
+    "key": {
+      "width": 15,
+      "type": "string"
+    }
+  },
+  "modules": [
+    {
+      "type": "custom",
+      "format": "┌{$1}{$1}{$1}┐"
+    },
+    {
+      "key": "{$2}{#32}User \u001b[57C{$2}",
+      "type": "users"
+    },
+    {
+      "key": "{$2}{#32}Machine \u001b[54C{$2}",
+      "type": "host"
+    },
+    {
+      "key": "{$2}{#31}OS \u001b[59C{$2}",
+      "type": "os"
+    },
+    {
+      "key": "{$2}{#31}Kernel \u001b[55C{$2}",
+      "type": "kernel"
+    },
+    {
+      "key": "{$2}{#31}Uptime \u001b[55C{$2}",
+      "type": "uptime"
+    },
+    {
+      "key": "{$2}{#34}WM \u001b[59C{$2}",
+      "type": "wm"
+    },
+    {
+      "key": "{$2}{#34}DE \u001b[59C{$2}",
+      "type": "de"
+    },
+    {
+      "key": "{$2}{#34}Shell \u001b[56C{$2}",
+      "type": "shell"
+    },
+    {
+      "key": "{$2}{#34}Term Font \u001b[52C{$2}",
+      "type": "terminalfont"
+    },
+    {
+      "key": "{$2}{#34}Local IP \u001b[53C{$2}",
+      "type": "localip",
+      "compact": true
+    },
+    {
+      "key": "{$2}{#33}RAM \u001b[58C{$2}",
+      "type": "memory"
+    },
+    {
+      "key": "{$2}{#33}GPU \u001b[58C{$2}",
+      "type": "gpu"
+    },
+    {
+      "key": "{$2}{#33}CPU \u001b[58C{$2}",
+      "type": "cpu",
+      "format": "{name}"
+    },
+    {
+      "key": "{$2}{#33}Stats \u001b[56C{$2}",
+      "type": "cpu",
+      "format": "{cores-online} cores @ {freq-max} - {temperature}",
+      "temp": true
+    },
+    {
+      "key": "{$2}{#33}Storage \u001b[54C{$2}",
+      "type": "disk"
+    },
+    {
+      "key": "{$2}{#33}Resolution \u001b[51C{$2}",
+      "type": "display",
+      "compactType": "original-with-refresh-rate"
+    },
+    {
+      "type": "custom",
+      "format": "└{$1}{$1}{$1}┘"
+    },
+    {
+      "type": "colors",
+      "symbol": "block",
+      "paddingLeft": 1
+    }
+  ]
+}
