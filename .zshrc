@@ -72,7 +72,8 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --color=hl:4,hl+:4,info:4,marker:4
   --color=prompt:4,spinner:4,pointer:4,header:4
   --color=border:4,query:7
-  --marker=":" --pointer="»"'
+  --marker=":" --pointer="»"
+  --multi --bind="ctrl-y:toggle+down"'
 
 export MANPAGER='nvim +Man!'
 
