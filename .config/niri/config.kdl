@@ -62,6 +62,7 @@ layout {
         off
     }
 
+    default-column-width { proportion 0.5; }
     center-focused-column "never"
     preset-column-widths {
         proportion 0.5
@@ -70,29 +71,25 @@ layout {
 
     }
 
-    default-column-width { proportion 0.5; }
-    // If you leave the brackets empty, the windows themselves will decide their initial width.
-    // default-column-width {}
-
     focus-ring {
         off
     }
 
     border {
-        width 1
-        active-gradient from="#000000" to="#808080" angle=180 relative-to="workspace-view"
-        inactive-gradient from="#000000" to="#101010" angle=100 relative-to="workspace-view"
+        width 2
+        inactive-color "#1a1b26"
+        active-gradient from="#1a1b26" to="#7AA2F7" angle=180 relative-to="workspace-view"
+        // inactive-gradient from="#000000" to="#101010" angle=100 relative-to="workspace-view"
     }
 
-    shadow {
-        on
-        // draw-behind-window true
-
-        softness 10
-        spread 0
-        offset x=0 y=4
-        color "#404040"
-    }
+    // shadow {
+    //     on
+    //     spread 0
+    //     softness 2
+    //     offset x=0 y=2
+    //     color "#7AA2F7"
+    //     draw-behind-window true
+    // }
 }
 
 window-rule {
@@ -121,7 +118,6 @@ binds {
 
     XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_up.sh"; }
     XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_down.sh"; }
-    // XF86AudioLowerVolume repeat=false allow-when-locked=true { spawn "sh" "-c" "mpv $HOME/scripts/volume/vol_sound.wav"; }
 
     XF86AudioMute    cooldown-ms=200 { spawn "~/scripts/volume/vol_mute.sh"; }
     XF86AudioMicMute cooldown-ms=200 { spawn "~/scripts/volume/mic_mute.sh"; }
@@ -173,9 +169,8 @@ binds {
     Alt+Shift+U         { move-workspace-down; }
     Alt+Shift+I         { move-workspace-up; }
 
-    Alt+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Alt+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-
+    Alt+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
+    Alt+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
     Alt+WheelScrollRight      { focus-column-right; }
     Alt+WheelScrollLeft       { focus-column-left; }
     Alt+Ctrl+WheelScrollRight { move-column-right; }
@@ -198,9 +193,9 @@ binds {
     Alt+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
     Alt+Shift+P { power-off-monitors; }
 
-    Alt+Print   { screenshot-window; }
-    Ctrl+Print  { screenshot-screen; }
-    Print       { screenshot; }
+    // Alt+Print   { screenshot-window; }
+    // Ctrl+Print  { screenshot-screen; }
+    Alt+U          { screenshot; }
 }
 
 animations {

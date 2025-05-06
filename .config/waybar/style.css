@@ -5,11 +5,11 @@
 }
 
 window {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(7, 9, 13, 0.99);
   transition-property: background-color;
   transition-duration: 0.5s;
 
-  /* border: 2px solid #707070; */
+  border: 2px solid #1a1b26;
   border-radius: 8px;
 }
 
@@ -23,10 +23,7 @@ tooltip label {
   margin: 5px;
 }
 
-#window {
-  margin: 0 0 0 8;
-}
-
+#window,
 #backlight,
 #pulseaudio,
 #tray,
@@ -34,8 +31,8 @@ tooltip label {
 #memory,
 #disk,
 #battery {
-  margin: 0 0 0 0;
-  padding: 0 6 0 4;
+  margin: 0px 0px 0px 0px;
+  padding: 0px 6px 0px 8px;
   color: white;
 }
 
@@ -49,20 +46,21 @@ tooltip label {
 #scratchpad,
 #systray,
 #mpd {
-  margin: 0 0 0 0;
-  padding: 0 3 0 3;
+  margin: 0px 0px 0px 0px;
+  padding: 0px 3px 0px 3px;
   color: white;
 }
 
 @keyframes blink-workspace {
   to {
-    color: rgba(255, 255, 255, 0.7);
+    color: #1a1b26;
     font-weight: 800;
   }
 }
 
 #workspaces {
   color: rgba(255, 255, 255, 1);
+  font-weight: 600;
 }
 
 #workspaces button {
@@ -71,60 +69,45 @@ tooltip label {
   min-height: 16px;
   min-width: 16px;
 
-  border: solid #707070 2px;
-  border-radius: 4px;
+  background: #252941;
+  color: #e9eaef;
 
-  padding: 0 1 0 1;
-  margin: 6 0 6 6;
-  color: #101010;
-  background-color: #707070;
+  border: 2px;
+  border-style: solid;
+  border-color: #252941;
+
+  border-radius: 4px;
+  padding: 0px 1px 0px 1px;
+  margin: 6px 0px 6px 6px;
 }
 
 #workspaces button.active {
-  animation-duration: 0.1s;
-  animation-timing-function: steps(12);
+  background: linear-gradient(0deg, #3c4268 0%, #252941 120%);
+  border-color: #3c4268;
+  padding: 0px 16px 0px 16px;
+}
 
-  color: #101010;
-  background-color: #989898;
-  border: solid #989898 2px;
-
-  padding: 0 16 0 16;
+#workspaces button.empty {
+  background: #1a1b26;
+  border-color: #1a1b26;
+  color: #abaec4;
 }
 
 #workspaces button.urgent {
-  animation-duration: 0.5s;
-  animation-timing-function: steps(12);
+  color: #9ece6a;
 
-  color: #606060;
-  font-weight: 800;
   animation-name: blink-workspace;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
 
-#workspaces button.empty {
-  animation-duration: 0.5s;
-  animation-iteration-count: 4;
-  animation-direction: alternate;
-  animation-name: blink-workspace;
-  animation-timing-function: steps(12);
-
-  color: #606060;
-  background-color: #202020;
-  border: solid #606060 2px;
-}
-
-#workspaces button.occupied {
-  background-color: #202020;
-}
-
 #pulseaudio.muted {
-  color: rgba(220, 50, 47, 1);
+  color: #f7768e;
 }
 
 #battery.charging,
 #battery.plugged {
-  color: rgba(137, 206, 0, 1);
+  color: #9ece6a;
 }
 
 @keyframes blink-battery {
@@ -140,7 +123,7 @@ tooltip label {
   animation-iteration-count: infinite;
   animation-timing-function: steps(12);
 
-  color: rgba(255, 193, 0, 1);
+  color: #e0af68;
 }
 
 #battery.critical:not(.charging) {
@@ -149,7 +132,7 @@ tooltip label {
   animation-iteration-count: infinite;
   animation-timing-function: steps(12);
 
-  color: rgba(245, 60, 60, 1);
+  color: #f7768e;
   animation-name: blink-battery;
 }
 
@@ -159,12 +142,5 @@ tooltip label {
 
 #tray > .needs-attention {
   -gtk-icon-effect: highlight;
-  background-color: rgba(235, 77, 75, 1);
-}
-
-#custom-power {
-  color: rgba(255, 255, 255, 1);
-  border: 0.19em solid rgba(246, 82, 79, 1);
-  background-color: rgba(0, 43, 54, 0.7);
-  color: rgba(245, 60, 60, 1);
+  background-color: #f7768e;
 }
