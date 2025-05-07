@@ -78,7 +78,7 @@ layout {
     border {
         width 2
         inactive-color "#1a1b26"
-        active-gradient from="#1a1b26" to="#7AA2F7" angle=180 relative-to="workspace-view"
+        active-gradient from="#1a1b26" to="#3c4268" angle=180 relative-to="workspace-view"
         // inactive-gradient from="#000000" to="#101010" angle=100 relative-to="workspace-view"
     }
 
