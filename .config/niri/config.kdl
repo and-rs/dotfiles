@@ -32,10 +32,8 @@ input {
 
     touchpad {
         tap
-        // off
         dwt
         dwtp
-        // drag false
         drag-lock
         natural-scroll
         accel-speed 0.1
@@ -46,10 +44,17 @@ input {
 
     mouse {
         accel-profile "flat"
-        // natural-scroll
-        // accel-speed 0.2
-        // scroll-method "no-scroll"
     }
+}
+
+window-rule {
+    match at-startup=true app-id=r#"kitty"#
+    open-on-workspace "1"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"zen-beta"#
+    open-on-workspace "2"
 }
 
 output "eDP-1" {
@@ -78,7 +83,7 @@ layout {
     border {
         width 2
         inactive-color "#1a1b26"
-        active-gradient from="#1a1b26" to="#3c4268" angle=180 relative-to="workspace-view"
+        active-gradient from="#1a1b26" to="#525b8e" angle=180 relative-to="workspace-view"
         // inactive-gradient from="#000000" to="#101010" angle=100 relative-to="workspace-view"
     }
 
@@ -116,11 +121,10 @@ binds {
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
 
+    XF86AudioMute        cooldown-ms=200 { spawn "~/scripts/volume/vol_mute.sh"; }
+    XF86AudioMicMute     cooldown-ms=200 { spawn "~/scripts/volume/mic_mute.sh"; }
     XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_up.sh"; }
     XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_down.sh"; }
-
-    XF86AudioMute    cooldown-ms=200 { spawn "~/scripts/volume/vol_mute.sh"; }
-    XF86AudioMicMute cooldown-ms=200 { spawn "~/scripts/volume/mic_mute.sh"; }
 
     XF86MonBrightnessUp   { spawn "~/scripts/brightness/scr_brightness_up.sh"; }
     XF86MonBrightnessDown { spawn "~/scripts/brightness/scr_brightness_down.sh"; }

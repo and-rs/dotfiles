@@ -4,7 +4,7 @@ origin = top-right
 
 width = (300, 400)
 height = (0, 400)
-offset = (8, 8) 
+offset = (17, 14) 
 
 progress_bar = true
 progress_bar_height = 8
@@ -15,11 +15,11 @@ min_icon_size = 42
 max_icon_size = 42
 icon_corner_radius = 6
 
-frame_width = 1
+frame_width = 2
 corner_radius = 6
-frame_color = "#c2c2c2"
+frame_color = "#34395B"
 separator_color = frame
 
-background = "#101010"
-foreground = "#ffffff"
-highlight = "#ffffff"
+background = "#07090D"
+foreground = "#979EC4"
+highlight = "#979EC4"

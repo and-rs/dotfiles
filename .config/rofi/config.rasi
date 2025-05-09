@@ -1,14 +1,14 @@
 configuration{
-    modi: "run,drun,window";
+    modi: "drun,run,window";
     show-icons: false;
     terminal: "alacritty";
     drun-display-format: "{name}";
     location: 0;
     disable-history: false;
-    hide-scrollbar: true;
+    hide-scrollbar: false;
     display-drun: "Apps";
-    display-run: "Run";
-    display-window: "Window";
+    display-run: "Command";
+    display-window: "Windows";
     display-Network: "Network";
     sidebar-mode: true;
 }

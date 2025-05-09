@@ -1,16 +1,13 @@
 * {
-    bg-col:  #202020;
-    bg-col-light: #303030;
-    border-col: #404040;
-    selected-col: #808080;
-    white: #ffffff;
-    black: #000000;
-    fg-col: #606060;
-    fg-col2: #ffffff;
-    grey: #909090;
+    color0: #07090D;
+    color1: #161927;
+    color2: #252941;
+    color3: #34395B;
+    color4: #434A75;
+    text:   #979EC4;
 
+    font: "Input Mono 11";
     width: 500;
-    font: "Input Mono 12";
 }
 
 element-text, element-icon {
@@ -19,42 +16,38 @@ element-text, element-icon {
 }
 
 window {
-    height: 238px;
-    border: 1px;
+    background-color: @color0;
+    height: 260px;
+
+    border: 2px;
     border-radius: 6px;
-    border-color: @border-col;
-    background-color: @bg-col;
+    border-color: @color3;
 }
 
 mainbox {
-    background-color: @bg-col;
+    background-color: @color0;
 }
 
 inputbar {
     children: [prompt,entry];
-    background-color: @bg-col;
+    background-color: @color0;
     border-radius: 6px;
     padding: 1px;
 }
 
 prompt {
-    background-color: @white;
-    text-color: @black;
+    background-color: @text;
+    text-color: @color0;
     padding: 6px;
     border-radius: 6px;
     margin: 10px 0px 0px 10px;
 }
 
-textbox-prompt-colon {
-    expand: false;
-    str: ":";
-}
-
 entry {
-    padding: 6px;
+    padding: 6px 6px 6px 0px;
     margin: 10px 0px 0px 10px;
-    text-color: @white;
-    background-color: @bg-col;
+    text-color: @text;
+    background-color: @color0;
 }
 
 listview {
@@ -63,13 +56,13 @@ listview {
     margin: 10px 10px 0px 10px;
     columns: 1;
     lines: 4;
-    background-color: @bg-col;
+    background-color: @color0;
 }
 
 element {
     padding: 6px;
-    background-color: @bg-col;
-    text-color: @fg-col  ;
+    background-color: @color0;
+    text-color: @text;
 }
 
 element-icon {
@@ -78,40 +71,46 @@ element-icon {
 
 element selected {
     border-radius: 6px;
-    background-color:  @white;
-    text-color: @black;
+    background-color:  @text;
+    text-color: @color0;
 }
 
 mode-switcher {
     spacing: 0;
-    border: 1px 0px 0px 0px;
-    border-color: @bg-col-light;
+    border: 2px 0px 0px 0px;
+    border-color: @color2;
+    background-color: @color0;
 }
 
 button {
     padding: 6px;
-    background-color: @bg-col-light;
-    text-color: @grey;
+    margin: 6px;
+
+    background-color: @color0;
+    text-color: @text;
+
+    border-radius: 4px;
     vertical-align: 0.5; 
     horizontal-align: 0.5;
 }
 
 button selected {
-    background-color: @bg-col;
-    text-color: @white;
+    background-color: @color2;
+    text-color: @text;
 }
 
 message {
-    background-color: @bg-col-light;
     margin: 2px;
     padding: 2px;
+
+    background-color: @color1;
     border-radius: 6px;
 }
 
 textbox {
     padding: 6px;
     margin: 10px 0px 0px 10px;
-    text-color: @white;
-    background-color: @bg-col-light;
-    border-color: @fg-col2;
+    text-color: @text;
+    background-color: @color1;
+    border-color: @text;
 }

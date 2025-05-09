@@ -1,5 +1,5 @@
 * {
-  font-family: "Input Mono";
+  font-family: "IBM Plex Mono";
   font-size: 12.5px;
   font-weight: 500;
 }
@@ -69,12 +69,12 @@ tooltip label {
   min-height: 16px;
   min-width: 16px;
 
-  background: #252941;
+  background: #2d324e;
   color: #e9eaef;
 
   border: 2px;
   border-style: solid;
-  border-color: #252941;
+  border-color: #2d324e;
 
   border-radius: 4px;
   padding: 0px 1px 0px 1px;
@@ -82,23 +82,22 @@ tooltip label {
 }
 
 #workspaces button.active {
-  background: linear-gradient(0deg, #3c4268 0%, #252941 120%);
-  border-color: #3c4268;
+  background: linear-gradient(0deg, #4a5382 0%, #252941 120%);
+  border-color: #525b8e;
   padding: 0px 16px 0px 16px;
 }
 
 #workspaces button.empty {
+  color: #abaec4;
   background: #1a1b26;
   border-color: #1a1b26;
-  color: #abaec4;
 }
 
 #workspaces button.urgent {
   color: #9ece6a;
-
+  animation-direction: alternate;
   animation-name: blink-workspace;
   animation-iteration-count: infinite;
-  animation-direction: alternate;
 }
 
 #pulseaudio.muted {
@@ -112,28 +111,26 @@ tooltip label {
 
 @keyframes blink-battery {
   to {
-    color: rgba(255, 255, 255, 1);
+    color: #1a1b26;
   }
 }
 
 #battery.warning:not(.charging) {
-  animation-duration: 0.5s;
-  animation-name: blink-battery;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-timing-function: steps(12);
-
   color: #e0af68;
+  animation-name: blink-battery;
+  animation-timing-function: steps(12);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
 }
 
 #battery.critical:not(.charging) {
-  animation-duration: 0.5s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-timing-function: steps(12);
-
   color: #f7768e;
   animation-name: blink-battery;
+  animation-timing-function: steps(12);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-duration: 0.5s;
 }
 
 #tray > .passive {
