@@ -133,7 +133,7 @@ binds {
 
     Alt+Q { close-window; }
     Alt+Return { spawn "kitty"; }
-    Alt+Space { spawn "bash" "-c" "rofi -show drun"; }
+    Alt+Space { spawn "~/.config/rofi/launch-rofi.sh"; }
     Alt+Shift+Slash { show-hotkey-overlay; }
 
     Alt+G           { toggle-window-floating; }

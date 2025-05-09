@@ -1,13 +1,14 @@
 * {
     color0: #07090D;
-    color1: #161927;
+    color1: #0F111A;
     color2: #252941;
     color3: #34395B;
     color4: #434A75;
     text:   #979EC4;
 
     font: "Input Mono 11";
-    width: 500;
+    width: 500px;
+    height: 302px;
 }
 
 element-text, element-icon {
@@ -16,21 +17,18 @@ element-text, element-icon {
 }
 
 window {
-    background-color: @color0;
-    height: 260px;
-
     border: 2px;
     border-radius: 6px;
     border-color: @color3;
 }
 
 mainbox {
-    background-color: @color0;
+    background-color: @color1;
 }
 
 inputbar {
     children: [prompt,entry];
-    background-color: @color0;
+    background-color: transparent;
     border-radius: 6px;
     padding: 1px;
 }
@@ -47,26 +45,22 @@ entry {
     padding: 6px 6px 6px 0px;
     margin: 10px 0px 0px 10px;
     text-color: @text;
-    background-color: @color0;
+    background-color: transparent;
 }
 
 listview {
-    border: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
-    margin: 10px 10px 0px 10px;
+    lines: 6;
     columns: 1;
-    lines: 4;
-    background-color: @color0;
+    margin: 10px 10px 9px 10px ;
+    border: 0px 0px 1px 0px;
+    border-color: @color2;
+    background-color: transparent;
 }
 
 element {
     padding: 6px;
-    background-color: @color0;
+    background-color: transparent;
     text-color: @text;
-}
-
-element-icon {
-    size: 25px;
 }
 
 element selected {
@@ -76,17 +70,14 @@ element selected {
 }
 
 mode-switcher {
-    spacing: 0;
-    border: 2px 0px 0px 0px;
-    border-color: @color2;
-    background-color: @color0;
+    background-color: transparent;
 }
 
 button {
     padding: 6px;
-    margin: 6px;
+    margin: 0px 10px 10px 10px;
 
-    background-color: @color0;
+    background-color: transparent;
     text-color: @text;
 
     border-radius: 4px;
@@ -100,17 +91,15 @@ button selected {
 }
 
 message {
-    margin: 2px;
-    padding: 2px;
-
-    background-color: @color1;
-    border-radius: 6px;
+    background-color: transparent;
+    margin: 10px 10px 0 10px;
+    padding: 6px;
+    border: 1px;
+    border-radius: 4px;
+    border-color: @color3;
 }
 
 textbox {
-    padding: 6px;
-    margin: 10px 0px 0px 10px;
     text-color: @text;
-    background-color: @color1;
-    border-color: @text;
+    background-color: transparent;
 }

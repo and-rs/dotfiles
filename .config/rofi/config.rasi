@@ -1,15 +1,13 @@
-configuration{
-    modi: "drun,run,window";
-    show-icons: false;
-    terminal: "alacritty";
-    drun-display-format: "{name}";
+configuration {
     location: 0;
-    disable-history: false;
-    hide-scrollbar: false;
+    show-icons: false;
+    terminal: "kitty";
+
+    drun-display-format: "{name}";
+    display-calc: "Calc";
     display-drun: "Apps";
     display-run: "Command";
     display-window: "Windows";
-    display-Network: "Network";
     sidebar-mode: true;
 }
 
