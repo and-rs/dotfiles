@@ -9,7 +9,7 @@ directories+=(--hidden --exclude .git --exclude node_module --exclude .cache --e
 directories+=(--exact-depth 2)
 
 # Use the array to execute the fd command and pipe to fzf-tmux for fuzzy finding in a tmux pane
-selected_dir=$("${directories[@]}" | fzf --tmux='center,40%' --border='sharp' --info='right' --prompt='...')
+selected_dir=$("${directories[@]}" | fzf --tmux='center,40%' --border='sharp' --info='right' --prompt='')
 
 if [ -n "$selected_dir" ]; then
     cd "$selected_dir" || exit
