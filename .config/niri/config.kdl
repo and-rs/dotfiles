@@ -157,8 +157,8 @@ binds {
 
     Alt+Shift+Page_Down { move-workspace-down; }
     Alt+Shift+Page_Up   { move-workspace-up; }
-    Alt+Shift+U         { move-workspace-down; }
-    Alt+Shift+I         { move-workspace-up; }
+    Alt+Ctrl+K          { move-workspace-down; }
+    Alt+Ctrl+J          { move-workspace-up; }
 
     Alt+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
     Alt+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
@@ -185,8 +185,7 @@ binds {
     Alt+Shift+P { power-off-monitors; }
 
     Alt+U          { screenshot; }
-    // Alt+Print   { screenshot-window; }
-    // Ctrl+Print  { screenshot-screen; }
+    Alt+Shift+U    { screenshot-window; }
 }
 
 animations {
