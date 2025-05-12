@@ -61,7 +61,7 @@ layout {
     default-column-width { proportion 0.5; }
     center-focused-column "never"
     preset-column-widths {
-        proportion 0.49
+        proportion 0.49999
         proportion 0.8
         proportion 1.0
 
