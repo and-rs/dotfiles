@@ -2,7 +2,7 @@
 
 icon=""
 
-if ! wpctl set-volume @DEFAULT_SINK@ 0.1-; then
+if ! wpctl set-volume @DEFAULT_SINK@ 0.05-; then
     dunstify "Error lowering volume"
 else
     status=$(wpctl get-volume @DEFAULT_SINK@)

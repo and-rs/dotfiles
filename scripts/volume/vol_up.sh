@@ -4,7 +4,7 @@ icon=""
 
 # if we use wpctl here it won't stop at 100
 # kinda lame solution but whatever
-if ! amixer set Master -q 10%+ ; then
+if ! amixer set Master -q 5%+ ; then
     dunstify "Error lowering volume"
 else
     status=$(wpctl get-volume @DEFAULT_SINK@)
