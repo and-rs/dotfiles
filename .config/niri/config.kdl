@@ -158,8 +158,8 @@ binds {
 
     Alt+Shift+Page_Down { move-workspace-down; }
     Alt+Shift+Page_Up   { move-workspace-up; }
-    Alt+Ctrl+K          { move-workspace-down; }
-    Alt+Ctrl+J          { move-workspace-up; }
+    // Alt+Ctrl+K          { move-workspace-down; }
+    // Alt+Ctrl+J          { move-workspace-up; }
 
     Alt+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
     Alt+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
