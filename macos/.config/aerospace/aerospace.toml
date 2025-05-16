@@ -53,10 +53,10 @@ automatically-unhide-macos-hidden-apps = true
     cmd-slash = 'layout tiles horizontal'
     cmd-comma = 'layout accordion horizontal'
 
-    cmd-ctrl-h = 'focus left'
-    cmd-ctrl-j = 'focus down'
-    cmd-ctrl-k = 'focus up'
-    cmd-ctrl-l = 'focus right'
+    alt-h = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-l = 'focus right'
 
     cmd-shift-h = 'move left'
     cmd-shift-j = 'move down'

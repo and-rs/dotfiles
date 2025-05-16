@@ -134,10 +134,10 @@ binds {
     Alt+Ctrl+S  { reset-window-height; }
     Alt+Shift+S { switch-preset-window-height; }
 
-    Alt+Ctrl+H { focus-column-left; }
-    Alt+Ctrl+J { focus-window-down; }
-    Alt+Ctrl+K { focus-window-up; }
-    Alt+Ctrl+L { focus-column-right; }
+    Mod+H { focus-column-left; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+L { focus-column-right; }
 
     Alt+Shift+H { move-column-left; }
     Alt+Shift+J { move-window-down; }
