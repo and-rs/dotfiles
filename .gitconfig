@@ -27,3 +27,7 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/run/current-system/sw/bin/gh auth git-credential
+
+[credential "https://gitlab.com"]
+	helper = 
+	helper = !/nix/store/xvhvrc8g21vmh903ds7a6smdzxkf7c8n-glab-1.56.0/bin/glab auth git-credential
