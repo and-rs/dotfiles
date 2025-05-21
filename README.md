@@ -29,7 +29,7 @@ stow -t "$HOME" -S macos
 ```
 
 ## Considerations
-- `./utils/` and `./xorg/`:
+- `./utils/`, `./prompts/` and `./xorg/`:
     - These are NOT packages to stow, there is no point in linking them and stow will ignore them
 
 - ```./macos```:
