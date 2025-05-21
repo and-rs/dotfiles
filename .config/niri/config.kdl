@@ -80,7 +80,6 @@ layout {
     }
 
     shadow {
-        on
         spread 0
         softness 8
         offset x=0 y=2
@@ -186,6 +185,7 @@ binds {
     Alt+Shift+P { power-off-monitors; }
 
     Alt+U          { screenshot; }
+    Alt+Ctrl+U     { screenshot-screen; }
     Alt+Shift+U    { screenshot-window; }
 }
 
