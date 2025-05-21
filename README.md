@@ -1,5 +1,6 @@
 # dotfiles
-![image](https://github.com/JuanBaut/dotfiles/assets/90160941/a776fc3f-8a46-448d-abe7-8f7c13b8bc72)
+
+![Screenshot from 2025-05-20 19-13-41](https://github.com/user-attachments/assets/1c75107a-f37b-40f9-912b-4950e7329c74)
 
 ## For reference other important repos:
 - [neovim](https://github.com/and-rs/nvim)
