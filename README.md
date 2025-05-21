@@ -29,7 +29,7 @@ stow -t "$HOME" -S macos
 ```
 
 ## Considerations
-- `./scripts/`, `./utils/`, `./wallpapers/` and `./xorg/`:
+- `./utils/` and `./xorg/`:
     - These are NOT packages to stow, there is no point in linking them and stow will ignore them
 
 - ```./macos```:
@@ -40,14 +40,7 @@ stow -t "$HOME" -S macos
     stow, make changes to one (for example) `.zshrc` and have the changes shared
     across nixos and macos.
 
-- ```./tower/```
-    - Dotfiles for a NixOS setup that I use on a desktop sometimes
-    - Not usable yet
-
 - ```./xorg```:
     - X11 files that I might use if I go back to i3 in a hidpi laptop.
-
-- ```./.local/share/icons/macOS```:
-    - It is a custom hyprland cursor.
 
 - My dependencies are managed by nixos and nix-darwin.
