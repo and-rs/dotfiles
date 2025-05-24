@@ -1,10 +1,13 @@
-theme = "github_dark"
+theme = "tokyonight_storm"
 
 [editor]
+gutters = ["diff", "diagnostics", "line-numbers", "spacer"]
 popup-border = "all"
+auto-format = true
+auto-pairs = false
 undercurl = true
 scrolloff = 999
-auto-format = true
+mouse = false
 
 [editor.cursor-shape]
 insert = "bar"
@@ -14,5 +17,27 @@ select = "underline"
 [editor.file-picker]
 hidden = false
 
+[editor.lsp]
+snippets = true
+
+[editor.whitespace.render]
+space = "all"
+tab = "all"
+nbsp = "none"
+nnbsp = "none"
+newline = "none"
+
+[editor.whitespace.characters]
+tab = "→"
+nbsp = "⍽"
+space = " "
+nnbsp = "␣"
+tabpad = "·"
+newline = "⏎"
+
+[keys.normal]
+L = "goto_line_end"
+H = "goto_line_start"
+
 [keys.insert]
-C-space = "completion"
+C-t = "completion"

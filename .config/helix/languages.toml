@@ -2,13 +2,9 @@
 command = "tailwindcss-language-server"
 args = ["--stdio"]
 
-[language-server.emmet-ls]
-args = ["--stdio"]
-command="emmet-ls"
-
 [[language]]
 name = "html"
-language-servers = [ "emmet-ls", "vscode-html-language-server", "tailwindcss-ls" ]
+language-servers = [ "vscode-html-language-server", "tailwindcss-ls" ]
 
 [[language]]
 name = "css"
@@ -16,12 +12,8 @@ language-servers = [ "vscode-css-language-server", "tailwindcss-ls" ]
 
 [[language]]
 name = "jsx"
-language-servers = [ "emmet-ls", "typescript-language-server", "tailwindcss-ls" ]
+language-servers = [ "typescript-language-server", "tailwindcss-ls" ]
 
 [[language]]
 name = "tsx"
-language-servers = [ "emmet-ls", "typescript-language-server", "tailwindcss-ls" ]
-
-[[language]]
-name = "svelte"
-language-servers = [ "svelteserver", "tailwindcss-ls" ]
+language-servers = [ "typescript-language-server", "tailwindcss-ls" ]
