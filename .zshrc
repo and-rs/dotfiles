@@ -103,11 +103,7 @@ alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config neofetch"
 # alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
-alias gac="git add . && git commit -m"
-alias ga="git add"
-alias gp="git push"
-alias gc="git commit"
-alias gs="git status"
+source $HOME/.git.zsh
 
 # History options
 HISTSIZE=7000

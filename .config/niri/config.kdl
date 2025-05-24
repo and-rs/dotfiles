@@ -88,6 +88,11 @@ layout {
     }
 }
 
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
+
 window-rule {
     open-maximized true
 }
@@ -157,8 +162,8 @@ binds {
 
     Alt+Shift+Page_Down { move-workspace-down; }
     Alt+Shift+Page_Up   { move-workspace-up; }
-    // Alt+Ctrl+K          { move-workspace-down; }
-    // Alt+Ctrl+J          { move-workspace-up; }
+    Alt+Ctrl+Equal      { move-workspace-down; }
+    Alt+Ctrl+Minus      { move-workspace-up; }
 
     Alt+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
     Alt+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
@@ -191,4 +196,7 @@ binds {
 
 animations {
     slowdown 0.8
+    workspace-switch {
+        off
+    }
 }
