@@ -69,7 +69,7 @@ fi
 
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --color=fg:7,fg+:2,bg:-1,bg+:-1
-  --color=hl:4,hl+:4,info:4,marker:2
+  --color=hl:5,hl+:5,info:4,marker:2
   --color=prompt:4,spinner:4,pointer:2,header:4
   --color=border:4,query:7
   --marker=":" --pointer="»"
