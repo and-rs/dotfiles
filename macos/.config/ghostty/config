@@ -1,4 +1,5 @@
 quit-after-last-window-closed = true
+macos-non-native-fullscreen = true
 macos-titlebar-style = hidden
 macos-option-as-alt = true
 
@@ -17,22 +18,23 @@ font-size = 14
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = Input Mono
-# font-family = CommitMonoFucker
+# font-family = Input Mono
+font-family = CommitMonoFucker
 # font-family = Iosevka Custom
 
 font-family = Symbols Nerd Font Mono
 
-background = #07090D
+foreground = #a9b1d6
+background = #1a1b26
 
-palette = 0=#1a1b26
-palette = 8=#636da6
+palette = 0=#5E6897
+palette = 8=#5E6897
 
 palette = 1=#f7768e
 palette = 9=#f7768e
 
-palette = 2=#9ece6a
-palette = 10=#9ece6a
+palette = 2=#73daca
+palette = 10=#73daca
 
 palette = 3=#e0af68
 palette = 11=#e0af68
@@ -43,8 +45,8 @@ palette = 12=#7aa2f7
 palette = 5=#bb9af7
 palette = 13=#bb9af7
 
-palette = 6=#4abaaf
-palette = 14=#4abaaf
+palette = 6=#7dcfff
+palette = 14=#7dcfff
 
-palette = 7=#a9b1d6
+palette = 7=#c0caf5
 palette = 15=#c0caf5
