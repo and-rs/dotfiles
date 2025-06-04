@@ -1,11 +1,4 @@
-# ultimate-pragmatic-chad zsh propmt
-
-# Temporarily change options.
-'builtin' 'local' '-a' 'p10k_config_opts'
-[[ ! -o 'aliases'         ]] || p10k_config_opts+=('aliases')
-[[ ! -o 'sh_glob'         ]] || p10k_config_opts+=('sh_glob')
-[[ ! -o 'no_brace_expand' ]] || p10k_config_opts+=('no_brace_expand')
-'builtin' 'setopt' 'no_aliases' 'no_sh_glob' 'brace_expand'
+# ultimate-pragmatic-chad zsh proompt
 
 () {
   emulate -L zsh -o extended_glob
@@ -17,17 +10,19 @@
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
-  ############# general configs
-  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
-    context
-    dir                     
-    vcs                     
-    command_execution_time  
-    newline                 # add newline
-    direnv                  
-    virtualenv              
-    prompt_char             
+  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=( context
+    dir
+    vcs
+    command_execution_time
+    newline
+    direnv
+    virtualenv
+    prompt_char
   )
+
+  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=always
+  typeset -g POWERLEVEL9K_INSTANT_PROMPT=verbose
+  typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
 
   # Empty right side for cleanliness
   # I don't want it trying to resize itself when moving tmux panes
@@ -56,35 +51,10 @@
   # Filler between left and right prompt on the first prompt line.
   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_GAP_CHAR=
 
-  # Transient prompt works similarly to the builtin transient_rprompt option. It trims down prompt
-  # when accepting a command line. Supported values:
-  #
-  #   - off:      Don't change prompt when accepting a command line.
-  #   - always:   Trim down prompt when accepting a command line.
-  #   - same-dir: Trim down prompt when accepting a command line unless this is the first command
-  #               typed after changing current working directory.
-  typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=always
-
-  # Instant prompt mode.
-  #
-  #   - off:     Disable instant prompt. Choose this if you've tried instant prompt and found
-  #              it incompatible with your zsh configuration files.
-  #   - quiet:   Enable instant prompt and don't print warnings when detecting console output
-  #              during zsh initialization. Choose this if you've read and understood
-  #              https://github.com/romkatv/powerlevel10k#instant-prompt.
-  #   - verbose: Enable instant prompt and print a warning when detecting console output during
-  #              zsh initialization. Choose this if you've never tried instant prompt, haven't
-  #              seen the warning, or if you are unsure what this all means.
-  typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-
-  # No hot reload
-  typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
-  ############# general configs
-
-  ############# direnv 
+  ############## direnv 
   typeset -g POWERLEVEL9K_DIRENV_FOREGROUND=8
   typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION=' direnv'
-  ############# direnv 
+  ############## direnv 
 
   ############# prompt_char 
   typeset -g POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX='%8F╭─'
@@ -111,7 +81,6 @@
   ############# prompt_char 
 
   ############# dir 
-  # Default current directory color.
   typeset -g POWERLEVEL9K_DIR_FOREGROUND=4
   typeset -g POWERLEVEL9K_DIR_PREFIX=' '
   typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_middle
@@ -120,14 +89,10 @@
   ############# dir 
 
   ############# vcs 
+  # https://github.com/romkatv/gitstatus/blob/master/gitstatus.plugin.zsh.
   # Formatter for Git status.
   
   # Example output: master wip ↓1 ↑1 !1 *1 merge ~1 +1 !1 ?1.
-  #
-  # You can edit the function to customize how Git status looks.
-  #
-  # VCS_STATUS_* parameters are set by gitstatus plugin. See reference:
-  # https://github.com/romkatv/gitstatus/blob/master/gitstatus.plugin.zsh.
   function my_git_formatter() {
     emulate -L zsh
 
@@ -363,7 +328,6 @@
   ############# context
 
   ############# virtualenv
-  # Python virtual environment color.
   typeset -g POWERLEVEL9K_VIRTUALENV_FOREGROUND=6
   # Don't show Python version next to the virtual environment name.
   typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=false

@@ -1,2 +1,11 @@
 app.log
 .DS_Store
+
+fast-syntax-highlighting
+zsh-autosuggestions
+powerlevel10k
+zsh-defer
+fzf-tab
+
+.zcompdump
+.zcompdump.zwc

@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 # My own little set of git shortcuts
 
 alias gnewbranch="git switch main && git pull origin main && git switch -c"

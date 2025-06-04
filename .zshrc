@@ -1,124 +1,66 @@
+# If not in tmux, start tmux.
+if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
+  exec tmux -u new -s init -A -D
+fi
+
+function zcompile-many() {
+  local f
+  for f; do zcompile -R -- "$f".zwc "$f"; done
+}
+
+ZSH_DEN=$HOME/zsh-den
+
+# Clone and compile to wordcode missing plugins.
+if [[ ! -e $ZSH_DEN/zsh-defer ]]; then
+  git clone --depth=1 https://github.com/romkatv/zsh-defer.git $ZSH_DEN/zsh-defer
+  zcompile-many $ZSH_DEN/zsh-defer/zsh-defer.plugin.zsh
+fi
+if [[ ! -e $ZSH_DEN/fzf-tab ]]; then
+  git clone --depth=1 https://github.com/Aloxaf/fzf-tab $ZSH_DEN/fzf-tab
+fi
+if [[ ! -e $ZSH_DEN/fast-syntax-highlighting ]]; then
+  git clone --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git $ZSH_DEN/fast-syntax-highlighting
+  mv -- $ZSH_DEN/fast-syntax-highlighting/{'→chroma','tmp'}
+  zcompile-many $ZSH_DEN/fast-syntax-highlighting/{fast*,.fast*,**/*.ch,**/*.zsh}
+  mv -- $ZSH_DEN/fast-syntax-highlighting/{'tmp','→chroma'}
+fi
+if [[ ! -e $ZSH_DEN/zsh-autosuggestions ]]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_DEN/zsh-autosuggestions
+  zcompile-many $ZSH_DEN/zsh-autosuggestions/{zsh-autosuggestions.zsh,src/**/*.zsh}
+fi
+if [[ ! -e $ZSH_DEN/powerlevel10k ]]; then
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_DEN/powerlevel10k
+  make -C $ZSH_DEN/powerlevel10k pkg
+fi
+
+# Enable Powerlevel10k instant prompt. This is after the plugin verfs.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Enable the "new" completion system (compsys).
+autoload -Uz compinit && compinit
+[[ ~/.zcompdump.zwc -nt ~/.zcompdump ]] || zcompile-many ~/.zcompdump
+unfunction zcompile-many
+
 # Nix
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Periodic auto-update on Zsh startup: 'ask' or 'no'.
-zstyle ':z4h:' auto-update      'ask'
-# Ask whether to auto-update this often; has no effect if auto-update is 'no'.
-zstyle ':z4h:' auto-update-days '28'
+source $ZSH_DEN/aliases.zsh
+source $ZSH_DEN/opts.zsh
+source $ZSH_DEN/git.zsh
+source $ZSH_DEN/fzf.zsh
 
-# Start tmux if not already in tmux.
-zstyle ':z4h:' start-tmux command tmux -u new -s init -A -D
+# Load plugins.
+source $ZSH_DEN/zsh-defer/zsh-defer.plugin.zsh
+source $ZSH_DEN/powerlevel10k/powerlevel10k.zsh-theme
+[[ ! -f $ZSH_DEN/p10k.zsh ]] || source $ZSH_DEN/p10k.zsh
 
-# Whether to move prompt to the bottom when zsh starts and on Ctrl+L.
-zstyle ':z4h:' prompt-at-bottom 'no'
+zsh-defer source $ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh
+zsh-defer -a +ms source $ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh
+zsh-defer -a +pr source $ZSH_DEN/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
-# Mark up shell's output with semantic information.
-zstyle ':z4h:' term-shell-integration 'yes'
-
-# Right-arrow key accepts one character ('partial-accept') from
-# command autosuggestions or the whole thing ('accept')?
-zstyle ':z4h:autosuggestions' forward-char 'partial-accept'
-
-# Recursively traverse directories when TAB-completing files.
-zstyle ':z4h:fzf-complete' recurse-dirs 'no'
-
-# Enable direnv to automatically source .envrc files.
-zstyle ':z4h:direnv' enable 'yes'
-
-# Show "loading" and "unloading" notifications from direnv.
-zstyle ':z4h:direnv:success' notify 'yes'
-
-# Enable ('yes') or disable ('no') automatic teleportation of z4h over
-# SSH when connecting to these hosts.
-# zstyle ':z4h:ssh:example-hostname1'   enable 'yes'
-# zstyle ':z4h:ssh:*.example-hostname2' enable 'no'
-# The default value if none of the overrides above match the hostname.
-zstyle ':z4h:ssh:*' enable 'no'
-
-# Send these files over to the remote host when connecting over SSH to the
-# enabled hosts.
-zstyle ':z4h:ssh:*' send-extra-files '~/.nanorc' '~/.env.zsh'
-
-# Init z4h
-z4h init || return
-
-# Export environment variables.
-export GPG_TTY=$TTY
-
-# Source additional local files if they exist.
-z4h source ~/.env.zsh
-
-# Autoload functions.
-autoload -Uz zmv
-
-# Define functions and completions.
-function md() { [[ $# == 1 ]] && mkdir -p -- "$1" && cd -- "$1" }
-compdef _directories md
-
-# Define named directories: ~w <=> Windows home directory on WSL.
-[[ -z $z4h_win_home ]] || hash -d w=$z4h_win_home
-
-# Define Editor
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
-
-export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
-  --color=fg:7,fg+:2,bg:-1,bg+:-1
-  --color=hl:5,hl+:5,info:4,marker:2
-  --color=prompt:4,spinner:4,pointer:2,header:4
-  --color=border:4,query:7
-  --marker=":" --pointer="»"
-  --multi --bind="ctrl-y:toggle+down"'
-
-export MANPAGER='nvim +Man!'
-
-UTILS="$HOME/vault/personal/dotfiles/utils"
-SCRIPTS="$HOME/vault/personal/dotfiles/scripts"
-BOX="$HOME/vault/personal"
-
-# Extend PATH.
-path=(~/bin $path $BOX/zig)
-
-# Define aliases.
-alias l="eza -liha"
-alias lt="eza -lihaT --git-ignore"
-alias c="clear -x"
-alias nv="nvim"
-alias nd="neovide --fork --title-hidden --frame=transparent"
-alias sw="stow -t $HOME"
-alias f=". $SCRIPTS/fzf/search.sh"
-alias s=". $SCRIPTS/fzf/vault.sh"
-alias config-zsh="$EDITOR ~/.zshrc"
-alias config-tmux="$EDITOR ~/.tmux.conf"
-
-alias u-nixos="sudo nixos-rebuild switch --flake '$BOX/nixos#default'"
-alias u-darwin="nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $BOX/nix-darwin"
-
-alias ff="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt"
-alias ffn="fastfetch --logo-color-1 red --file $UTILS/ascii/spider2.txt --config neofetch"
-# alias ghostty='/Applications/Ghostty.app/Contents/MacOS/ghostty'
-
-source $HOME/.git.zsh
-
-# History options
-HISTSIZE=7000
-SAVEHIST=$HISTSIZE
-HISTDUP=erase
-
-setopt hist_ignore_all_dups
-setopt hist_find_no_dups
-setopt hist_save_no_dups
-setopt hist_ignore_dups
-setopt appendhistory
-setopt sharehistory
-
-# Set shell options: http://zsh.sourceforge.net/Doc/Release/Options.html.
-setopt glob_dots     # no special treatment for file names with a leading dot
-setopt no_auto_menu  # require an extra TAB press to open the completion menu
-
-eval "$(direnv hook zsh)"
+eval "$(zoxide init zsh)"
+zsh-defer eval "$(direnv hook zsh)"
