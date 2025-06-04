@@ -14,6 +14,7 @@ fzf-history() {
         --read0                  
         --cycle                  
         --no-multi               
+        --padding=1,0,0,1
         --prompt="history > "
         --query="$current_query" 
         --layout=reverse         
@@ -40,8 +41,7 @@ bindkey '^R' fzf-history
 
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS 
   --color=16,bg+:-1,fg+:4,pointer:4,marker:4 
-  --marker=: --multi --bind=ctrl-y:toggle+down --info=right --height=100%"
+  --marker=: --multi --bind=ctrl-y:toggle+down --info=right"
 
-zstyle ':fzf-tab:*' fzf-flags
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':completion:*' menu no

@@ -3,14 +3,21 @@
 DOTS="$HOME/vault/personal/dotfiles"
 
 zd() {
+  local current_dir
+  current_dir=$(pwd)
+  cd "$HOME/vault" || exit
   local dir
-  dir=$(fd -t d | fzf --prompt="directory > " --reverse --info="right")
-  [[ -n $dir ]] && cd "$dir"
+  dir=$(fd -t d --exact-depth 2 | fzf --prompt="projects > " --reverse --info="right" --padding=1,0,0,1)
+  if [[ -n $dir ]]; then
+      cd "$dir"
+  else
+      cd "$current_dir"
+  fi
 }
 
 ze() {
   local file
-  file=$(fzf --prompt="edit > " --reverse --info="right")
+  file=$(fzf --prompt="edit > " --reverse --info="right" --padding=1,0,0,0)
   [[ -n $file ]] && $EDITOR "$file"
 }
 
