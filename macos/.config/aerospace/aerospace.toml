@@ -65,10 +65,10 @@ automatically-unhide-macos-hidden-apps = true
     cmd-slash = 'layout tiles horizontal'
     cmd-comma = 'layout accordion horizontal'
 
-    alt-h = 'focus left'
-    alt-j = 'focus down'
-    alt-k = 'focus up'
-    alt-l = 'focus right'
+    cmd-ctrl-h = 'focus left'
+    cmd-ctrl-j = 'focus down'
+    cmd-ctrl-k = 'focus up'
+    cmd-ctrl-l = 'focus right'
 
     cmd-shift-h = 'move left'
     cmd-shift-j = 'move down'
@@ -87,7 +87,7 @@ automatically-unhide-macos-hidden-apps = true
     cmd-shift-4 = 'move-node-to-workspace 4'
     cmd-shift-5 = 'move-node-to-workspace 5'
 
-    cmd-shift-comma = 'mode service'
+    cmd-shift-f12 = 'mode service'
 
 [mode.service.binding]
     esc = ['reload-config', 'mode main']
