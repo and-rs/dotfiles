@@ -1,0 +1,11 @@
+alias gnewbranch = git switch main and git pull origin main and git switch -c
+alias gpbranch   = git push -u origin HEAD
+alias gac        = git add . and git commit -m
+alias gl         = git log --oneline
+alias gsw        = git switch
+alias gs         = git status
+alias gc         = git commit
+alias gp         = git push
+alias gd         = git diff
+alias ga         = git add
+alias g          = git
