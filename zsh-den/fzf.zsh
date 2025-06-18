@@ -11,15 +11,15 @@ fzf-history() {
 
     local current_query="$BUFFER"
     local fzf_opts=(
-        --read0                  
-        --cycle                  
-        --no-multi               
+        --read0
+        --cycle
+        --no-multi
         --padding=1,0,0,1
         --prompt="history > "
-        --query="$current_query" 
-        --layout=reverse         
+        --query="$current_query"
+        --layout=reverse
     )
-   
+
     local selected_command
     if ! (( $+commands[fzf] )); then
         print -u2 "Error: fzf command not found." >&2

@@ -17,7 +17,7 @@ zd() {
 
 ze() {
   local file
-  file=$(fzf --prompt="edit > " --reverse --info="right" --padding=1,0,0,0)
+  file=$(fzf --prompt="edit > " --reverse --info="right" --padding=1,0,0,1)
   [[ -n $file ]] && $EDITOR "$file"
 }
 
