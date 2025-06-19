@@ -195,8 +195,5 @@ binds {
 }
 
 animations {
-    slowdown 0.8
-    workspace-switch {
-        off
-    }
+    slowdown 0.6
 }

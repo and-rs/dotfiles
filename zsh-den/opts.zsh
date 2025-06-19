@@ -18,3 +18,14 @@ setopt sharehistory
 setopt glob_dots
 setopt no_auto_menu
 setopt no_list_beep
+
+bindkey '^K' kill-line
+bindkey '^D' delete-char
+bindkey '^F' forward-char
+bindkey '^B' backward-char
+
+bindkey '^P' up-line-or-history
+bindkey '^N' down-line-or-history
+
+bindkey '^E' end-of-line
+bindkey '^A' beginning-of-line
