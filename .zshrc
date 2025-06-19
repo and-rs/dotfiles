@@ -18,11 +18,9 @@ fi
 if [[ ! -e $ZSH_DEN/fzf-tab ]]; then
   git clone --depth=1 https://github.com/Aloxaf/fzf-tab $ZSH_DEN/fzf-tab
 fi
-if [[ ! -e $ZSH_DEN/fast-syntax-highlighting ]]; then
-  git clone --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git $ZSH_DEN/fast-syntax-highlighting
-  mv -- $ZSH_DEN/fast-syntax-highlighting/{'→chroma','tmp'}
-  zcompile-many $ZSH_DEN/fast-syntax-highlighting/{fast*,.fast*,**/*.ch,**/*.zsh}
-  mv -- $ZSH_DEN/fast-syntax-highlighting/{'tmp','→chroma'}
+if [[ ! -e $ZSH_DEN/zsh-syntax-highlighting ]]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_DEN/zsh-syntax-highlighting
+  zcompile-many $ZSH_DEN/zsh-syntax-highlighting/{zsh-syntax-highlighting.zsh,highlighters/*/*.zsh}
 fi
 if [[ ! -e $ZSH_DEN/zsh-autosuggestions ]]; then
   git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_DEN/zsh-autosuggestions
@@ -31,6 +29,9 @@ fi
 if [[ ! -e $ZSH_DEN/powerlevel10k ]]; then
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_DEN/powerlevel10k
   make -C $ZSH_DEN/powerlevel10k pkg
+fi
+if [[ ! -e $ZSH_DEN/forgit ]]; then
+  git clone --depth=1 https://github.com/wfxr/forgit.git $ZSH_DEN/forgit
 fi
 
 # Enable Powerlevel10k instant prompt. This is after the plugin verfs.
@@ -60,7 +61,8 @@ source $ZSH_DEN/powerlevel10k/powerlevel10k.zsh-theme
 
 zsh-defer source $ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh
 zsh-defer -a +ms source $ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh
-zsh-defer -a +pr source $ZSH_DEN/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+zsh-defer -a +pr source $ZSH_DEN/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+zsh-defer source $ZSH_DEN/forgit/forgit.plugin.zsh
 
 eval "$(zoxide init zsh)"
 zsh-defer eval "$(direnv hook zsh)"
