@@ -2,6 +2,7 @@
 
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
+export BAT_THEME='tokyonight-nosyntax'
 
 # History options
 HISTSIZE=7000
@@ -19,7 +20,11 @@ setopt glob_dots
 setopt no_auto_menu
 setopt no_list_beep
 
+bindkey -e
+
 bindkey '^K' kill-line
+bindkey '^U' backward-kill-line
+
 bindkey '^D' delete-char
 bindkey '^F' forward-char
 bindkey '^B' backward-char
