@@ -1,4 +1,4 @@
-theme = "tokyonight_storm"
+theme = "carbonfox"
 
 [editor]
 gutters = ["diff", "diagnostics", "line-numbers", "spacer"]

@@ -34,3 +34,5 @@ bindkey '^N' down-line-or-history
 
 bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
+
+zstyle ':completion:*' insert-tab false

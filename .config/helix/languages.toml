@@ -1,6 +1,14 @@
+[language-server.basedpyright]
+command = "basedpyright-langserver"
+args = ["--stdio"]
+
 [language-server.tailwindcss-ls]
 command = "tailwindcss-language-server"
 args = ["--stdio"]
+
+[[language]]
+name = "python"
+language-servers = [ "basedpyright" ]
 
 [[language]]
 name = "html"
