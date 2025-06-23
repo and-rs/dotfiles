@@ -11,9 +11,9 @@ function zcompile-many() {
 ZSH_DEN=$HOME/zsh-den
 
 # Clone and compile to wordcode missing plugins.
-if [[ ! -e $ZSH_DEN/zsh-defer ]]; then
-  git clone --depth=1 https://github.com/romkatv/zsh-defer.git $ZSH_DEN/zsh-defer
-  zcompile-many $ZSH_DEN/zsh-defer/zsh-defer.plugin.zsh
+if [[ ! -e $ZSH_DEN/powerlevel10k ]]; then
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_DEN/powerlevel10k
+  make -C $ZSH_DEN/powerlevel10k pkg
 fi
 if [[ ! -e $ZSH_DEN/fzf-tab ]]; then
   git clone --depth=1 https://github.com/Aloxaf/fzf-tab $ZSH_DEN/fzf-tab
@@ -26,12 +26,12 @@ if [[ ! -e $ZSH_DEN/zsh-autosuggestions ]]; then
   git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_DEN/zsh-autosuggestions
   zcompile-many $ZSH_DEN/zsh-autosuggestions/{zsh-autosuggestions.zsh,src/**/*.zsh}
 fi
-if [[ ! -e $ZSH_DEN/powerlevel10k ]]; then
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_DEN/powerlevel10k
-  make -C $ZSH_DEN/powerlevel10k pkg
-fi
+
+# sourcing forgit utils in case patching is needed
+source $ZSH_DEN/forgit.zsh
 if [[ ! -e $ZSH_DEN/forgit ]]; then
   git clone --depth=1 https://github.com/wfxr/forgit.git $ZSH_DEN/forgit
+  zden-patch-forgit
 fi
 
 # Enable Powerlevel10k instant prompt. This is after the plugin verfs.
@@ -49,20 +49,22 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-source $ZSH_DEN/aliases.zsh
-source $ZSH_DEN/opts.zsh
-source $ZSH_DEN/git.zsh
-source $ZSH_DEN/fzf.zsh
-
 # Load plugins.
 source $ZSH_DEN/zsh-defer/zsh-defer.plugin.zsh
 source $ZSH_DEN/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f $ZSH_DEN/p10k.zsh ]] || source $ZSH_DEN/p10k.zsh
 
-zsh-defer source $ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh
-zsh-defer -a +ms source $ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh
-zsh-defer -a +pr source $ZSH_DEN/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-zsh-defer source $ZSH_DEN/forgit/forgit.plugin.zsh
+# plugins
+source $ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh
+source $ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $ZSH_DEN/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $ZSH_DEN/forgit/forgit.plugin.zsh && PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
+
+# zden setup
+source $ZSH_DEN/aliases.zsh
+source $ZSH_DEN/opts.zsh
+source $ZSH_DEN/git.zsh
+source $ZSH_DEN/fzf.zsh
 
 eval "$(zoxide init zsh)"
-zsh-defer eval "$(direnv hook zsh)"
+eval "$(direnv hook zsh)"

@@ -8,8 +8,21 @@
   diffFilter = delta --color-only
 
 [delta]
-  navigate = true # use n and N to move between diff sections
-  
+  max-line-length = 0
+  line-numbers = true
+  navigate = true
+  minus-style                   = syntax "#3f2d3d"
+  minus-non-emph-style          = syntax "#3f2d3d"
+  minus-emph-style              = syntax "#763842"
+  minus-empty-line-marker-style = syntax "#3f2d3d"
+  line-numbers-minus-style      = "#914c54"
+  plus-style                    = syntax "#283b4d"
+  plus-non-emph-style           = syntax "#283b4d"
+  plus-emph-style               = syntax "#316172"
+  plus-empty-line-marker-style  = syntax "#283b4d"
+  line-numbers-plus-style       = "#449dab"
+  line-numbers-zero-style       = "#3b4261"
+
 [merge]
   conflictstyle = diff3
 
@@ -21,13 +34,13 @@
 	email = deserd@protonmail.com
 
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/run/current-system/sw/bin/gh auth git-credential
 
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/run/current-system/sw/bin/gh auth git-credential
 
 [credential "https://gitlab.com"]
-	helper = 
+	helper =
 	helper = !/nix/store/xvhvrc8g21vmh903ds7a6smdzxkf7c8n-glab-1.56.0/bin/glab auth git-credential
