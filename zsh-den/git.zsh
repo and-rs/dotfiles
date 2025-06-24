@@ -9,9 +9,10 @@ alias gsw="git switch"
 alias gs="git status"
 alias gc="git commit"
 alias gp="git push"
-alias gd="git diff"
 alias ga="git add"
 alias g="git"
+
+# alias gd="git diff"
 
 gpr:create() {
   local branch_name

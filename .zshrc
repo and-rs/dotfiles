@@ -30,8 +30,8 @@ fi
 # sourcing forgit utils in case patching is needed
 source $ZSH_DEN/forgit.zsh
 if [[ ! -e $ZSH_DEN/forgit ]]; then
-  zden-patch-forgit
   git clone --depth=1 https://github.com/wfxr/forgit.git "$ZSH_DEN/forgit"
+  zden-patch-forgit
 fi
 
 # Enable Powerlevel10k instant prompt. This is after the plugin verfs.
@@ -49,20 +49,20 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Load plugins
 source "$ZSH_DEN/powerlevel10k/powerlevel10k.zsh-theme"
 [[ ! -f $ZSH_DEN/p10k.zsh ]] || source "$ZSH_DEN/p10k.zsh"
-
-source "$ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh"
-source "$ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$ZSH_DEN/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-source "$ZSH_DEN/forgit/forgit.plugin.zsh" && PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
 
 # zden setup
 source "$ZSH_DEN/aliases.zsh"
 source "$ZSH_DEN/opts.zsh"
 source "$ZSH_DEN/git.zsh"
 source "$ZSH_DEN/fzf.zsh"
+
+# Load plugins
+source "$ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh"
+source "$ZSH_DEN/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$ZSH_DEN/forgit/forgit.plugin.zsh" && PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
+source "$ZSH_DEN/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"

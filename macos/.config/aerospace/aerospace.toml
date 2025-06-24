@@ -31,6 +31,10 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
+    if.app-id = 'com.apple.Safari'
+    run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
     if.app-id = 'com.google.Chrome'
     run = 'move-node-to-workspace 3'
 
@@ -40,7 +44,7 @@ automatically-unhide-macos-hidden-apps = true
 
 [[on-window-detected]]
     if.app-id = 'net.whatsapp.WhatsApp'
-    run = 'move-node-to-workspace 4'
+    run = 'move-node-to-workspace 5'
 
 [[on-window-detected]]
     if.app-id = 'org.keepassxc.keepassxc'
