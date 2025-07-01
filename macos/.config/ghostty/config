@@ -4,7 +4,11 @@ macos-titlebar-style = hidden
 macos-option-as-alt = true
 
 config-file = tokyo-night
-# config-file = custom
+
+custom-shader-animation = true
+# custom-shader = shaders/cursor_blaze_no_trail.glsl
+custom-shader = shaders/cursor_smear.glsl
+# custom-shader = shaders/cursor_smear_fade.glsl
 
 window-padding-x = 2
 window-padding-y = 0
