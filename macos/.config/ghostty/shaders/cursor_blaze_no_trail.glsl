@@ -103,7 +103,7 @@ float determineStartVertexFactor(vec2 a, vec2 b) {
     return 1.0 - max(condition1, condition2);
 }
 
-const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
+const vec4 TRAIL_COLOR = vec4(1.0, 0.725, 0.161, 1.0);
 const vec4 TRAIL_COLOR_ACCENT = vec4(1.0, 0., 0., 1.0);
 // const vec4 TRAIL_COLOR = vec4(0.482, 0.886, 1.0, 1.0);
 // const vec4 TRAIL_COLOR_ACCENT = vec4(0.0, 0.424, 1.0, 1.0);
