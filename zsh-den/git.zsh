@@ -74,3 +74,9 @@ gsync() {
     return 1
   fi
 }
+
+git-work-account() {
+  git config user.name 'juan-lsource' && git config user.email 'juan.bautista@logicsource.com'
+  git config --get user.name
+  git config --get user.email
+}

@@ -29,9 +29,14 @@
 [diff]
   colorMoved = default
 
+[user]
+  name = "and-rs"
+  email = "deserd@protonmail.com"
+
 [credential "https://github.com"]
 	helper = 
 	helper = !/run/current-system/sw/bin/gh auth git-credential
+	useHttpPath = true
 
 [credential "https://gist.github.com"]
 	helper = 
