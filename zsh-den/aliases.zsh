@@ -8,10 +8,11 @@ alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
 
-alias l="eza -liha"
+alias l="eza -a"
+alias ls="eza -liha"
 alias lt="eza -lihaT --git-ignore"
 
-# alias f=". $DOTS/scripts/fzf/search.sh"
+alias f=". $DOTS/scripts/fzf/search.sh"
 # alias s=". $DOTS/scripts/fzf/vault.sh"
 
 alias u-nixos="sudo nixos-rebuild switch --flake $HOME/vault/personal/nixos#default"
@@ -19,6 +20,8 @@ alias u-darwin="sudo darwin-rebuild switch --flake $HOME/vault/personal/nix-darw
 
 alias ff="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
+
+code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
 
 dirtree() {
   if ! command -v eza &> /dev/null; then

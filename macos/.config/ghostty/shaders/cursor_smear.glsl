@@ -59,10 +59,14 @@ vec2 getRectangleCenter(vec4 rectangle) {
 float ease(float x) {
     return pow(1.0 - x, 3.0);
 }
+vec4 saturate(vec4 color, float factor) {
+    float gray = dot(color, vec4(0.299, 0.587, 0.114, 0.)); // luminance
+    return mix(vec4(gray), color, factor);
+}
 
-const vec4 TRAIL_COLOR = vec4(0.784, 0.827, 0.961, 1.0);
-const float OPACITY = 0.2;
-const float DURATION = 0.1; //IN SECONDS
+vec4 TRAIL_COLOR = iCurrentCursorColor;
+const float OPACITY = 0.6;
+const float DURATION = 0.01; //IN SECONDS
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
@@ -101,10 +105,13 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     float lineLength = distance(centerCC, centerCP);
 
     vec4 newColor = vec4(fragColor);
+
+    vec4 trail = TRAIL_COLOR;
+    trail = saturate(trail, 2.5);
     // Draw trail
-    newColor = mix(newColor, TRAIL_COLOR, antialising(sdfTrail));
+    newColor = mix(newColor, trail, antialising(sdfTrail));
     // Draw current cursor
-    newColor = mix(newColor, TRAIL_COLOR, antialising(sdfCurrentCursor));
+    newColor = mix(newColor, trail, antialising(sdfCurrentCursor));
     newColor = mix(newColor, fragColor, step(sdfCurrentCursor, 0.));
     // newColor = mix(fragColor, newColor, OPACITY);
     fragColor = mix(fragColor, newColor, step(sdfCurrentCursor, easedProgress * lineLength));
