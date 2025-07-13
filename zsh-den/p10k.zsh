@@ -53,7 +53,7 @@
 
   ############## direnv 
   typeset -g POWERLEVEL9K_DIRENV_FOREGROUND=8
-  typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION=' direnv'
+  typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION='direnv'
   ############## direnv 
 
   ############# prompt_char 
