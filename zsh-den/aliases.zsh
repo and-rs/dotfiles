@@ -8,7 +8,8 @@ alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
 
-alias l="eza -a"
+alias l="eza -lha --no-time --no-permissions --no-user --icons=always -I .DS_Store"
+alias ld="eza -lha --no-filesize --no-permissions --no-user --icons=always -I .DS_Store"
 alias ls="eza -liha"
 alias lt="eza -lihaT --git-ignore"
 
