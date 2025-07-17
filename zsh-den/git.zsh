@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
-# My own little set of git shortcuts
 
+# My own little set of git shortcuts
 alias gnewbranch="git switch main && git pull origin main && git switch -c"
 alias gpbranch="git push -u origin HEAD"
 alias gac="git add . && git commit -m"
@@ -11,8 +11,6 @@ alias gc="git commit"
 alias gp="git push"
 alias ga="git add"
 alias g="git"
-
-# alias gd="git diff"
 
 gpr:create() {
     local branch_name

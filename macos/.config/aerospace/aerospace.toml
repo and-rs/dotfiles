@@ -47,6 +47,10 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
+    if.app-id = 'com.amazon.workspaces'
+    run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
     if.app-id = 'net.whatsapp.WhatsApp'
     run = 'move-node-to-workspace 5'
 
