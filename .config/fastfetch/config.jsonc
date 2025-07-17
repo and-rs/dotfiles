@@ -14,8 +14,8 @@
       "separator": "light_black"
     },
     "constants": [
-      "─────────────────────",
-      "\u001b[37m│ "
+      "─────",
+      " \u001b[36m│ "
     ],
     "key": {
       "width": 15,
@@ -25,86 +25,91 @@
   "modules": [
     {
       "type": "custom",
-      "format": "\u001b[37m┌{$1}{$1}{$1}┐"
+      "format": " \u001b[36m┌{$1}{$1}┐"
     },
     {
-      "key": "{$2}{#32}User \u001b[57C{$2}",
+      "key": "{$2}{#32}User \u001b[3C{$2}",
+      "format": "{name}",
       "type": "users"
     },
     {
-      "key": "{$2}{#32}Machine \u001b[54C{$2}",
+      "key": "{$2}{#32}Machine {$2}",
       "type": "host"
     },
     {
-      "key": "{$2}{#31}OS \u001b[59C{$2}",
+      "key": "{$2}{#31}OS \u001b[5C{$2}",
       "type": "os"
     },
     {
-      "key": "{$2}{#31}Kernel \u001b[55C{$2}",
+      "key": "{$2}{#31}Kernel \u001b[1C{$2}",
       "type": "kernel"
     },
     {
-      "key": "{$2}{#31}Uptime \u001b[55C{$2}",
+      "key": "{$2}{#31}Uptime \u001b[1C{$2}",
       "type": "uptime"
     },
     {
-      "key": "{$2}{#34}WM \u001b[59C{$2}",
+      "key": "{$2}{#34}WM \u001b[5C{$2}",
       "type": "wm"
     },
     {
-      "key": "{$2}{#34}DE \u001b[59C{$2}",
+      "key": "{$2}{#34}DE \u001b[5C{$2}",
       "type": "de"
     },
     {
-      "key": "{$2}{#34}Shell \u001b[56C{$2}",
+      "key": "{$2}{#34}Shell \u001b[2C{$2}",
       "type": "shell"
     },
     {
-      "key": "{$2}{#34}Term Font \u001b[52C{$2}",
+      "key": "{$2}{#34}Term Font {$2}",
       "type": "terminalfont"
     },
     {
-      "key": "{$2}{#34}Local IP \u001b[53C{$2}",
+      "key": "{$2}{#34}Local IP{$2}",
       "type": "localip",
       "compact": true
     },
     {
-      "key": "{$2}{#33}RAM \u001b[58C{$2}",
-      "type": "memory"
-    },
-    {
-      "key": "{$2}{#33}GPU \u001b[58C{$2}",
+      "key": "{$2}{#33}GPU \u001b[4C{$2}",
       "type": "gpu"
     },
     {
-      "key": "{$2}{#33}CPU \u001b[58C{$2}",
+      "key": "{$2}{#33}RAM \u001b[4C{$2}",
+      "format": "{percentage} {used}, {total}",
+      "type": "memory"
+    },
+    {
+      "key": "{$2}{#33}CPU \u001b[4C{$2}",
       "type": "cpu",
       "format": "{name}"
     },
     {
-      "key": "{$2}{#33}Stats \u001b[56C{$2}",
+      "key": "{$2}{#33}└──\u001b[5C{$2}",
       "type": "cpu",
       "format": "{cores-online} cores @ {freq-max} {temperature}",
       "temp": true
     },
     {
-      "key": "{$2}{#33}Storage \u001b[54C{$2}",
-      "type": "disk"
-    },
-    {
-      "key": "{$2}{#33}Battery \u001b[54C{$2}",
-      "type": "battery"
-    },
-    {
-      "key": "{$2}{#33}Resolution \u001b[51C{$2}",
+      "key": "{$2}{#33}Screen \u001b[1C{$2}",
       "type": "display",
       "compactType": "original-with-refresh-rate"
     },
     {
-      "type": "custom",
-      "format": "\u001b[37m└{$1}{$1}{$1}┘"
+      "key": "{$2}{#33}Storage {$2}",
+      "format": "{size-percentage} {size-used}, {size-total}",
+      "type": "disk"
     },
     {
+      "key": "{$2}{#33}Battery {$2}",
+      "format": "{capacity} {status}",
+      "type": "battery"
+    },
+    {
+      "type": "custom",
+      "format": " \u001b[36m└{$1}{$1}┘"
+    },
+    {
+      "paddingLeft": 1,
       "type": "colors",
       "symbol": "block"
     }
