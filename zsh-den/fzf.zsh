@@ -40,8 +40,8 @@ zle -N fzf-history
 bindkey '^R' fzf-history
 
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS
-    --color=16,bg+:-1,fg+:4,pointer:4,marker:4 --preview-border='line'
-    --marker=: --multi --bind=ctrl-y:toggle+down --info=right"
+--color=16,bg+:-1,fg+:4,pointer:4,marker:4 --preview-border='line'
+--marker=: --multi --bind=ctrl-y:toggle+down --info=right"
 
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':completion:*' menu no

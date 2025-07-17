@@ -36,3 +36,11 @@ bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
 
 zstyle ':completion:*' insert-tab false
+
+ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(end-of-line)
+ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS+=(
+    forward-char
+    forward-word
+    emacs-forward-char
+    emacs-forward-word
+)
