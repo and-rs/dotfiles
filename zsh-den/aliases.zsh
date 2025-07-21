@@ -14,8 +14,8 @@ alias ld="eza -lha --no-filesize --no-permissions --no-user --icons=always -I .D
 alias ls="eza -liha"
 alias lt="eza -lihaT --git-ignore"
 
-alias u-nixos="sudo nixos-rebuild switch --flake $HOME/vault/personal/nixos#default"
-alias u-darwin="sudo darwin-rebuild switch --flake $HOME/vault/personal/nix-darwin"
+alias update-nixos="sudo nixos-rebuild switch --flake $HOME/vault/personal/nixos#default"
+alias update-darwin="sudo darwin-rebuild switch --flake $HOME/vault/personal/nix-darwin"
 
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
