@@ -7,10 +7,9 @@ alias nv="nvim"
 alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
-alias f=". $DOTS/scripts/fzf/search.sh"
 
-alias l="eza -lha --no-time --no-permissions --no-user --icons=always -I .DS_Store"
-alias ld="eza -lha --no-filesize --no-permissions --no-user --icons=always -I .DS_Store"
+alias l="eza -lha --no-time --no-permissions --no-user -I .DS_Store"
+alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
 alias ls="eza -liha"
 alias lt="eza -lihaT --git-ignore"
 
@@ -21,6 +20,28 @@ alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
 
 code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+
+f () {
+    directories=(fd --type d)
+    directories+=(--hidden
+        --exclude .git
+        --exclude node_module
+        --exclude .cache
+        --exclude .npm
+        --exclude .mozilla
+        --exclude .meteor
+        --exclude .nv
+    )
+
+    selected_dir=$("${directories[@]}" | fzf --prompt="choose directory > " --reverse --info="right" --padding=1,0,0,1)
+
+    if [ -n "$selected_dir" ]; then
+        cd "$selected_dir" || exit
+    else
+        echo "No directory selected."
+    fi
+
+}
 
 filepath () {
     SELECTED_FILE=$(fd --exact-depth=1 | fzf --no-multi --padding=1,0,0,1 --prompt="Select file > " --layout=reverse)
