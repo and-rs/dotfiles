@@ -22,6 +22,10 @@ setopt no_list_beep
 
 bindkey -e
 
+zle -N edit-command-line
+autoload -U edit-command-line
+bindkey '^O' edit-command-line
+
 bindkey '^K' kill-line
 bindkey '^U' backward-kill-line
 
