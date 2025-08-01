@@ -57,6 +57,7 @@ source "$ZSH_DEN/aliases.zsh"
 source "$ZSH_DEN/opts.zsh"
 source "$ZSH_DEN/git.zsh"
 source "$ZSH_DEN/fzf.zsh"
+source "$ZSH_DEN/uv.zsh"
 
 # Load plugins
 source "$ZSH_DEN/fzf-tab/fzf-tab.plugin.zsh"

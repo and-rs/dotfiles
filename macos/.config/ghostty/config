@@ -20,8 +20,8 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 12
-adjust-cursor-height = 12
+adjust-cell-height = 14
+adjust-cursor-height = 14
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
@@ -30,5 +30,5 @@ font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
 # font-family = Input Mono
-# font-family = CommitMonoFucker
-font-family = Iosevka Custom
+font-family = CommitMonoFucker
+# font-family = Iosevka Custom

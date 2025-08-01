@@ -5,22 +5,22 @@ start-at-login = true
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
 
-accordion-padding = 20
+accordion-padding = 10
 
 default-root-container-layout = 'accordion'
-default-root-container-orientation = 'horizontal'
+default-root-container-orientation = 'vertical'
 automatically-unhide-macos-hidden-apps = true
 
 [key-mapping]
     preset = 'qwerty'
 
 [gaps]
-    inner.horizontal = 10
-    inner.vertical =   10
-    outer.left =       10
-    outer.bottom =     10
-    outer.top =        10
-    outer.right =      10
+    inner.horizontal = 5
+    inner.vertical =   5
+    outer.left =       5
+    outer.bottom =     5
+    outer.top =        5
+    outer.right =      5
 
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
@@ -28,6 +28,14 @@ automatically-unhide-macos-hidden-apps = true
 
 [[on-window-detected]]
     if.app-id = 'app.zen-browser.zen'
+    run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+    if.app-id = 'net.whatsapp.WhatsApp'
+    run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+    if.app-id = 'org.keepassxc.keepassxc'
     run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
@@ -39,24 +47,16 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-    if.app-id = 'com.hnc.Discord'
-    run = 'move-node-to-workspace 4'
+    if.app-id = 'com.microsoft.Excel'
+    run = 'move-node-to-workspace 3'
 
 [[on-window-detected]]
-    if.app-id = 'com.microsoft.Excel'
+    if.app-id = 'com.hnc.Discord'
     run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
     if.app-id = 'com.amazon.workspaces'
     run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
-    if.app-id = 'net.whatsapp.WhatsApp'
-    run = 'move-node-to-workspace 5'
-
-[[on-window-detected]]
-    if.app-id = 'org.keepassxc.keepassxc'
-    run = 'move-node-to-workspace 5'
 
 [mode.main.binding]
 
@@ -87,6 +87,7 @@ automatically-unhide-macos-hidden-apps = true
     # '''
 
     cmd-slash = 'layout tiles horizontal'
+    cmd-period = 'layout tiles vertical'
     cmd-comma = 'layout accordion horizontal'
 
     cmd-ctrl-h = 'focus left'
@@ -103,13 +104,11 @@ automatically-unhide-macos-hidden-apps = true
     cmd-2 = 'workspace 2'
     cmd-3 = 'workspace 3'
     cmd-4 = 'workspace 4'
-    cmd-5 = 'workspace 5'
 
     cmd-shift-1 = 'move-node-to-workspace 1'
     cmd-shift-2 = 'move-node-to-workspace 2'
     cmd-shift-3 = 'move-node-to-workspace 3'
     cmd-shift-4 = 'move-node-to-workspace 4'
-    cmd-shift-5 = 'move-node-to-workspace 5'
 
     cmd-shift-f12 = 'mode service'
 
