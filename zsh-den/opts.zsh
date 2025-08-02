@@ -19,6 +19,7 @@ setopt sharehistory
 setopt glob_dots
 setopt no_auto_menu
 setopt no_list_beep
+setopt ignoreeof
 
 bindkey -e
 
