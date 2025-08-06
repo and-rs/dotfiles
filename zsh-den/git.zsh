@@ -3,14 +3,17 @@
 # My own little set of git shortcuts
 alias gnewbranch="git switch main && git pull origin main && git switch -c"
 alias gpbranch="git push -u origin HEAD"
-alias gac="git add . && git commit -m"
+# my dumbass kept adding eveything to the commit
+# alias gac="git add . && git commit -m"
 alias gl="git log --oneline"
-alias gsw="git switch"
+alias gc="git commit -m"
 alias gs="git status"
-alias gc="git commit"
-alias gp="git push"
 alias ga="git add"
 alias g="git"
+
+alias gsw="git switch"
+alias gpl="git pull"
+alias gph="git push"
 
 gpr:create() {
     local branch_name

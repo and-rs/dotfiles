@@ -96,6 +96,6 @@ zd() {
 
 ze() {
     local file
-    file=$(fzf --prompt="edit > " --reverse --info="right" --padding=1,0,0,1)
+    file=$(fd --exclude .git --hidden | fzf --prompt="edit > " --reverse --info="right" --padding=1,0,0,1)
     [[ -n $file ]] && $EDITOR "$file"
 }
