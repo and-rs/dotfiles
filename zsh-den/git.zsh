@@ -1,16 +1,17 @@
 #!/usr/bin/env zsh
 
 # My own little set of git shortcuts
-alias gnewbranch="git switch main && git pull origin main && git switch -c"
-alias gpbranch="git push -u origin HEAD"
 # my dumbass kept adding eveything to the commit
 # alias gac="git add . && git commit -m"
-alias gl="git log --oneline"
+alias gnewbranch="git switch main && git pull origin main && git switch -c"
+alias gpbranch="git push -u origin HEAD"
+alias gl="git log --oneline -n 10"
 alias gc="git commit -m"
 alias gs="git status"
 alias ga="git add"
 alias g="git"
 
+alias grs="git reset --soft HEAD~1"
 alias gsw="git switch"
 alias gpl="git pull"
 alias gph="git push"
