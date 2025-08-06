@@ -11,8 +11,10 @@ cursor-color = #e0e2ea
 # config-file = tokyo-night
 
 custom-shader-animation = true
+custom-shader = shaders/cursor_smear.glsl
 custom-shader = shaders/cursor_blaze_no_trail.glsl
-# custom-shader = shaders/cursor_smear.glsl
+custom-shader = shaders/bloom.glsl
+custom-shader = shaders/crt.glsl
 # custom-shader = shaders/cursor_smear_fade.glsl
 
 window-padding-x = 2
@@ -20,12 +22,12 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 14
-adjust-cursor-height = 14
+adjust-cell-height = 12
+adjust-cursor-height = 12
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
-font-size = 14
+font-size = 15
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
