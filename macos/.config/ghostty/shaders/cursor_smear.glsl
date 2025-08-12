@@ -67,7 +67,7 @@ float ease(float x) {
 
 const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
 const vec4 TRAIL_COLOR_ACCENT = vec4(0.478, 0.635, 0.969, 1.0);
-const float DURATION = 0.2; //IN SECONDS
+const float DURATION = 0.16; //IN SECONDS
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
@@ -107,7 +107,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // Distance between cursors determine the total length of the parallelogram;
     float lineLength = distance(centerCC, centerCP);
 
-    float mod = .007;
+    float mod = .002;
     //trailblaze
     vec4 trail = mix(TRAIL_COLOR_ACCENT, fragColor, 1. - smoothstep(0., sdfTrail + mod, 0.007));
     trail = mix(TRAIL_COLOR, trail, 1. - smoothstep(0., sdfTrail + mod, 0.006));

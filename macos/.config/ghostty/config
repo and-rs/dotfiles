@@ -5,32 +5,34 @@ macos-option-as-alt = true
 
 theme = NvimDark
 palette = 8=#808080
-cursor-text = #303030
-cursor-color = #e0e2ea
+cursor-text = #000000
+cursor-color = #cacaca
 
 # config-file = tokyo-night
 
 custom-shader-animation = true
+# custom-shader = shaders/cursor_glow.glsl
+# custom-shader = shaders/cursor_slash.glsl
 custom-shader = shaders/cursor_smear.glsl
-custom-shader = shaders/cursor_blaze_no_trail.glsl
-custom-shader = shaders/bloom.glsl
-custom-shader = shaders/crt.glsl
-# custom-shader = shaders/cursor_smear_fade.glsl
+
+# custom-shader = shaders/dot_matrix_glow.glsl
+custom-shader = shaders/dot_matrix.glsl
+custom-shader = shaders/glow.glsl
 
 window-padding-x = 2
 window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 12
-adjust-cursor-height = 12
+adjust-cell-height = 16
+adjust-cursor-height = 16
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
-font-size = 15
+font-size = 16
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-# font-family = Input Mono
-font-family = CommitMonoFucker
+font-family = Input Mono
+# font-family = CommitMonoFucker
 # font-family = Iosevka Custom

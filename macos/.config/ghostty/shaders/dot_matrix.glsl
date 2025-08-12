@@ -1,9 +1,9 @@
 // Created by Paul Robello
 /** Size of TFT "pixels" */
-float resolution = 4.0;
+float resolution = 5.0;
 
 /** Strength of effect */
-float strength = 0.1;
+float strength = 0.25;
 
 void _scanline(inout vec3 color, vec2 uv)
 {
