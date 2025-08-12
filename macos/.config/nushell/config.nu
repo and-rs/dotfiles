@@ -21,15 +21,17 @@ if ("~/.zoxide.nu" | path exists) != true {
 }
 
 source ~/.zoxide.nu
-source ./git.nu
 
 alias l = ls -a
 alias nv = nvim
 alias reload = exec nu
 alias c = clear --keep-scrollback
 alias ff = fastfetch --logo-color-1 red --file $"($dots)utils/ascii/spider2.txt"
-alias u-nixos = sudo nixos-rebuild switch --flake $"($personal)/nixos#default"
-alias u-darwin = sudo darwin-rebuild switch --flake $"($personal)/nix-darwin"
+
+def tablez [] {
+  table --theme light | fzf --ansi --no-sort
+}
+
 
 $env.config = {
   hooks: {
