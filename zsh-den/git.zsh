@@ -6,7 +6,7 @@
 alias gnewbranch="git switch main && git pull origin main && git switch -c"
 alias gpbranch="git push -u origin HEAD"
 alias gl="git log --oneline -n 10"
-alias gc="git commit -m"
+alias gc="git commit"
 alias gs="git status"
 alias ga="git add"
 alias g="git"

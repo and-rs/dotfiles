@@ -8,7 +8,7 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 accordion-padding = 10
 
 default-root-container-layout = 'accordion'
-default-root-container-orientation = 'vertical'
+default-root-container-orientation = 'horizontal'
 automatically-unhide-macos-hidden-apps = true
 
 [key-mapping]
@@ -21,6 +21,10 @@ automatically-unhide-macos-hidden-apps = true
     outer.bottom =     5
     outer.top =        5
     outer.right =      5
+
+[[on-window-detected]]
+    if.app-id = 'com.apple.finder'
+    run = [ 'layout floating', 'move-node-to-workspace 0' ]
 
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
@@ -104,11 +108,13 @@ automatically-unhide-macos-hidden-apps = true
     cmd-2 = 'workspace 2'
     cmd-3 = 'workspace 3'
     cmd-4 = 'workspace 4'
+    cmd-0 = 'workspace 0'
 
     cmd-shift-1 = 'move-node-to-workspace 1'
     cmd-shift-2 = 'move-node-to-workspace 2'
     cmd-shift-3 = 'move-node-to-workspace 3'
     cmd-shift-4 = 'move-node-to-workspace 4'
+    cmd-shift-0 = 'move-node-to-workspace 0'
 
     cmd-shift-f12 = 'mode service'
 
