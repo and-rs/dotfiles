@@ -1,77 +1,67 @@
 {
-    "createdBy": "Redirector v3.5.3",
-    "createdAt": "2025-07-12T00:32:50.585Z",
-    "redirects": [
-        {
-            "description": "",
-            "exampleUrl": "https://www.reddit.com/",
-            "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "error": null,
-            "includePattern": "https://www.reddit.com/",
-            "excludePattern": "",
-            "patternDesc": "",
-            "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "patternType": "W",
-            "processMatches": "noProcessing",
-            "disabled": false,
-            "grouped": false,
-            "appliesTo": [
-                "main_frame",
-                "xmlhttprequest"
-            ]
-        },
-        {
-            "description": "",
-            "exampleUrl": "https://www.reddit.com/?feed=home",
-            "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "error": null,
-            "includePattern": "https://www.reddit.com/?feed=home",
-            "excludePattern": "",
-            "patternDesc": "",
-            "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "patternType": "W",
-            "processMatches": "noProcessing",
-            "disabled": false,
-            "grouped": false,
-            "appliesTo": [
-                "main_frame",
-                "xmlhttprequest"
-            ]
-        },
-        {
-            "description": "",
-            "exampleUrl": "https://www.reddit.com/r/popular/",
-            "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "error": null,
-            "includePattern": "https://www.reddit.com/r/popular/",
-            "excludePattern": "",
-            "patternDesc": "",
-            "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev/new/",
-            "patternType": "W",
-            "processMatches": "noProcessing",
-            "disabled": false,
-            "grouped": false,
-            "appliesTo": [
-                "main_frame",
-                "xmlhttprequest"
-            ]
-        },
-        {
-            "description": "Example redirect, try going to http://example.com/anywordhere",
-            "exampleUrl": "http://example.com/some-word-that-matches-wildcard",
-            "exampleResult": "https://google.com/search?q=some-word-that-matches-wildcard",
-            "error": null,
-            "includePattern": "http://example.com/*",
-            "excludePattern": "",
-            "patternDesc": "Any word after example.com leads to google search for that word.",
-            "redirectUrl": "https://google.com/search?q=$1",
-            "patternType": "W",
-            "processMatches": "noProcessing",
-            "disabled": false,
-            "grouped": false,
-            "appliesTo": [
-                "main_frame"
-            ]
-        }
-    ]
+  "createdBy": "Redirector v3.5.3",
+  "createdAt": "2025-07-12T00:32:50.585Z",
+  "redirects": [
+    {
+      "description": "",
+      "exampleUrl": "https://www.reddit.com/",
+      "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "error": null,
+      "includePattern": "https://www.reddit.com/",
+      "excludePattern": "",
+      "patternDesc": "",
+      "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "patternType": "W",
+      "processMatches": "noProcessing",
+      "disabled": false,
+      "grouped": false,
+      "appliesTo": ["main_frame", "xmlhttprequest"]
+    },
+    {
+      "description": "",
+      "exampleUrl": "https://www.reddit.com/?feed=home",
+      "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "error": null,
+      "includePattern": "https://www.reddit.com/?feed=home",
+      "excludePattern": "",
+      "patternDesc": "",
+      "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "patternType": "W",
+      "processMatches": "noProcessing",
+      "disabled": false,
+      "grouped": false,
+      "appliesTo": ["main_frame", "xmlhttprequest"]
+    },
+    {
+      "description": "",
+      "exampleUrl": "https://www.reddit.com/r/popular/",
+      "exampleResult": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "error": null,
+      "includePattern": "https://www.reddit.com/r/popular/",
+      "excludePattern": "",
+      "patternDesc": "",
+      "redirectUrl": "https://www.reddit.com/user/d3s3rd/m/dev",
+      "patternType": "W",
+      "processMatches": "noProcessing",
+      "disabled": false,
+      "grouped": false,
+      "appliesTo": ["main_frame", "xmlhttprequest"]
+    },
+    {
+      "description": "Example redirect, try going to http://example.com/anywordhere",
+      "exampleUrl": "http://example.com/some-word-that-matches-wildcard",
+      "exampleResult": "https://google.com/search?q=some-word-that-matches-wildcard",
+      "error": null,
+      "includePattern": "http://example.com/*",
+      "excludePattern": "",
+      "patternDesc": "Any word after example.com leads to google search for that word.",
+      "redirectUrl": "https://google.com/search?q=$1",
+      "patternType": "W",
+      "processMatches": "noProcessing",
+      "disabled": false,
+      "grouped": false,
+      "appliesTo": ["main_frame"]
+    }
+  ]
 }
+
