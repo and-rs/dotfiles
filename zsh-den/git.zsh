@@ -4,6 +4,7 @@
 # my dumbass kept adding eveything to the commit
 # alias gac="git add . && git commit -m"
 alias gnewbranch="git switch main && git pull origin main && git switch -c"
+alias gprune="git pull origin main && git fetch --prune"
 alias gpbranch="git push -u origin HEAD"
 alias gl="git log --oneline -n 10"
 alias gc="git commit"

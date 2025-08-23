@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-fzf-history() {
+_fzf_history() {
     local de_duplicated_history=("${(@f)$(fc -lnr 0 | awk '!seen[$0]++')}")
     local history_for_fzf=$(noglob printf '%s\000' "${de_duplicated_history[@]}")
 
@@ -36,8 +36,26 @@ fzf-history() {
     zle -R
 }
 
-zle -N fzf-history
-bindkey '^R' fzf-history
+_fzf_insert_path_widget() {
+    local fzf_opts=(
+        --padding=1,0,0,1
+        --prompt="path > "
+        --layout=reverse
+        --height=60%
+    )
+
+    selection=$( fd -t f -t d -H --follow --color=never --exclude .git | fzf "${fzf_opts[@]}" )
+
+    LBUFFER+="$selection"
+    zle redisplay
+    command -v _zsh_autosuggest_clear >/dev/null 2>&1 && _zsh_autosuggest_clear
+}
+
+zle -N _fzf_insert_path_widget
+bindkey '^T' _fzf_insert_path_widget
+
+zle -N _fzf_history
+bindkey '^R' _fzf_history
 
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS
 --color=16,bg+:-1,fg+:4,pointer:4,marker:4 --preview-border='line'
