@@ -1,6 +1,10 @@
 app.log
 .DS_Store
 
+_direnv_hook.zsh
+_uv_completion.zsh
+_zoxide_init.zsh
+
 fast-syntax-highlighting
 zsh-syntax-highlighting
 zsh-autosuggestions
