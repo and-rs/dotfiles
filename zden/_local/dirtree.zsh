@@ -19,6 +19,7 @@ function dirtree() {
     FORMATTED_OUTPUT="\`\`\`\n${TREE_OUTPUT}\n\`\`\`"
 
     echo -e "${FORMATTED_OUTPUT}" | ${CLIPBOARD_CMD}
+    echo $TREE_OUTPUT
     echo "eza tree output with markdown code blocks copied to clipboard!"
 }
 

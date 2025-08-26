@@ -1,3 +1,5 @@
+zmodload zsh/zprof
+
 # If not in tmux, start tmux.
 if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
     exec tmux -u new -s init -A -D
@@ -17,6 +19,7 @@ if [[ ! -e $ZDEN/powerlevel10k ]]; then
 fi
 if [[ ! -e $ZDEN/fzf-tab ]]; then
     git clone --depth=1 https://github.com/Aloxaf/fzf-tab "$ZDEN/fzf-tab"
+    zcompile-many "$ZDEN/fzf-tab/"*.zsh
 fi
 if [[ ! -e $ZDEN/zsh-syntax-highlighting ]]; then
     git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZDEN/zsh-syntax-highlighting"
@@ -28,6 +31,7 @@ if [[ ! -e $ZDEN/zsh-autosuggestions ]]; then
 fi
 if [[ ! -e $ZDEN/forgit ]]; then
     git clone --depth=1 https://github.com/wfxr/forgit.git "$ZDEN/forgit"
+    zcompile-many "$ZDEN/forgit/forgit.plugin.zsh"
 fi
 
 # Enable Powerlevel10k instant prompt. This is after the plugin verfs.
@@ -39,16 +43,13 @@ fi
 source "$ZDEN/powerlevel10k/powerlevel10k.zsh-theme"
 [[ ! -f $ZDEN/p10k.zsh ]] || source "$ZDEN/p10k.zsh"
 
-# Enable the "new" completion system (compsys).
 autoload -Uz compinit
 if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
-    compinit
+    compinit -d ~/.zcompdump
 else
-    compinit -C
+    compinit -C -d ~/.zcompdump
 fi
-
 [[ ~/.zcompdump.zwc -nt ~/.zcompdump ]] || zcompile-many ~/.zcompdump
-unfunction zcompile-many
 
 # Nix
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
