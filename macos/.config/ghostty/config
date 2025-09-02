@@ -2,6 +2,7 @@ quit-after-last-window-closed = true
 macos-non-native-fullscreen = true
 macos-titlebar-style = hidden
 macos-option-as-alt = true
+confirm-close-surface = false
 
 theme = NvimDark
 palette = 8=#808080
@@ -11,8 +12,8 @@ cursor-color = #cacaca
 # config-file = tokyo-night
 
 custom-shader-animation = true
-#custom-shader = shaders/cursor_smear.glsl
-#custom-shader = shaders/cursor_glow.glsl
+# custom-shader = shaders/cursor_smear.glsl
+# custom-shader = shaders/cursor_glow.glsl
 custom-shader = shaders/cursor_slash.glsl
 
 # custom-shader = shaders/dot_matrix_glow.glsl

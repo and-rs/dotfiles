@@ -2,8 +2,11 @@
 
 DOTS="$HOME/vault/personal/dotfiles"
 
-alias ..="z .."
+# insanity
 alias nv="nvim"
+alias nvim="printf '\033[?25l' && clear && nvim && printf '\033[?25h'"
+
+alias ..="z .."
 alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
