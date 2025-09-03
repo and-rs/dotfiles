@@ -42,18 +42,17 @@ _fzf_insert_path_widget() {
         --prompt="path > "
         --layout=reverse
         --height=60%
+        --multi
     )
-
     local selection
-    selection=$(
-        fd -t f -t d -H --follow --color=never --exclude .git \
-            | fzf "${fzf_opts[@]}"
-    ) || return
-
-    local qsel
-    qsel=$(printf '%q' -- "$selection")
-
-    LBUFFER+="$qsel"
+    selection=$(fd -t f -t d -H --follow --color=never --exclude .git | fzf "${fzf_opts[@]}")
+    if [[ -n "$selection" ]]; then
+        local quoted_selections=()
+        while IFS= read -r line; do
+            quoted_selections+=("$(printf "%q" "$line")")
+        done <<< "$selection"
+        LBUFFER+="${quoted_selections[*]}"
+    fi
     zle redisplay
     command -v _zsh_autosuggest_clear >/dev/null 2>&1 && _zsh_autosuggest_clear
 }
