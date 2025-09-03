@@ -44,9 +44,16 @@ _fzf_insert_path_widget() {
         --height=60%
     )
 
-    selection=$( fd -t f -t d -H --follow --color=never --exclude .git | fzf "${fzf_opts[@]}" )
+    local selection
+    selection=$(
+        fd -t f -t d -H --follow --color=never --exclude .git \
+            | fzf "${fzf_opts[@]}"
+    ) || return
 
-    LBUFFER+="$selection"
+    local qsel
+    qsel=$(printf '%q' -- "$selection")
+
+    LBUFFER+="$qsel"
     zle redisplay
     command -v _zsh_autosuggest_clear >/dev/null 2>&1 && _zsh_autosuggest_clear
 }

@@ -3,8 +3,7 @@
 DOTS="$HOME/vault/personal/dotfiles"
 
 # insanity
-alias nv="nvim"
-alias nvim="printf '\033[?25l' && clear && nvim && printf '\033[?25h'"
+alias nv="printf '\033[?25l' && clear && nvim && printf '\033[?25h'"
 
 alias ..="z .."
 alias c="clear -x"
