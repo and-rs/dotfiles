@@ -1,5 +1,17 @@
 #!/usr/bin/env zsh
 
+# in case of fuckups
+git() {
+    if [ "$1" = "reset" ] && [ "$2" = "--hard" ]; then
+        shift 2
+        command git stash -u -k -m "auto-stash before hard reset $(date -Iseconds)"
+        command git reset --hard "$@"
+        command git stash list | head -n1
+    else
+        command git "$@"
+    fi
+}
+
 # My own little set of git shortcuts
 alias gnewbranch="git switch main && git pull origin main && git switch -c"
 alias gprune="git pull origin main && git fetch --prune"
