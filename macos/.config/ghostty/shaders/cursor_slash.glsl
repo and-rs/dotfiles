@@ -1,11 +1,7 @@
-float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b)
-{
+float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b) {
     vec2 d = abs(p - xy) - b;
     return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
-
-// Based on Inigo Quilez's 2D distance functions article: https://iquilezles.org/articles/distfunctions2d/
-// Potencially optimized by eliminating conditionals and loops to enhance performance and reduce branching
 
 float seg(in vec2 p, in vec2 a, in vec2 b, inout float s, float d) {
     vec2 e = b - a;
@@ -61,7 +57,8 @@ float ease(float x) {
 }
 
 const vec4 TRAIL_COLOR = vec4(0.65098, 0.85882, 1.0, 1.0);
-const float DURATION = 0.3; //IN SECONDS
+const float DURATION = 0.3; // IN SECONDS
+const float DISTANCE_THRESHOLD = 3.5; // ADDED: Maximum distance for trail effect
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
@@ -78,6 +75,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec4 currentCursor = vec4(normalize(iCurrentCursor.xy, 1.), normalize(iCurrentCursor.zw, 0.));
     vec4 previousCursor = vec4(normalize(iPreviousCursor.xy, 1.), normalize(iPreviousCursor.zw, 0.));
 
+    // ADDED: Calculate distance between cursor positions
+    vec2 centerCC = getRectangleCenter(currentCursor);
+    vec2 centerCP = getRectangleCenter(previousCursor);
+    float cursorDistance = distance(centerCC, centerCP);
+    
+    // ADDED: Check if distance exceeds threshold
+    bool trailEnabled = cursorDistance <= DISTANCE_THRESHOLD;
+
     // When drawing a parellelogram between cursors for the trail i need to determine where to start at the top-left or top-right vertex of the cursor
     float vertexFactor = determineStartVertexFactor(currentCursor.xy, previousCursor.xy);
     float invertedVertexFactor = 1.0 - vertexFactor;
@@ -89,24 +94,29 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec2 v3 = vec2(previousCursor.x + currentCursor.z * vertexFactor, previousCursor.y - previousCursor.w);
 
     float sdfCurrentCursor = getSdfRectangle(vu, currentCursor.xy - (currentCursor.zw * offsetFactor), currentCursor.zw * 0.5);
-    float sdfTrail = getSdfParallelogram(vu, v0, v1, v2, v3);
+    
+    // MODIFIED: Only calculate trail SDF if enabled
+    float sdfTrail = trailEnabled ? getSdfParallelogram(vu, v0, v1, v2, v3) : 1e9; // Large value to disable trail
 
     float progress = clamp((iTime - iTimeCursorChange) / DURATION, 0.0, 1.0);
     float easedProgress = ease(progress);
+    
     // Distance between cursors determine the total length of the parallelogram;
-    vec2 centerCC = getRectangleCenter(currentCursor);
-    vec2 centerCP = getRectangleCenter(previousCursor);
-    float lineLength = distance(centerCC, centerCP);
+    float lineLength = cursorDistance;
 
     vec4 newColor = vec4(fragColor);
     // Compute fade factor based on distance along the trail
     float fadeFactor = 1.0 - smoothstep(lineLength, sdfCurrentCursor, easedProgress * lineLength);
 
-    // Apply fading effect to trail color
-    vec4 fadedTrailColor = TRAIL_COLOR * fadeFactor;
+    // MODIFIED: Only apply trail effect if enabled
+    if (trailEnabled) {
+        // Apply fading effect to trail color
+        vec4 fadedTrailColor = TRAIL_COLOR * fadeFactor;
 
-    // Blend trail with fade effect
-    newColor = mix(newColor, fadedTrailColor, antialising(sdfTrail));
+        // Blend trail with fade effect
+        newColor = mix(newColor, fadedTrailColor, antialising(sdfTrail));
+    }
+    
     // Draw current cursor
     newColor = mix(newColor, TRAIL_COLOR, antialising(sdfCurrentCursor));
     newColor = mix(newColor, fragColor, step(sdfCurrentCursor, 0.));
