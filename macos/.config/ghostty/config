@@ -13,8 +13,8 @@ cursor-color = #cacaca
 
 custom-shader-animation = true
 custom-shader = shaders/cursor_smear.glsl
-# custom-shader = shaders/cursor_glow.glsl
-# custom-shader = shaders/cursor_slash.glsl
+#custom-shader = shaders/cursor_glow.glsl
+#custom-shader = shaders/cursor_slash.glsl
 
 # custom-shader = shaders/dot_matrix_glow.glsl
 # custom-shader = shaders/dot_matrix.glsl

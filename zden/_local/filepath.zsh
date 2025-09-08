@@ -25,6 +25,7 @@ function filepath() {
         esac
     done
 
+
     if ! command -v fd >/dev/null 2>&1; then
         echo "Error: 'fd' is required." >&2
         return 1
@@ -33,6 +34,16 @@ function filepath() {
         echo "Error: 'fzf' is required." >&2
         return 1
     fi
+
+    local clipboard_cmd=""
+    if command -v pbcopy >/dev/null 2>&1; then
+        clipboard_cmd="pbcopy"
+    elif command -v wl-copy >/dev/null 2>&1; then
+    else
+        echo "Error: No clipboard utility found. Install 'pbcopy' (macOS), 'wl-copy' (Wayland)" >&2
+        return 1
+    fi
+
 
     local selected_files
     selected_files="$(fd --exact-depth="$depth" | fzf \
@@ -46,19 +57,20 @@ function filepath() {
         return 0
     fi
 
-    local filepaths
-    filepaths="$(printf '%s\n' "$selected_files" | sed "s|^|$(pwd)/|")"
+    local -a files_array
+    files_array=("${(@f)selected_files}")
 
-    local clipboard_cmd=""
-    if command -v pbcopy >/dev/null 2>&1; then
-        clipboard_cmd="pbcopy"
-    elif command -v wl-copy >/dev/null 2>&1; then
-        clipboard_cmd="wl-copy"
-    else
-        echo "Error: No clipboard utility found. Install 'pbcopy' (macOS), 'wl-copy' (Wayland), or 'xclip' (X11)." >&2
-        return 1
-    fi
+    local -a quoted_paths
+    local current_dir
+    current_dir="$(pwd)"
 
-    printf '%s' "$filepaths" | eval "$clipboard_cmd"
-    echo "Copied $(echo "$filepaths" | wc -l) file path(s) to clipboard."
+    for file in "${files_array[@]}"; do
+        quoted_paths+=("${(q)current_dir}/${(q)file}")
+    done
+
+    local clipboard_content
+    clipboard_content="${(j:\n:)quoted_paths}"
+
+    printf '%s' "$clipboard_content" | "$clipboard_cmd"
+    echo "Copied ${#files_array[@]} file path(s) to clipboard."
 }
