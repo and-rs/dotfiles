@@ -28,14 +28,16 @@ _qsv_select_headers() {
         | fzf "${fzf_opts[@]}") || return 1
     clear
     local headers
-    headers=$(qsv headers "$file" \
+    headers=$(
+        qsv headers "$file" \
             | fzf "${fzf_opts_headers[@]}" \
-            | awk '{gsub(/^ +| {2,}/, " "); print $2}' \
-        | paste -sd ',' -) || return 1
+            | awk '{sub(/^[[:space:]]*[0-9]+[[:space:]]+/, ""); print}' \
+            | paste -sd ',' -
+    ) || return 1
     if [[ -z $headers ]]; then
         return 1
     else
-        compadd -Q -- "${headers} $(printf '%q' "$file")"
+        compadd -Q -- "$(printf '%q' "$headers") $(printf '%q' "$file")"
     fi
 }
 
