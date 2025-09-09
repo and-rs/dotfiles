@@ -5,9 +5,10 @@ macos-option-as-alt = true
 confirm-close-surface = false
 
 theme = NvimDark
-palette = 8=#808080
-cursor-text = #000000
-cursor-color = #cacaca
+palette = 0=#4A555D
+palette = 8=#757D83
+cursor-text = #040506
+cursor-color = #EAEBEC
 
 # config-file = tokyo-night
 
