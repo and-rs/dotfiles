@@ -38,6 +38,7 @@ _fzf_insert_path_widget() {
         --layout=reverse
         --height=60%
         --multi
+        --cycle
     )
     local selection
     selection=$(fd -t f -t d -H --follow --color=never --exclude .git | fzf "${fzf_opts[@]}")

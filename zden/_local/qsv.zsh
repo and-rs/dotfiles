@@ -11,6 +11,7 @@ _qsv_select_headers() {
         --layout=reverse
         --height=60%
         --no-multi
+        --cycle
     )
     local -a fzf_opts_headers=(
         --prompt="headers > "
@@ -18,6 +19,7 @@ _qsv_select_headers() {
         --layout=reverse
         --height=60%
         --multi
+        --cycle
     )
     if [[ ${words[2]} != "select" ]]; then
         return 0
