@@ -1,6 +1,3 @@
-// source: https://gist.github.com/qwerasd205/c3da6c610c8ffe17d6d2d3cc7068f17f
-// credits: https://github.com/qwerasd205
-// Golden spiral samples, [x, y, weight] weight is inverse of distance.
 const vec3[24] samples = {
   vec3(0.1693761725038636, 0.9855514761735895, 1),
   vec3(-1.333070830962943, 0.4721463328627773, 0.7071067811865475),
@@ -34,17 +31,14 @@ float lum(vec4 c) {
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   vec2 uv = fragCoord.xy / iResolution.xy;
-
   vec4 color = texture(iChannel0, uv);
-
   vec2 step = vec2(1.414) / iResolution.xy;
-
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 10; i++) {
     vec3 s = samples[i];
     vec4 c = texture(iChannel0, uv + s.xy * step);
     float l = lum(c);
     if (l > 0.2) {
-      color += l * s.z * c * 0.1;
+      color += l * s.z * c * 0.12; // adjust right here
     }
   }
 

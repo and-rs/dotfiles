@@ -2,6 +2,7 @@
 
 DOTS="$HOME/vault/personal/dotfiles"
 
+alias yz="yazi"
 alias nv="nvim"
 alias ..="z .."
 alias c="clear -x"

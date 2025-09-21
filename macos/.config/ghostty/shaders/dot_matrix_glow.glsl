@@ -1,30 +1,25 @@
 // Transparency Settings
-const float GLOBAL_OPACITY = 0.7;       // Overall transparency (1.0 = fully opaque, 0.0 = fully transparent)
+const float GLOBAL_OPACITY = 1.0;       // Overall transparency (1.0 = fully opaque, 0.0 = fully transparent)
 
 // Chromatic Aberration Settings
-const float ABBERATION_FACTOR = 0.003;  // Strength of color splitting effect (default: 0.05)
+const float ABBERATION_FACTOR = 0;  // Strength of color splitting effect (default: 0.05)
 
 // Glow/Bloom Settings
-const float DIM_CUTOFF = 0.28;          // Threshold for what's considered a dim pixel (default: 0.35)
-const float BRIGHT_CUTOFF = 0.8;        // Threshold for what's considered a bright pixel
-const float BRIGHT_BOOST = 1.1;         // Brightness multiplier for bright pixels (default: 1.2)
+const float DIM_CUTOFF = 0.6;          // Threshold for what's considered a dim pixel (default: 0.35)
+const float BRIGHT_CUTOFF = 0.9;        // Threshold for what's considered a bright pixel
+const float BRIGHT_BOOST = 1;         // Brightness multiplier for bright pixels (default: 1.2)
 const float DIM_GLOW = 0.02;            // Glow intensity for dim pixels (default: 0.05)
-const float BRIGHT_GLOW = 0.1;          // Glow intensity for bright pixels (default: 0.10)
+const float BRIGHT_GLOW = 0.06;          // Glow intensity for bright pixels (default: 0.10)
 const float COLOR_GLOW = 0.6;           // Color bleeding intensity (default: 0.3)
 
 // Scanline Settings
 const float SCANLINE_INTENSITY = 0.0;   // Overall intensity of scanlines (default: 1.0)
-const float SCANLINE_DENSITY = 0.25;    // Density/thickness of scanlines (default: 0.25)
+const float SCANLINE_DENSITY = 0.0;    // Density/thickness of scanlines (default: 0.25)
 
 // Dot Matrix Settings
-const float MASK_INTENSITY = 0.5;       // Strength of the dot pattern (default: 0.3)
-const float MASK_SIZE = 0.5;            // Size of the dots (default: 1.0)
+const float MASK_INTENSITY = 0;       // Strength of the dot pattern (default: 0.3)
+const float MASK_SIZE = 0;            // Size of the dots (default: 1.0)
 
-//-----------------------------------------------------------------------------
-// Color Space Conversion Functions
-//-----------------------------------------------------------------------------
-
-// sRGB linear -> nonlinear transform
 float f(float x) {
     if (x >= 0.0031308) return 1.055 * pow(x, 1.0 / 2.4) - 0.055;
     return 12.92 * x;
@@ -35,7 +30,6 @@ float f_inv(float x) {
     return x / 12.92;
 }
 
-// Oklab color space conversions
 vec4 toOklab(vec4 rgb) {
     vec3 c = vec3(f_inv(rgb.r), f_inv(rgb.g), f_inv(rgb.b));
     float l = 0.4122214708 * c.r + 0.5363325363 * c.g + 0.0514459929 * c.b;
@@ -73,11 +67,6 @@ vec4 toRgb(vec4 oklab) {
     );
 }
 
-//-----------------------------------------------------------------------------
-// Effect Generation Functions
-//-----------------------------------------------------------------------------
-
-// Bloom sample points
 const vec3[24] samples = {
     vec3(0.1693761725038636, 0.9855514761735895, 1),
     vec3(-1.333070830962943, 0.4721463328627773, 0.7071067811865475),
@@ -105,7 +94,6 @@ const vec3[24] samples = {
     vec3(-2.8769733643574344, 3.9652268864187157, 0.20412414523193154)
 };
 
-// Chromatic aberration time variation
 float offsetFunction(float iTime) {
     float amount = 1.0;
     const float periods[4] = {6.0, 16.0, 19.0, 27.0};
@@ -115,23 +103,16 @@ float offsetFunction(float iTime) {
     return amount * periods[3];
 }
 
-//-----------------------------------------------------------------------------
-// Main Shader
-//-----------------------------------------------------------------------------
-
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = fragCoord.xy / iResolution.xy;
 
-    // Apply Chromatic Aberration with alpha
     float amount = offsetFunction(iTime);
     vec4 colR = texture(iChannel0, vec2(uv.x-ABBERATION_FACTOR*amount / iResolution.x, uv.y));
     vec4 colG = texture(iChannel0, uv);
     vec4 colB = texture(iChannel0, vec2(uv.x+ABBERATION_FACTOR*amount / iResolution.x, uv.y));
 
-    // Combine colors while preserving alpha
     vec4 col = vec4(colR.r, colG.g, colB.b, colG.a);
 
-    // Process Colors and Apply Glow
     vec4 splittedColor = col;
     vec4 source = toOklab(splittedColor);
     vec4 dest = source;
@@ -159,21 +140,17 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     vec4 processedColor = toRgb(dest);
 
-    // Apply Scanlines
     float scanline = abs(sin(fragCoord.y) * SCANLINE_DENSITY * SCANLINE_INTENSITY);
 
-    // Apply Dot Matrix
     vec2 mask_pos = fragCoord.xy * MASK_SIZE;
     float mask = 1.0 - (MASK_INTENSITY * (
         0.5 + 0.5 * sin(mask_pos.x * 3.14159) *
         sin(mask_pos.y * 3.14159)
     ));
 
-    // Combine Effects while preserving alpha
     vec3 final_color = processedColor.rgb * mask;
     vec3 with_scanline = mix(final_color, vec3(0.0), scanline);
 
-    // Apply global opacity while preserving the original alpha relationship
     float final_alpha = processedColor.a * GLOBAL_OPACITY;
 
     fragColor = vec4(with_scanline, final_alpha);

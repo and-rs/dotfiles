@@ -1,6 +1,38 @@
+[default]
+bg = "#131621"
+
+[mgr]
+preview_hovered = { underline = false }
+count_selected = { fg = "black", bg = "blue" }
+count_copied = { fg = "black", bg = "yellow" }
+count_cut = { fg = "black", bg = "red" }
+marker_marked = { fg = "green", bg = "green" }
+marker_selected = { fg = "blue", bg = "blue" }
+marker_copied = { fg = "yellow", bg = "yellow" }
+marker_cut = { fg = "red", bg = "red" }
+
 [status]
 sep_left = { open = "", close = "" }
 sep_right = { open = "", close = "" }
+
+progress_label = { bg = "black", fg = "black"  }
+progress_normal = { bg = "black",  fg = "black" }
+
+[mode]
+normal_main = { bg = "black" }
+normal_alt = { bg = "black" }
+
+select_main = { fg = "red", bg = "black" }
+select_alt = { fg = "red", bg = "black" }
+
+unset_main = { fg = "blue", bg = "black" }
+unset_alt = { fg = "blue", bg = "black" }
+
+[tabs]
+sep_outer = { open = "", close = "" }
+sep_inner = { open = "", close = "" }
+active = { fg = "cyan", bg = "black" }
+inactive = { fg = "grey", bg = "black" }
 
 [icon]
 globs = []

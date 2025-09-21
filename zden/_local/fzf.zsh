@@ -41,7 +41,29 @@ _fzf_insert_path_widget() {
         --cycle
     )
     local selection
-    selection=$(fd -t f -t d -H --follow --color=never --exclude .git | fzf "${fzf_opts[@]}")
+    selection=$(fd -t f -t d -H --follow --color=never -E .git -E .DS_Store --maxdepth 1 | fzf "${fzf_opts[@]}")
+    if [[ -n "$selection" ]]; then
+        local quoted_selections=()
+        while IFS= read -r line; do
+            quoted_selections+=("$(printf "%q" "$line")")
+        done <<< "$selection"
+        LBUFFER+="${quoted_selections[*]}"
+    fi
+    zle redisplay
+    command -v _zsh_autosuggest_clear >/dev/null 2>&1 && _zsh_autosuggest_clear
+}
+
+_fzf_insert_path_widget_recursive() {
+    local fzf_opts=(
+        --padding=1,0,0,1
+        --prompt="path (recursive) > "
+        --layout=reverse
+        --height=60%
+        --multi
+        --cycle
+    )
+    local selection
+    selection=$(fd -t f -t d -H --follow --color=never -E .git -E .DS_Store | fzf "${fzf_opts[@]}")
     if [[ -n "$selection" ]]; then
         local quoted_selections=()
         while IFS= read -r line; do
@@ -55,6 +77,9 @@ _fzf_insert_path_widget() {
 
 zle -N _fzf_insert_path_widget
 bindkey '^T' _fzf_insert_path_widget
+
+zle -N _fzf_insert_path_widget_recursive
+bindkey '^G' _fzf_insert_path_widget_recursive
 
 zle -N _fzf_history
 bindkey '^R' _fzf_history

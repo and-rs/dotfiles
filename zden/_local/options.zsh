@@ -2,7 +2,7 @@
 
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
-export BAT_THEME='tokyonight-nosyntax'
+export BAT_THEME='tokyonight-day-nosyntax'
 
 # History options
 HISTSIZE=7000
@@ -39,6 +39,13 @@ bindkey '^N' down-line-or-history
 
 bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
+
+bindkey '^Z' undo
+
+bindkey -r '^H'
+bindkey -r '^J'
+bindkey -r '^K'
+bindkey -r '^L'
 
 zstyle ':completion:*' insert-tab false
 

@@ -4,31 +4,34 @@ macos-titlebar-style = hidden
 macos-option-as-alt = true
 confirm-close-surface = false
 
-# theme = NvimDark
-# palette = 0=#4A555D
-# palette = 8=#757D83
-# cursor-text = #040506
-# cursor-color = #EAEBEC
+theme = TokyoNight Day
+#theme = NvimDark
+palette = 0=#8187B1
+palette = 8=#8187B1
+#cursor-text = #040506
+#cursor-color = #EAEBEC
 
-config-file = tokyo-night
+#config-file = tokyo-night
 
 custom-shader-animation = true
 custom-shader = shaders/cursor_smear.glsl
 #custom-shader = shaders/cursor_glow.glsl
 #custom-shader = shaders/cursor_slash.glsl
 
-custom-shader = shaders/dot_matrix_glow.glsl
-custom-shader = shaders/dot_matrix.glsl
-custom-shader = shaders/glow.glsl
+# -> only for darkmode
+#custom-shader = shaders/dot_matrix_glow.glsl
+#custom-shader = shaders/dot_matrix.glsl
+#custom-shader = shaders/glow.glsl
+
 custom-shader = shaders/crt.glsl
 
 window-padding-x = 2
-window-padding-y = 0
+window-padding-y = 4
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 16
-adjust-cursor-height = 16
+adjust-cell-height = 17
+adjust-cursor-height = 17
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
@@ -36,6 +39,7 @@ font-size = 17
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-# font-family = Input Mono
-font-family = CommitMonoFucker
-# font-family = Iosevka Custom
+#font-family = Input Mono
+#font-family = CommitMonoFucker
+#font-family = Iosevka Custom
+font-family = Recursive Mono Linear Static
