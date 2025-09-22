@@ -93,3 +93,39 @@ git-work-account() {
     git config --get user.name
     git config --get user.email
 }
+
+gh-repo-delete() {
+    TMP_DIR=${TMPDIR:-/tmp}
+    SEL_FILE="$TMP_DIR/repos-selected.txt"
+    DEL_FILE="$TMP_DIR/repos-to-delete.txt"
+
+    gh repo list --json owner,name,visibility \
+        | jq -r '.[] | [.name, .owner.login, .visibility] | @csv' \
+        | qsv table \
+        | fzf --multi --reverse --info=default \
+        | tee "$SEL_FILE" \
+        | awk '{print $1}' \
+        | tee "$DEL_FILE" >/dev/null
+
+    count=$(wc -l < "$DEL_FILE")
+    [ "$count" -eq 0 ] && { echo "No repos selected."; return; }
+
+    clear 2>/dev/null || true
+    printf "%s\n\n" "About to delete $count repositories:" | tr -s ' '
+
+    max_show=12
+    if [ "$count" -le "$max_show" ]; then
+        { echo "Repo,Owner,Visibility"; tr -s ' ' ',' < "$SEL_FILE"; } | mlr --icsv --opprint --barred cat
+    else
+        head -n "$max_show" "$SEL_FILE"
+        remain=$(( count - max_show ))
+        echo "… and $remain more"
+    fi
+
+    printf "\nWarning: This action is permanent."
+    printf "\n%s" "Type DELETE to confirm: "
+    read -r ans
+    [ "$ans" = "DELETE" ] || { echo "Aborted."}
+
+    xargs -n 1 gh repo delete --yes < "$DEL_FILE"
+}
