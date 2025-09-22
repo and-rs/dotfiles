@@ -29,8 +29,8 @@ window-padding-y = 4
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 17
-adjust-cursor-height = 17
+adjust-cell-height = 14
+adjust-cursor-height = 14
 adjust-font-baseline = 0
 adjust-underline-position = 5
 

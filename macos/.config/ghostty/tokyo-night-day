@@ -1,5 +1,5 @@
-palette = 0=#dddde3
-palette = 1=#f52a65
+palette = 0=#d0d5e3
+palette = 1=#e23661
 palette = 2=#587539
 palette = 3=#8c6c3e
 palette = 4=#2e7de9
@@ -7,7 +7,7 @@ palette = 5=#9854f1
 palette = 6=#007197
 palette = 7=#6172b0
 palette = 8=#777c92
-palette = 9=#ff4774
+palette = 9=#e23661
 palette = 10=#5c8524
 palette = 11=#a27629
 palette = 12=#358aff
