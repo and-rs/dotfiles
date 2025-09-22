@@ -1,6 +1,3 @@
-[default]
-bg = "#131621"
-
 [mgr]
 preview_hovered = { underline = false }
 count_selected = { fg = "black", bg = "blue" }
@@ -19,14 +16,12 @@ progress_label = { bg = "black", fg = "black"  }
 progress_normal = { bg = "black",  fg = "black" }
 
 [mode]
-normal_main = { bg = "black" }
-normal_alt = { bg = "black" }
-
-select_main = { fg = "red", bg = "black" }
-select_alt = { fg = "red", bg = "black" }
-
-unset_main = { fg = "blue", bg = "black" }
-unset_alt = { fg = "blue", bg = "black" }
+normal_main = { bg = "black", bold = true}
+normal_alt = { bg = "black", bold = true}
+select_main = { fg = "red", bg = "black", bold = true}
+select_alt = { fg = "red", bg = "black", bold = true}
+unset_main = { fg = "blue", bg = "black", bold = true}
+unset_alt = { fg = "blue", bg = "black", bold = true}
 
 [tabs]
 sep_outer = { open = "", close = "" }

@@ -4,26 +4,25 @@ macos-titlebar-style = hidden
 macos-option-as-alt = true
 confirm-close-surface = false
 
-theme = TokyoNight Day
-#theme = NvimDark
-palette = 0=#8187B1
-palette = 8=#8187B1
+#theme = Nvim Dark
+#palette = 0=#4A555D
+#palette = 8=#757D83
 #cursor-text = #040506
 #cursor-color = #EAEBEC
 
 #config-file = tokyo-night
+config-file = tokyo-night-day
 
 custom-shader-animation = true
 custom-shader = shaders/cursor_smear.glsl
 #custom-shader = shaders/cursor_glow.glsl
 #custom-shader = shaders/cursor_slash.glsl
+custom-shader = shaders/crt.glsl
 
 # -> only for darkmode
 #custom-shader = shaders/dot_matrix_glow.glsl
 #custom-shader = shaders/dot_matrix.glsl
 #custom-shader = shaders/glow.glsl
-
-custom-shader = shaders/crt.glsl
 
 window-padding-x = 2
 window-padding-y = 4
