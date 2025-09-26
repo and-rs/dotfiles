@@ -1,5 +1,6 @@
 [mgr]
 ratio = [2,2,2]
+sort_by = "natural"
 # show_hidden = true
 
 [[plugin.prepend_fetchers]]

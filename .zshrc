@@ -1,4 +1,9 @@
-zmodload zsh/zprof
+#zmodload zsh/zprof
+
+export PATH=/usr/bin:$PATH
+export PATH="$PATH:/Users/index/.cargo/bin"
+export PATH="$PATH:/Users/index/vault/personal/evil-helix/target/debug"
+typeset -U path PATH
 
 # If not in tmux, start tmux.
 if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
