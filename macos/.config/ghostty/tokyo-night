@@ -1,5 +1,6 @@
+background = #212330
 #background = #222436
-background = #07090D
+#background = #07090D
 foreground = #c8d3f5
 selection-foreground = #c8d3f5
 selection-background = #2d3f76

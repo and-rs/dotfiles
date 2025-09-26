@@ -26,19 +26,20 @@ const vec3[24] samples = {
   };
 
 float lum(vec4 c) {
-  return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
+  return 0.01 * c.r + 0.5 * c.g + 0.3 * c.b;
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   vec2 uv = fragCoord.xy / iResolution.xy;
   vec4 color = texture(iChannel0, uv);
-  vec2 step = vec2(1.414) / iResolution.xy;
+  vec2 step = vec2(1.0) / iResolution.xy;
+
   for (int i = 0; i < 10; i++) {
     vec3 s = samples[i];
     vec4 c = texture(iChannel0, uv + s.xy * step);
     float l = lum(c);
-    if (l > 0.2) {
-      color += l * s.z * c * 0.12; // adjust right here
+    if (l > 0.1) {
+      color += l * s.z * c * 0.1; // adjust right here
     }
   }
 

@@ -1,4 +1,4 @@
-theme = "tokyonight_day"
+theme = "default"
 
 [editor]
 gutters = ["diff", "diagnostics", "line-numbers", "spacer"]
@@ -33,7 +33,7 @@ nbsp = "⍽"
 space = " "
 nnbsp = "␣"
 tabpad = "·"
-newline = "⏎"
+newline = "|"
 
 [keys.normal]
 L = "goto_line_end"
