@@ -14,8 +14,8 @@ config-file = tokyo-night
 #config-file = tokyo-night-day
 
 custom-shader-animation = true
-custom-shader = shaders/cursor_smear.glsl
-#custom-shader = shaders/cursor_glow.glsl
+#custom-shader = shaders/cursor_smear.glsl
+custom-shader = shaders/cursor_glow.glsl
 #custom-shader = shaders/cursor_slash.glsl
 custom-shader = shaders/crt.glsl
 
@@ -30,13 +30,13 @@ window-padding-balance = true
 
 adjust-icon-height = 8
 adjust-cell-height = 14
-adjust-cursor-height = 14
+adjust-cursor-height = 0
 adjust-cursor-thickness = 3
 
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
-font-size = 18
+font-size = 17
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
