@@ -61,10 +61,16 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Zden setup
-for file in "$ZDEN"/_local/*(N.); do
-    source "$file"
-done
+# order matters
+source $ZDEN/_local/options.zsh
+source $ZDEN/_local/aliases.zsh
+source $ZDEN/_local/dirtree.zsh
+source $ZDEN/_local/filepath.zsh
+source $ZDEN/_local/forgit.zsh
+source $ZDEN/_local/fzf.zsh
+source $ZDEN/_local/git.zsh
+source $ZDEN/_local/qsv.zsh
+source $ZDEN/_local/update.zsh
 
 # Forgit patch
 typeset -f zden-patch-forgit >/dev/null && zden-patch-forgit

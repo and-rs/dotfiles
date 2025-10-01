@@ -1,6 +1,9 @@
 quit-after-last-window-closed = true
 confirm-close-surface = false
 
+keybind = alt+c=copy_to_clipboard
+keybind = alt+v=paste_from_clipboard
+
 # theme = Nvim Dark
 # palette = 8=#808080
 # cursor-text = #303030
@@ -20,7 +23,7 @@ custom-shader = shaders/crt.glsl
 #custom-shader = shaders/glow.glsl
 
 window-decoration = none
-window-padding-x = 2
+window-padding-x = 0
 window-padding-y = 0
 window-padding-balance = true
 
@@ -36,3 +39,4 @@ font-size = 13.5
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
+font-family = Recursive Mono Linear Static

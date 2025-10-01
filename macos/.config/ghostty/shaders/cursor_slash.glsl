@@ -1,7 +1,8 @@
 const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
 const vec4 TRAIL_COLOR_ACCENT = vec4(0.6, 0.75, 1.0, 1.0);
-const float DURATION = 0.2;
-const float INTENSITY = 0.3; // actually goated
+const float DURATION = 0.3;
+const float INTENSITY = 0.5;
+const float DISTANCE_THRESHOLD = 3.5;
 
 float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b) {
     vec2 d = abs(p - xy) - b;
@@ -89,6 +90,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     vec2 centerCC = getRectangleCenter(currentCursor);
     vec2 centerCP = getRectangleCenter(previousCursor);
+
+    float cursorDistance = distance(centerCC, centerCP);
+    bool trailEnabled = cursorDistance <= DISTANCE_THRESHOLD;
+
     float vertexFactor = determineStartVertexFactor(
             currentCursor.xy,
             previousCursor.xy
@@ -117,34 +122,34 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
             currentCursor.xy - (currentCursor.zw * offsetFactor),
             currentCursor.zw * 0.5
         );
-    float sdfTrail = getSdfParallelogram(vu, v0, v1, v2, v3);
+    float sdfTrail = trailEnabled ? getSdfParallelogram(vu, v0, v1, v2, v3) : 1e9;
 
     float progress = clamp((iTime - iTimeCursorChange) / DURATION, 0.0, 1.0);
     float easedProgress = ease(progress);
-    float lineLength = distance(centerCC, centerCP);
+    float lineLength = cursorDistance;
 
     float mod = .007;
 
-    vec4 trail = mix(
-            saturate(TRAIL_COLOR_ACCENT, 1.5),
-            fragColor,
-            1. - smoothstep(0., sdfTrail + mod, 0.007)
-        );
-
-    trail = mix(
-            saturate(TRAIL_COLOR, 1.5),
-            trail,
-            1. - smoothstep(0., sdfTrail + mod, 0.006)
-        );
-
-    trail = mix(trail, saturate(TRAIL_COLOR, 1.5), step(sdfTrail + mod, 0.));
+    vec4 trail = fragColor;
+    if (trailEnabled) {
+        trail = mix(
+                saturate(TRAIL_COLOR_ACCENT, 1.5),
+                fragColor,
+                1. - smoothstep(0., sdfTrail + mod, 0.007)
+            );
+        trail = mix(
+                saturate(TRAIL_COLOR, 1.5),
+                trail,
+                1. - smoothstep(0., sdfTrail + mod, 0.006)
+            );
+        trail = mix(trail, saturate(TRAIL_COLOR, 1.5), step(sdfTrail + mod, 0.));
+    }
 
     trail = mix(
             saturate(TRAIL_COLOR_ACCENT, 1.5),
             trail,
             1. - smoothstep(0., sdfCurrentCursor + .002, 0.004)
         );
-
     trail = mix(
             saturate(TRAIL_COLOR, 1.5),
             trail,

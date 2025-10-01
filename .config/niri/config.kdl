@@ -122,7 +122,7 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Alt+Return      { spawn "kitty"; }
+    Alt+Return      { spawn "ghostty"; }
     Alt+Space       { spawn "~/.config/rofi/launch-rofi.sh"; }
 
     Alt+Q           { close-window; }
@@ -138,10 +138,10 @@ binds {
     Alt+Ctrl+S  { reset-window-height; }
     Alt+Shift+S { switch-preset-window-height; }
 
-    Mod+H { focus-column-left; }
-    Mod+J { focus-window-down; }
-    Mod+K { focus-window-up; }
-    Mod+L { focus-column-right; }
+    Alt+H { focus-column-left; }
+    Alt+J { focus-window-down; }
+    Alt+K { focus-window-up; }
+    Alt+L { focus-column-right; }
 
     Alt+Shift+H { move-column-left; }
     Alt+Shift+J { move-window-down; }
