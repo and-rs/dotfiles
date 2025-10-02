@@ -50,7 +50,7 @@ input {
 }
 
 output "eDP-1" {
-    scale 1.6
+    scale 1.666
 }
 
 layout {
@@ -196,4 +196,14 @@ binds {
 
 animations {
     slowdown 0.6
+
+    workspace-switch {
+        off
+        // spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+    }
+
+    horizontal-view-movement {
+        off
+        // spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
 }

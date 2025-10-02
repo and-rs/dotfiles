@@ -39,6 +39,4 @@ font-size = 14
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-# font-family = Recursive Mono Linear Static
-font-family = IBM Plex Mono
-freetype-load-flags = hinting
+font-family = Input Mono Narrow
