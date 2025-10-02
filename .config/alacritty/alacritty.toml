@@ -1,22 +1,18 @@
-import = [
-"~/.config/alacritty/theme.toml",
-"~/.config/alacritty/keybinds.toml"
-]
+# import = [
+# "~/.config/alacritty/theme.toml",
+# "~/.config/alacritty/keybinds.toml"
+# ]
 
 [env]
 TERM = "alacritty"
 
 [font]
-size = 18
-#offset = { y = 4 }
-#glyph_offset = { y = 2 } #RecMono
+size = 13
+offset = { y = 8 }
+glyph_offset = { y = 4 } #RecMono
 
 [font.normal]
-#family = "RecMonoLinear Nerd Font"
-#family = "RecMonoCasual Nerd Font"
-#family = "JetBrainsMono Nerd Font"
-#family = "GeistMono Nerd Font"
-family = "Input Mono"
+family = "Recursive Mono Linear Static"
 
 [window]
 title = "Alacritty"

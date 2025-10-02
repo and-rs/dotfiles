@@ -12,15 +12,15 @@ keybind = alt+v=paste_from_clipboard
 config-file = tokyo-night
 
 custom-shader-animation = true
-#custom-shader = shaders/cursor_smear.glsl
-#custom-shader = shaders/cursor_glow.glsl
+# custom-shader = shaders/cursor_smear.glsl
+# custom-shader = shaders/cursor_glow.glsl
 custom-shader = shaders/cursor_slash.glsl
 custom-shader = shaders/crt.glsl
 
 # -> only for darkmode
-#custom-shader = shaders/dot_matrix_glow.glsl
-#custom-shader = shaders/dot_matrix.glsl
-#custom-shader = shaders/glow.glsl
+# custom-shader = shaders/dot_matrix_glow.glsl
+# custom-shader = shaders/glow.glsl
+# custom-shader = shaders/dot_matrix.glsl
 
 window-decoration = none
 window-padding-x = 0
@@ -28,15 +28,17 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 12
-adjust-cursor-height = 12
+adjust-cell-height = 13
+adjust-cursor-height = 13
 adjust-cursor-thickness = 3
 
 adjust-font-baseline = 0
 adjust-underline-position = 5
 
-font-size = 13.5
+font-size = 14
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = Recursive Mono Linear Static
+# font-family = Recursive Mono Linear Static
+font-family = IBM Plex Mono
+freetype-load-flags = hinting
