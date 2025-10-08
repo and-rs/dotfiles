@@ -70,6 +70,7 @@ source $ZDEN/_local/forgit.zsh
 source $ZDEN/_local/fzf.zsh
 source $ZDEN/_local/git.zsh
 source $ZDEN/_local/qsv.zsh
+source $ZDEN/_local/rclone.zsh
 source $ZDEN/_local/update.zsh
 
 # Forgit patch

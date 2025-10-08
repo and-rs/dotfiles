@@ -1,27 +1,47 @@
 [
   {
-    "margin": "8px 8px 0 8px",
+    "margin": "8px 8px 0px 8px",
     "layer": "bottom",
     "position": "top",
-    "spacing": 6,
+    "spacing": 0,
     "exclusive": true,
     "fixed-center": true,
     "modules-left": [
       "niri/workspaces",
       "niri/window"
     ],
-    "modules-center": [
-      "clock"
-    ],
     "modules-right": [
-      "wireplumber",
-      "backlight",
-      "cpu",
-      "memory",
-      "disk",
-      "battery",
-      "tray"
+      "group/right",
+      "group/connectivity"
     ],
+    "group/connectivity": {
+      "orientation": "horizontal",
+      "modules": [
+        "tray",
+        "bluetooth",
+        "network",
+        "battery",
+        "clock"
+      ]
+    },
+    "group/right": {
+      "orientation": "horizontal",
+      "drawer": {
+        "transition-duration": 500,
+        "children-class": "not-primary",
+        "transition-left-to-right": false,
+        "click-to-reveal": true
+      },
+      "modules": [
+        "custom/hover-section",
+        "wireplumber",
+        "wireplumber#source",
+        "backlight",
+        "cpu",
+        "memory",
+        "disk"
+      ]
+    },
     "include": [
       "~/.config/waybar/modules.jsonc"
     ]

@@ -5,7 +5,7 @@ CONFIG_FILES="$HOME/.config/waybar/config.jsonc $HOME/.config/waybar/style.css $
 trap "pkill waybar" EXIT
 
 while true; do
-    waybar &
+    waybar -l debug &
     inotifywait -e create,modify $CONFIG_FILES
     pkill waybar
 done

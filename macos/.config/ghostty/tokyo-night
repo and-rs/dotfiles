@@ -1,11 +1,11 @@
-background = #212330
-#background = #222436
 #background = #07090D
+
+background = #212330
 foreground = #c8d3f5
 selection-foreground = #c8d3f5
 selection-background = #2d3f76
 
-palette = 0=#1b1d2b
+palette = 0=#181a27
 palette = 8=#727AAC
 
 palette = 1=#ff757f
