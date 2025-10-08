@@ -1,7 +1,7 @@
 const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
 const vec4 TRAIL_COLOR_ACCENT = vec4(0.6, 0.75, 1.0, 1.0);
-const float DURATION = 0.2;
-const float INTENSITY = 0.1;
+const float DURATION = 0.15;
+const float INTENSITY = 0.3;
 const float DISTANCE_THRESHOLD = 3.5;
 
 float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b) {

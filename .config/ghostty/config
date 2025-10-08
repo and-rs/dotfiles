@@ -1,8 +1,16 @@
 quit-after-last-window-closed = true
 confirm-close-surface = false
 
+# remaps to mimic macos a bit
+keybind = super+f=esc:f
+keybind = super+b=esc:b
+keybind = super+h=esc:h
+keybind = super+j=esc:j
+keybind = super+k=esc:k
+keybind = super+l=esc:l
 keybind = alt+c=copy_to_clipboard
 keybind = alt+v=paste_from_clipboard
+keybind = alt+shift+,=reload_config
 
 # theme = Nvim Dark
 # palette = 8=#808080
@@ -15,12 +23,12 @@ custom-shader-animation = true
 custom-shader = shaders/cursor_slash.glsl
 # custom-shader = shaders/cursor_smear.glsl
 # custom-shader = shaders/cursor_glow.glsl
-#custom-shader = shaders/crt.glsl
+custom-shader = shaders/crt.glsl
 
 # -> only for darkmode and fancy screenshots
-# custom-shader = shaders/dot_matrix_glow.glsl
+custom-shader = shaders/dot_matrix_glow.glsl
+custom-shader = shaders/dot_matrix.glsl
 # custom-shader = shaders/glow.glsl
-# custom-shader = shaders/dot_matrix.glsl
 
 window-decoration = none
 window-padding-x = 1
@@ -28,8 +36,7 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 14
-# adjust-cursor-height = 14
+adjust-cell-height = 11
 adjust-cursor-thickness = 3
 
 adjust-font-baseline = 0
@@ -39,5 +46,5 @@ font-size = 14
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = Input Mono Narrow
-freetype-load-flags = false
+font-family = Rec Mono Linear
+# freetype-load-flags = false
