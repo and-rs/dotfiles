@@ -38,8 +38,8 @@ apps: list[str] = [
 ]
 
 overrides: dict[str, dict[str, str | None]] = {
+    "obsidian": {"control.d": None, "control.u": None},
     # "google-chrome": {"alt.p": None},
-    # "zen-beta": {"control.k": "macro(S-end delete)"},
 }
 
 additions: dict[str, dict[str, str]] = {

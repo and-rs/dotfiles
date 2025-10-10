@@ -29,6 +29,7 @@ bindkey '^O' edit-command-line
 
 bindkey '^K' kill-line
 bindkey '^U' backward-kill-line
+bindkey '^[W' backward-kill-word
 
 bindkey '^D' delete-char
 bindkey '^F' forward-char

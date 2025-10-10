@@ -10,7 +10,7 @@ const float BRIGHT_CUTOFF = 0.9; // Threshold for what's considered a bright pix
 const float BRIGHT_BOOST = 1; // Brightness multiplier for bright pixels (default: 1.2)
 const float DIM_GLOW = 0.02; // Glow intensity for dim pixels (default: 0.05)
 const float BRIGHT_GLOW = 0.06; // Glow intensity for bright pixels (default: 0.10)
-const float COLOR_GLOW = 0.1; // Color bleeding intensity (default: 0.3)
+const float COLOR_GLOW = 0.02; // Color bleeding intensity (default: 0.3)
 
 // Scanline Settings
 const float SCANLINE_INTENSITY = 0.0; // Overall intensity of scanlines (default: 1.0)
