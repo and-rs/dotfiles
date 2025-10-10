@@ -14,6 +14,7 @@ alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
 alias lt="eza -lihaT --git-ignore"
 alias ls="eza -liha"
 
+alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
 alias update-nixos="sudo nixos-rebuild switch --flake $HOME/vault/personal/nixos#default"
 alias update-darwin="sudo darwin-rebuild switch --flake $HOME/vault/personal/nix-darwin"
 
