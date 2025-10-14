@@ -218,8 +218,8 @@ binds {
     Alt+Shift+Minus { set-window-height "-10%"; }
     Alt+Shift+Equal { set-window-height "+10%"; }
 
-    Alt+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-    Alt+Shift+P { power-off-monitors; }
+    Ctrl+Return allow-inhibiting=false { fullscreen-window; }
+    Alt+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
     Alt+U       allow-inhibiting=false { screenshot; }
     Alt+Ctrl+U  allow-inhibiting=false { screenshot-screen; }
