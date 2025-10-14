@@ -1,0 +1,8 @@
+timeout 55  'niri msg output eDP-1 off' resume 'niri msg output eDP-1 on'
+timeout 65  'hyprlock'
+timeout 120 'systemctl suspend'
+
+lock 'hyprlock'
+before-sleep 'hyprlock'
+
+after-resume 'niri msg output eDP-1 on'
