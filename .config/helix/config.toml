@@ -1,4 +1,4 @@
-theme = "default"
+theme = "github_dark"
 
 [editor]
 gutters = ["diff", "diagnostics", "line-numbers", "spacer"]

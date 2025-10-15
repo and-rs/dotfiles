@@ -13,12 +13,13 @@ keybind = alt+c=copy_to_clipboard
 keybind = alt+v=paste_from_clipboard
 keybind = alt+shift+,=reload_config
 
-# theme = Nvim Dark
-# palette = 8=#808080
-# cursor-text = #303030
-# cursor-color = #e0e2ea
-
-config-file = tokyo-night
+# config-file = tokyo-night
+theme = GitHub Dark Default
+palette = 0=#2b2f35
+cursor-text = #2b2f35
+cursor-color = #ffffff
+selection-foreground = #ffffff
+selection-background = #2b2f35
 
 custom-shader-animation = true
 custom-shader = shaders/cursor_slash.glsl
@@ -37,7 +38,7 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 12
+adjust-cell-height = 15
 adjust-cursor-thickness = 3
 
 adjust-font-baseline = 0
@@ -47,5 +48,6 @@ font-size = 14
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
-font-family = Rec Mono Linear
+# font-family = Rec Mono Linear
+font-family = Input Mono Narrow
 freetype-load-flags = false

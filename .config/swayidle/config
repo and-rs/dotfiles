@@ -1,8 +1,8 @@
-timeout 60  'niri msg output eDP-1 off' resume 'niri msg output eDP-1 on'
+timeout 60  'brightnessctl -q set 0%' resume 'brightnessctl -q set 100%'
 timeout 65  'pidof hyprlock || hyprlock'
 timeout 120 'systemctl suspend'
 
 lock 'pidof hyprlock || hyprlock'
 before-sleep 'pidof hyprlock || hyprlock'
 
-after-resume 'niri msg output eDP-1 on'
+after-resume 'brightnessctl -q set 100%'

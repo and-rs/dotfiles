@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 base: dict[str, str] = {
+    "alt.o": "C-o",
     "alt.i": "C-l",
     "alt.d": "C-d",
     "alt.b": "C-b",

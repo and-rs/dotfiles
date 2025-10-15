@@ -39,6 +39,7 @@ function filepath() {
     if command -v pbcopy >/dev/null 2>&1; then
         clipboard_cmd="pbcopy"
     elif command -v wl-copy >/dev/null 2>&1; then
+        clipboard_cmd="wl-copy"
     else
         echo "Error: No clipboard utility found. Install 'pbcopy' (macOS), 'wl-copy' (Wayland)" >&2
         return 1

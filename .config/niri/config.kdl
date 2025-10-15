@@ -28,7 +28,7 @@ environment {
 }
 
 cursor {
-    xcursor-theme "macOS"
+    xcursor-theme "Posy's Cursor Black (Scalable)"
     xcursor-size 24
     hide-when-typing
 }
@@ -155,14 +155,15 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Alt+Return      { spawn "ghostty"; }
+    Super+L         { spawn "hyprlock"; }
     Alt+Space       { spawn "~/.config/rofi/launch-rofi.sh"; }
+    Alt+Return      { spawn "ghostty"; }
 
     Alt+Q           { close-window; }
     Alt+Shift+Slash { show-hotkey-overlay; }
 
-    Alt+G       { toggle-window-floating; }
-    Alt+Shift+G { switch-focus-between-floating-and-tiling; }
+    Alt+Ctrl+G       { toggle-window-floating; }
+    Alt+G  { switch-focus-between-floating-and-tiling; }
 
     Alt+O       { switch-layout "next"; }
     Alt+Shift+O { switch-layout "prev"; }
