@@ -22,14 +22,22 @@ hotkey-overlay {
 }
 
 environment {
+    QT_QPA_PLATFORM "wayland"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_AUTO_SCREEN_SCALE_FACTOR "0"
+    QT_ENABLE_HIGHDPI_SCALING "0"
+    QT_SCREEN_SCALE_FACTORS "1"
+    QT_WAYLAND_FORCE_DPI "100"
+
     ELECTRON_OZONE_PLATFORM_HINT "auto"
+    WLR_NO_HARDWARE_CURSORS "1"
     DISPLAY ":0"
     WAYLAND "1"
 }
 
 cursor {
     xcursor-theme "Posy's Cursor Black (Scalable)"
-    xcursor-size 24
+    xcursor-size 20
     hide-when-typing
 }
 
