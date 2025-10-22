@@ -1,3 +1,4 @@
+spawn-at-startup "sh -c 'systemctl --user restart xremap.service'"
 spawn-at-startup "keyd-application-mapper"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "swww-daemon"
@@ -163,7 +164,7 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Super+L         { spawn "hyprlock"; }
+    Super+Alt+L         { spawn "hyprlock"; }
     Alt+Space       { spawn "~/.config/rofi/launch-rofi.sh"; }
     Alt+Return      { spawn "ghostty"; }
 
