@@ -1,5 +1,7 @@
 app.log
 .DS_Store
+.qmlls.ini
+qml-niri
 
 _direnv_hook.zsh
 _uv_completion.zsh

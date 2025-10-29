@@ -10,13 +10,14 @@
       "niri/workspaces",
       "niri/window"
     ],
+    "modules-center": [],
     "modules-right": [
-      "group/right",
       "group/connectivity"
     ],
     "group/connectivity": {
       "orientation": "horizontal",
       "modules": [
+        "group/right",
         "tray",
         "bluetooth",
         "network",
@@ -34,12 +35,12 @@
       },
       "modules": [
         "custom/hover-section",
-        "wireplumber",
         "wireplumber#source",
+        "wireplumber",
         "backlight",
-        "cpu",
         "memory",
-        "disk"
+        "disk",
+        "cpu"
       ]
     },
     "include": [

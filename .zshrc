@@ -2,7 +2,8 @@
 
 export PATH=/usr/bin:$PATH
 export PATH="$PATH:/Users/index/.cargo/bin"
-export PATH="$PATH:/Users/index/vault/personal/evil-helix/target/debug"
+# export PATH="$PATH:/Users/index/vault/personal/evil-helix/target/debug"
+export PATH="$PATH:$HOME/vault/personal/yazi/target/release"
 typeset -U path PATH
 
 # If not in tmux, start tmux.

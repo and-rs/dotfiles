@@ -1,4 +1,7 @@
 sync-icloud() {
+    # use this command to setup icloud auth first
+    # rclone --user-agent="helo" config
+
     if [[ $(uname -s) != "Linux" ]]; then
         echo "This function only works on Linux systems."
         return 1
@@ -10,7 +13,7 @@ sync-icloud() {
         return 0
     fi
 
-    local src="iCloud:important"
+    local src="icloud:important"
     local dst="$HOME/icloud-drive"
 
     notify-send "iCloud Sync" "Starting bisync for 'important' folder..." || true

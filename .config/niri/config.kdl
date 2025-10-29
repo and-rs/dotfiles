@@ -1,9 +1,7 @@
-spawn-at-startup "sh -c 'systemctl --user restart xremap.service'"
-spawn-at-startup "keyd-application-mapper"
+spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/vault/personal/dotfiles/.config/quickshell/bar quickshell"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "swww-daemon"
-spawn-at-startup "swayidle"
-spawn-at-startup "waybar"
+spawn-at-startup "hypridle"
 
 // no decorations
 prefer-no-csd
@@ -89,7 +87,6 @@ layout {
         width 2
         inactive-color "#1a1b26"
         active-gradient from="#1a1b26" to="#525b8e" angle=180 relative-to="workspace-view"
-        // inactive-gradient from="#000000" to="#101010" angle=100 relative-to="workspace-view"
     }
 
     shadow {
@@ -97,7 +94,7 @@ layout {
         softness 8
         offset x=0 y=2
         color "#525b8e"
-        draw-behind-window true
+        draw-behind-window false
     }
 }
 
@@ -108,6 +105,16 @@ workspace "4"
 
 window-rule {
     open-maximized true
+    open-focused true
+}
+
+// I prefer these windows smaller
+window-rule {
+    match app-id="spotify"
+    match app-id="obsidian"
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    open-maximized false
+    default-column-width { proportion 0.5; }
 }
 
 window-rule {
@@ -140,8 +147,9 @@ window-rule {
 }
 
 layer-rule {
-    match namespace="^dunst$"
+    match namespace="notifications"
     block-out-from "screencast"
+    opacity 0.9
 }
 
 window-rule {
@@ -174,8 +182,8 @@ binds {
     Alt+Ctrl+G       { toggle-window-floating; }
     Alt+G  { switch-focus-between-floating-and-tiling; }
 
-    Alt+O       { switch-layout "next"; }
-    Alt+Shift+O { switch-layout "prev"; }
+    Alt+Semicolon       { switch-layout "next"; }
+    Alt+Shift+Semicolon { switch-layout "prev"; }
 
     Alt+S       { switch-preset-column-width; }
     Alt+Ctrl+S  { reset-window-height; }
@@ -237,7 +245,7 @@ binds {
 }
 
 animations {
-    slowdown 0.8
+    slowdown 0.9
 
     workspace-switch {
         // off

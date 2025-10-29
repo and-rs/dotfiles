@@ -1,6 +1,7 @@
 {
+  // Section Button
   "custom/hover-section": {
-    "format": "<span color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24,wght=500'>&#xe5c3;</span> {}",
+    "format": "<span rise='-4.5pt' color='#c2c2c2' font_desc='Material Symbols Rounded 14 @FILL=1,opsz=24,wght=500'>&#xe5c3;</span> {}",
     "tooltip": false
   },
   // Workspaces

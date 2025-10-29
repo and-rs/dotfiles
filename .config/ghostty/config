@@ -13,7 +13,7 @@ keybind = alt+c=copy_to_clipboard
 keybind = alt+v=paste_from_clipboard
 keybind = alt+shift+,=reload_config
 
-# config-file = tokyo-night
+config-file = tokyo-night
 theme = GitHub Dark Default
 palette = 0=#2b2f35
 cursor-text = #2b2f35

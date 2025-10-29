@@ -1,4 +1,4 @@
-timeout 60  'brightnessctl -q set 0%' resume 'brightnessctl -q set 100%'
+timeout 60  'brightnessctl -q set 10%' resume 'brightnessctl -q set 100%'
 timeout 65  'pidof hyprlock || hyprlock'
 timeout 120 'systemctl suspend'
 

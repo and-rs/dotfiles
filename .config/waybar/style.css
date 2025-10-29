@@ -30,21 +30,18 @@ tooltip label {
 }
 
 #connectivity {
-  padding: 0px 18px;
+  padding: 0px 18px 0px 0px;
 }
 
-#right* {
-  padding: 0px 8px 0px 6px;
-  font-weight: 600;
-}
 
 #wireplumber,
 #backlight,
-#cpu,
 #memory,
-#disk {
-  margin: 0px 0px 0px 0px;
-  padding: 0px 10px 0px 10px;
+#disk, 
+#cpu {
+  border-radius: 4px;
+  margin: 0px 4px 0px 4px;
+  padding: 0px 6px 0px 6px;
   color: white;
 }
 
