@@ -8,11 +8,16 @@ prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 overview {
+    zoom 0.5
     backdrop-color "#0F111A"
+    workspace-shadow {
+        off
+    }
 }
 
 output "eDP-1" {
     scale 1.666666
+    background-color "transparent"
     backdrop-color "#0F111A"
 }
 
@@ -53,7 +58,6 @@ input {
         dwt
         dwtp
         drag-lock
-        natural-scroll
         accel-speed 0.1
         accel-profile "flat"
         scroll-factor 0.1
@@ -76,17 +80,16 @@ layout {
     preset-column-widths {
         proportion 0.50
         proportion 1.0
-
     }
 
     focus-ring {
-        off
+        width 3
+        inactive-color "#1a1b26"
+        active-gradient from="#525b8e" to="#7AA2F7" angle=180 relative-to="workspace-view"
     }
 
     border {
-        width 2
-        inactive-color "#1a1b26"
-        active-gradient from="#1a1b26" to="#525b8e" angle=180 relative-to="workspace-view"
+        off
     }
 
     shadow {
@@ -106,6 +109,8 @@ workspace "4"
 window-rule {
     open-maximized true
     open-focused true
+    geometry-corner-radius 6
+    clip-to-geometry true
 }
 
 // I prefer these windows smaller
@@ -152,9 +157,10 @@ layer-rule {
     opacity 0.9
 }
 
-window-rule {
-    geometry-corner-radius 6
-    clip-to-geometry true
+// Put swaybg inside the overview backdrop.
+layer-rule {
+    match namespace="swww-daemon"
+    place-within-backdrop true
 }
 
 binds {
