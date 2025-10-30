@@ -43,9 +43,6 @@
 [merge]
   conflictstyle = diff3
 
-[diff]
-  colorMoved = default
-
 [user]
   name = "and-rs"
   email = "deserd@protonmail.com"

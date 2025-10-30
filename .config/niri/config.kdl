@@ -56,8 +56,8 @@ input {
     touchpad {
         tap
         dwt
-        dwtp
-        drag-lock
+        // dwtp
+        // drag-lock
         accel-speed 0.1
         accel-profile "flat"
         scroll-factor 0.1
@@ -120,6 +120,16 @@ window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     open-maximized false
     default-column-width { proportion 0.5; }
+}
+
+window-rule {
+    match app-id="GTK Application"
+    border {
+        off
+    }
+    focus-ring {
+        off
+    }
 }
 
 window-rule {
