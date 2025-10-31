@@ -1,6 +1,13 @@
+auto-update-channel = stable
 quit-after-last-window-closed = true
-macos-non-native-fullscreen = true
+
+macos-window-buttons = hidden
 macos-titlebar-style = hidden
+window-decoration = false
+
+macos-non-native-fullscreen = true
+fullscreen = false
+
 macos-option-as-alt = true
 confirm-close-surface = false
 
@@ -17,23 +24,23 @@ custom-shader-animation = true
 #custom-shader = shaders/cursor_smear.glsl
 custom-shader = shaders/cursor_glow.glsl
 #custom-shader = shaders/cursor_slash.glsl
+#custom-shader = shaders/cursor_ripple.glsl
 custom-shader = shaders/crt.glsl
 
 # -> only for darkmode
 #custom-shader = shaders/dot_matrix_glow.glsl
 #custom-shader = shaders/dot_matrix.glsl
-custom-shader = shaders/glow.glsl
+#custom-shader = shaders/glow.glsl
 
 window-padding-x = 2
 window-padding-y = 4
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 14
+adjust-cell-height = 12
+adjust-font-baseline = 0
 adjust-cursor-height = 0
 adjust-cursor-thickness = 3
-
-adjust-font-baseline = 0
 adjust-underline-position = 5
 
 font-size = 17
@@ -43,4 +50,5 @@ font-feature = -dlig
 #font-family = Input Mono
 #font-family = CommitMonoFucker
 #font-family = Iosevka Custom
-font-family = Recursive Mono Linear Static
+#font-family = Recursive Mono Linear Static
+font-family = Recursive Mono Casual Static
