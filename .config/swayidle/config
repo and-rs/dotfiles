@@ -1,8 +1,0 @@
-timeout 60  'brightnessctl -q set 10%' resume 'brightnessctl -q set 100%'
-timeout 65  'pidof hyprlock || hyprlock'
-timeout 120 'systemctl suspend'
-
-lock 'pidof hyprlock || hyprlock'
-before-sleep 'pidof hyprlock || hyprlock'
-
-after-resume 'brightnessctl -q set 100%'

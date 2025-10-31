@@ -1,9 +1,12 @@
 #zmodload zsh/zprof
 
+export DOTS=$HOME/Vault/personal/dotfiles
 export PATH=/usr/bin:$PATH
-export PATH="$PATH:/Users/index/.cargo/bin"
-# export PATH="$PATH:/Users/index/vault/personal/evil-helix/target/debug"
+export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:$HOME/vault/personal/yazi/target/release"
+export PATH="$PATH:$HOME/vault/personal/yazi/target/debug"
+# export PATH="$PATH:/Users/index/vault/personal/evil-helix/target/debug"
+
 typeset -U path PATH
 
 # If not in tmux, start tmux.
@@ -16,7 +19,7 @@ function zcompile-many() {
     for f; do zcompile -R -- "$f".zwc "$f"; done
 }
 
-ZDEN=$HOME/zden
+ZDEN=$HOME/.zden
 
 # Clone and compile to wordcode missing plugins.
 if [[ ! -e $ZDEN/powerlevel10k ]]; then

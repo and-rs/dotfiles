@@ -1,5 +1,12 @@
 # Comments and blank lines are allowed.
 
+# My ignore
+utils
+macos
+prompts
+scripts
+wallpapers
+
 RCS
 .+,v
 
@@ -21,8 +28,3 @@ _darcs
 ^/README.*
 ^/LICENSE.*
 ^/COPYING
-
-utils
-xorg
-macos
-prompts

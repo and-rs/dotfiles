@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
 
-DOTS="$HOME/vault/personal/dotfiles"
-
 alias yz="yazi"
 alias nv="nvim"
 alias ..="z .."
@@ -15,8 +13,8 @@ alias lt="eza -lihaT --git-ignore"
 alias ls="eza -liha"
 
 alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
-alias update-nixos="sudo nixos-rebuild switch --flake $HOME/vault/personal/nixos#default"
-alias update-darwin="sudo darwin-rebuild switch --flake $HOME/vault/personal/nix-darwin"
+alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default"
+alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nix-darwin"
 
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
@@ -48,7 +46,7 @@ f() {
 fp() {
     local current_dir
     current_dir=$(pwd)
-    cd "$HOME/vault" || return 1
+    cd "$HOME/Vault" || return 1
     local dir
     dir=$(fd -t d --exact-depth 2 | fzf --prompt="projects > " --reverse --info="right" --padding=1,0,0,1)
     if [[ -n $dir ]]; then

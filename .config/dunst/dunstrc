@@ -4,7 +4,7 @@ origin = top-right
 
 width = (300, 400)
 height = (0, 400)
-offset = (8, 8) 
+offset = (16, 16) 
 
 progress_bar = true
 progress_bar_height = 8

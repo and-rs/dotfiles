@@ -1,14 +1,14 @@
-spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/vault/personal/dotfiles/.config/quickshell/bar quickshell"
+spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/Vault/personal/dotfiles/.config/quickshell/bar quickshell"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "swww-daemon"
 spawn-at-startup "hypridle"
 
 // no decorations
 prefer-no-csd
-screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 
 overview {
-    zoom 0.5
+    zoom 0.6
     backdrop-color "#0F111A"
     workspace-shadow {
         off
@@ -83,9 +83,9 @@ layout {
     }
 
     focus-ring {
-        width 3
-        inactive-color "#1a1b26"
-        active-gradient from="#525b8e" to="#7AA2F7" angle=180 relative-to="workspace-view"
+        width 2
+        active-color "#7AA2F7"
+        // active-gradient from="#525b8e" to="#7AA2F7" angle=180 relative-to="workspace-view"
     }
 
     border {
@@ -178,19 +178,19 @@ binds {
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
 
-    XF86AudioMute        cooldown-ms=200 { spawn "~/scripts/volume/vol_mute.sh"; }
-    XF86AudioMicMute     cooldown-ms=200 { spawn "~/scripts/volume/mic_mute.sh"; }
-    XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_up.sh"; }
-    XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/scripts/volume/vol_down.sh"; }
+    XF86AudioMute        cooldown-ms=200 { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_mute.sh"; }
+    XF86AudioMicMute     cooldown-ms=200 { spawn "~/Vault/personal/dotfiles/scripts/volume/mic_mute.sh"; }
+    XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_up.sh"; }
+    XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_down.sh"; }
 
-    XF86MonBrightnessUp   { spawn "~/scripts/brightness/scr_brightness_up.sh"; }
-    XF86MonBrightnessDown { spawn "~/scripts/brightness/scr_brightness_down.sh"; }
-    XF86KbdBrightnessUp   { spawn "~/scripts/brightness/kbd_brightness_up.sh"; }
-    XF86KbdBrightnessDown { spawn "~/scripts/brightness/kbd_brightness_down.sh"; }
+    XF86MonBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/scr_brightness_up.sh"; }
+    XF86MonBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/scr_brightness_down.sh"; }
+    XF86KbdBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_up.sh"; }
+    XF86KbdBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Super+Alt+L         { spawn "hyprlock"; }
-    Alt+Space       { spawn "~/.config/rofi/launch-rofi.sh"; }
-    Alt+Return      { spawn "ghostty"; }
+    Alt+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
+    Super+Alt+L repeat=false { spawn "hyprlock"; }
+    Alt+Return  repeat=false { spawn "ghostty"; }
 
     Alt+Q           { close-window; }
     Alt+Shift+Slash { show-hotkey-overlay; }
@@ -256,7 +256,7 @@ binds {
     Alt+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
     Alt+U       allow-inhibiting=false { screenshot; }
-    Alt+Ctrl+U  allow-inhibiting=false { screenshot-screen; }
+    Alt+Super+U allow-inhibiting=false { screenshot-screen; }
     Alt+Shift+U allow-inhibiting=false { screenshot-window; }
 }
 

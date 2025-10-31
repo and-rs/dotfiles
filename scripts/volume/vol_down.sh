@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 icon=""
+dotfiles="$HOME/Vault/personal/dotfiles"
 
 if ! wpctl set-volume @DEFAULT_SINK@ 0.05-; then
     dunstify "Error lowering volume"
@@ -12,16 +13,16 @@ else
     if [ -z "$status" ]; then
         dunstify "Error getting volume status"
     elif grep -q 'MUTED' <<< "$status" || [ "$volume" == 0 ]; then
-        icon="--raw_icon=$HOME/scripts/volume/volume_x.png"
+        icon="--raw_icon=$dotfiles/scripts/volume/volume_x.png"
 
     elif [ "$volume" -lt 33 ]; then
-        icon="--raw_icon=$HOME/scripts/volume/volume.png"
+        icon="--raw_icon=$dotfiles/scripts/volume/volume.png"
 
     elif [ "$volume" -gt 33 ] && [ "$volume" -lt 66 ]; then
-        icon="--raw_icon=$HOME/scripts/volume/volume_1.png"
+        icon="--raw_icon=$dotfiles/scripts/volume/volume_1.png"
 
     elif [ "$volume" -gt 66 ]; then
-        icon="--raw_icon=$HOME/scripts/volume/volume_2.png"
+        icon="--raw_icon=$dotfiles/scripts/volume/volume_2.png"
     fi
 fi
 

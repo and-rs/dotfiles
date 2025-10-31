@@ -13,11 +13,12 @@ Scope {
       implicitHeight: 32
       color: "transparent"
 
-      margins {
-        top: 8
-        right: 8
-        left: 8
-      }
+      // margins {
+      //   top: 8
+      //   right: 8
+      //   left: 8
+      // }
+
       anchors {
         top: true
         left: true
@@ -27,10 +28,9 @@ Scope {
       Rectangle {
         id: background
         anchors.fill: parent
-        radius: 8
         color: Config.colors.bg
-        border.color: Config.colors.dim
-        border.width: 2
+        // border.color: Config.colors.dim
+        // border.width: 2
       }
 
       Workspaces {}
