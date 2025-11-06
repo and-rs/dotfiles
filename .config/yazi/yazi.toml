@@ -3,16 +3,11 @@ ratio = [2,2,0]
 sort_by = "natural"
 show_hidden = true
 
-# [files]
-# excludes = [
-#   { urn = ".git", in = "*" },
-#   { urn = "!.env", in = "*" },
-# ]
-
-# [[plugin.prepend_fetchers]]
-# id   = "gitignore"
-# url = "*"
-# run  = "gitignore"
+[files]
+excludes = [
+  { urn = ".git", in = "*" },
+  { urn = "!.env", in = "*" },
+]
 
 [[plugin.prepend_fetchers]]
 id   = "git"
@@ -23,3 +18,8 @@ run  = "git"
 id   = "git"
 name = "*/"
 run  = "git"
+
+[[plugin.prepend_fetchers]]
+id   = "gitignore"
+url = "*"
+run  = "gitignore"

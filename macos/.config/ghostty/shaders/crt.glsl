@@ -1,4 +1,4 @@
-float warp = 0.3;
+float warp = 0.88;
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = fragCoord / iResolution.xy;

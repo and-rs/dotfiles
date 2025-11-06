@@ -15,16 +15,16 @@ Singleton {
   property QtObject transparency
 
   colors: QtObject {
-    property string bg: "#1a1c26"
-    property string dim: "#282a3a"
-    property string muted: "#3c4158"
-    property string bright: "#686e97"
+    property string bg: "#14161b"
+    property string dim: "#1b1e25"
+    property string muted: "#3f4655"
+    property string bright: "#515a6e"
+    property string accent: "#79839c"
 
-    property string fg: "#FAFAFA"
-    property string accent: "#A9B1D6"
-    property string primary: "#7AA2F7"
-    property string secondary: "#BB9AF7"
-    property string destructive: "#F7768E"
+    property string fg: "#fff"
+    property string primary: "#a6dbff"
+    property string secondary: "#ffcaff"
+    property string destructive: "#ffc0b9"
   }
 
   rounding: QtObject {

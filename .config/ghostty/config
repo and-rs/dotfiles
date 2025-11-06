@@ -1,27 +1,21 @@
 quit-after-last-window-closed = true
-confirm-close-surface = false
-
-config-file = tokyo-night
-theme = GitHub Dark Default
-palette = 0=#2b2f35
-cursor-text = #2b2f35
-cursor-color = #ffffff
-selection-foreground = #ffffff
-selection-background = #2b2f35
-
 custom-shader-animation = true
-# custom-shader = shaders/cursor_slash.glsl
-# custom-shader = shaders/cursor_smear.glsl
-# custom-shader = shaders/cursor_glow.glsl
+confirm-close-surface = false
+alpha-blending = native
+
+# config-file = tokyo-night
+config-file = neovim-default
+
+custom-shader = shaders/cursor_slash.glsl
 custom-shader = shaders/cursor_ripple.glsl
-custom-shader = shaders/crt.glsl
+# custom-shader = shaders/cursor_glow.glsl
+#custom-shader = shaders/cursor_smear.glsl
 
-# -> only for darkmode and fancy screenshots
+# custom-shader = shaders/crt.glsl
 # custom-shader = shaders/dot_matrix_glow.glsl
-# custom-shader = shaders/dot_matrix.glsl
 # custom-shader = shaders/glow.glsl
+# custom-shader = shaders/dot_matrix.glsl
 
-# remaps to mimic macos a bit
 keybind = super+backspace=esc:W
 keybind = super+f=esc:f
 keybind = super+b=esc:b
@@ -39,16 +33,20 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 13
+adjust-cell-height = 12
 adjust-font-baseline = 0
 adjust-cursor-thickness = 3
 adjust-underline-position = 5
 
-font-size = 14
+font-size = 15
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
+font-thicken = false
+
 font-family = Rec Mono Casual
-# font-family = Input Mono Narrow
-freetype-load-flags = force-autohint
+# font-family = Input Mono Condensed
+
+# freetype-load-flags = false
+# freetype-load-flags = force-autohint
 freetype-load-flags = hinting

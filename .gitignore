@@ -7,6 +7,9 @@ _direnv_hook.zsh
 _uv_completion.zsh
 _zoxide_init.zsh
 
+.git
+**/plugins
+
 fast-syntax-highlighting
 zsh-syntax-highlighting
 zsh-autosuggestions

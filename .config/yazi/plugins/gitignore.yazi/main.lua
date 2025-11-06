@@ -3,10 +3,6 @@
 
 local M = {}
 
--- Cache to avoid re-reading gitignore on every directory change
-local cache = {}
-local last_repo = nil
-
 -- Parse a .gitignore file and return patterns
 local function parse_gitignore(file_path)
 	local patterns = {}
@@ -34,7 +30,8 @@ local function parse_gitignore(file_path)
 			end
 
 			-- Handle directory patterns (ending with /)
-			if line:sub(-1) == "/" then
+			local is_dir = line:sub(-1) == "/"
+			if is_dir then
 				line = line:sub(1, -2)
 			end
 
@@ -45,16 +42,28 @@ local function parse_gitignore(file_path)
 			-- Patterns with '/' match from the root
 			if not line:match("/") then
 				-- Pattern like "target" should match target anywhere
-				-- Add both the simple name and the ** variant
-				table.insert(patterns, prefix .. line)
-				table.insert(patterns, prefix .. "**/" .. line)
+				-- For directories, match both the dir itself and its contents
+				if is_dir then
+					table.insert(patterns, prefix .. line)
+					table.insert(patterns, prefix .. line .. "/**")
+					table.insert(patterns, prefix .. "**/" .. line)
+					table.insert(patterns, prefix .. "**/" .. line .. "/**")
+				else
+					-- For files, match at any level
+					table.insert(patterns, prefix .. line)
+					table.insert(patterns, prefix .. "**/" .. line)
+				end
 			else
 				-- Pattern with slash - match from git root
-				table.insert(patterns, prefix .. line)
+				if is_dir then
+					table.insert(patterns, prefix .. line)
+					table.insert(patterns, prefix .. line .. "/**")
+				else
+					table.insert(patterns, prefix .. line)
+				end
 			end
 		end
 	end
-
 	file:close()
 	return patterns
 end
@@ -102,26 +111,19 @@ function M:fetch(job)
 		return true -- Not in a git repo
 	end
 
-	-- Check cache
-	if last_repo == git_dir and cache[git_dir] then
-		return true -- Already processed this repo
-	end
-
-	-- Find .gitignore in git root
+	-- Find .gitignore in git root and parse patterns
 	local gitignore_path = git_dir .. "/.gitignore"
 	local patterns = parse_gitignore(gitignore_path)
 
 	if #patterns == 0 then
-		cache[git_dir] = true
-		last_repo = git_dir
 		return true -- No patterns found
 	end
 
-	-- Cache that we processed this repo
-	cache[git_dir] = true
-	last_repo = git_dir
+	-- Debug: Log patterns being emitted
+	for i, pattern in ipairs(patterns) do
+	end
 
-	-- Add patterns to exclude filter
+	-- Always emit patterns to ensure they're applied even when folder is loaded from history
 	ya.mgr_emit("exclude_add", patterns)
 
 	return true

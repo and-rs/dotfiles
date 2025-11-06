@@ -46,6 +46,10 @@ cursor {
 }
 
 input {
+    // Switch the mod keys around: use Alt normally, and Super inside a nested window.
+    mod-key "Alt"
+    mod-key-nested "Super"
+
     warp-mouse-to-focus
 
     keyboard {
@@ -84,8 +88,7 @@ layout {
 
     focus-ring {
         width 2
-        active-color "#7AA2F7"
-        // active-gradient from="#525b8e" to="#7AA2F7" angle=180 relative-to="workspace-view"
+        active-gradient from="#202020" to="#a6dbff" angle=0 relative-to="workspace-view"
     }
 
     border {
@@ -96,7 +99,7 @@ layout {
         spread 0
         softness 8
         offset x=0 y=2
-        color "#525b8e"
+        color "#202020"
         draw-behind-window false
     }
 }
@@ -119,7 +122,7 @@ window-rule {
     match app-id="obsidian"
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     open-maximized false
-    default-column-width { proportion 0.5; }
+    default-column-width { proportion 0.75; }
 }
 
 window-rule {
@@ -167,7 +170,7 @@ layer-rule {
     opacity 0.9
 }
 
-// Put swaybg inside the overview backdrop.
+// Put swww inside the overview backdrop.
 layer-rule {
     match namespace="swww-daemon"
     place-within-backdrop true
@@ -188,76 +191,65 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_down.sh"; }
 
-    Alt+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
-    Super+Alt+L repeat=false { spawn "hyprlock"; }
-    Alt+Return  repeat=false { spawn "ghostty"; }
+    Mod+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
+    Mod+Super+L repeat=false { spawn "hyprlock"; }
+    Mod+Return  repeat=false { spawn "ghostty"; }
 
-    Alt+Q           { close-window; }
-    Alt+Shift+Slash { show-hotkey-overlay; }
+    Mod+Q           { close-window; }
+    Mod+Shift+Slash { show-hotkey-overlay; }
 
-    Alt+Ctrl+G       { toggle-window-floating; }
-    Alt+G  { switch-focus-between-floating-and-tiling; }
+    Mod+Ctrl+G  { toggle-window-floating; }
+    Mod+G       { switch-focus-between-floating-and-tiling; }
 
-    Alt+Semicolon       { switch-layout "next"; }
-    Alt+Shift+Semicolon { switch-layout "prev"; }
+    Mod+Ctrl+S  { reset-window-height; }
+    Mod+S       { switch-preset-column-width; }
 
-    Alt+S       { switch-preset-column-width; }
-    Alt+Ctrl+S  { reset-window-height; }
+    Mod+H allow-inhibiting=false { focus-column-left; }
+    Mod+J allow-inhibiting=false { focus-window-down; }
+    Mod+K allow-inhibiting=false { focus-window-up; }
+    Mod+L allow-inhibiting=false { focus-column-right; }
 
-    Alt+H allow-inhibiting=false { focus-column-left; }
-    Alt+J allow-inhibiting=false { focus-window-down; }
-    Alt+K allow-inhibiting=false { focus-window-up; }
-    Alt+L allow-inhibiting=false { focus-column-right; }
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+L { move-column-right; }
 
-    Alt+Shift+H { move-column-left; }
-    Alt+Shift+J { move-window-down; }
-    Alt+Shift+K { move-window-up; }
-    Alt+Shift+L { move-column-right; }
+    Mod+1 allow-inhibiting=false { focus-workspace 1; }
+    Mod+2 allow-inhibiting=false { focus-workspace 2; }
+    Mod+3 allow-inhibiting=false { focus-workspace 3; }
+    Mod+4 allow-inhibiting=false { focus-workspace 4; }
+    Mod+5 allow-inhibiting=false { focus-workspace 5; }
 
-    Alt+1 allow-inhibiting=false { focus-workspace 1; }
-    Alt+2 allow-inhibiting=false { focus-workspace 2; }
-    Alt+3 allow-inhibiting=false { focus-workspace 3; }
-    Alt+4 allow-inhibiting=false { focus-workspace 4; }
-    Alt+5 allow-inhibiting=false { focus-workspace 5; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
 
-    Alt+Shift+1 { move-column-to-workspace 1; }
-    Alt+Shift+2 { move-column-to-workspace 2; }
-    Alt+Shift+3 { move-column-to-workspace 3; }
-    Alt+Shift+4 { move-column-to-workspace 4; }
-    Alt+Shift+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+Equal      { move-workspace-down; }
+    Mod+Ctrl+Minus      { move-workspace-up; }
 
-    Alt+Shift+Page_Down { move-workspace-down; }
-    Alt+Shift+Page_Up   { move-workspace-up; }
-    Alt+Ctrl+Equal      { move-workspace-down; }
-    Alt+Ctrl+Minus      { move-workspace-up; }
+    Mod+WheelScrollDown       { focus-workspace-down; }
+    Mod+WheelScrollUp         { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown { focus-column-right; }
+    Mod+Shift+WheelScrollUp   { focus-column-left; }
 
-    Alt+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
-    Alt+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
-    Alt+WheelScrollRight      { focus-column-right; }
-    Alt+WheelScrollLeft       { focus-column-left; }
-    Alt+Ctrl+WheelScrollRight { move-column-right; }
-    Alt+Ctrl+WheelScrollLeft  { move-column-left; }
+    Mod+BracketLeft         { consume-or-expel-window-left; }
+    Mod+BracketRight        { consume-or-expel-window-right; }
+    Mod+Shift+BracketLeft   { consume-window-into-column; }
+    Mod+Shift+BracketRight  { expel-window-from-column; }
 
-    Alt+Shift+WheelScrollDown { focus-column-right; }
-    Alt+Shift+WheelScrollUp   { focus-column-left; }
-
-    Alt+BracketLeft  { consume-or-expel-window-left; }
-    Alt+BracketRight { consume-or-expel-window-right; }
-
-    Alt+Comma  { consume-window-into-column; }
-    Alt+Period { expel-window-from-column; }
-
-    Alt+Minus       { set-column-width "-10%"; }
-    Alt+Equal       { set-column-width "+10%"; }
-    Alt+Shift+Minus { set-window-height "-10%"; }
-    Alt+Shift+Equal { set-window-height "+10%"; }
+    Mod+Minus       { set-column-width "-10%"; }
+    Mod+Equal       { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
 
     Ctrl+Return allow-inhibiting=false { fullscreen-window; }
-    Alt+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
-    Alt+U       allow-inhibiting=false { screenshot; }
-    Alt+Super+U allow-inhibiting=false { screenshot-screen; }
-    Alt+Shift+U allow-inhibiting=false { screenshot-window; }
+    Mod+U       allow-inhibiting=false { screenshot; }
+    Mod+Super+U allow-inhibiting=false { screenshot-screen; }
+    Mod+Shift+U allow-inhibiting=false { screenshot-window; }
 }
 
 animations {

@@ -71,11 +71,12 @@
     },
     {
       "key": "{$2}{#33}GPU \u001b[4C{$2}",
+      "format": "{name:-26} {#36}[{#}{type}{#36}]{#}",
       "type": "gpu"
     },
     {
       "key": "{$2}{#33}RAM \u001b[4C{$2}",
-      "format": "{percentage} {used}, {total}",
+      "format": "{percentage} {#36}[{#}{used} / {total}{#36}]{#}",
       "type": "memory"
     },
     {
@@ -86,7 +87,7 @@
     {
       "key": "{$2}{#33}└──\u001b[5C{$2}",
       "type": "cpu",
-      "format": "{cores-online} cores @ {freq-max} {temperature}",
+      "format": "{temperature} {cores-online} cores @ {freq-max}",
       "temp": true
     },
     {
@@ -96,12 +97,12 @@
     },
     {
       "key": "{$2}{#33}Storage {$2}",
-      "format": "{size-percentage} {size-used}, {size-total}",
+      "format": "{size-percentage} {#36}[{#}{mountpoint}{#36}]{#} {#36}[{#}{size-used} / {size-total}{#36}]{#}",
       "type": "disk"
     },
     {
       "key": "{$2}{#33}Battery {$2}",
-      "format": "{capacity} {status}",
+      "format": "{capacity} {#36}[{#}{status}{#36}]{#}",
       "type": "battery"
     },
     {
