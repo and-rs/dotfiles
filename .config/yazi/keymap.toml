@@ -2,3 +2,8 @@
 on   = "<Esc>"
 run  = "close"
 desc = "Cancel input"
+
+[[mgr.prepend_keymap]]
+on   = "<A-e>"
+run  = "excluded toggle"
+desc = "Toggle excluded files visibility"

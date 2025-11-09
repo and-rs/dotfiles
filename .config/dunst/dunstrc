@@ -17,9 +17,9 @@ icon_corner_radius = 6
 
 frame_width = 2
 corner_radius = 6
-frame_color = "#34395B"
+frame_color = "#515a6e"
 separator_color = frame
 
-background = "#07090D"
-foreground = "#979EC4"
-highlight = "#979EC4"
+background = "#14161b"
+foreground = "#fafafa"
+highlight = "#fafafa"

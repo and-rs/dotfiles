@@ -1,12 +1,12 @@
 * {
-    color0: #07090D;
-    color1: #0F111A;
-    color2: #252941;
-    color3: #34395B;
-    color4: #434A75;
-    text:   #979EC4;
+    color0: #14161b;
+    color1: #1b1e25;
+    color2: #3f4655;
+    color3: #515a6e;
+    color4: #79839c;
+    text:   #fafafa;
 
-    font: "Input Mono 11";
+    font: "Hanken Grotesk 12";
     width: 500px;
     height: 302px;
 }

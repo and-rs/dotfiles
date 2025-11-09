@@ -44,9 +44,9 @@ font-feature = -calt
 font-feature = -dlig
 font-thicken = false
 
-font-family = Rec Mono Casual
-# font-family = Input Mono Condensed
+# font-family = Rec Mono Casual
+font-family = Input Mono Narrow
 
 # freetype-load-flags = false
-# freetype-load-flags = force-autohint
-freetype-load-flags = hinting
+freetype-load-flags = force-autohint
+# freetype-load-flags = hinting

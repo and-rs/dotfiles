@@ -3,6 +3,9 @@ foreground = #e0e2ea
 selection-foreground = #79839c
 selection-background = #1b1e25
 
+cursor-text = #07080d
+cursor-color = #e0e2ea
+
 palette = 0=#07080d
 palette = 8=#79839c
 
@@ -24,5 +27,5 @@ palette = 13=#ffcaff
 palette = 6=#8cf8f7
 palette = 14=#8cf8f7
 
-palette = 7=#eef1f8
+palette = 7=#1b1e25
 palette = 15=#eef1f8
