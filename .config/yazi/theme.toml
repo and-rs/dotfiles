@@ -27,8 +27,8 @@ unset_alt = { fg = "blue", bg = "grey", bold = true}
 [tabs]
 sep_outer = { open = "", close = "" }
 sep_inner = { open = "", close = "" }
-active = { fg = "cyan", bg = "black" }
-inactive = { fg = "grey", bg = "black" }
+active = { fg = "cyan", bg = "grey", underline = true }
+inactive = { fg = "white", bg = "reset"  }
 
 [icon]
 globs = []

@@ -4,6 +4,11 @@ run  = "close"
 desc = "Cancel input"
 
 [[mgr.prepend_keymap]]
-on   = "<A-e>"
+on   = "<C-p>"
 run  = "excluded toggle"
 desc = "Toggle excluded files visibility"
+
+[[mgr.prepend_keymap]]
+on   = "<C-x>"
+run  = "unyank"
+desc = "Cancel yank status"
