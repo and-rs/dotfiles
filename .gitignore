@@ -8,7 +8,7 @@ _uv_completion.zsh
 _zoxide_init.zsh
 
 .git
-**/plugins
+.config/yazi/plugins
 
 fast-syntax-highlighting
 zsh-syntax-highlighting
