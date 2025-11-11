@@ -25,8 +25,8 @@ f() {
     directories=(fd --type d)
     directories+=(
         --hidden
-        --exclude .git
         --exclude node_module
+        --exclude .git
         --exclude .cache
         --exclude .npm
         --exclude .mozilla
