@@ -122,7 +122,7 @@ window-rule {
     match app-id="obsidian"
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     open-maximized false
-    default-column-width { proportion 0.75; }
+    default-column-width { proportion 0.5; }
 }
 
 window-rule {
