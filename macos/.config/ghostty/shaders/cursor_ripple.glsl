@@ -5,7 +5,7 @@ const float CURSOR_WIDTH_CHANGE_THRESHOLD = 0.5; // Triggers ripple if cursor wi
 const float BLUR = 4.0; // Blur level in pixels
 const float ANIMATION_START_OFFSET = 0.0; // Start the ripple slightly progressed (0.0 - 1.0)
 
-vec4 COLOR = vec4(0.878, 0.886, 0.918, 1.0);
+vec4 COLOR = vec4(0.651, 0.859, 1.0, 1.0);
 
 // Easing functions
 float easeOutQuad(float t) {
