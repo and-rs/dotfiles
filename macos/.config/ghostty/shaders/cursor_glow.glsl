@@ -1,7 +1,7 @@
 const vec4 CURSOR_COLOR = vec4(0.651, 0.859, 1.0, 1.0);
-const float DURATION = 0.3;
+const float DURATION = 0.26;
 const float GLOW_SIZE = 0.006;
-const float GLOW_INTENSITY = 1.0;
+const float GLOW_INTENSITY = 0.9;
 
 float sdBox(in vec2 p, in vec2 xy, in vec2 b)
 {
@@ -46,7 +46,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec4 currentCursor = vec4(normalize(iCurrentCursor.xy, 1.), normalize(iCurrentCursor.zw, 0.));
 
     float t = clamp((iTime - iTimeCursorChange) / DURATION, 0.0, 1.0);
-    float progress = easeInOutQuad(t);
+    float progress = easeInOutCubic(t);
 
     float cCursorDistance = sdBox(vu, currentCursor.xy - (currentCursor.zw * offsetFactor), currentCursor.zw * 0.5);
     float glowAlpha = (1.0 - smoothstep(cCursorDistance, -0.000, GLOW_SIZE * (1.0 - progress))) * GLOW_INTENSITY;
