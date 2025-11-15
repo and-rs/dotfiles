@@ -12,9 +12,10 @@ marker_cut = { fg = "red", bg = "red" }
 [status]
 sep_left = { open = "", close = "" }
 sep_right = { open = "", close = "" }
-
-progress_label = { bg = "black", fg = "black"  }
-progress_normal = { bg = "black",  fg = "black" }
+overall = { bg = "grey"}
+progress_label = { bg = "grey", fg = "blue"  }
+progress_error = { bg = "grey",  fg = "red" }
+progress_normal = { bg = "grey",  fg = "blue" }
 
 [mode]
 normal_main = { bg = "grey", bold = true}

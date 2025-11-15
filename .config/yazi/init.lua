@@ -7,3 +7,8 @@ th.git.deleted_sign = "-"
 th.git.updated_sign = "!"
 
 require("git"):setup()
+
+require("bookmarks"):setup({
+	desc_format = "parent",
+	persist = "all",
+})

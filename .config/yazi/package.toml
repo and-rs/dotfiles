@@ -3,5 +3,10 @@ use = "yazi-rs/plugins:git"
 rev = "8f1d971"
 hash = "3cce60031b27cbce80b50f68ca319c0a"
 
+[[plugin.deps]]
+use = "dedukun/bookmarks"
+rev = "9ef1254"
+hash = "92fbb5483657fa7976cdf4e0104e18e0"
+
 [flavor]
 deps = []
