@@ -9,6 +9,10 @@ marker_selected = { fg = "blue", bg = "blue" }
 marker_copied = { fg = "yellow", bg = "yellow" }
 marker_cut = { fg = "red", bg = "red" }
 
+[which]
+cols = 2
+mask = { bg = "grey" }
+
 [status]
 sep_left = { open = "", close = "" }
 sep_right = { open = "", close = "" }

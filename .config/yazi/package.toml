@@ -4,9 +4,9 @@ rev = "8f1d971"
 hash = "3cce60031b27cbce80b50f68ca319c0a"
 
 [[plugin.deps]]
-use = "dedukun/bookmarks"
-rev = "9ef1254"
-hash = "92fbb5483657fa7976cdf4e0104e18e0"
+use = "and-rs/bookmarks"
+rev = "04c5ad6"
+hash = "787cada8ca749b9319c9f63f365453bd"
 
 [flavor]
 deps = []
