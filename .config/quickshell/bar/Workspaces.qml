@@ -51,7 +51,7 @@ Item {
             color: Config.colors.dim
           }
           GradientStop {
-            position: 2.6
+            position: 2.2
             color: Config.colors.primary
           }
         }

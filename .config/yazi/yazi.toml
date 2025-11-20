@@ -5,6 +5,7 @@ show_hidden = true
 
 [files]
 excludes = [
+  { urn = ".obsidian", in = "*" },
   { urn = ".git", in = "*" },
   { urn = "!.env", in = "*" },
 ]

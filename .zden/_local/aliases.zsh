@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+alias br="broot"
 alias yz="yazi"
 alias nv="nvim"
 alias ..="z .."
