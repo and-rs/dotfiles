@@ -14,7 +14,7 @@ alias lt="eza -lihaT --git-ignore"
 alias ls="eza -liha"
 
 alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
-alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default"
+alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default --impure"
 alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nix-darwin"
 
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
