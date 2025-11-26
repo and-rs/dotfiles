@@ -1,7 +1,9 @@
-spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/Vault/personal/dotfiles/.config/quickshell/bar quickshell"
-spawn-at-startup "xwayland-satellite"
 spawn-at-startup "swww-daemon"
+spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/Vault/personal/dotfiles/.config/quickshell/bar quickshell"
+spawn-at-startup "xrdb -merge ~/.Xresources"
+spawn-at-startup "xwayland-satellite"
 spawn-at-startup "hypridle"
+
 
 // no decorations
 prefer-no-csd
@@ -114,6 +116,16 @@ window-rule {
     open-focused true
     geometry-corner-radius 6
     clip-to-geometry true
+}
+
+// this is for tkinter with python native dialogs
+window-rule {
+    match app-id="TkFDialog"
+    match app-id="Menu"
+    default-column-width { proportion 0.4; }
+    default-window-height { fixed 400; }
+    open-floating true
+    open-focused true
 }
 
 // I prefer these windows smaller
