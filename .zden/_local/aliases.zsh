@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 
-alias br="broot"
+alias ..="z .."
 alias yz="yazi"
 alias nv="nvim"
-alias ..="z .."
+alias br="broot"
 alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
@@ -13,6 +13,7 @@ alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
 alias lt="eza -lihaT --git-ignore"
 alias ls="eza -liha"
 
+alias link-nvim="ln -s -t $HOME/.config $HOME/Vault/personal/nvim "
 alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
 alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default --impure"
 alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nix-darwin"
