@@ -17,9 +17,9 @@ config-file = /Users/index/Vault/personal/dotfiles/.config/ghostty/neovim-defaul
 
 custom-shader-animation = true
 #custom-shader = shaders/cursor_smear.glsl
-#custom-shader = shaders/cursor_glow.glsl
+custom-shader = shaders/cursor_glow.glsl
 custom-shader = shaders/cursor_slash.glsl
-custom-shader = shaders/cursor_ripple.glsl
+#custom-shader = shaders/cursor_ripple.glsl
 #custom-shader = shaders/crt.glsl
 
 # -> only for darkmode
