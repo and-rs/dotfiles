@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+alias cd="z"
 alias ..="z .."
 alias yz="yazi"
 alias nv="nvim"
@@ -15,8 +16,8 @@ alias ls="eza -liha"
 
 alias link-nvim="ln -s -t $HOME/.config $HOME/Vault/personal/nvim "
 alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
-alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default --impure"
-alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nix-darwin"
+alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default"
+alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nixos#M1"
 
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
