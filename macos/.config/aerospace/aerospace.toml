@@ -1,6 +1,6 @@
 after-login-command = []
 after-startup-command = []
-start-at-login = false
+start-at-login = true
 
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -24,7 +24,7 @@ automatically-unhide-macos-hidden-apps = true
 
 [[on-window-detected]]
     if.app-id = 'com.apple.finder'
-    run = [ 'layout tiling', 'move-node-to-workspace 5' ]
+    run = [ 'layout floating' ]
 
 [[on-window-detected]]
     if.app-id = 'com.mitchellh.ghostty'
@@ -35,14 +35,6 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
-    if.app-id = 'net.whatsapp.WhatsApp'
-    run = 'move-node-to-workspace 3'
-
-[[on-window-detected]]
-    if.app-id = 'org.keepassxc.keepassxc'
-    run = 'move-node-to-workspace 3'
-
-[[on-window-detected]]
     if.app-id = 'com.apple.Safari'
     run = 'move-node-to-workspace 2'
 
@@ -51,45 +43,26 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 2'
 
 [[on-window-detected]]
-    if.app-id = 'com.microsoft.Excel'
-    run = 'move-node-to-workspace 4'
-
-[[on-window-detected]]
     if.app-id = 'com.hnc.Discord'
     run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+    if.app-id = 'net.whatsapp.WhatsApp'
+    run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+    if.app-id = 'org.keepassxc.keepassxc'
+    run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+    if.app-id = 'com.microsoft.Excel'
+    run = 'move-node-to-workspace 4'
 
 [[on-window-detected]]
     if.app-id = 'com.amazon.workspaces'
     run = 'move-node-to-workspace 4'
 
 [mode.main.binding]
-
-    # All possible keys:
-    # - Letters.        a, b, c, ..., z
-    # - Numbers.        0, 1, 2, ..., 9
-    # - Keypad numbers. keypad0, keypad1, keypad2, ..., keypad9
-    # - F-keys.         f1, f2, ..., f20
-    # - Special keys.   minus, equal, period, comma, slash, backslash, quote, semicolon,
-    #                   backtick, leftSquareBracket, rightSquareBracket, space, enter, esc,
-    #                   backspace, tab
-    # - Keypad special. keypadClear, keypadDecimalMark, keypadDivide, keypadEnter, keypadEqual,
-    #                   keypadMinus, keypadMultiply, keypadPlus
-    # - Arrows.         left, down, up, right
-
-    # All possible modifiers: cmd, alt, ctrl, shift
-
-    # All possible commands: https://nikitabobko.github.io/AeroSpace/commands
-
-    # See: https://nikitabobko.github.io/AeroSpace/commands#exec-and-forget
-    # You can uncomment the following lines to open up terminal with alt + enter shortcut
-    # (like in i3auto
-    # alt-enter = '''exec-and-forget osascript -e '
-    # tell application "Terminal"
-    #     do script
-    #     activate
-    # end tell'
-    # '''
-
     cmd-slash = 'layout tiles vertical'
     cmd-period = 'layout tiles horizontal'
     cmd-comma = 'layout accordion horizontal'
@@ -108,23 +81,10 @@ automatically-unhide-macos-hidden-apps = true
     cmd-2 = 'workspace 2'
     cmd-3 = 'workspace 3'
     cmd-4 = 'workspace 4'
-    cmd-5 = 'workspace 5'
 
     cmd-shift-1 = 'move-node-to-workspace 1'
     cmd-shift-2 = 'move-node-to-workspace 2'
     cmd-shift-3 = 'move-node-to-workspace 3'
     cmd-shift-4 = 'move-node-to-workspace 4'
-    cmd-shift-5 = 'move-node-to-workspace 5'
 
-    cmd-shift-f12 = 'mode service'
-
-[mode.service.binding]
-    esc = ['reload-config', 'mode main']
-    r = ['flatten-workspace-tree', 'mode main']
-    f = ['layout floating tiling', 'mode main']
-    backspace = ['close-all-windows-but-current', 'mode main']
-
-    cmd-shift-h = ['join-with left', 'mode main']
-    cmd-shift-j = ['join-with down', 'mode main']
-    cmd-shift-k = ['join-with up', 'mode main']
-    cmd-shift-l = ['join-with right', 'mode main']
+    cmd-f12 = 'reload-config'
