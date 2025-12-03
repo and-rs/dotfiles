@@ -38,7 +38,7 @@ adjust-font-baseline = 0
 adjust-cursor-thickness = 3
 adjust-underline-position = 5
 
-font-size = 14.5
+font-size = 13
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
@@ -46,7 +46,7 @@ font-thicken = false
 
 # font-family = Rec Mono Linear
 # font-family = Rec Mono Casual
-# font-family = Input Mono Narrow
+font-family = Input Mono Narrow
 
 # freetype-load-flags = false
 # freetype-load-flags = force-autohint

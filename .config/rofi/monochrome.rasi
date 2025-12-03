@@ -7,7 +7,7 @@
     text:   #fafafa;
 
     font: "Hanken Grotesk 12";
-    width: 500px;
+    width: 600px;
     height: 302px;
 }
 
