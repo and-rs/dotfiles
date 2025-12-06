@@ -46,11 +46,11 @@ Singleton {
 
   padding: QtObject {
     property real scale: 1
-    property int small: 5 * scale
-    property int smaller: 7 * scale
+    property int extraSmall: 5 * scale
+    property int small: 7 * scale
     property int normal: 10 * scale
-    property int larger: 12 * scale
-    property int large: 15 * scale
+    property int large: 12 * scale
+    property int extraLarge: 15 * scale
   }
 
   sizes: QtObject {
@@ -65,6 +65,7 @@ Singleton {
 
   durations: QtObject {
     property real scale: 1
+    property int extraFast: 100 * scale
     property int fast: 200 * scale
     property int normal: 400 * scale
     property int slow: 600 * scale

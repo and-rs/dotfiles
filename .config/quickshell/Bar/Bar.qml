@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import qs.Bar.SystemTray
 
 Scope {
   Variants {
@@ -13,12 +14,6 @@ Scope {
       implicitHeight: 32
       color: "transparent"
 
-      // margins {
-      //   top: 8
-      //   right: 8
-      //   left: 8
-      // }
-
       anchors {
         top: true
         left: true
@@ -29,8 +24,6 @@ Scope {
         id: background
         anchors.fill: parent
         color: Config.colors.bg
-        // border.color: Config.colors.dim
-        // border.width: 2
       }
 
       Workspaces {}
@@ -41,7 +34,12 @@ Scope {
         rightPadding: Config.spacing.larger
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        Tray {}
+
+        Tray {
+          id: tray
+          window: main
+        }
+
         Text {
           anchors.verticalCenter: parent.verticalCenter
           color: Config.colors.fg
