@@ -8,6 +8,7 @@ alias br="broot"
 alias c="clear -x"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
+alias caffeine="systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity"
 
 alias l="eza -lha --no-time --no-permissions --no-user -I .DS_Store"
 alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
