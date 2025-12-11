@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "system",
+  "keybinds": {
+    "app_exit": "ctrl+c",
+    "messages_half_page_up": "ctrl+u",
+    "messages_half_page_down": "ctrl+d"
+  },
+  "agent": {
+    "build": { "disable": true },
+    "plan": {
+      "mode": "primary",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "*": "deny",
+      "git diff": "allow",
+      "git status": "allow"
+    }
+  }
+}
