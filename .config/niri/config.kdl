@@ -1,9 +1,13 @@
 spawn-at-startup "swww-daemon"
-spawn-sh-at-startup "QML_IMPORT_PATH=$HOME/Vault/personal/dotfiles/.config/quickshell/bar quickshell"
-spawn-at-startup "xrdb -merge ~/.Xresources"
+spawn-sh-at-startup "$HOME/.config/quickshell/launch.sh"
+spawn-sh-at-startup "xrdb -merge ~/.Xresources"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "hypridle"
 
+
+xwayland-satellite {
+    path "xwayland-satellite"
+}
 
 // no decorations
 prefer-no-csd
@@ -19,7 +23,6 @@ overview {
 
 output "eDP-1" {
     scale 1.666666
-    background-color "transparent"
     backdrop-color "#0F111A"
 }
 
@@ -36,7 +39,7 @@ environment {
     QT_WAYLAND_FORCE_DPI "100"
 
     ELECTRON_OZONE_PLATFORM_HINT "auto"
-    WLR_NO_HARDWARE_CURSORS "1"
+    PROTON_ENABLE_WAYLAND "1"
     DISPLAY ":0"
     WAYLAND "1"
 }
@@ -72,12 +75,13 @@ input {
 
     mouse {
         accel-profile "flat"
-        accel-speed 0.2
+        accel-speed 0
     }
 }
 
 layout {
     gaps 8
+    background-color "transparent"
     tab-indicator {
         off
     }
@@ -90,12 +94,12 @@ layout {
     }
 
     focus-ring {
-        width 2
-        active-gradient from="#202020" to="#a6dbff" angle=0 relative-to="workspace-view"
+        off
     }
 
     border {
-        off
+        width 2
+        active-gradient from="#202020" to="#a6dbff" angle=320 relative-to="workspace-view"
     }
 
     shadow {
@@ -115,8 +119,9 @@ workspace "4"
 window-rule {
     open-maximized true
     open-focused true
-    geometry-corner-radius 6
     clip-to-geometry true
+    geometry-corner-radius 6
+    draw-border-with-background false
 }
 
 // this is for tkinter with python native dialogs

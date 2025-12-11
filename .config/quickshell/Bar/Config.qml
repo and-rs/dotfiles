@@ -37,11 +37,11 @@ Singleton {
 
   spacing: QtObject {
     property real scale: 1
+    property int extraSmall: 2 * scale
     property int small: 4 * scale
-    property int smaller: 8 * scale
     property int normal: 12 * scale
-    property int larger: 16 * scale
-    property int large: 20 * scale
+    property int large: 16 * scale
+    property int extraLarge: 24 * scale
   }
 
   padding: QtObject {

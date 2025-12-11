@@ -26,12 +26,18 @@ Scope {
         color: Config.colors.bg
       }
 
-      Workspaces {}
+      Row {
+        spacing: Config.spacing.normal
+        padding: 4
+        Workspaces {}
+        WindowIndicator {}
+        WindowTitle {}
+      }
 
       Row {
         id: rightRect
-        spacing: Config.spacing.larger
-        rightPadding: Config.spacing.larger
+        spacing: Config.spacing.large
+        rightPadding: Config.spacing.large
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
 
