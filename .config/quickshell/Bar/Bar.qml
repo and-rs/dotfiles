@@ -46,6 +46,8 @@ Scope {
           window: main
         }
 
+        Battery {}
+
         Text {
           anchors.verticalCenter: parent.verticalCenter
           color: Config.colors.fg

@@ -12,7 +12,7 @@ Row {
     delegate: Rectangle {
       width: 8
       height: 8
-      radius: 4
+      radius: Config.radius.small
       anchors.verticalCenter: parent.verticalCenter
 
       color: {

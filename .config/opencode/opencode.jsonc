@@ -1,13 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "system",
+  "theme": "neovim",
   "keybinds": {
+    "leader": "ctrl+o",
     "app_exit": "ctrl+c",
+    "session_list": "<leader>+shift+l",
     "messages_half_page_up": "ctrl+u",
-    "messages_half_page_down": "ctrl+d"
+    "messages_half_page_down": "ctrl+d",
+    "messages_last_user": "<leader>l",
+    "messages_first": "<leader>f"
   },
   "agent": {
-    "build": { "disable": true },
+    // "build": { "disable": true },
     "plan": {
       "mode": "primary",
       "tools": {
@@ -20,7 +24,7 @@
   "permission": {
     "edit": "ask",
     "bash": {
-      "*": "deny",
+      "*": "ask",
       "git diff": "allow",
       "git status": "allow"
     }

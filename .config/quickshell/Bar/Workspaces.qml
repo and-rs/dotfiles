@@ -67,7 +67,7 @@ Row {
 
       border.width: 2
       height: Config.sizes.large
-      radius: 4
+      radius: Config.radius.small
       width: model.isFocused ? 52 : Config.sizes.large
 
       Behavior on width {

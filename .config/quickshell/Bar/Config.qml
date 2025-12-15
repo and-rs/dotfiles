@@ -7,7 +7,7 @@ Singleton {
   id: root
 
   property QtObject colors
-  property QtObject rounding
+  property QtObject radius
   property QtObject spacing
   property QtObject padding
   property QtObject sizes
@@ -20,14 +20,16 @@ Singleton {
     property string muted: "#3f4655"
     property string bright: "#515a6e"
     property string accent: "#79839c"
+    property string light: "#98a0b3"
 
     property string fg: "#fff"
+    property string success: "#bbf7c6"
     property string primary: "#a6dbff"
     property string secondary: "#ffcaff"
     property string destructive: "#ffc0b9"
   }
 
-  rounding: QtObject {
+  radius: QtObject {
     property real scale: 1
     property int small: 4 * scale
     property int normal: 8 * scale

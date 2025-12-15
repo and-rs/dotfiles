@@ -25,7 +25,7 @@ Item {
     color: Config.colors.bg
     border.color: Config.colors.accent
     border.width: 2
-    radius: 8
+    radius: Config.radius.small
   }
 
   Row {

@@ -84,10 +84,10 @@ bindkey '^G' _fzf_insert_path_widget_recursive
 zle -N _fzf_history
 bindkey '^R' _fzf_history
 
-export FORGIT_GLO_FORMAT="%C(auto)%h%d %s"
+export FORGIT_GLO_FORMAT="%C(auto)%h%d %C(green)%s%C(reset)"
 
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
-  --color=16,bg:-1,bg+:-1,fg:15,fg+:4,pointer:4,marker:4,gutter:0,header:5,border:0,hl:6,hl+:6,info:6 \
+  --color=16,bg:-1,bg+:-1,fg:8,fg+:4,pointer:4,marker:4,gutter:0,header:5,border:0,hl:6,hl+:6,info:6 \
   --preview-border=line \
   --marker=':' --gutter=' ' --pointer='>' \
   --bind=ctrl-y:toggle+down --info=right"

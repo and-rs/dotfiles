@@ -9,128 +9,128 @@ vec4 COLOR = vec4(0.651, 0.859, 1.0, 1.0);
 
 // Easing functions
 float easeOutQuad(float t) {
-   return 1.0 - (1.0 - t) * (1.0 - t);
+  return 1.0 - (1.0 - t) * (1.0 - t);
 }
 float easeInOutQuad(float t) {
-   return t < 0.5 ? 2.0 * t * t : 1.0 - pow(-2.0 * t + 2.0, 2.0) / 2.0;
+  return t < 0.5 ? 2.0 * t * t : 1.0 - pow(-2.0 * t + 2.0, 2.0) / 2.0;
 }
 float easeOutCubic(float t) {
-   return 1.0 - pow(1.0 - t, 3.0);
+  return 1.0 - pow(1.0 - t, 3.0);
 }
 float easeOutQuart(float t) {
-   return 1.0 - pow(1.0 - t, 4.0);
+  return 1.0 - pow(1.0 - t, 4.0);
 }
 float easeOutQuint(float t) {
-   return 1.0 - pow(1.0 - t, 5.0);
+  return 1.0 - pow(1.0 - t, 5.0);
 }
 float easeOutExpo(float t) {
-   return t == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * t);
+  return t == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * t);
 }
 float easeOutCirc(float t) {
-   return sqrt(1.0 - pow(t - 1.0, 2.0));
+  return sqrt(1.0 - pow(t - 1.0, 2.0));
 }
 float easeOutSine(float t) {
-   return sin((t * 3.1415916) / 2.0);
+  return sin((t * 3.1415916) / 2.0);
 }
 float easeOutElastic(float t) {
-   const float c4 = (2.0 * 3.1415916) / 3.0;
-   return t == 0.0 ? 0.0 : t == 1.0 ? 1.0 : pow(2.0, -10.0 * t) * sin((t * 10.0 - 0.75) * c4) + 1.0;
+  const float c4 = (2.0 * 3.1415916) / 3.0;
+  return t == 0.0 ? 0.0 : t == 1.0 ? 1.0 : pow(2.0, -10.0 * t) * sin((t * 10.0 - 0.75) * c4) + 1.0;
 }
 float easeOutBounce(float t) {
-   const float n1 = 7.5625;
-   const float d1 = 2.75;
-   if (t < 1.0 / d1) {
-      return n1 * t * t;
-   } else if (t < 2.0 / d1) {
-      return n1 * (t -= 1.5 / d1) * t + 0.75;
-   } else if (t < 2.5 / d1) {
-      return n1 * (t -= 2.25 / d1) * t + 0.9375;
-   } else {
-      return n1 * (t -= 2.625 / d1) * t + 0.984375;
-   }
+  const float n1 = 7.5625;
+  const float d1 = 2.75;
+  if (t < 1.0 / d1) {
+    return n1 * t * t;
+  } else if (t < 2.0 / d1) {
+    return n1 * (t -= 1.5 / d1) * t + 0.75;
+  } else if (t < 2.5 / d1) {
+    return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  } else {
+    return n1 * (t -= 2.625 / d1) * t + 0.984375;
+  }
 }
 float easeOutBack(float t) {
-   const float c1 = 1.70158;
-   const float c3 = c1 + 1.0;
-   return 1.0 + c3 * pow(t - 1.0, 3.0) + c1 * pow(t - 1.0, 2.0);
+  const float c1 = 1.70158;
+  const float c3 = c1 + 1.0;
+  return 1.0 + c3 * pow(t - 1.0, 3.0) + c1 * pow(t - 1.0, 2.0);
 }
 
 // Pulse fade functions
 float easeOutPulse(float t) {
-   return t * (2.0 - t);
+  return t * (2.0 - t);
 }
 float exponentialDecayPulse(float t) {
-   return exp(-3.0 * t) * sin(t * 3.1415916);
+  return exp(-3.0 * t) * sin(t * 3.1415916);
 }
 
 vec2 normalize(vec2 value, float isPosition) {
-   return (value * 2.0 - (iResolution.xy * isPosition)) / iResolution.y;
+  return (value * 2.0 - (iResolution.xy * isPosition)) / iResolution.y;
 }
 
 float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b) {
-   vec2 d = abs(p - xy) - b;
-   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+  vec2 d = abs(p - xy) - b;
+  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-   #if !defined(WEB)
-   fragColor = texture(iChannel0, fragCoord.xy / iResolution.xy);
-   #endif
+  #if !defined(WEB)
+  fragColor = texture(iChannel0, fragCoord.xy / iResolution.xy);
+  #endif
 
-   // Normalization & setup (-1 to 1 coords)
-   vec2 vu = normalize(fragCoord, 1.);
-   vec2 offsetFactor = vec2(-.5, 0.5);
+  // Normalization & setup (-1 to 1 coords)
+  vec2 vu = normalize(fragCoord, 1.);
+  vec2 offsetFactor = vec2(-.5, 0.5);
 
-   vec4 currentCursor = vec4(normalize(iCurrentCursor.xy, 1.), normalize(iCurrentCursor.zw, 0.));
-   vec4 previousCursor = vec4(normalize(iPreviousCursor.xy, 1.), normalize(iPreviousCursor.zw, 0.));
+  vec4 currentCursor = vec4(normalize(iCurrentCursor.xy, 1.), normalize(iCurrentCursor.zw, 0.));
+  vec4 previousCursor = vec4(normalize(iPreviousCursor.xy, 1.), normalize(iPreviousCursor.zw, 0.));
 
-   vec2 centerCC = currentCursor.xy - (currentCursor.zw * offsetFactor);
+  vec2 centerCC = currentCursor.xy - (currentCursor.zw * offsetFactor);
 
-   float cellWidth = max(currentCursor.z, previousCursor.z); // width of the 'block' cursor
+  float cellWidth = max(currentCursor.z, previousCursor.z); // width of the 'block' cursor
 
-   // check for significant width change
-   float widthChange = abs(currentCursor.z - previousCursor.z);
-   float widthThresholdNorm = cellWidth * CURSOR_WIDTH_CHANGE_THRESHOLD;
-   float isModeChange = step(widthThresholdNorm, widthChange);
+  // check for significant width change
+  float widthChange = abs(currentCursor.z - previousCursor.z);
+  float widthThresholdNorm = cellWidth * CURSOR_WIDTH_CHANGE_THRESHOLD;
+  float isModeChange = step(widthThresholdNorm, widthChange);
 
-   // ANIMATION
-   float rippleProgress = (iTime - iTimeCursorChange) / DURATION + ANIMATION_START_OFFSET;
-   // don't clamp yet; we need to know if it's > 1.0 (finished)
-   float isAnimating = 1.0 - step(1.0, rippleProgress); // progress < 1.0 ? 1.0: 0.0
+  // ANIMATION
+  float rippleProgress = (iTime - iTimeCursorChange) / DURATION + ANIMATION_START_OFFSET;
+  // don't clamp yet; we need to know if it's > 1.0 (finished)
+  float isAnimating = 1.0 - step(1.0, rippleProgress); // progress < 1.0 ? 1.0: 0.0
 
-   if (isModeChange > 0.0 && isAnimating > 0.0) {
-      // Apply easing to progress
-      // float easedProgress = rippleProgress;
-      // float easedProgress = easeOutQuad(rippleProgress);
-      // float easedProgress = easeInOutQuad(rippleProgress);
-      // float easedProgress = easeOutCubic(rippleProgress);
-      // float easedProgress = easeOutQuart(rippleProgress);
-      // float easedProgress = easeOutQuint(rippleProgress);
-      // float easedProgress = easeOutExpo(rippleProgress);
-      float easedProgress = easeOutCirc(rippleProgress);
-      // float easedProgress = easeOutSine(rippleProgress);
-      // float easedProgress = easeOutBack(rippleProgress);
+  if (isModeChange > 0.0 && isAnimating > 0.0) {
+    // Apply easing to progress
+    // float easedProgress = rippleProgress;
+    // float easedProgress = easeOutQuad(rippleProgress);
+    // float easedProgress = easeInOutQuad(rippleProgress);
+    // float easedProgress = easeOutCubic(rippleProgress);
+    // float easedProgress = easeOutQuart(rippleProgress);
+    // float easedProgress = easeOutQuint(rippleProgress);
+    // float easedProgress = easeOutExpo(rippleProgress);
+    float easedProgress = easeOutCirc(rippleProgress);
+    // float easedProgress = easeOutSine(rippleProgress);
+    // float easedProgress = easeOutBack(rippleProgress);
 
-      // RIPPLE CALCULATION
-      float rippleExpansion = easedProgress * MAX_SIZE;
+    // RIPPLE CALCULATION
+    float rippleExpansion = easedProgress * MAX_SIZE;
 
-      // float fade = 1.0; // no fade
-      // float fade = 1.0 - easedProgress; // linear fade
-      float fade = 1.0 - easeOutPulse(rippleProgress);
-      // float fade = 1.0 - exponentialDecayPulse(rippleProgress);
+    // float fade = 1.0; // no fade
+    // float fade = 1.0 - easedProgress; // linear fade
+    float fade = 1.0 - easeOutPulse(rippleProgress);
+    // float fade = 1.0 - exponentialDecayPulse(rippleProgress);
 
-      // Calculate distance from frag to cursor center
-      // float dist = distance(vu, centerCC);
+    // Calculate distance from frag to cursor center
+    // float dist = distance(vu, centerCC);
 
-      // float sdfRing = abs(dist - rippleExpansion) - RING_THICKNESS * 0.5;
-      vec2 halfSizeCC = vec2(currentCursor.z, currentCursor.w) * 0.5 + vec2(rippleExpansion);
-      float sdfRectRing = abs(getSdfRectangle(vu, centerCC, halfSizeCC)) - RING_THICKNESS * 0.5;
-      // Antialias (1-pixel width in normalized coords)
-      float antiAliasSize = normalize(vec2(BLUR, BLUR), 0.0).x;
-      float ripple = (1.0 - smoothstep(-antiAliasSize, antiAliasSize, sdfRectRing)) * fade;
+    // float sdfRing = abs(dist - rippleExpansion) - RING_THICKNESS * 0.5;
+    vec2 halfSizeCC = vec2(currentCursor.z, currentCursor.w) * 0.5 + vec2(rippleExpansion);
+    float sdfRectRing = abs(getSdfRectangle(vu, centerCC, halfSizeCC)) - RING_THICKNESS * 0.5;
+    // Antialias (1-pixel width in normalized coords)
+    float antiAliasSize = normalize(vec2(BLUR, BLUR), 0.0).x;
+    float ripple = (1.0 - smoothstep(-antiAliasSize, antiAliasSize, sdfRectRing)) * fade;
 
-      // Apply ripple effect
-      fragColor = mix(fragColor, COLOR, ripple * COLOR.a);
-   }
-   // else: do nothing, keep original fragColor
+    // Apply ripple effect
+    fragColor = mix(fragColor, COLOR, ripple * COLOR.a);
+  }
+  // else: do nothing, keep original fragColor
 }
