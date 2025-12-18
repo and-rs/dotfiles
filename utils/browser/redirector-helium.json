@@ -1,0 +1,26 @@
+[
+  {
+    "from": "https://www.reddit.com/r/popular/",
+    "to": "https://www.reddit.com/user/d3s3rd/m/dev",
+    "enabled": true,
+    "mode": "url-pattern"
+  },
+  {
+    "from": "https://www.reddit.com/?feed=home",
+    "to": "https://www.reddit.com/user/d3s3rd/m/dev",
+    "enabled": true,
+    "mode": "url-pattern"
+  },
+  {
+    "from": "https://reddit.com/",
+    "to": "https://www.reddit.com/user/d3s3rd/m/dev",
+    "enabled": true,
+    "mode": "url-pattern"
+  },
+  {
+    "from": "https://www.reddit.com/",
+    "to": "https://www.reddit.com/user/d3s3rd/m/dev",
+    "enabled": true,
+    "mode": "url-pattern"
+  }
+]

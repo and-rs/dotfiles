@@ -64,7 +64,7 @@ Row {
           width: 30
           height: 16
           radius: Config.radius.small
-          color: Config.colors.light
+          color: Config.colors.accent
           anchors.verticalCenter: parent.verticalCenter
 
           Item {
@@ -97,7 +97,7 @@ Row {
         Rectangle {
           width: 2.5
           height: 7.5
-          color: p < 1 ? Config.colors.light : Config.colors.success
+          color: p < 1 ? Config.colors.accent : Config.colors.success
           topRightRadius: Config.radius.small
           bottomRightRadius: Config.radius.small
           anchors.verticalCenter: parent.verticalCenter

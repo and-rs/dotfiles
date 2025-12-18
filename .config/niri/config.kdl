@@ -138,7 +138,6 @@ window-rule {
 window-rule {
     match app-id="spotify"
     match app-id="obsidian"
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     open-maximized false
     default-column-width { proportion 0.5; }
 }
@@ -160,9 +159,10 @@ window-rule {
 }
 
 window-rule {
+    match app-id="helium"
+    match app-id="spotify"
     match app-id="zen-beta"
     match app-id="google-chrome"
-    match app-id="spotify"
     open-on-workspace "2"
 }
 
@@ -173,8 +173,10 @@ window-rule {
 
 window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    default-column-width { proportion 0.8; }
     block-out-from "screencast"
     open-on-workspace "3"
+    open-maximized false
 }
 
 window-rule {

@@ -11,6 +11,14 @@
     "messages_first": "<leader>f"
   },
   "agent": {
+    "regular": {
+      "description": "Reviews code for best practices and potential issues",
+      "prompt": "You can answer regular questions",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    },
     // "build": { "disable": true },
     "plan": {
       "mode": "primary",
