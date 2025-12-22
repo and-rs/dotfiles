@@ -18,8 +18,9 @@ alias ls="eza -liha"
 
 alias link-nvim="ln -s $HOME/Vault/personal/nvim $HOME/.config"
 alias clean-nix="sudo nix-collect-garbage -d && nix-collect-garbage -d && nix store optimise"
-alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default"
 alias update-darwin="sudo darwin-rebuild switch --flake $HOME/Vault/personal/nixos#M1"
+alias update-nixos="sudo nixos-rebuild switch --flake $HOME/Vault/personal/nixos#default"
+alias update-nixos-boot="sudo nixos-rebuild boot --flake $HOME/Vault/personal/nixos#default"
 
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"

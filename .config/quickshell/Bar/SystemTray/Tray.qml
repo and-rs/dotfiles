@@ -4,8 +4,8 @@ import qs.Bar
 
 Rectangle {
   id: trayRect
-  width: 22
-  height: 22
+  width: window.implicitHeight
+  height: window.implicitHeight
   color: "transparent"
 
   required property PanelWindow window
@@ -13,9 +13,9 @@ Rectangle {
 
   MaterialIcon {
     id: trayIcon
-    code: !hasItems ? 0xe15b : popupVisible ? 0xf508 : 0xe69b
-    y: -4
+    code: !hasItems ? 0xf88a : popupVisible ? 0xf508 : 0xe313
     iconColor: !hasItems ? Config.colors.bright : popupVisible ? Config.colors.destructive : Config.colors.fg
+    iconSize: 24
   }
 
   PopupWindow {
@@ -57,11 +57,16 @@ Rectangle {
     id: trayPopup
     anchor.window: trayRect.window
 
-    anchor.rect.x: parent.x + trayRect.width / 2 - implicitWidth / 2
-    anchor.rect.y: parentWindow.height + 4
+    anchor.rect.x: {
+      window.width; // idk why this works this way but we need to reference
+      trayRect.width;
+      var pos = trayRect.mapToItem(window.contentItem, 0, 0);
+      return pos.x - (width / 2) + (trayRect.width / 2);
+    }
+    anchor.rect.y: window.height + 6
 
-    implicitWidth: trayItem.rowWidth + 16
-    implicitHeight: trayItem.rowHeight + 16
+    implicitWidth: trayItem.rowWidth + 8
+    implicitHeight: trayRect.width + 2
     visible: popupVisible || trayItem.opacity > 0
     color: "transparent"
 

@@ -94,12 +94,12 @@ layout {
     }
 
     focus-ring {
-        off
+        width 2
+        active-color "#a6dbff"
     }
 
     border {
-        width 2
-        active-gradient from="#202020" to="#a6dbff" angle=320 relative-to="workspace-view"
+        off
     }
 
     shadow {
@@ -211,6 +211,12 @@ binds {
     XF86KbdBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_up.sh"; }
     XF86KbdBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_down.sh"; }
 
+
+    Mod+Ctrl+U  repeat=false { spawn "~/Vault/personal/dotfiles/scripts/record-screen-wayland.sh"; }
+    Mod+Super+U allow-inhibiting=false { screenshot-screen; }
+    Mod+Shift+U allow-inhibiting=false { screenshot-window; }
+    Mod+U       allow-inhibiting=false { screenshot; }
+
     Mod+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
     Mod+Super+L repeat=false { spawn "hyprlock"; }
     Mod+Return  repeat=false { spawn "ghostty"; }
@@ -266,10 +272,6 @@ binds {
 
     Ctrl+Return allow-inhibiting=false { fullscreen-window; }
     Mod+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-
-    Mod+U       allow-inhibiting=false { screenshot; }
-    Mod+Super+U allow-inhibiting=false { screenshot-screen; }
-    Mod+Shift+U allow-inhibiting=false { screenshot-window; }
 }
 
 animations {

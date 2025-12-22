@@ -41,9 +41,18 @@ Scope {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
 
-        Tray {
-          id: tray
-          window: main
+        Row {
+          id: buttons
+          spacing: Config.spacing.small
+          anchors.verticalCenter: parent.verticalCenter
+          Caffeine {
+            id: caffeine
+            window: main
+          }
+          Tray {
+            id: tray
+            window: main
+          }
         }
 
         Battery {}
