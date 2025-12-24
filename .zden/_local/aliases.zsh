@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 alias cd="z"
+alias ci="zi"
 alias ..="z .."
 alias yz="yazi"
 alias nv="nvim"

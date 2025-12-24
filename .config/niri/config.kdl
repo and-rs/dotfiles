@@ -1,12 +1,9 @@
 spawn-at-startup "swww-daemon"
 spawn-sh-at-startup "$HOME/.config/quickshell/launch.sh"
-spawn-sh-at-startup "xrdb -merge ~/.Xresources"
-spawn-at-startup "xwayland-satellite"
 spawn-at-startup "hypridle"
 
-
 xwayland-satellite {
-    path "xwayland-satellite"
+    path "/home/and-rs/Vault/dev/xwayland-satellite/result/bin/xwayland-satellite"
 }
 
 // no decorations
@@ -22,7 +19,7 @@ overview {
 }
 
 output "eDP-1" {
-    scale 1.666666
+    scale 1.666
     backdrop-color "#0F111A"
 }
 
@@ -45,8 +42,8 @@ environment {
 }
 
 cursor {
-    xcursor-theme "Posy's Cursor Black (Scalable)"
-    xcursor-size 20
+    xcursor-theme "macOS"
+    xcursor-size 28
     hide-when-typing
 }
 
@@ -122,6 +119,12 @@ window-rule {
     clip-to-geometry true
     geometry-corner-radius 6
     draw-border-with-background false
+}
+
+window-rule {
+    match app-id="xfreerdp"
+    open-floating false
+    open-focused true
 }
 
 // this is for tkinter with python native dialogs

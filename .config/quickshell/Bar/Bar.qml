@@ -45,12 +45,12 @@ Scope {
           id: buttons
           spacing: Config.spacing.small
           anchors.verticalCenter: parent.verticalCenter
-          Caffeine {
-            id: caffeine
-            window: main
-          }
           Tray {
             id: tray
+            window: main
+          }
+          Caffeine {
+            id: caffeine
             window: main
           }
         }

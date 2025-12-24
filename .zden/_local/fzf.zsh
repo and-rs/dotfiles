@@ -92,6 +92,13 @@ export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:-} \
   --marker=':' --gutter=' ' --pointer='>' \
   --bind=ctrl-y:toggle+down --info=right"
 
+export _ZO_FZF_OPTS="${FZF_DEFAULT_OPTS:-} \
+  --color=16,bg:-1,bg+:-1,fg:8,fg+:4,pointer:4,marker:4,gutter:0,header:5,border:0,hl:6,hl+:6,info:6 \
+  --preview-border=line \
+  --marker=':' --gutter=' ' --pointer='>' \
+  --bind=ctrl-y:toggle+down --info=right \
+  --padding=1,0,0,1 --prompt='zoxide interactive > ' \
+  --layout=reverse --height=100% --multi --cycle" \
 
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
+    zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':completion:*' menu no
