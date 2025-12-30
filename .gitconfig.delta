@@ -1,0 +1,41 @@
+[delta "neovim-default"]
+    minus-style = syntax "#351d2b"
+    minus-non-emph-style = syntax "#351d2b"
+    minus-empty-line-marker-style = syntax "#351d2b"
+    minus-emph-style = syntax "#4a283c"
+    line-numbers-minus-style = "#ae6b92"
+
+    plus-style = syntax "#005523"
+    plus-non-emph-style = syntax "#005523"
+    plus-empty-line-marker-style = syntax "#005523"
+    plus-emph-style = syntax "#007631"
+    line-numbers-plus-style = "#00d157"
+    line-numbers-zero-style = "#79839c"
+
+[delta "tokyo-night-dark"]
+    minus-style = syntax "#3f2d3d"
+    minus-non-emph-style = syntax "#3f2d3d"
+    minus-empty-line-marker-style = syntax "#3f2d3d"
+    minus-emph-style = syntax "#763842"
+    line-numbers-minus-style = "#914c54"
+
+    plus-style = syntax "#283b4d"
+    plus-non-emph-style = syntax "#283b4d"
+    plus-empty-line-marker-style = syntax "#283b4d"
+    plus-emph-style = syntax "#316172"
+    line-numbers-plus-style = "#449dab"
+    line-numbers-zero-style = "#3b4261"
+
+[delta "tokyo-night-light"]
+    minus-style = syntax "#E7C8D5"
+    minus-non-emph-style = syntax "#E7C8D5"
+    minus-emph-style = syntax "#EDADC2"
+    minus-empty-line-marker-style = syntax "#EDADC2"
+    line-numbers-minus-style = "#C41C46"
+
+    plus-style = syntax "#CCDBE2"
+    plus-non-emph-style = syntax "#CCDBE2"
+    plus-emph-style = syntax "#B6D4DC"
+    plus-empty-line-marker-style = syntax "#B6D4DC"
+    line-numbers-plus-style = "#449dab"
+    line-numbers-zero-style = "#8187B1"

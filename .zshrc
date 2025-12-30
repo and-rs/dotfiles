@@ -1,6 +1,5 @@
 #zmodload zsh/zprof
 
-export PATH="$HOME/Vault/personal/tdx:$PATH"
 export PATH="$HOME/Vault/personal/yazi/target/release:$PATH"
 export PATH="/usr/bin:$PATH"
 # export PATH="$PATH:$HOME/.cargo/bin"
