@@ -3,7 +3,7 @@ quit-after-last-window-closed = true
 
 macos-window-buttons = hidden
 macos-titlebar-style = hidden
-window-decoration = false
+#window-decoration = false
 
 macos-non-native-fullscreen = true
 fullscreen = false
@@ -11,14 +11,17 @@ fullscreen = false
 macos-option-as-alt = true
 confirm-close-surface = false
 
-config-file = /Users/index/Vault/personal/dotfiles/.config/ghostty/neovim-default
+#config-file = /Users/index/Vault/personal/dotfiles/.config/ghostty/neovim-default
 #config-file = tokyo-night
 #config-file = tokyo-night-day
+theme = Nvim Light
+cursor-color = #000
+cursor-text = #fff
 
 custom-shader-animation = true
-#custom-shader = shaders/cursor_smear.glsl
-custom-shader = shaders/cursor_glow.glsl
-custom-shader = shaders/cursor_slash.glsl
+custom-shader = shaders/cursor_smear.glsl
+#custom-shader = shaders/cursor_glow.glsl
+#custom-shader = shaders/cursor_slash.glsl
 #custom-shader = shaders/cursor_ripple.glsl
 #custom-shader = shaders/crt.glsl
 
@@ -32,7 +35,7 @@ window-padding-y = 4
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 12
+adjust-cell-height = 14
 adjust-font-baseline = 0
 adjust-cursor-height = 0
 adjust-cursor-thickness = 3
@@ -46,4 +49,4 @@ font-family = Input Mono Narrow
 #font-family = CommitMonoFucker
 #font-family = Iosevka Custom
 #font-family = Recursive Mono Linear Static
-#font-family = Recursive Mono Casual Static
+font-family = Recursive Mono Casual Static

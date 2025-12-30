@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "neovim",
+  "theme": "system",
   "keybinds": {
     "leader": "ctrl+o",
     "app_exit": "ctrl+c",
