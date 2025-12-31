@@ -34,6 +34,9 @@ bindkey '^[W' backward-kill-word
 bindkey '^D' delete-char
 bindkey '^F' forward-char
 bindkey '^B' backward-char
+bindkey '^[^f' forward-word
+bindkey '^[^b' backward-word
+bindkey '^[\x7f' kill-whole-line
 
 bindkey '^P' up-line-or-history
 bindkey '^N' down-line-or-history

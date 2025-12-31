@@ -19,9 +19,14 @@ custom-shader = shaders/cursor_smear.glsl
 # custom-shader = shaders/glow.glsl
 # custom-shader = shaders/dot_matrix.glsl
 
+
 keybind = super+backspace=esc:W
 keybind = super+f=esc:f
+keybind = super+ctrl+f=text:\x1b\x06
 keybind = super+b=esc:b
+keybind = super+ctrl+b=text:\x1b\x02
+keybind = alt+backspace=text:\x1b\x7f
+
 keybind = super+h=esc:h
 keybind = super+j=esc:j
 keybind = super+k=esc:k
