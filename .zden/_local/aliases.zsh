@@ -26,6 +26,13 @@ alias update-nixos-boot="sudo nixos-rebuild boot --flake $HOME/Vault/personal/ni
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
 
+win-start () {
+    docker start WinBoat
+    nohup xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey \
+        +clipboard /cert:ignore -compression \
+        +dynamic-resolution /scale:180 > /dev/null &
+}
+
 code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
 
 f() {

@@ -19,7 +19,7 @@
     //     "edit": false
     //   }
     // },
-    "build": { "disable": true },
+    "build": { "disable": false },
     "plan": {
       "mode": "primary",
       "tools": {
