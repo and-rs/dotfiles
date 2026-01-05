@@ -26,14 +26,21 @@ alias update-nixos-boot="sudo nixos-rebuild boot --flake $HOME/Vault/personal/ni
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
 
-win-start () {
-    docker start WinBoat
+win-start() {
+    if [ "$(docker inspect -f '{{.State.Running}}' WinBoat 2>/dev/null)" != "true" ]; then
+        docker start WinBoat
+    fi
     nohup xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey \
         +clipboard /cert:ignore -compression \
-        +dynamic-resolution /scale:180 > /dev/null &
+        +dynamic-resolution /scale:180 >/dev/null 2>&1 &
 }
 
-code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+code() {
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        return 1
+    fi
+    VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$@"
+}
 
 f() {
     directories=(fd --type d)
@@ -47,26 +54,11 @@ f() {
         --exclude .meteor
         --exclude .nv
     )
-
     selected_dir=$("${directories[@]}" | fzf --prompt="choose directory > " --reverse --info="right" --padding=1,0,0,1)
-
     if [ -n "$selected_dir" ]; then
         cd "$selected_dir" || exit
     else
         echo "No directory selected."
-    fi
-}
-
-fp() {
-    local current_dir
-    current_dir=$(pwd)
-    cd "$HOME/Vault" || return 1
-    local dir
-    dir=$(fd -t d --exact-depth 2 | fzf --prompt="projects > " --reverse --info="right" --padding=1,0,0,1)
-    if [[ -n $dir ]]; then
-        cd "$dir"
-    else
-        cd "$current_dir"
     fi
 }
 

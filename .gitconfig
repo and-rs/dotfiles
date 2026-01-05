@@ -18,7 +18,10 @@
 
 [merge]
   conflictstyle = diff3
-	tool = nvimdiff
+	tool = vscode-diff
+
+[mergetool "vscode-diff"]
+	cmd = nvim \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
 
 [user]
   name = "and-rs"
