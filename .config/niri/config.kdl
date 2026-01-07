@@ -121,12 +121,6 @@ window-rule {
     draw-border-with-background false
 }
 
-window-rule {
-    match app-id="xfreerdp"
-    open-floating false
-    open-focused true
-}
-
 // this is for tkinter with python native dialogs
 window-rule {
     match app-id="TkFDialog"
@@ -172,6 +166,13 @@ window-rule {
 window-rule {
     match app-id="vesktop"
     open-on-workspace "3"
+}
+
+window-rule {
+    match app-id="xfreerdp"
+    open-floating false
+    open-focused true
+    open-on-workspace "4"
 }
 
 window-rule {
