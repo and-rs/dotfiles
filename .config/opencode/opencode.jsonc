@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "theme": "neovim",
   "keybinds": {
     "leader": "ctrl+o",
     "app_exit": "ctrl+c",
@@ -8,7 +7,8 @@
     "messages_half_page_up": "ctrl+u",
     "messages_half_page_down": "ctrl+d",
     "messages_last_user": "<leader>l",
-    "messages_first": "<leader>f"
+    "messages_first": "<leader>f",
+    "input_delete_word_backward": "ctrl+w,super+backspace"
   },
   "agent": {
     // "regular": {
@@ -21,6 +21,7 @@
     // },
     "build": { "disable": false },
     "plan": {
+      "disable": true,
       "mode": "primary",
       "tools": {
         "write": false,
