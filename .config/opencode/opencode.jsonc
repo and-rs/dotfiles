@@ -8,7 +8,8 @@
     "messages_half_page_down": "ctrl+d",
     "messages_last_user": "<leader>l",
     "messages_first": "<leader>f",
-    "input_delete_word_backward": "ctrl+w,super+backspace"
+    "input_delete_to_line_start": "alt+ctrl+backspace",
+    "input_delete_word_backward": "alt+backspace"
   },
   "agent": {
     // "regular": {

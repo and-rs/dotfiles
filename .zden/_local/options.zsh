@@ -36,7 +36,9 @@ bindkey '^F' forward-char
 bindkey '^B' backward-char
 bindkey '^[^f' forward-word
 bindkey '^[^b' backward-word
-bindkey '^[\x7f' kill-whole-line
+
+bindkey '^[^H' kill-whole-line # Alt+BS
+bindkey '\x1b\x7f' backward-kill-word # Super+BS
 
 bindkey '^P' up-line-or-history
 bindkey '^N' down-line-or-history
