@@ -1,0 +1,16 @@
+fork = true
+vsync = true
+
+[font]
+normal = ["Input Mono Narrow"]
+size = 14
+
+[font.features]
+"Input Mono Narrow" = [ "-liga", "-calt" ]
+"Rec Mono Casual"   = [ "-liga", "-calt" ]
+
+[box-drawing]
+mode = "native"
+
+[box-drawing.sizes]
+default = [2, 6]  # Thin and thick values respectively, for all sizes

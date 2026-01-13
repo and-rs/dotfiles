@@ -1,7 +1,7 @@
 const vec4 COLOR = vec4(0.651, 0.859, 1.0, 1.0);
 const vec4 COLOR_ACCENT = vec4(0.878, 0.886, 0.918, 1.0);
 const float DURATION = 0.15;
-const float INTENSITY = 0.4;
+const float INTENSITY = 0.6;
 const float DISTANCE_THRESHOLD = 3.4;
 
 float getSdfRectangle(in vec2 p, in vec2 xy, in vec2 b) {

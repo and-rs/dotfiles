@@ -151,6 +151,8 @@ window-rule {
 }
 
 window-rule {
+    match app-id="kitty"
+    match app-id="neovide"
     match app-id="com.mitchellh.ghostty"
     match app-id="obsidian"
     open-on-workspace "1"
@@ -224,7 +226,7 @@ binds {
 
     Mod+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
     Mod+Super+L repeat=false { spawn "hyprlock"; }
-    Mod+Return  repeat=false { spawn "ghostty"; }
+    Mod+Return  repeat=false { spawn "kitty"; }
 
     Mod+Q           { close-window; }
     Mod+Shift+Slash { show-hotkey-overlay; }
@@ -257,8 +259,8 @@ binds {
     Mod+Shift+4 { move-column-to-workspace 4; }
     Mod+Shift+5 { move-column-to-workspace 5; }
 
-    Mod+Ctrl+Equal      { move-workspace-down; }
-    Mod+Ctrl+Minus      { move-workspace-up; }
+    // Mod+Ctrl+P      { move-workspace-up; }
+    // Mod+Ctrl+N      { move-workspace-down; }
 
     Mod+WheelScrollDown       { focus-workspace-down; }
     Mod+WheelScrollUp         { focus-workspace-up; }
@@ -280,15 +282,15 @@ binds {
 }
 
 animations {
-    slowdown 0.9
+    slowdown 0.8
 
     workspace-switch {
         // off
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.00001
     }
 
     horizontal-view-movement {
         // off
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=1500 epsilon=0.00001
     }
 }

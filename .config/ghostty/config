@@ -9,13 +9,13 @@ cursor-text = #e0e2ea
 # theme = Nvim Light
 config-file = neovim-default
 
-custom-shader = shaders/cursor_glow.glsl
-custom-shader = shaders/cursor_ripple.glsl
+# custom-shader = shaders/cursor_glow.glsl
 # custom-shader = shades/cursor_smear.glsl
-# custom-shader = shaders/cursor_slash.glsl
+custom-shader = shaders/cursor_ripple.glsl
+custom-shader = shaders/cursor_slash.glsl
 
-custom-shader = shaders/crt.glsl
-custom-shader = shaders/glow.glsl
+# custom-shader = shaders/crt.glsl
+# custom-shader = shaders/glow.glsl
 # custom-shader = shaders/dot_matrix.glsl
 # custom-shader = shaders/dot_matrix_glow.glsl
 
@@ -43,7 +43,7 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 14
+adjust-cell-height = 16
 adjust-font-baseline = 0
 adjust-cursor-thickness = 3
 adjust-underline-position = 5
@@ -57,6 +57,7 @@ font-thicken = false
 # font-family = Rec Mono Linear
 font-family = Rec Mono Casual
 # font-family = Input Mono Narrow
+# font-family = CommitMonoV134
 
-# freetype-load-flags = false
-freetype-load-flags = force-autohint
+freetype-load-flags = false
+# freetype-load-flags = force-autohint
