@@ -12,15 +12,15 @@ screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 
 overview {
     zoom 0.6
-    backdrop-color "#0F111A"
-    workspace-shadow {
-        off
-    }
+    backdrop-color "#1b1e25"
+    // workspace-shadow {
+    //     off
+    // }
 }
 
 output "eDP-1" {
     scale 1.666
-    backdrop-color "#0F111A"
+    backdrop-color "#1b1e25"
 }
 
 hotkey-overlay {
@@ -198,7 +198,7 @@ layer-rule {
 // Put swww inside the overview backdrop.
 layer-rule {
     match namespace="swww-daemon"
-    place-within-backdrop true
+    // place-within-backdrop true
 }
 
 binds {

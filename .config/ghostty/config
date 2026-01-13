@@ -41,21 +41,20 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 13
+adjust-cell-height = 14
 adjust-font-baseline = 0
 adjust-cursor-thickness = 3
 adjust-underline-position = 5
 
-font-size = 13
+font-size = 12
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
 font-thicken = false
 
 # font-family = Rec Mono Linear
-# font-family = Rec Mono Casual
-font-family = Input Mono Narrow
+font-family = Rec Mono Casual
+# font-family = Input Mono Narrow
 
 # freetype-load-flags = false
-# freetype-load-flags = force-autohint
-freetype-load-flags = hinting
+freetype-load-flags = force-autohint
