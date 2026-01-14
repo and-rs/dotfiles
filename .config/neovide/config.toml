@@ -2,7 +2,7 @@ fork = true
 vsync = true
 
 [font]
-normal = ["Input Mono Narrow"]
+normal = ["Rec Mono Casual"]
 size = 14
 
 [font.features]

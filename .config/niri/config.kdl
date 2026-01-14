@@ -1,6 +1,7 @@
 spawn-at-startup "swww-daemon"
 spawn-sh-at-startup "$HOME/.config/quickshell/launch.sh"
 spawn-at-startup "hypridle"
+spawn-at-startup "xrdb -merge ~/.Xresources"
 
 xwayland-satellite {
     path "/home/and-rs/Vault/dev/xwayland-satellite/result/bin/xwayland-satellite"

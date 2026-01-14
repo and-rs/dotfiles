@@ -1,12 +1,6 @@
 #!/usr/bin/env zsh
 
 _fzf_history() {
-    local de_duplicated_history=("${(@f)$(fc -lnr 0 | awk '!seen[$0]++')}")
-    local history_for_fzf=$(noglob printf '%s\000' "${de_duplicated_history[@]}")
-    if [[ -z "$history_for_fzf" ]]; then
-        zle send-break
-        return 1
-    fi
     local current_query="$BUFFER"
     local fzf_opts=(
         --read0
@@ -16,14 +10,15 @@ _fzf_history() {
         --prompt="history > "
         --query="$current_query"
         --layout=reverse
+        --tiebreak=index
     )
-    local selected_command
-    if ! (( $+commands[fzf] )); then
-        print -u2 "Error: fzf command not found." >&2
+    if (( ! $+commands[fzf] )); then
+        print -u2 "Error: fzf command not found."
         zle send-break
         return 1
     fi
-    selected_command=$(fzf "${fzf_opts[@]}" <<< "$history_for_fzf")
+    local selected_command
+    selected_command=$(fc -lnr 0 | awk '{gsub(/^[[:space:]]+|[[:space:]]+$/, ""); if (!seen[$0]++) print}' | tr '\n' '\0' | fzf "${fzf_opts[@]}")
     if [[ $? -eq 0 && -n "$selected_command" ]]; then
         BUFFER="$selected_command"
         CURSOR=${#BUFFER}

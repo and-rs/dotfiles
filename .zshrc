@@ -64,6 +64,7 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
 fi
 
 # order matters
+source $ZDEN/_local/transient.zsh
 source $ZDEN/_local/options.zsh
 source $ZDEN/_local/aliases.zsh
 source $ZDEN/_local/dirtree.zsh
