@@ -27,6 +27,24 @@ alias gsw="git switch"
 alias gpl="git pull"
 alias gph="git push"
 
+gds() {
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+        echo "Not a git repository"
+        return 1
+    }
+    local root
+    root=$(git rev-parse --show-toplevel) || return
+    local preview_cmd="git -C '$root' diff --staged --color=always -- {} | delta --paging=never"
+    local opts="
+        $FZF_DEFAULT_OPTS
+        $FORGIT_FZF_DEFAULT_OPTS
+        --preview=\"$preview_cmd\"
+        --preview-window=\"right,60%\"
+        --bind=\"enter:execute(git -C '$root' diff --staged --color=always -- {} | delta | less -R)\"
+    "
+    git -C "$root" diff --staged --name-only | FZF_DEFAULT_OPTS="$opts" fzf
+}
+
 gpr:create() {
     local branch_name
     if [ -n "$1" ]; then
@@ -62,21 +80,17 @@ gpr:merge() {
 gsync() {
     local current_branch
     current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-
     if [ -z "$current_branch" ]; then
         echo "Error: Could not determine current branch. Are you in a git repository?" >&2
         return 1
     fi
-
     if [ "$current_branch" = "main" ] || [ "$current_branch" = "master" ]; then # Added master for commonality
         echo "Error: Currently on '$current_branch' branch. 'gsync' is intended to clean up feature branches." >&2
         echo "If you only want to pull $current_branch and prune, use 'git pull origin $current_branch && git fetch --prune'." >&2
         return 1
     fi
-
     echo "Current branch is '$current_branch'."
     echo "Switching to 'main', pulling, deleting local branch '$current_branch', and pruning..."
-
     if git switch main && \
         git pull origin main && \
         git branch -d "$current_branch" && \
@@ -98,7 +112,6 @@ gh-repo-delete() {
     TMP_DIR=${TMPDIR:-/tmp}
     SEL_FILE="$TMP_DIR/repos-selected.txt"
     DEL_FILE="$TMP_DIR/repos-to-delete.txt"
-
     gh repo list --json owner,name,visibility \
         | jq -r '.[] | [.name, .owner.login, .visibility] | @csv' \
         | qsv table \
@@ -106,13 +119,10 @@ gh-repo-delete() {
         | tee "$SEL_FILE" \
         | awk '{print $1}' \
         | tee "$DEL_FILE" >/dev/null
-
     count=$(wc -l < "$DEL_FILE")
     [ "$count" -eq 0 ] && { echo "No repos selected."; return; }
-
     clear 2>/dev/null || true
     printf "%s\n\n" "About to delete $count repositories:" | tr -s ' '
-
     max_show=12
     if [ "$count" -le "$max_show" ]; then
         { echo "Repo,Owner,Visibility"; tr -s ' ' ',' < "$SEL_FILE"; } | mlr --icsv --opprint --barred cat
@@ -121,11 +131,9 @@ gh-repo-delete() {
         remain=$(( count - max_show ))
         echo "… and $remain more"
     fi
-
     printf "\nWarning: This action is permanent."
     printf "\n%s" "Type DELETE to confirm: "
     read -r ans
     [ "$ans" = "DELETE" ] || { echo "Aborted."}
-
     xargs -n 1 gh repo delete --yes < "$DEL_FILE"
 }

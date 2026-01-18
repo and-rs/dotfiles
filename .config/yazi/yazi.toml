@@ -5,6 +5,7 @@ show_hidden = true
 
 [files]
 excludes = [
+  { urn = "node_modules", in = "*" },
   { urn = "__pycache__", in = "*" },
   { urn = ".obsidian", in = "*" },
   { urn = ".git", in = "*" },

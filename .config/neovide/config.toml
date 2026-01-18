@@ -2,12 +2,13 @@ fork = true
 vsync = true
 
 [font]
-normal = ["Rec Mono Casual"]
+normal = ["Rec Mono Semicasual", "Adwaita Mono"]
 size = 14
 
 [font.features]
-"Input Mono Narrow" = [ "-liga", "-calt" ]
-"Rec Mono Casual"   = [ "-liga", "-calt" ]
+"Input Mono Narrow"   = [ "-liga", "-calt" ]
+"Rec Mono Casual"     = [ "-liga", "-calt" ]
+"Rec Mono Semicasual" = [ "-liga", "-calt" ]
 
 [box-drawing]
 mode = "native"

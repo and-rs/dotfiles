@@ -93,7 +93,7 @@ export _ZO_FZF_OPTS="${FZF_DEFAULT_OPTS:-} \
   --marker=':' --gutter=' ' --pointer='>' \
   --bind=ctrl-y:toggle+down --info=right \
   --padding=1,0,0,1 --prompt='zoxide interactive > ' \
-  --layout=reverse --height=100% --multi --cycle" \
+  --layout=reverse --height=100% --multi --cycle"
 
-    zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':completion:*' menu no
+zstyle ':fzf-tab:*' use-fzf-default-opts yes

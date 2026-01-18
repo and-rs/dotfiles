@@ -49,15 +49,6 @@
     "diffAddedBg": { "dark": "deltaPlus", "light": "deltaPlus" },
     "diffRemovedBg": { "dark": "deltaMinus", "light": "deltaMinus" },
     "diffContextBg": { "dark": "bg0", "light": "bg0" },
-    "diffLineNumber": { "dark": "fg2", "light": "fg2" },
-    "diffAddedLineNumberBg": {
-      "dark": "deltaLinePlus",
-      "light": "deltaLinePlus"
-    },
-    "diffRemovedLineNumberBg": {
-      "dark": "deltaLineMinus",
-      "light": "deltaLineMinus"
-    },
     "markdownText": { "dark": "fg0", "light": "fg0" },
     "markdownHeading": { "dark": "blue", "light": "blue" },
     "markdownLink": { "dark": "cyan", "light": "cyan" },
