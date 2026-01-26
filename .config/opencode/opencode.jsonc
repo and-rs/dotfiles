@@ -12,31 +12,7 @@
     "input_delete_word_backward": "alt+backspace"
   },
   "agent": {
-    // "regular": {
-    //   "description": "Reviews code for best practices and potential issues",
-    //   "prompt": "You can answer regular questions",
-    //   "tools": {
-    //     "write": false,
-    //     "edit": false
-    //   }
-    // },
-    "build": { "disable": false },
-    "plan": {
-      "disable": true,
-      "mode": "primary",
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": true
-      }
-    }
-  },
-  "permission": {
-    "edit": "ask",
-    "bash": {
-      "*": "ask",
-      "git diff": "allow",
-      "git status": "allow"
-    }
+    "build": { "disable": false, "color": "#000000" },
+    "plan": { "disable": true }
   }
 }
