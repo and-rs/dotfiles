@@ -14,8 +14,9 @@ Rectangle {
 
   MaterialIcon {
     id: caffeineIcon
-    code: isActive ? 0xe8f4 : 0xe8f5
+    code: isActive ? 0xE220 : 0xE224
     iconColor: isActive ? Config.colors.fg : Config.colors.bright
+    iconSize: 16
   }
 
   MouseArea {

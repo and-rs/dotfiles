@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 
 Row {
-  spacing: Config.spacing.small
+  spacing: Config.spacing.extraSmall
   anchors.verticalCenter: parent.verticalCenter
 
   function isWorkspaceEmpty(workspaceId: int): bool {
@@ -37,10 +37,10 @@ Row {
         orientation: Gradient.Vertical
         GradientStop {
           position: 0
-          color: Config.colors.dim
+          color: Config.colors.bg
         }
         GradientStop {
-          position: 2.2
+          position: 4
           color: Config.colors.primary
         }
       }
@@ -82,7 +82,7 @@ Row {
         color: rect.updateTextColor()
         anchors.centerIn: parent
         text: model.index
-        font.weight: 500
+        font.weight: model.isFocused ? 800 : 500
         font.pointSize: 10
       }
 

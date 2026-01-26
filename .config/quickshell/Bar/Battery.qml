@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell.Services.UPower
+import QtQuick.Effects
 
 Row {
   id: root
@@ -23,7 +24,6 @@ Row {
         width: active ? 14 : 0
         height: 14
         anchors.verticalCenter: parent.verticalCenter
-        clip: true
 
         Behavior on width {
           NumberAnimation {
@@ -34,9 +34,9 @@ Row {
 
         MaterialIcon {
           anchors.centerIn: parent
-          code: 0xea0b
+          code: 0xE2DE
           iconSize: 14
-          color: Config.colors.success
+          color: Config.colors.light_green
           scale: parent.active ? 1 : 0
           opacity: parent.active ? 1 : 0
 
@@ -64,7 +64,7 @@ Row {
           width: 30
           height: 16
           radius: Config.radius.small
-          color: Config.colors.accent
+          color: Config.colors.bright
           anchors.verticalCenter: parent.verticalCenter
 
           Item {
@@ -78,26 +78,35 @@ Row {
               width: batShell.width
               height: batShell.height
               radius: batShell.radius
-              color: p < 0.2 ? Config.colors.destructive : Config.colors.success
+              color: p < 0.2 ? Config.colors.light_red : Config.colors.light_green
             }
           }
 
           Text {
+            id: batteryLabel
             width: batShell.width
             height: batShell.height
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: txt
-            font.weight: 900
+            font.weight: 800
             font.pointSize: 10
             color: Config.colors.bg
+
+            layer.enabled: true
+            layer.effect: MultiEffect {
+              shadowEnabled: true
+              shadowColor: Config.colors.fg
+              shadowBlur: 0.9
+              shadowOpacity: 0.8
+            }
           }
         }
 
         Rectangle {
           width: 2.5
           height: 7.5
-          color: p < 1 ? Config.colors.accent : Config.colors.success
+          color: p < 1 ? Config.colors.bright : Config.colors.light_green
           topRightRadius: Config.radius.small
           bottomRightRadius: Config.radius.small
           anchors.verticalCenter: parent.verticalCenter

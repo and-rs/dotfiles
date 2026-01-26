@@ -12,8 +12,16 @@ Text {
   anchors.verticalCenterOffset: yOffset
   anchors.horizontalCenterOffset: -yOffset
 
+  FontLoader {
+    id: lucideFont
+    source: "file:///home/and-rs/Downloads/Fonts/bold/Phosphor-Bold.ttf"
+  }
+
+  font.family: lucideFont.name
   text: icon !== "" ? icon : String.fromCodePoint(code)
-  font.family: "Material Symbols Rounded"
   font.pointSize: iconSize
   color: iconColor
+  font.variableAxes: {
+    "wgth": 800
+  }
 }

@@ -24,6 +24,14 @@ Scope {
         id: background
         anchors.fill: parent
         color: Config.colors.bg
+        Rectangle {
+          id: bottomBorder
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
+          height: 2
+          color: Config.colors.fg
+        }
       }
 
       Row {
