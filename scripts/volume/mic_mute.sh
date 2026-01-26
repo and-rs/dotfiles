@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-icon=""
+icon_path=""
 message="Unknown error"
 dotfiles="$HOME/Vault/personal/dotfiles"
 
@@ -12,12 +12,12 @@ else
     if [ -z "$volume_info" ]; then
         message="Error getting volume status"
     elif grep -q 'MUTED' <<< "$volume_info"; then
-        icon="--raw_icon=$dotfiles/scripts/volume/mic_off.png"
+        icon_path="$dotfiles/scripts/volume/mic_off.png"
         message="MUTED"
     else
-        icon="--raw_icon=$dotfiles/scripts/volume/mic_on.png"
+        icon_path="$dotfiles/scripts/volume/mic_on.png"
         message="ON"
     fi
 fi
 
-dunstify "Microphone" --urgency=low --timeout=1000 --replace=798 "$icon" "$message"
+notify-send "Microphone" "$message" -i "$icon_path" -u low -t 1000 -r 798
