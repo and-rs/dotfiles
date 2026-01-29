@@ -1,24 +1,19 @@
+config-file = ghostty-fonts
+config-file = themes/neovim-light
+
 quit-after-last-window-closed = true
 custom-shader-animation = true
 confirm-close-surface = false
+gtk-single-instance = true
 alpha-blending = native
-
-cursor-color = #07080d
-cursor-text = #e0e2ea
-
-# theme = Nvim Light
-config-file = neovim-default
 
 # custom-shader = shaders/cursor_glow.glsl
 # custom-shader = shades/cursor_smear.glsl
 custom-shader = shaders/cursor_ripple.glsl
 custom-shader = shaders/cursor_slash.glsl
 
-# custom-shader = shaders/crt.glsl
-# custom-shader = shaders/glow.glsl
-# custom-shader = shaders/dot_matrix.glsl
-# custom-shader = shaders/dot_matrix_glow.glsl
-
+# This is brutal
+custom-shader = shaders/text.glsl
 
 # I do this to mirror MacOS as much as I can
 # Less mental overhead
@@ -44,20 +39,18 @@ window-padding-balance = true
 
 adjust-icon-height = 8
 adjust-cell-height = 16
-adjust-font-baseline = 0
+adjust-font-baseline = -2
 adjust-cursor-thickness = 3
 adjust-underline-position = 5
 
-font-size = 13.5
+font-size = 15
 font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
 font-thicken = false
-
-# font-family = Rec Mono Linear
-font-family = Rec Mono Casual
-# font-family = Input Mono Narrow
-# font-family = CommitMonoV134
+font-synthetic-style = false
 
 freetype-load-flags = false
 # freetype-load-flags = force-autohint
+# freetype-load-flags = monochrome
+freetype-load-flags = hinting

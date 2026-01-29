@@ -1,23 +1,46 @@
-# import = [
-# "~/.config/alacritty/theme.toml",
-# "~/.config/alacritty/keybinds.toml"
-# ]
+[general]
+import = [ "~/.config/alacritty/theme.toml" ]
 
 [env]
 TERM = "alacritty"
 
 [font]
-size = 13
-offset = { y = 8 }
-glyph_offset = { y = 4 } #RecMono
+size = 14
 
-[font.normal]
-family = "Recursive Mono Linear Static"
+offset = { y = 10 }
+glyph_offset = { y = 5 }
+
+normal = { family = "Rec Mono Linear" }
+bold = { family = "Rec Mono Linear" }
+italic = { family = "Rec Mono Casual" }
+bold_italic = { family = "Rec Mono Casual" }
+
+# normal = { family = "Monaspace Neon" }
+# bold = { family = "Monaspace Neon" }
+# italic = { family = "Monaspace Xenon", style = "Regular" }
+# bold_italic = { family = "Monaspace Xenon", style = "Bold" }
 
 [window]
-title = "Alacritty"
+title = "Terminalino"
 dynamic_padding = true
 
 [window.padding]
 x = 4
-y = 4
+y = 0
+
+[keyboard]
+bindings = [
+  { key = "V", mods = "Alt", action = "Paste" },
+  { key = "C", mods = "Alt", action = "Copy" },
+
+  { key = "F", mods = "Super|Control", chars = "\u001B\u0006" },
+  { key = "B", mods = "Super|Control", chars = "\u001B\u0002" },
+
+  { key = "Backspace", mods = "Super", chars = "\u001B\u007F" },
+  { key = "Backspace", mods = "Alt", chars = "\u001B\u0008" },
+
+  { key = "H", mods = "Super", chars = "\u001Bh" },
+  { key = "J", mods = "Super", chars = "\u001Bj" },
+  { key = "K", mods = "Super", chars = "\u001Bk" },
+  { key = "L", mods = "Super", chars = "\u001Bl" },
+]
