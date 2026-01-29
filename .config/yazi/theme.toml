@@ -1,13 +1,17 @@
 [mgr]
 border_style = { fg = "darkgray" }
+border_symbol = ""
 preview_hovered = { underline = false }
-count_selected = { fg = "black", bg = "blue" }
-count_copied = { fg = "black", bg = "yellow" }
-count_cut = { fg = "black", bg = "red" }
+count_selected = { reversed = true, fg = "blue" }
+count_copied = { reversed = true, fg = "yellow" }
+count_cut = { reversed = true, fg = "red" }
 marker_marked = { fg = "green", bg = "green" }
 marker_selected = { fg = "blue", bg = "blue" }
 marker_copied = { fg = "yellow", bg = "yellow" }
 marker_cut = { fg = "red", bg = "red" }
+
+[indicator]
+padding = { open = "█", close = "█"}
 
 [which]
 cols = 2

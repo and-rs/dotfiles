@@ -1,3 +1,17 @@
+[delta "neovim-light"]
+    minus-style = syntax "#ffcccc"
+    minus-non-emph-style = syntax "#ffcccc"
+    minus-empty-line-marker-style = syntax "#ffcccc"
+    minus-emph-style = syntax "#ff9999"
+    line-numbers-minus-style = "#761e1e"
+
+    plus-style = syntax "#c0e9da"
+    plus-non-emph-style = syntax "#c0e9da"
+    plus-empty-line-marker-style = syntax "#c0e9da"
+    plus-emph-style = syntax "#a3dcc1"
+    line-numbers-plus-style = "#3d8259"
+    line-numbers-zero-style = "#1a1a1a"
+
 [delta "neovim-default"]
     minus-style = syntax "#351d2b"
     minus-non-emph-style = syntax "#351d2b"
