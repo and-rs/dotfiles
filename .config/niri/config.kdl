@@ -97,9 +97,10 @@ layout {
     }
 
     focus-ring {
+        off
         width 2
-        active-color "#000"
-        // active-gradient from="#000" to="#fff" angle=90
+        // active-color "#fff"
+        active-gradient from="#000" to="#fff" angle=90
     }
 
     shadow {
@@ -213,15 +214,18 @@ binds {
     XF86AudioNext        allow-when-locked=true { spawn "playerctl" "next"; }
     XF86AudioPrev        allow-when-locked=true { spawn "playerctl" "previous"; }
 
-    XF86AudioMute        cooldown-ms=200 { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_mute.sh"; }
-    XF86AudioMicMute     cooldown-ms=200 { spawn "~/Vault/personal/dotfiles/scripts/volume/mic_mute.sh"; }
-    XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_up.sh"; }
-    XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn "~/Vault/personal/dotfiles/scripts/volume/vol_down.sh"; }
+    XF86AudioMicMute           cooldown-ms=200 { spawn-sh "quickshell ipc call osd toggleMicMute"; }
+    Mod+XF86AudioRaiseVolume cooldown-ms=55 { spawn-sh "quickshell ipc call osd adjustMic '0.10+'"; }
+    Mod+XF86AudioLowerVolume cooldown-ms=55 { spawn-sh "quickshell ipc call osd adjustMic '0.10-'"; }
 
-    XF86MonBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/scr_brightness_up.sh"; }
-    XF86MonBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/scr_brightness_down.sh"; }
-    XF86KbdBrightnessUp   { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_up.sh"; }
-    XF86KbdBrightnessDown { spawn "~/Vault/personal/dotfiles/scripts/brightness/kbd_brightness_down.sh"; }
+    XF86AudioMute        cooldown-ms=200 { spawn-sh "quickshell ipc call osd toggleMute"; }
+    XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true { spawn-sh "quickshell ipc call osd adjustVolume '0.05+'"; }
+    XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true { spawn-sh "quickshell ipc call osd adjustVolume '0.05-'"; }
+
+    XF86MonBrightnessUp   { spawn-sh "quickshell ipc call osd adjustBrightness '+5%'"; }
+    XF86MonBrightnessDown { spawn-sh "quickshell ipc call osd adjustBrightness '5%-'"; }
+    XF86KbdBrightnessUp   { spawn-sh "quickshell ipc call osd adjustKbdBrightness '+33%'"; }
+    XF86KbdBrightnessDown { spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"; }
 
 
     Mod+Ctrl+U  repeat=false { spawn "~/Vault/personal/dotfiles/scripts/record-screen-wayland.sh"; }
