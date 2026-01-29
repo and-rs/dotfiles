@@ -12,12 +12,7 @@ Text {
   anchors.verticalCenterOffset: yOffset
   anchors.horizontalCenterOffset: -yOffset
 
-  FontLoader {
-    id: lucideFont
-    source: "file:///home/and-rs/Downloads/Fonts/bold/Phosphor-Bold.ttf"
-  }
-
-  font.family: lucideFont.name
+  font.family: "Phosphor-Bold"
   text: icon !== "" ? icon : String.fromCodePoint(code)
   font.pointSize: iconSize
   color: iconColor
