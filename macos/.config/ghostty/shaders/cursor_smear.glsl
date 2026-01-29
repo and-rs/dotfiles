@@ -1,10 +1,10 @@
 // light mode
-// const vec4 TRAIL_COLOR = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
-// const vec4 TRAIL_COLOR_ACCENT = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
+const vec4 TRAIL_COLOR = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
+const vec4 TRAIL_COLOR_ACCENT = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
 
 // dark mode
-const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
-const vec4 TRAIL_COLOR_ACCENT = vec4(0.478, 0.635, 0.969, 1.0);
+// const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
+// const vec4 TRAIL_COLOR_ACCENT = vec4(0.478, 0.635, 0.969, 1.0);
 
 const float DURATION = 0.2; // In seconds
 const float DISTANCE_THRESHOLD = 3.5; // Maximum distance for trail effect
