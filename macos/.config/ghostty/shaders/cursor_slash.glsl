@@ -1,10 +1,10 @@
 // Dark mode
-// const vec4 COLOR = vec4(0.651, 0.859, 1.0, 1.0);
-// const vec4 COLOR_ACCENT = vec4(0.878, 0.886, 0.918, 1.0);
+const vec4 COLOR = vec4(0.651, 0.859, 1.0, 1.0);
+const vec4 COLOR_ACCENT = vec4(0.878, 0.886, 0.918, 1.0);
 
 // Light mode
-const vec4 COLOR = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 COLOR_ACCENT = vec4(0.0, 0.0, 0.0, 1.0);
+// const vec4 COLOR = vec4(0.0, 0.0, 0.0, 1.0);
+// const vec4 COLOR_ACCENT = vec4(0.0, 0.0, 0.0, 1.0);
 
 // Configuration
 const float DURATION = 0.2;

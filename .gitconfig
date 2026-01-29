@@ -11,7 +11,7 @@
     path = ~/.gitconfig.delta
 
 [delta]
-  features = neovim-light
+  features = neovim-default
   max-line-length = 0
   line-numbers = true
   navigate = true

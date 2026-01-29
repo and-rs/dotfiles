@@ -1,5 +1,5 @@
 config-file = ghostty-fonts
-config-file = themes/neovim-light
+config-file = themes/neovim-default
 
 quit-after-last-window-closed = true
 custom-shader-animation = true
