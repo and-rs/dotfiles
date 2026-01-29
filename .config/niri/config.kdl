@@ -14,9 +14,9 @@ screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 overview {
     zoom 0.6
     backdrop-color "#1b1e25"
-    // workspace-shadow {
-    //     off
-    // }
+    workspace-shadow {
+        off
+    }
 }
 
 output "eDP-1" {
@@ -79,7 +79,7 @@ input {
 }
 
 layout {
-    gaps 8
+    gaps 12
     background-color "transparent"
     tab-indicator {
         off
@@ -92,21 +92,24 @@ layout {
         proportion 1.0
     }
 
-    focus-ring {
-        width 2
-        active-color "#a6dbff"
-    }
-
     border {
         off
     }
 
+    focus-ring {
+        width 2
+        active-color "#000"
+        // active-gradient from="#000" to="#fff" angle=90
+    }
+
     shadow {
-        spread 0
-        softness 8
-        offset x=0 y=2
-        color "#202020"
-        draw-behind-window false
+        on
+        spread 2
+        softness 0
+        offset x=4 y=4
+        draw-behind-window true
+        color "#00000030"
+        inactive-color "#00000020"
     }
 }
 
@@ -153,6 +156,7 @@ window-rule {
 
 window-rule {
     match app-id="kitty"
+    match app-id="alacritty"
     match app-id="neovide"
     match app-id="com.mitchellh.ghostty"
     match app-id="obsidian"
@@ -201,7 +205,7 @@ layer-rule {
 // Put swww inside the overview backdrop.
 layer-rule {
     match namespace="swww-daemon"
-    // place-within-backdrop true
+    place-within-backdrop true
 }
 
 binds {
@@ -227,7 +231,7 @@ binds {
 
     Mod+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
     Mod+Super+L repeat=false { spawn "hyprlock"; }
-    Mod+Return  repeat=false { spawn "kitty"; }
+    Mod+Return  repeat=false { spawn "ghostty"; }
 
     Mod+Q           { close-window; }
     Mod+Shift+Slash { show-hotkey-overlay; }
@@ -278,7 +282,7 @@ binds {
     Mod+Shift+Minus { set-window-height "-10%"; }
     Mod+Shift+Equal { set-window-height "+10%"; }
 
-    Ctrl+Return allow-inhibiting=false { fullscreen-window; }
+    Mod+F11     allow-inhibiting=false { fullscreen-window; }
     Mod+Escape  allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 }
 

@@ -2,7 +2,7 @@
 
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
-export BAT_THEME='nosyntax'
+export BAT_THEME='nosyntax-light'
 
 # History options
 HISTSIZE=7000

@@ -2,6 +2,7 @@
 
 export PATH="$HOME/Vault/personal/yazi/target/release:$PATH"
 export PATH="/usr/bin:$PATH"
+export PATH="$HOME/bins:$PATH"
 # export PATH="$PATH:$HOME/.cargo/bin"
 
 typeset -U path PATH

@@ -4,8 +4,8 @@ alias cd="z"
 alias ci="zi"
 alias ..="z .."
 alias yz="yazi"
-# alias nv="nvim"
-alias nv="neovide"
+alias nv="nvim"
+alias nd="neovide"
 alias br="broot"
 alias c="clear -x"
 alias oc="opencode"
@@ -30,7 +30,7 @@ alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --c
 win-start() {
     if [ "$(docker inspect -f '{{.State.Running}}' WinBoat 2>/dev/null)" != "true" ]; then
         docker start WinBoat
-        sleep 4
+        sleep 10
     fi
     nohup xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey \
         +clipboard /cert:ignore -compression \
