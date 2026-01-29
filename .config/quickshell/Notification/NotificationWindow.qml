@@ -33,6 +33,7 @@ Item {
       body: notification.body || "",
       appName: notification.appName || "",
       appIcon: notification.appIcon || notification.icon || "",
+      image: notification.image || "",
       desktopEntry: notification.desktopEntry || "",
       actions: notification.actions || [],
       notification: notification
@@ -60,6 +61,7 @@ Item {
       notifId: data.id,
       summary: data.summary,
       body: data.body,
+      appImage: data.image,
       appName: data.appName,
       appIcon: data.appIcon,
       desktopEntry: data.desktopEntry,

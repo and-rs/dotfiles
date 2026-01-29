@@ -4,7 +4,7 @@ import qs.Bar
 Column {
   id: content
   width: parent.width
-  spacing: Config.spacing.normal
+  spacing: Config.spacing.extraSmall
 
   property string summary: ""
   property string body: ""
@@ -13,10 +13,9 @@ Column {
   Text {
     id: summaryText
     text: summary
-    font.pixelSize: Config.sizes.larger
-    font.weight: Font.DemiBold
-    antialiasing: false
-    color: Config.colors.blue
+    font.pixelSize: Config.sizes.large
+    font.weight: Font.Medium
+    color: Config.colors.fg
     wrapMode: Text.Wrap
     maximumLineCount: 2
     elide: Text.ElideRight
@@ -49,10 +48,13 @@ Column {
         text: body
         font.pixelSize: Config.sizes.normal
         color: Config.colors.fg
+        linkColor: Config.colors.primary
+        textFormat: Text.StyledText
         wrapMode: Text.Wrap
         width: parent.width
-        maximumLineCount: parent.parent.expanded ? -1 : 2
-        elide: parent.parent.expanded ? Text.ElideNone : Text.ElideRight
+        maximumLineCount: bodyCarouselContainer.expanded ? -1 : 2
+        elide: bodyCarouselContainer.expanded ? Text.ElideNone : Text.ElideRight
+        onLinkActivated: link => Qt.openUrlExternally(link)
       }
     }
   }

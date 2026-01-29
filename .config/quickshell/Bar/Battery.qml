@@ -36,7 +36,7 @@ Row {
           anchors.centerIn: parent
           code: 0xE2DE
           iconSize: 14
-          color: Config.colors.light_green
+          iconColor: Config.colors.light_green
           scale: parent.active ? 1 : 0
           opacity: parent.active ? 1 : 0
 

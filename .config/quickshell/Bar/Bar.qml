@@ -30,7 +30,7 @@ Scope {
           anchors.right: parent.right
           anchors.bottom: parent.bottom
           height: 2
-          color: Config.colors.fg
+          color: Config.colors.dim
         }
       }
 

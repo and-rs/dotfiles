@@ -4,97 +4,69 @@ import qs.Bar
 Item {
   id: header
   width: parent.width
-  height: Math.max(iconContainer.height, appNameText.height)
+  height: mainRow.implicitHeight
 
   property string appName: ""
   property string appIcon: ""
-  property string desktopEntry: ""
+  property string appImage: ""
   property string body: ""
+  property string desktopEntry: ""
   property real bodyTextImplicitHeight: 0
   property bool bodyExpanded: false
+
+  readonly property string effectiveSource: appImage || appIcon
 
   signal expandBody
   signal collapseBody
 
-  function getIconSource() {
-    if (appIcon !== "" && (appIcon.startsWith("/") || appIcon.startsWith("file://") || appIcon.startsWith("http://") || appIcon.startsWith("https://"))) {
-      return appIcon;
-    }
-    if (desktopEntry !== "") {
-      return "file:///usr/share/icons/hicolor/scalable/apps/" + desktopEntry.toLowerCase() + ".svg";
-    }
-    if (appIcon !== "") {
-      return "file:///usr/share/icons/hicolor/scalable/apps/" + appIcon.toLowerCase() + ".svg";
-    }
-    return "";
-  }
-
   Row {
+    id: mainRow
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
     spacing: Config.spacing.normal
 
     Rectangle {
       id: iconContainer
-      width: 50
-      height: 50
+      width: 60
+      height: 60
       radius: Config.radius.normal
       color: "transparent"
-      visible: appIcon !== "" || appName !== ""
-
-      AnimatedImage {
-        id: appIconAnimated
-        anchors.fill: parent
-
-        source: header.getIconSource()
-        fillMode: Image.PreserveAspectFit
-        visible: source !== "" && status === Image.Ready && source.toString().toLowerCase().endsWith(".gif")
-        asynchronous: true
-        cache: false
-        playing: true
-
-        onStatusChanged: {
-          if (status === Image.Error) {
-            console.log("Failed to load animated icon from:", source);
-          }
-        }
-      }
+      visible: effectiveSource !== "" || appName !== ""
 
       Image {
         id: appIconImage
         anchors.fill: parent
-        anchors.margins: 4
-        source: header.getIconSource()
+        anchors.margins: 2
+        source: header.effectiveSource
         fillMode: Image.PreserveAspectFit
-        visible: source !== "" && status === Image.Ready && !source.toString().toLowerCase().endsWith(".gif")
-        asynchronous: false
-        cache: true
+        asynchronous: !source.toString().startsWith("image://")
+        visible: status === Image.Ready
+        cache: false
 
         onStatusChanged: {
           if (status === Image.Error) {
-            console.log("Failed to load icon from:", source);
+            console.warn("Failed to load icon from:", source);
           }
         }
       }
 
       Text {
         anchors.centerIn: parent
-        visible: appName !== "" && (!appIconImage.visible && !appIconAnimated.visible)
+        visible: header.effectiveSource === "" || appIconImage.status === Image.Error
         text: appName.charAt(0).toUpperCase()
-        font.pixelSize: Config.sizes.large
+        font.pixelSize: Config.sizes.extraLarge
         font.weight: Font.Bold
-        color: Config.colors.accent
+        color: Config.colors.light
       }
     }
 
     Text {
       id: appNameText
       text: appName
-      font.pixelSize: Config.sizes.small
+      font.pixelSize: Config.sizes.normal
       font.weight: Font.Medium
-      color: Config.colors.accent
-      opacity: 0.8
-      visible: appName !== ""
+      color: Config.colors.light
+      visible: text !== ""
       anchors.verticalCenter: parent.verticalCenter
     }
   }
@@ -103,48 +75,18 @@ Item {
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
     spacing: Config.spacing.small
-    visible: body !== "" && bodyTextImplicitHeight > 13 * 2.5
-    z: 100
+    visible: body !== "" && bodyTextImplicitHeight > (Config.sizes.normal * 2.5)
 
     Rectangle {
       width: 22
       height: 22
-      radius: Config.radius.full
-      visible: bodyExpanded
       color: "transparent"
-
-      Behavior on color {
-        ColorAnimation {
-          duration: Config.durations.fast
-        }
-      }
 
       MouseArea {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: header.collapseBody()
-      }
-    }
-
-    Rectangle {
-      width: 22
-      height: 22
-      radius: Config.radius.full
-      color: "transparent"
-      visible: !bodyExpanded
-
-      Behavior on color {
-        ColorAnimation {
-          duration: Config.durations.fast
-        }
-      }
-
-      MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: header.expandBody()
+        onClicked: bodyExpanded ? header.collapseBody() : header.expandBody()
       }
     }
   }

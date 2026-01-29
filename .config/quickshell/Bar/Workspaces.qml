@@ -66,9 +66,9 @@ Row {
       }
 
       border.width: 2
-      height: Config.sizes.large
+      height: Config.sizes.extraLarge
       radius: Config.radius.small
-      width: model.isFocused ? 52 : Config.sizes.large
+      width: model.isFocused ? 52 : Config.sizes.extraLarge
 
       Behavior on width {
         NumberAnimation {

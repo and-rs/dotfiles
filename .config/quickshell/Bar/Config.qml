@@ -14,22 +14,39 @@ Singleton {
   property QtObject durations
   property QtObject transparency
 
+  // lightmode
+  // colors: QtObject {
+  //   property string bg: "#e0e2ea"
+  //   property string dim: "#cacbd3"
+  //   property string muted: "#b3b5bb"
+  //   property string bright: "#9d9ea4"
+  //   property string accent: "#86888c"
+  //   property string light: "#707175"
+  //   property string light_green: "#00a244"
+  //   property string light_red: "#A8000E"
+  //   property string fg: "#07080d"
+  //   property string success: "#005523"
+  //   property string primary: "#004c73"
+  //   property string secondary: "#470045"
+  //   property string destructive: "#590008"
+  // }
+
+  // darkmode
   colors: QtObject {
-    property string bg: "#e0e2ea"
-    property string dim: "#cacbd3"
-    property string muted: "#b3b5bb"
-    property string bright: "#9d9ea4"
-    property string accent: "#86888c"
-    property string light: "#707175"
+    property string bg: "#14161b"
+    property string dim: "#1b1e25"
+    property string muted: "#353945"
+    property string bright: "#4f5258"
+    property string accent: "#646a7a"
+    property string light: "#79839c"
 
-    property string light_green: "#00a244"
-    property string light_red: "#A8000E"
-
-    property string fg: "#07080d"
-    property string success: "#005523"
-    property string primary: "#004c73"
-    property string secondary: "#470045"
-    property string destructive: "#590008"
+    property string light_green: "#b3f6c0"
+    property string light_red: "#ffc0b9"
+    property string fg: "#e0e2ea"
+    property string success: "#b3f6c0"
+    property string primary: "#a6dbff"
+    property string secondary: "#ffcaff"
+    property string destructive: "#ffc0b9"
   }
 
   radius: QtObject {
@@ -60,12 +77,11 @@ Singleton {
 
   sizes: QtObject {
     property real scale: 1
-    property int small: 11 * scale
-    property int smaller: 12 * scale
-    property int normal: 14 * scale
-    property int larger: 18 * scale
-    property int large: 22 * scale
-    property int extraLarge: 28 * scale
+    property int extraSmall: 8 * scale
+    property int small: 12 * scale
+    property int normal: 16 * scale
+    property int large: 20 * scale
+    property int extraLarge: 24 * scale
   }
 
   durations: QtObject {

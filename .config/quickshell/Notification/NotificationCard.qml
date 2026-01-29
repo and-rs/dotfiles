@@ -9,6 +9,7 @@ Rectangle {
   property string body: ""
   property string appName: ""
   property string appIcon: ""
+  property string appImage: ""
   property string desktopEntry: ""
   property var actions: []
 
@@ -25,14 +26,14 @@ Rectangle {
 
   width: parent ? parent.width : 360
   height: contentColumn.height + Config.padding.large * 2
-  color: Config.colors.bg
+  color: Config.colors.dim
   radius: Config.radius.normal
   x: 0
 
   Behavior on x {
     enabled: !isDragging
     NumberAnimation {
-      duration: Config.durations.normal
+      duration: Config.durations.fast
       easing.type: Easing.OutCubic
     }
   }
@@ -96,7 +97,7 @@ Rectangle {
       property: "opacity"
       from: 0
       to: 1
-      duration: Config.durations.normal
+      duration: Config.durations.fast
       easing.type: Easing.OutQuad
     }
     NumberAnimation {
@@ -116,14 +117,14 @@ Rectangle {
         target: card
         property: "x"
         to: card.x < 0 ? -600 : 600
-        duration: Config.durations.normal
+        duration: Config.durations.fast
         easing.type: Easing.InCubic
       }
       NumberAnimation {
         target: card
         property: "opacity"
         to: 0
-        duration: Config.durations.normal
+        duration: Config.durations.fast
         easing.type: Easing.InCubic
       }
     }
@@ -212,6 +213,7 @@ Rectangle {
     NotificationHeader {
       appName: card.appName
       appIcon: card.appIcon
+      appImage: card.appImage
       desktopEntry: card.desktopEntry
 
       body: card.body
