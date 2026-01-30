@@ -5,6 +5,6 @@ import qs.Osd
 
 Scope {
   Bar {}
+  Osd {}
   Notification {}
-  VolumeOsd {}
 }

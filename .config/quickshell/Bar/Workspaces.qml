@@ -73,7 +73,7 @@ Row {
       Behavior on width {
         NumberAnimation {
           duration: Config.durations.normal
-          easing.type: Easing.OutQuint
+          easing.type: Config.curves.standard
         }
       }
 

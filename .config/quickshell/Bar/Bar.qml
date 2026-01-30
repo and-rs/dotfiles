@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import qs.Bar.SystemTray
+import qs.Bar.Recording
 
 Scope {
   Variants {
@@ -53,6 +54,7 @@ Scope {
           id: buttons
           spacing: Config.spacing.small
           anchors.verticalCenter: parent.verticalCenter
+          Recording {}
           Tray {
             id: tray
             window: main

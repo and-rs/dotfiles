@@ -200,7 +200,7 @@ Scope {
               Behavior on width {
                 NumberAnimation {
                   duration: Config.durations.extraFast
-                  easing.type: Easing.OutCubic
+                  easing.type: Config.curves.standard
                 }
               }
               Behavior on color {

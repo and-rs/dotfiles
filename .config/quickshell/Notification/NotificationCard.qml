@@ -34,7 +34,7 @@ Rectangle {
     enabled: !isDragging
     NumberAnimation {
       duration: Config.durations.fast
-      easing.type: Easing.OutCubic
+      easing.type: Config.curves.standard | update
     }
   }
 
@@ -42,7 +42,7 @@ Rectangle {
     enabled: !isDragging
     NumberAnimation {
       duration: Config.durations.fast
-      easing.type: Easing.OutQuad
+      easing.type: Config.curves.standard | update
     }
   }
 
@@ -98,7 +98,7 @@ Rectangle {
       from: 0
       to: 1
       duration: Config.durations.fast
-      easing.type: Easing.OutQuad
+      easing.type: Config.curves.standard | update
     }
     NumberAnimation {
       target: card
@@ -106,7 +106,7 @@ Rectangle {
       from: 0.9
       to: 1.0
       duration: 350
-      easing.type: Easing.OutCubic
+      easing.type: Config.curves.standard | update
     }
   }
 
@@ -118,14 +118,14 @@ Rectangle {
         property: "x"
         to: card.x < 0 ? -600 : 600
         duration: Config.durations.fast
-        easing.type: Easing.InCubic
+        easing.type: Config.curves.standard | update
       }
       NumberAnimation {
         target: card
         property: "opacity"
         to: 0
         duration: Config.durations.fast
-        easing.type: Easing.InCubic
+        easing.type: Config.curves.standard | update
       }
     }
     ScriptAction {

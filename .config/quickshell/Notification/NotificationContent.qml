@@ -39,7 +39,7 @@ Column {
       Behavior on height {
         NumberAnimation {
           duration: Config.durations.normal
-          easing.type: Easing.OutCubic
+          easing.type: Config.curves.standard
         }
       }
 

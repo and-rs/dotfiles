@@ -16,7 +16,7 @@ Item {
   Behavior on opacity {
     NumberAnimation {
       duration: Config.durations.fast
-      easing.type: Easing.OutCubic
+      easing.type: Config.curves.standard
     }
   }
 

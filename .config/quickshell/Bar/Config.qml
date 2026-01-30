@@ -13,6 +13,7 @@ Singleton {
   property QtObject sizes
   property QtObject durations
   property QtObject transparency
+  property QtObject curves
 
   // lightmode
   // colors: QtObject {
@@ -47,6 +48,17 @@ Singleton {
     property string primary: "#a6dbff"
     property string secondary: "#ffcaff"
     property string destructive: "#ffc0b9"
+  }
+
+  curves: QtObject {
+    property var standard: Easing.OutQuint
+    property var bounce: Easing.OutBack
+    property var smooth: Easing.InOutQuad
+    property var snap: Easing.OutQuad
+    property var enter: Easing.InCubic
+    property var sharp: Easing.OutQuint
+    property var linear: Easing.Linear
+    property var springy: Easing.InOutCubic
   }
 
   radius: QtObject {

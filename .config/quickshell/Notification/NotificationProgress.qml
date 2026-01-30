@@ -19,7 +19,7 @@ Rectangle {
     Behavior on width {
       NumberAnimation {
         duration: 50
-        easing.type: Easing.Linear
+        easing.type: Config.curves.standard
       }
     }
   }

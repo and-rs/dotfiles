@@ -28,7 +28,7 @@ Row {
         Behavior on width {
           NumberAnimation {
             duration: Config.durations.normal
-            easing.type: Easing.OutCubic
+            easing.type: Config.curves.standard
           }
         }
 
@@ -43,7 +43,7 @@ Row {
           Behavior on scale {
             NumberAnimation {
               duration: Config.durations.normal
-              easing.type: Easing.OutBack
+              easing.type: Config.curves.standard
             }
           }
 

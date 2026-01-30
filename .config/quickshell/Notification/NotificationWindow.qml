@@ -136,7 +136,7 @@ Item {
     Behavior on height {
       NumberAnimation {
         duration: Config.durations.normal
-        easing.type: Easing.InOutCubic
+        easing.type: Config.curves.standard
       }
     }
 
@@ -154,14 +154,14 @@ Item {
       Behavior on opacity {
         NumberAnimation {
           duration: Config.durations.fast
-          easing.type: Easing.OutQuad
+          easing.type: Config.curves.standard
         }
       }
 
       Behavior on scale {
         NumberAnimation {
           duration: Config.durations.normal
-          easing.type: Easing.OutCubic
+          easing.type: Config.curves.standard
         }
       }
 
