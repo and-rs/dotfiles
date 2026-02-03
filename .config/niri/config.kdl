@@ -228,10 +228,11 @@ binds {
     XF86KbdBrightnessDown { spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"; }
 
 
-    Mod+Ctrl+U  repeat=false { spawn "~/Vault/personal/dotfiles/scripts/record-screen-wayland.sh"; }
-    Mod+Super+U allow-inhibiting=false { screenshot-screen; }
+    Mod+U repeat=false allow-inhibiting=false {
+      spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim - | satty -f -";
+    }
+    Mod+Super+U { spawn-sh "quickshell ipc call recorder toggle"; }
     Mod+Shift+U allow-inhibiting=false { screenshot-window; }
-    Mod+U       allow-inhibiting=false { screenshot; }
 
     Mod+Space   repeat=false { spawn "~/Vault/personal/dotfiles/.config/rofi/launch-rofi.sh"; }
     Mod+Super+L repeat=false { spawn "hyprlock"; }
@@ -267,9 +268,6 @@ binds {
     Mod+Shift+3 { move-column-to-workspace 3; }
     Mod+Shift+4 { move-column-to-workspace 4; }
     Mod+Shift+5 { move-column-to-workspace 5; }
-
-    // Mod+Ctrl+P      { move-workspace-up; }
-    // Mod+Ctrl+N      { move-workspace-down; }
 
     Mod+WheelScrollDown       { focus-workspace-down; }
     Mod+WheelScrollUp         { focus-workspace-up; }
