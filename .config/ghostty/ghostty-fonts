@@ -1,4 +1,5 @@
-font-family = Input
+# font-family = Input
+font-family = CommitMono
 
 #font-family = Rec Mono Linear
 #font-family-bold = Rec Mono Linear
