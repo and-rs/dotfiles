@@ -7,7 +7,6 @@ permissions:
   glob: allow
   grep: allow
   list: allow
-  lsp: allow
   codesearch: allow
   websearch: allow
   webfetch: allow
@@ -15,6 +14,7 @@ permissions:
   bash: deny
   task: deny
   skill: deny
+  lsp: deny
   todoread: deny
   todowrite: deny
   external_directory: deny
@@ -27,6 +27,7 @@ permissions:
   - Never use tables.
   - Use Mermaid diagrams for flow visualization if requested.
   - Do not write implementation code.
+  - Do not create documentation files; explain findings via chat only.
 
 - **Process**:
   1. **Entry Point Identification**: Use `grep` and `lsp` to find where a feature starts and where data enters the system.

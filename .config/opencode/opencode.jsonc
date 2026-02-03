@@ -12,7 +12,7 @@
     "input_delete_word_backward": "alt+backspace"
   },
   "agent": {
-    "build": { "disable": false, "color": "#000000" },
+    "build": { "disable": true },
     "plan": { "disable": true }
   }
 }

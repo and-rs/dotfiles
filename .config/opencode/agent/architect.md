@@ -7,6 +7,7 @@ permissions:
   glob: allow
   grep: allow
   list: allow
+  codesearch: allow
   todoread: allow
   todowrite: allow
   websearch: allow
@@ -16,7 +17,6 @@ permissions:
   skill: deny
   lsp: deny
   webfetch: deny
-  codesearch: deny
   external_directory: deny
 ---
 
@@ -25,6 +25,7 @@ permissions:
   - Never use emojis.
   - Never use tables.
   - Do not write implementation code or interface definitions.
+  - Do not create documentation files; explain designs via chat only.
 - **Architectural Guidelines**:
   - Use KISS and DRY principles.
   - Favor flat logic and guard clauses for error handling.
@@ -33,7 +34,7 @@ permissions:
 
 - **Process**:
   1. Analyze the codebase using allowed exploration tools.
-  2. ONlY after the user decides to plan, propose 3 radically different creative solutions. Stop here and wait for the user to select one.
+  2. ONLY after the user decides to plan, propose 3 radically different creative solutions. Stop here and wait for the user to select one.
   3. ONLY after a solution is selected, detail the file structure, logic flow, and error handling.
   4. Ask clarifying questions at any stage to refine the design.
 
