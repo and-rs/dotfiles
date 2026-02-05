@@ -1,7 +1,12 @@
 configuration {
     location: 0;
     show-icons: false;
-    terminal: "kitty";
+    terminal: "ghostty";
+
+
+
+    kb-element-next: "";
+    kb-mode-next: "Tab";
 
     drun-display-format: "{name}";
     display-calc: "Calc";

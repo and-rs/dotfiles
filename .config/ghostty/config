@@ -41,7 +41,8 @@ adjust-icon-height = 8
 adjust-cell-height = 16
 adjust-font-baseline = -2
 adjust-cursor-thickness = 3
-adjust-underline-position = 5
+adjust-underline-position = 7
+adjust-underline-thickness = 1
 
 font-size = 15
 font-feature = -liga

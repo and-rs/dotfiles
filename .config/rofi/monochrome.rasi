@@ -11,6 +11,11 @@
     height: 302px;
 }
 
+error-message {
+    background-color: @color1;
+    padding: 10px;
+}
+
 element-text, element-icon {
     background-color: inherit;
     text-color:       inherit;

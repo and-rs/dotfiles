@@ -99,7 +99,7 @@ Scope {
         const geo = this.text.trim();
         if (geo && geo.length > 0) {
           root.currentFile = root.homeDir + "/recording_" + root.getTimestamp() + ".mp4";
-          recProc.command = ["wf-recorder", "-y", "-g", geo, "-c", "libx264rgb", "-p", "crf=20", "-p", "preset=veryfast", "--file=" + root.currentFile];
+          recProc.command = ["wf-recorder", "-y", "-g", geo, "-c", "libx264rgb", "-p", "crf=18", "-p", "preset=veryfast", "--file=" + root.currentFile];
           root.status = 2;
           root.elapsedSeconds = 0;
           recProc.running = true;
@@ -124,7 +124,7 @@ Scope {
 
   Process {
     id: ffmpegProc
-    command: ["ffmpeg", "-y", "-i", root.currentFile, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "28", "-preset", "fast", root.currentFile.slice(0, -4) + "_web.mp4"]
+    command: ["ffmpeg", "-y", "-i", root.currentFile, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22", "-preset", "fast", root.currentFile.slice(0, -4) + "_web.mp4"]
     onExited: code => {
       root.status = 0;
       root.elapsedSeconds = 0;
