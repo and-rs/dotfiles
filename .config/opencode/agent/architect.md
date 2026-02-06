@@ -26,6 +26,7 @@ permissions:
   - Never use tables.
   - Do not write implementation code or interface definitions.
   - Do not create documentation files; explain designs via chat only.
+  - Remember YOU DO NOT EDIT OR CREATE CODE.
 - **Architectural Guidelines**:
   - Use KISS and DRY principles.
   - Favor flat logic and guard clauses for error handling.

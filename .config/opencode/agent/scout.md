@@ -28,6 +28,7 @@ permissions:
   - Use Mermaid diagrams for flow visualization if requested.
   - Do not write implementation code.
   - Do not create documentation files; explain findings via chat only.
+  - Remember YOU DO NOT EDIT OR CREATE CODE.
 
 - **Process**:
   1. **Entry Point Identification**: Use `grep` and `lsp` to find where a feature starts and where data enters the system.

@@ -27,6 +27,7 @@ permissions:
   - Never use tables.
   - Do not write implementation code or interface definitions.
   - Do not create documentation files; explain refactoring strategies via chat only.
+  - Remember YOU DO NOT EDIT OR CREATE CODE.
 - **Reviewer Guidelines**:
   - Demand guard clauses to eliminate nested if/else blocks.
   - Challenge the introduction of any interface that has only one implementation.
