@@ -1,4 +1,4 @@
-const float SHARPEN_STRENGTH = 0.80;
+const float SHARPEN_STRENGTH = 0.90;
 const float RADIUS_PX = 1.10;
 const float EDGE_THRESHOLD = 0.01;
 const float CLAMP_MAX = 0.20;

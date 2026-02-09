@@ -1,18 +1,18 @@
 # font-family = Input
-font-family = CommitMono
+# font-family = CommitMono
 
-#font-family = Rec Mono Linear
-#font-family-bold = Rec Mono Linear
-#font-family-italic = Rec Mono Casual
-#font-family-bold-italic = Rec Mono Casual
-#font-style-bold = Bold
-#font-style-italic = Italic
-#font-style-bold-italic = Bold Italic
+font-family = Rec Mono Linear
+font-family-bold = Rec Mono Linear
+font-family-italic = Rec Mono Casual
+font-family-bold-italic = Rec Mono Casual
+font-style-bold = Bold
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic
 
-#font-family = Monaspace Neon
-#font-family-bold = Monaspace Neon
-#font-family-italic = Monaspace Radon
-#font-family-bold-italic = Monaspace Radon
-#font-style-bold = Bold
-#font-style-italic = Italic
-#font-style-bold-italic = Bold Italic
+# font-family = Monaspace Neon
+# font-family-bold = Monaspace Neon
+# font-family-italic = Monaspace Argon
+# font-family-bold-italic = Monaspace Argon
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic

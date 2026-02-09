@@ -1,11 +1,11 @@
 [general]
-import = [ "~/.config/alacritty/theme.toml" ]
+import = [ "~/.config/alacritty/neovim-default.toml" ]
 
 [env]
 TERM = "alacritty"
 
 [font]
-size = 14
+size = 16
 
 offset = { y = 10 }
 glyph_offset = { y = 5 }

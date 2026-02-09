@@ -7,13 +7,9 @@ confirm-close-surface = false
 gtk-single-instance = true
 alpha-blending = native
 
-# custom-shader = shaders/cursor_glow.glsl
-# custom-shader = shades/cursor_smear.glsl
-custom-shader = shaders/cursor_ripple.glsl
-custom-shader = shaders/cursor_slash.glsl
-
 # This is brutal
-custom-shader = shaders/text.glsl
+custom-shader = ./shaders/text.glsl
+custom-shader = ./shaders/cursor_slash.glsl
 
 # I do this to mirror MacOS as much as I can
 # Less mental overhead
@@ -38,10 +34,10 @@ window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 16
+adjust-cell-height = 14
 adjust-font-baseline = -2
 adjust-cursor-thickness = 3
-adjust-underline-position = 7
+adjust-underline-position = 10
 adjust-underline-thickness = 1
 
 font-size = 15
