@@ -146,7 +146,7 @@ window-rule {
 }
 window-rule {
     match app-id="kitty"
-    match app-id="alacritty"
+    match app-id="Alacritty"
     match app-id="neovide"
     match app-id="com.mitchellh.ghostty"
     match app-id="obsidian"
