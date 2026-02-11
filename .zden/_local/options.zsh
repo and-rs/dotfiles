@@ -3,6 +3,7 @@
 export EDITOR='nvim'
 export MANPAGER='nvim +Man!'
 export BAT_THEME='nosyntax'
+export DIRENV_LOG_FORMAT=""
 
 # History options
 HISTSIZE=7000
