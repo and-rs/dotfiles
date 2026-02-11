@@ -18,16 +18,16 @@ size = 16
 # glyph_offset = { y = 3 }
 # normal = { family = "CommitMono"}
 
-# offset = { y = 14 }
-# glyph_offset = { y = 3 }
-# normal = { family = "Input"}
-
-offset = { y = 4 }
+offset = { y = 10 }
 glyph_offset = { y = 2 }
-normal = { family = "Monaspace Neon" }
-bold = { family = "Monaspace Neon" }
-italic = { family = "Monaspace Argon", style = "Italic" }
-bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
+normal = { family = "Input"}
+
+# offset = { y = 4 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Monaspace Neon" }
+# bold = { family = "Monaspace Neon" }
+# italic = { family = "Monaspace Argon", style = "Italic" }
+# bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
 
 [window]
 title = "Terminalino"
