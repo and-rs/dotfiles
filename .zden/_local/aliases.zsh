@@ -6,12 +6,14 @@ alias ..="z .."
 alias yz="yazi"
 alias nv="nvim"
 alias nd="neovide"
-alias br="broot"
 alias c="clear -x"
-alias oc="opencode"
 alias reload="exec zsh"
 alias sw="stow -t $HOME"
 alias caffeine="systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity"
+
+# current AI setup?
+alias ai="aichat -r meaningful -s"
+alias aie="aichat -e"
 
 alias l="eza -lha --no-time --no-permissions --no-user -I .DS_Store"
 alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
