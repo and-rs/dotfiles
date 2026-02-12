@@ -1,0 +1,2 @@
+steps:
+  - .file `git diff` -- generate git commit message

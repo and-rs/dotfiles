@@ -1,0 +1,5 @@
+variables:
+  - name: query
+    rest: true
+steps:
+  - "Based on the index, list the file paths most relevant to: '{{query}}'. Return ONLY the list of file paths, one per line. No markdown, no conversation."

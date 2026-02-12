@@ -5,7 +5,7 @@ import = [ "~/.config/alacritty/neovim-default.toml" ]
 TERM = "alacritty"
 
 [font]
-size = 16
+size = 15.5
 
 # offset = { y = 10 }
 # glyph_offset = { y = 5 }

@@ -52,12 +52,13 @@ input {
     touchpad {
         tap
         dwt
-        dwtp
         drag-lock
         accel-speed 0.1
         accel-profile "flat"
         scroll-factor 0.1
+        // natural-scroll
         middle-emulation
+        click-method "clickfinger"
     }
     mouse {
         accel-profile "flat"
