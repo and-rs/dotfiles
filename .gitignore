@@ -1,3 +1,8 @@
+# hide aichat things
+.env
+.config/aichat/sessions
+.config/aichat/messages
+
 app.log
 .DS_Store
 .qmlls.ini

@@ -232,7 +232,7 @@ binds {
     XF86KbdBrightnessDown {
         spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"
     }
-    Mod+Ctrl+U repeat=false allow-inhibiting=false {
+    Mod+F12 allow-inhibiting=false {
         spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim - | satty -f -"
     }
     Mod+Super+U {

@@ -1,0 +1,13 @@
+# see https://github.com/sigoden/aichat/blob/main/config.example.yaml
+model: novita:deepseek/deepseek-v3.2
+stream: true
+wrap: 90
+save: true
+use_tools: 'fs'
+clients:
+  - type: openai-compatible
+    name: novita
+    api_base: https://api.novita.ai/openai
+    models:
+      - name: deepseek/deepseek-v3.2
+      - name: zai-org/glm-5
