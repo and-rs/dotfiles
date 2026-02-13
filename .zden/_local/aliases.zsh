@@ -15,6 +15,9 @@ alias caffeine="systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinit
 alias ai="aichat -r meaningful -s"
 alias aie="aichat -e"
 
+alias ai:gc="aichat -r meaningful --macro commit"
+alias ai:rag="aichat -r indexer --rag"
+
 alias l="eza -lha --no-time --no-permissions --no-user -I .DS_Store"
 alias ld="eza -lha --no-filesize --no-permissions --no-user -I .DS_Store"
 alias lt="eza -lihaT --git-ignore"

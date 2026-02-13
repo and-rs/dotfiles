@@ -166,6 +166,18 @@
 				<string>#a6dbff</string>
 			</dict>
 		</dict>
+
+    <dict>
+        <key>name</key>
+        <string>Markdown Inline Code</string>
+        <key>scope</key>
+        <string>markup.inline.raw, markup.code</string>
+        <key>settings</key>
+        <dict>
+            <key>foreground</key>
+            <string>#8cf8f7</string>
+        </dict>
+    </dict>
 	</array>
 </dict>
 </plist>

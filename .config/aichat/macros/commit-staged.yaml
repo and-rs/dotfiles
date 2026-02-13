@@ -1,3 +1,3 @@
 steps:
-  - .file `git log -10 --date=relative && git diff --staged` -- generate git commit message with previous commit style
+  - .file `git log -10 --date=relative && git diff --staged` -- generate git commit message with previous commit style, be descriptive.
   - .copy
