@@ -34,7 +34,7 @@ title = "Terminalino"
 dynamic_padding = true
 
 [window.padding]
-x = 0
+x = 14
 y = 0
 
 [keyboard]

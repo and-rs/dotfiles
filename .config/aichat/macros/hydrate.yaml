@@ -1,7 +1,0 @@
-variables:
-  - name: files
-    rest: true
-steps:
-  - .role indexer
-  - .file {{files}}
-  - "I have loaded the full content of the files above. Map out the architecture regarding these files and generate a 'mark.sh' script to add TODO comments describing the flow."

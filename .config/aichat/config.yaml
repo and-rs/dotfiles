@@ -1,24 +1,37 @@
 # see https://github.com/sigoden/aichat/blob/main/config.example.yaml
 stream: true
-wrap: 90
+wrap: 80
 save: true
 use_tools: 'fs'
 model: novita:deepseek/deepseek-v3.2
 compress_threshold: 40000
 rag_embedding_model: google:gemini-embedding-001
-rag_reranker_model: google:gemini-2.0-flash
+rag_reranker_model: jina:jina-reranker-v3
+rag_chunk_size: 1500
+rag_chunk_overlap: 150
 clients:
+  - type: openai-compatible
+    name: jina
+    api_base: https://api.jina.ai/v1
+    models:
+      - name: jina-reranker-v3
+        type: reranker
   - type: openai-compatible
     name: novita
     api_base: https://api.novita.ai/openai
     models:
       - name: deepseek/deepseek-v3.2
       - name: zai-org/glm-5
+      - name: qwen/qwen3-reranker-8b
+        type: reranker
   - type: openai-compatible
     name: google
     api_base: https://generativelanguage.googleapis.com/v1beta/openai/
     models:
       - name: gemini-embedding-001
         type: embedding
-      - name: gemini-2.0-flash
-        type: reranker
+      - name: gemini-3-flash-preview
+document_loaders:
+  git: >
+    sh -c "yek $1 --json | jq '[.[] | { path: .filename, contents: .content }]'"
+

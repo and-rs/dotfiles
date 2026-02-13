@@ -29,6 +29,32 @@ alias update-nixos-boot="sudo nixos-rebuild boot --flake $HOME/Vault/personal/ni
 alias ff="fastfetch --logo-color-1 cyan --file $DOTS/utils/ascii/spider2.txt"
 alias ffn="fastfetch --logo-color-1 red --file $DOTS/utils/ascii/spider2.txt --config neofetch"
 
+# this is for aichat
+ret() {
+    local current_path=$(pwd)
+    local base_cmd="yek \"$current_path\" --json | jq '[.[] | { path: .filename, contents: .content }]'"
+    local opt_c=0
+    local opt_p=0
+    local OPTIND
+
+    while getopts "cp" opt; do
+        case "$opt" in
+            c) opt_c=1 ;;
+            p) opt_p=1 ;;
+            *) return 1 ;;
+        esac
+    done
+
+    if (( opt_p )); then
+        eval "$base_cmd | rg \"\\\"path\\\"\""
+    elif (( opt_c )); then
+        echo -n "$base_cmd" | wl-copy
+    else
+        echo -n ".file \`$base_cmd\` -- " | wl-copy
+    fi
+}
+
+
 win-start() {
     if [ "$(docker inspect -f '{{.State.Running}}' WinBoat 2>/dev/null)" != "true" ]; then
         docker start WinBoat

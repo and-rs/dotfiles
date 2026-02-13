@@ -1,7 +1,12 @@
 # hide aichat things
 .env
+messages.md
+models-override.yaml
+.config/aichat/rags
 .config/aichat/sessions
 .config/aichat/messages
+.config/aichat/functions/bin
+.config/aichat/functions/cache
 
 app.log
 .DS_Store
