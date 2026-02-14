@@ -9,7 +9,7 @@ export DOTS=$HOME/Vault/personal/dotfiles
 
 # If not in tmux, start tmux.
 if [[ -z ${TMUX+X}${ZSH_SCRIPT+X}${ZSH_EXECUTION_STRING+X} ]]; then
-    exec tmux -u new -s init -A -D
+    exec tmux -u new -s code -A -D
 fi
 
 function zcompile-many() {
@@ -74,6 +74,7 @@ source $ZDEN/_local/fzf.zsh
 source $ZDEN/_local/git.zsh
 source $ZDEN/_local/qsv.zsh
 source $ZDEN/_local/rclone.zsh
+source $ZDEN/_local/aichat.zsh
 source $ZDEN/_local/update.zsh
 
 # Forgit patch
