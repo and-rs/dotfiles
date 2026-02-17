@@ -10,7 +10,7 @@
 - tmux
 - yazi
 - niri
-- zsh
+- zsh (perhaps not anymore, I am trying out fish and nushell)
 
 Clone the repo
 
