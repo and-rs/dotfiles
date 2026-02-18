@@ -21,6 +21,7 @@ blocks:
           - "{{- if .Staging.Changed }} <blue>[{{ .Staging.String }}]</>{{ end -}}"
           - "{{- if .Working.Modified }} <green>!{{ .Working.Modified }}</>{{ end -}}"
           - "{{- if .Working.Untracked }} <yellow>?{{ .Working.Untracked }}</>{{ end -}}"
+          - "{{- if .Working.Deleted }} <red>x{{ .Working.Deleted }}</>{{ end -}}"
           - "{{- if .Working.Unmerged }} <red>?{{ .Working.Unmerged }}</>{{ end -}}"
         options:
           fetch_status: true
