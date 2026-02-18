@@ -52,6 +52,9 @@ source nushelter/utils.nu
 source nushelter/data.nu
 source nushelter/git.nu
 
+# Completions
+source completions/git_completions.nu
+
 # Util source
 $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []
 $env.config.hooks.env_change.PWD ++= [
