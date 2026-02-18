@@ -15,12 +15,13 @@ blocks:
         foreground: "white"
         templates:
           - "<darkGray> on </><blue>{{ .HEAD }}</>"
+          - "{{- if gt .StashCount 0 }} <darkGray>*{{ .StashCount }}</>{{ end -}}"
           - "{{- if gt .Behind 0 }} <magenta>↓{{ .Behind }}</>{{ end -}}"
           - "{{- if gt .Ahead 0 }} <cyan>↑{{ .Ahead }}</>{{ end -}}"
-          - "{{- if gt .StashCount 0 }} <blue>*{{ .StashCount }}</>{{ end -}}"
-          - "{{- if .Staging.Changed }} <blue>{{ .Staging.String }}</>{{ end -}}"
+          - "{{- if .Staging.Changed }} <blue>[{{ .Staging.String }}]</>{{ end -}}"
           - "{{- if .Working.Modified }} <green>!{{ .Working.Modified }}</>{{ end -}}"
           - "{{- if .Working.Untracked }} <yellow>?{{ .Working.Untracked }}</>{{ end -}}"
+          - "{{- if .Working.Unmerged }} <red>?{{ .Working.Unmerged }}</>{{ end -}}"
         options:
           fetch_status: true
           branch_icon: ""

@@ -11,21 +11,22 @@ alias grs = git reset --soft "HEAD~1"
 
 # Functions
 
+# TODO; needs rework to fit nushell flow
 # Wrapper to auto-stash before hard resets
-export def git [subcommand?: string, ...args] {
-   if $subcommand == "reset" and ($args | first) == "--hard" {
-      let stash_msg = $"auto-stash before hard reset (date now | format date '%Y-%m-%dT%H:%M:%S')"
-      ^git stash -u -k -m $stash_msg
-      ^git reset --hard ...($args | skip 1)
-      ^git stash list | head -n1
-   } else {
-      if ($subcommand != null) {
-         ^git $subcommand ...$args
-      } else {
-         ^git
-      }
-   }
-}
+# export def git [subcommand?: string, ...args] {
+#    if $subcommand == "reset" and ($args | first) == "--hard" {
+#       let stash_msg = $"auto-stash before hard reset (date now | format date '%Y-%m-%dT%H:%M:%S')"
+#       ^git stash -u -k -m $stash_msg
+#       ^git reset --hard ...($args | skip 1)
+#       ^git stash list | head -n1
+#    } else {
+#       if ($subcommand != null) {
+#          ^git $subcommand ...$args
+#       } else {
+#          ^git
+#       }
+#    }
+# }
 
 # New Branch Flow: switch main -> pull -> switch -c new_branch
 export def gnewbranch [] {

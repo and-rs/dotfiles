@@ -1,8 +1,21 @@
 # ==============================================================================
 # GENERAL SETTINGS
 # ==============================================================================
-
+<<<<<<< Updated upstream:common/.tmux.conf
+||||||| Stash base:.tmux.conf
+set -g prefix C-space
+set -g base-index 1
+setw -g pane-base-index 1
+=======
+set -g mouse on
+set -g base-index 1
+setw -g mode-keys vi
+set -g repeat-time 0
+set -g prefix C-space
+set -g visual-bell off
+>>>>>>> Stashed changes:.tmux.conf
 set -sg escape-time 20
+<<<<<<< Updated upstream:common/.tmux.conf
 set -g mouse on
 set -g mode-keys vi
 set -g base-index 1
@@ -12,6 +25,25 @@ set -g focus-events on
 set -g pane-base-index 1
 set -g monitor-activity on
 set -g default-shell "/run/current-system/sw/bin/nu"
+||||||| Stash base:.tmux.conf
+set -g focus-events on
+set -g repeat-time 0
+set -g visual-bell off
+set -g bell-action none
+set -g visual-silence off
+set -g visual-activity off
+setw -g monitor-activity off
+setw -g mode-keys vi
+setw -g clock-mode-colour colour4
+=======
+set -g focus-events on
+set -g bell-action none
+set -g visual-silence off
+setw -g pane-base-index 1
+set -g visual-activity off
+setw -g monitor-activity off
+setw -g clock-mode-colour colour4
+>>>>>>> Stashed changes:.tmux.conf
 
 # ==============================================================================
 # DISPLAY & TERMINAL
