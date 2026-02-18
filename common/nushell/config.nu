@@ -43,6 +43,7 @@ $env._ZO_FZF_OPTS = ($env.FZF_DEFAULT_OPTS +
 )
 
 # Nushelter
+source nushelter/theme.nu
 source nushelter/clip.nu
 source nushelter/keybinds.nu
 source nushelter/aliases.nu
