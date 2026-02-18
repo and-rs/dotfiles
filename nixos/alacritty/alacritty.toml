@@ -1,0 +1,58 @@
+[general]
+import = [ "~/.config/alacritty/themes/neovim-default.toml" ]
+
+[env]
+TERM = "alacritty"
+
+[terminal]
+shell = "nu"
+
+[font]
+size = 14.5
+
+offset = { y = 10 }
+glyph_offset = { y = 5 }
+normal = { family = "Rec Mono Linear" }
+bold = { family = "Rec Mono Linear" }
+italic = { family = "Rec Mono Casual" }
+bold_italic = { family = "Rec Mono Casual" }
+
+# offset = { y = 7 }
+# glyph_offset = { y = 3 }
+# normal = { family = "CommitMono"}
+
+# offset = { y = 10 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Input"}
+
+# offset = { y = 4 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Monaspace Neon" }
+# bold = { family = "Monaspace Neon" }
+# italic = { family = "Monaspace Argon", style = "Italic" }
+# bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
+
+[window]
+title = "Terminalino"
+dynamic_padding = true
+
+[window.padding]
+x = 14
+y = 0
+
+[keyboard]
+bindings = [
+  { key = "V", mods = "Alt", action = "Paste" },
+  { key = "C", mods = "Alt", action = "Copy" },
+
+  { key = "F", mods = "Super|Control", chars = "\u001bf" },
+  { key = "B", mods = "Super|Control", chars = "\u001bb" },
+
+  { key = "Backspace", mods = "Super", chars = "\u0017" },
+  { key = "Backspace", mods = "Alt", chars = "\u0015" },
+
+  { key = "H", mods = "Super", chars = "\u001Bh" },
+  { key = "J", mods = "Super", chars = "\u001Bj" },
+  { key = "K", mods = "Super", chars = "\u001Bk" },
+  { key = "L", mods = "Super", chars = "\u001Bl" },
+]

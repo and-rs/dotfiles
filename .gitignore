@@ -1,25 +1,36 @@
+# hide nu history
+**/nushell/zoxide.nu
+history.sqlite3
+history.sqlite3-shm
+history.sqlite3-wal
+history.txt
+
 # hide aichat things
 .env
 messages.md
 models-override.yaml
-.config/aichat/rags
-.config/aichat/sessions
-.config/aichat/messages
-.config/aichat/functions/bin
-.config/aichat/functions/cache
+
+**/aichat/rags
+**/aichat/sessions
+**/aichat/messages
+**/aichat/functions/bin
+**/aichat/functions/cache
+**/aichat/functions/.venv/
+**/aichat/functions/functions.json
+**/aichat/functions/agents/*/functions.json
 
 app.log
 .DS_Store
 .qmlls.ini
 qml-niri
 
+.git
+**/yazi/plugins
+
+# old zsh setup
 _direnv_hook.zsh
 _uv_completion.zsh
 _zoxide_init.zsh
-
-.git
-.config/yazi/plugins
-
 fast-syntax-highlighting
 zsh-syntax-highlighting
 zsh-autosuggestions

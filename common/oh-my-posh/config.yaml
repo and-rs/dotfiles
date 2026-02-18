@@ -1,0 +1,54 @@
+final_space: true
+blocks:
+  - type: prompt
+    alignment: left
+    segments:
+      - type: shell
+        foreground: "darkGray"
+        template: "╭─ <cyan>{{ .Name }}</> "
+      - type: path
+        foreground: "blue"
+        template: "{{ .Path }}"
+        options:
+          style: agnoster_short
+      - type: git
+        foreground: "white"
+        templates:
+          - "<darkGray> on </><blue>{{ .HEAD }}</>"
+          - "{{- if gt .Behind 0 }} <magenta>↓{{ .Behind }}</>{{ end -}}"
+          - "{{- if gt .Ahead 0 }} <cyan>↑{{ .Ahead }}</>{{ end -}}"
+          - "{{- if gt .StashCount 0 }} <blue>*{{ .StashCount }}</>{{ end -}}"
+          - "{{- if .Staging.Changed }} <blue>{{ .Staging.String }}</>{{ end -}}"
+          - "{{- if .Working.Modified }} <green>!{{ .Working.Modified }}</>{{ end -}}"
+          - "{{- if .Working.Untracked }} <yellow>?{{ .Working.Untracked }}</>{{ end -}}"
+        options:
+          fetch_status: true
+          branch_icon: ""
+      - type: executiontime
+        template: " <darkGray>took</> <blue>{{ .FormattedMs }}</>"
+        options:
+          threshold: 1000
+  - type: prompt
+    alignment: left
+    newline: true
+    segments:
+      - type: text
+        foreground: "darkGray"
+        template: "╰─ "
+      - type: direnv
+        foreground: "darkGray"
+        template: "direnv "
+      - type: python
+        foreground: "darkGray"
+        template: "{{ if .Venv }}venv {{ .Venv }} {{ end }}"
+        options:
+          display_mode: environment
+          fetch_virtual_env: true
+          fetch_version: false
+      - type: status
+        foreground: "blue"
+        foreground_templates:
+          - "{{ if gt .Code 0 }}red{{ end }}"
+        template: "$"
+        options:
+          always_enabled: true

@@ -1,0 +1,53 @@
+- clean:
+    ~/:
+    ~/.config:
+      recursive: true
+- shell:
+    - [sh -c uname -s, "Current OS"]
+- defaults:
+    link: &base_settings
+      relink: true
+      create: true
+- link: #links for everything
+    ~/.tmux.conf: common/.tmux.conf
+    ~/.gitconfig: common/.gitconfig
+    ~/.gitconfig.delta: common/.gitconfig.delta
+    ~/.config/bat: common/bat
+    ~/.config/fish: common/fish
+    ~/.config/yazi: common/yazi
+    ~/.config/broot: common/broot
+    ~/.config/aichat: common/aichat
+    ~/.config/neovide: common/neovide
+    ~/.config/nushell: common/nushell
+    ~/.config/opencode: common/opencode
+    ~/.config/fastfetch: common/fastfetch
+    ~/.config/oh-my-posh: common/oh-my-posh
+    ~/.config/kitty/themes: common/kitty/themes
+    ~/.config/ghostty/themes: common/ghostty/themes
+    ~/.config/ghostty/shaders: common/ghostty/shaders
+    ~/.config/alacritty/themes: common/alacritty/themes
+- defaults:
+    link:
+      !!merge <<: *base_settings
+      if: uname -s | grep -q Linux
+- link: # links for nixos
+    ~/.config/hypr: nixos/hypr
+    ~/.config/rofi: nixos/rofi
+    ~/.config/niri: nixos/niri
+    ~/.config/quickshell: nixos/quickshell
+    ~/.config/ghostty/fonts: nixos/ghostty/fonts
+    ~/.config/ghostty/config: nixos/ghostty/config
+    ~/.config/kitty/kitty.conf: nixos/kitty/kitty.conf
+    ~/.config/alacritty/alacritty.toml: nixos/alacritty/alacritty.toml
+- defaults:
+    link:
+      !!merge <<: *base_settings
+      if: uname -s | grep -q Darwin
+- link: # links for macos
+    ~/.cargo: macos/.cargo
+    ~/.config/skhd: macos/skhd
+    ~/.config/aerospace: macos/aerospace
+    ~/.hyprspace.toml: macos/.hyprspace.toml
+    ~/.config/ghostty/config: macos/ghostty/config
+    ~/.config/kitty/kitty.conf: macos/kitty/kitty.conf
+    ~/.config/alacritty/alacritty.toml: macos/alacritty/alacritty.toml

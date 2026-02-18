@@ -1,0 +1,3 @@
+steps:
+  - .file `^git log -n 10 --date=relative and ^git diff` -- generate git commit message with previous commit style, be descriptive.
+  - .copy
