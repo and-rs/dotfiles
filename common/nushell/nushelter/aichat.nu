@@ -9,22 +9,36 @@ def ret [
   --copy (-c) # Copy raw pipeline command to clipboard
   --preview (-p) # Filter and preview paths via ripgrep
   --json (-j) # Output raw JSON to stdout
+  --select (-s) # Only select specific files with fzf
 ] {
-  let current_path = (pwd)
-  let yek_str = $"yek '($current_path)' --json"
-  let jq_str = "jq '[.[] | { path: .filename, contents: .content }]'"
-  let pipe_str = $"($yek_str) | ($jq_str)"
+  let paths = if $select {
+    let selected = (^fd --type f | ^fzf --multi --padding=1,0,0,1 --prompt="Files for context > " --layout=reverse --height=100% | lines)
+    if ($selected | is-empty) { print "No files selected"; return }
+    $selected
+  } else {
+    [(pwd)]
+  }
+
+  let raw = (^yek ...$paths --json
+    | from json
+    | each { |r| { path: $r.filename, contents: $r.content } })
 
   if $preview {
-    ^bash -c $"($pipe_str) | rg '\"path\"'"
+    $raw | get path | print
     return
   }
 
   if $json {
-    return (^bash -c $pipe_str | jq)
+    return ($raw | to json)
   }
 
-  let content_to_copy = if $copy { $pipe_str } else { $".file `($pipe_str)` -- " }
-  $content_to_copy | clip-copy
-  print $"(ansi green)Copied to clipboard:(ansi reset) ($content_to_copy)"
+  if $copy or $select {
+    $raw | to json | clip-copy
+    print $"(ansi green)Copied data to clipboard(ansi reset)"
+    return
+  }
+
+  let cmd = $"yek '(pwd)' --json"
+  $".file `($cmd)` -- " | clip-copy
+  print $"(ansi green)Copied command to clipboard(ansi reset)"
 }

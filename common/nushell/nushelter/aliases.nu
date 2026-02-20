@@ -33,7 +33,7 @@ def win-start [] {
     docker start WinBoat
     sleep 10sec
   }
-  ^nohup xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey +clipboard /cert:ignore -compression +dynamic-resolution /scale:180 & out+err> /dev/null
+  xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey +clipboard /cert:ignore -compression +dynamic-resolution /scale:180
 }
 
 # VSCode Darwin check

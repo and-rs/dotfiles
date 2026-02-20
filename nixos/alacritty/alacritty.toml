@@ -8,10 +8,10 @@ TERM = "alacritty"
 shell = "nu"
 
 [font]
-size = 14.5
+size = 14
 
-offset = { y = 10 }
-glyph_offset = { y = 5 }
+offset = { y = 12 }
+glyph_offset = { y = 6 }
 normal = { family = "Rec Mono Linear" }
 bold = { family = "Rec Mono Linear" }
 italic = { family = "Rec Mono Casual" }
@@ -37,7 +37,7 @@ title = "Terminalino"
 dynamic_padding = true
 
 [window.padding]
-x = 14
+x = 8
 y = 0
 
 [keyboard]
