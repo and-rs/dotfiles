@@ -18,23 +18,29 @@ def "grit init" [remote: string] {
 
 def "grit save" [] {
   if not ($DB_PATH | path exists) { error make {msg: "db not found"} }
-  let recipient = (open $KEY_PATH | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
+  let current_dump = (^grit | str trim)
+  let saved_dump = (if ($SNAPSHOT_PATH | path exists) { open $SNAPSHOT_PATH | str trim } else { "" })
+  let is_dirty = ($current_dump != $saved_dump)
+
   cd $GRIT_DIR
-  try {
-    ^git fetch origin
-    let local = (^git rev-parse HEAD | str trim)
-    let remote = (^git rev-parse origin/main | str trim)
-    if $local != $remote {
-      let behind = (^git log --oneline $"($local)..($remote)" | lines | length)
-      if $behind > 0 {
-        print "remote is ahead — pulling before save"
-        ^git pull --rebase
-        rm -f $DB_PATH
-        ^age -d -i $KEY_PATH -o $DB_PATH $ENC_PATH
-      }
-    }
+  ^git fetch origin
+  let local_rev = (^git rev-parse HEAD | str trim)
+  let remote_rev = (^git rev-parse origin/main | str trim)
+  let behind = (^git log --oneline $"($local_rev)..($remote_rev)" | lines | length)
+
+  if ($behind > 0) and $is_dirty {
+    error make {msg: "conflict: local changes and remote changes both exist. run grit resolve"}
   }
-  ^grit | save -f $SNAPSHOT_PATH
+
+  if $behind > 0 {
+    print "local is clean, remote is ahead — pulling latest"
+    ^git pull --rebase
+    rm -f $DB_PATH
+    ^age -d -i $KEY_PATH -o $DB_PATH $ENC_PATH
+  }
+
+  $current_dump | save -f $SNAPSHOT_PATH
+  let recipient = (open $KEY_PATH | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
   rm -f $ENC_PATH
   ^age -r $recipient -o $ENC_PATH $DB_PATH
   ^git add graph.db.age
@@ -42,7 +48,7 @@ def "grit save" [] {
   try {
     ^git push
   } catch {
-    print "push failed — run grit resolve"
+    print "push failed — remote state changed during save, run grit resolve"
   }
 }
 

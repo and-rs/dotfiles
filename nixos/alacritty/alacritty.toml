@@ -10,16 +10,16 @@ shell = "nu"
 [font]
 size = 14
 
-offset = { y = 12 }
-glyph_offset = { y = 6 }
-normal = { family = "Rec Mono Linear" }
-bold = { family = "Rec Mono Linear" }
-italic = { family = "Rec Mono Casual" }
-bold_italic = { family = "Rec Mono Casual" }
+# offset = { y = 12 }
+# glyph_offset = { y = 6 }
+# normal = { family = "Rec Mono Linear" }
+# bold = { family = "Rec Mono Linear" }
+# italic = { family = "Rec Mono Casual" }
+# bold_italic = { family = "Rec Mono Casual" }
 
-# offset = { y = 7 }
-# glyph_offset = { y = 3 }
-# normal = { family = "CommitMono"}
+offset = { y = 7 }
+glyph_offset = { y = 3 }
+normal = { family = "CommitMono"}
 
 # offset = { y = 10 }
 # glyph_offset = { y = 2 }
