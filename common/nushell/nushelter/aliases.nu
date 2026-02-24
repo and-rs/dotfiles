@@ -9,7 +9,8 @@ alias ld = eza -lha --no-permissions --no-user --no-time
 alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity
 
-# Maintenance
+# --- Maintenance ---
+
 alias clean-nix = do {
   sudo nix-collect-garbage -d
   nix-collect-garbage -d

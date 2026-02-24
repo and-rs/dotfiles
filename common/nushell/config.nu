@@ -51,6 +51,7 @@ source nushelter/aichat.nu
 source nushelter/rclone.nu
 source nushelter/utils.nu
 source nushelter/data.nu
+source nushelter/grit.nu
 source nushelter/git.nu
 
 # Completions
