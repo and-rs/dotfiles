@@ -3,20 +3,20 @@ ratio = [2,2,0]
 sort_by = "natural"
 show_hidden = true
 
-[files]
-excludes = [
-  { urn = "node_modules", in = "*" },
-  { urn = "__pycache__", in = "*" },
-  { urn = ".obsidian", in = "*" },
-  { urn = ".venv", in = "*" },
-  { urn = ".git", in = "*" },
-  { urn = "!.env", in = "*" },
-]
+# [files]
+# excludes = [
+#   { urn = "node_modules", in = "*" },
+#   { urn = "__pycache__", in = "*" },
+#   { urn = ".obsidian", in = "*" },
+#   { urn = ".venv", in = "*" },
+#   { urn = ".git", in = "*" },
+#   { urn = "!.env", in = "*" },
+# ]
 
-[[plugin.prepend_fetchers]]
-id   = "gitignore"
-url  = "*"
-run  = "gitignore"
+# [[plugin.prepend_fetchers]]
+# id   = "gitignore"
+# url  = "*"
+# run  = "gitignore"
 
 [[plugin.prepend_fetchers]]
 id   = "git"

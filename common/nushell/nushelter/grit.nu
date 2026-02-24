@@ -1,8 +1,13 @@
-let DB_PATH = $"($env.HOME)/.config/grit/graph.db"
-let ENC_PATH = $"($env.HOME)/.config/grit/graph.db.age"
-let KEY_PATH = $"($env.HOME)/.config/grit/age-key.txt"
-let GRIT_DIR = $"($env.HOME)/.config/grit"
-let SNAPSHOT_PATH = $"($env.HOME)/.config/grit/snapshot.txt"
+let GRIT_DIR = if $nu.os-info.name == "macos" {
+  $"($env.HOME)/Library/Application Support/grit"
+} else {
+  $"($env.HOME)/.config/grit"
+}
+
+let DB_PATH = $"($GRIT_DIR)/graph.db"
+let ENC_PATH = $"($GRIT_DIR)/graph.db.age"
+let KEY_PATH = $"($GRIT_DIR)/age-key.txt"
+let SNAPSHOT_PATH = $"($GRIT_DIR)/snapshot.txt"
 
 def "grit init" [remote: string] {
   if ($KEY_PATH | path exists) { error make {msg: "already initialized"} }

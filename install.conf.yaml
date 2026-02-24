@@ -44,10 +44,10 @@
       !!merge <<: *base_settings
       if: uname -s | grep -q Darwin
 - link: # links for macos
-    ~/.cargo: macos/.cargo
     ~/.config/skhd: macos/skhd
     ~/.config/aerospace: macos/aerospace
     ~/.hyprspace.toml: macos/.hyprspace.toml
     ~/.config/ghostty/config: macos/ghostty/config
+    ~/.cargo/config.toml: macos/.cargo/config.toml
     ~/.config/kitty/kitty.conf: macos/kitty/kitty.conf
     ~/.config/alacritty/alacritty.toml: macos/alacritty/alacritty.toml

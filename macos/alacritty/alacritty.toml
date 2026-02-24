@@ -1,0 +1,45 @@
+[general]
+import = [ "~/.config/alacritty/themes/neovim-default.toml" ]
+
+[env]
+TERM = "alacritty"
+
+[terminal]
+shell = "/run/current-system/sw/bin/nu"
+
+[font]
+size = 18
+
+# offset = { y = 7 }
+# glyph_offset = { y = 3 }
+# normal = { family = "CommitMonoFucker"}
+
+offset = { y = 10 }
+glyph_offset = { y = 2 }
+normal = { family = "Input Mono"}
+
+[window]
+title = "Terminalino"
+dynamic_padding = true
+decorations = "Buttonless"
+
+[window.padding]
+x = 8
+y = 0
+
+[keyboard]
+bindings = [
+#   { key = "V", mods = "Alt", action = "Paste" },
+#   { key = "C", mods = "Alt", action = "Copy" },
+#
+  { key = "F", mods = "Option|Control", chars = "\u001bf" },
+  { key = "B", mods = "Option|Control", chars = "\u001bb" },
+#
+#   { key = "Backspace", mods = "Super", chars = "\u0017" },
+#   { key = "Backspace", mods = "Alt", chars = "\u0015" },
+#
+#   { key = "H", mods = "Super", chars = "\u001Bh" },
+#   { key = "J", mods = "Super", chars = "\u001Bj" },
+#   { key = "K", mods = "Super", chars = "\u001Bk" },
+#   { key = "L", mods = "Super", chars = "\u001Bl" },
+]

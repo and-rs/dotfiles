@@ -1,5 +1,11 @@
 use std/config *
 
+# Nix path
+$env.path ++= [
+  $"($env.HOME)/.nix-profile/bin"
+  "/run/current-system/sw/bin"
+]
+
 # MUST be at the top: custom oh-my-posh setup
 source nushelter/prompt.nu
 
@@ -25,10 +31,11 @@ $env.config.show_banner = false
 $env.config.table.mode = "rounded"
 
 # Options
-$env.EDITOR = 'nvim'
-$env.MANPAGER = 'nvim +Man!'
-$env.BAT_THEME = 'nosyntax'
+$env.EDITOR = "nvim"
+$env.MANPAGER = "nvim +Man!"
+$env.BAT_THEME = "nosyntax"
 $env.DIRENV_LOG_FORMAT = "" # Silence direnv logs
+$env.AICHAT_CONFIG_DIR = $"($env.HOME)/.config/aichat"
 $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"
 
 $env.FZF_DEFAULT_OPTS = (
@@ -71,9 +78,3 @@ $env.config.hooks.env_change.PWD ++= [
 source zoxide.nu
 alias cd = z
 alias ci = zi
-
-# Nix path
-$env.path ++= [
-  $"($env.HOME)/.nix-profile/bin"
-  "/run/current-system/sw/bin"
-]
