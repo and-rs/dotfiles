@@ -15,11 +15,12 @@ $env.config.keybindings = ($env.config.keybindings | append [
       "
     }
   }
+  # Ctrl+D: sends delete
   {
-    name: disable_ctrl_d_exit
-    modifier: control
-    keycode: char_d
-    mode: [emacs, vi_insert, vi_normal]
-    event: { send: executehostcommand cmd: "" }
+    name: "delete_char"
+    modifier: "control"
+    keycode: "char_d"
+    mode: ["emacs" "vi_insert" "vi_normal"]
+    event: { edit: "Delete" }
   }
 ])

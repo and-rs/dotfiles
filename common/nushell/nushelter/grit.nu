@@ -4,128 +4,78 @@ let GRIT_DIR = if $nu.os-info.name == "macos" {
   $"($env.HOME)/.config/grit"
 }
 
-let DB_PATH = $"($GRIT_DIR)/graph.db"
-let ENC_PATH = $"($GRIT_DIR)/graph.db.age"
-let KEY_PATH = $"($GRIT_DIR)/age-key.txt"
-let SNAPSHOT_PATH = $"($GRIT_DIR)/snapshot.txt"
 
-def "grit init" [remote: string] {
+let DB_PATH = ($GRIT_DIR | path join "graph.db")
+let ENC_PATH = ($GRIT_DIR | path join "graph.db.age")
+let KEY_PATH = ($GRIT_DIR | path join "age-key.txt")
+
+alias gtt = grit tree
+alias gtd = grit lsd
+alias gtl = grit ls
+alias gta = grit add
+alias gt = grit
+
+def gt-init [remote: string] {
   if ($KEY_PATH | path exists) { error make {msg: "already initialized"} }
   ^age-keygen -o $KEY_PATH
   cd $GRIT_DIR
   ^git init
-  "graph.db\nage-key.txt\nsnapshot.txt\n" | save -f ($GRIT_DIR | path join ".gitignore")
+  "graph.db\nage-key.txt\n" | save -f ($GRIT_DIR | path join ".gitignore")
   ^git add .gitignore
   ^git commit -m "init: grit encrypted sync"
   ^git remote add origin $remote
   ^git push -u origin main
 }
 
-def "grit save" [] {
+def gt-push [] {
   if not ($DB_PATH | path exists) { error make {msg: "db not found"} }
-  let current_dump = (^grit | str trim)
-  let saved_dump = (if ($SNAPSHOT_PATH | path exists) { open $SNAPSHOT_PATH | str trim } else { "" })
-  let is_dirty = ($current_dump != $saved_dump)
-
-  cd $GRIT_DIR
-  ^git fetch origin
-  let local_rev = (^git rev-parse HEAD | str trim)
-  let remote_rev = (^git rev-parse origin/main | str trim)
-  let behind = (^git log --oneline $"($local_rev)..($remote_rev)" | lines | length)
-
-  if ($behind > 0) and $is_dirty {
-    error make {msg: "conflict: local changes and remote changes both exist. run grit resolve"}
-  }
-
-  if $behind > 0 {
-    print "local is clean, remote is ahead — pulling latest"
-    ^git pull --rebase
-    rm -f $DB_PATH
-    ^age -d -i $KEY_PATH -o $DB_PATH $ENC_PATH
-  }
-
-  $current_dump | save -f $SNAPSHOT_PATH
   let recipient = (open $KEY_PATH | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
   rm -f $ENC_PATH
   ^age -r $recipient -o $ENC_PATH $DB_PATH
+  cd $GRIT_DIR
   ^git add graph.db.age
-  ^git commit -m $"save: (date now | format date '%Y-%m-%d %H:%M')"
-  try {
-    ^git push
-  } catch {
-    print "push failed — remote state changed during save, run grit resolve"
-  }
+  ^git commit -m $"push: (date now | format date '%Y-%m-%d %H:%M')"
+  ^git push --force
 }
 
-def "grit sync" [] {
-  if ($SNAPSHOT_PATH | path exists) {
-    let current = (^grit | str trim)
-    let saved = (open $SNAPSHOT_PATH | str trim)
-    if $current != $saved {
-      error make {msg: "unsaved local changes — run grit save first"}
-    }
-  }
+def gt-pull [] {
   cd $GRIT_DIR
   ^git pull
-  if not ($ENC_PATH | path exists) { error make {msg: "no encrypted db to sync"} }
+  if not ($ENC_PATH | path exists) { error make {msg: "no encrypted db found"} }
   rm -f $DB_PATH
   ^age -d -i $KEY_PATH -o $DB_PATH $ENC_PATH
-  ^grit | save -f $SNAPSHOT_PATH
+  print "pulled and decrypted"
 }
 
-def "grit resolve" [] {
+
+def gt-diff [] {
+  let tmp_remote_enc = "/tmp/grit-remote.db.age"
+  let tmp_remote_db = "/tmp/grit-remote.db"
+  let tmp_local_pview = "/tmp/grit-local-preview.txt"
+  let tmp_remote_pview = "/tmp/grit-remote-preview.txt"
+
+  if not ($DB_PATH | path exists) { error make {msg: "local db not found"} }
+
   cd $GRIT_DIR
   ^git fetch origin
-  let local_enc = $ENC_PATH
-  let remote_enc = "/tmp/grit-remote.db.age"
-  let remote_db = "/tmp/grit-remote.db"
-  ^git show origin/main:graph.db.age | save -f $remote_enc
-  ^age -d -i $KEY_PATH -o $remote_db $remote_enc
-  let local_dump = (^grit | str trim)
-  let remote_dump = (sqlite3 $remote_db "SELECT node_id, node_name, node_alias, node_completed FROM nodes ORDER BY node_id" | str trim)
-  print "=== LOCAL ==="
-  print $local_dump
-  print "\n=== REMOTE ==="
-  print $remote_dump
-  print "\n=== DIFF ==="
-  $local_dump | save -f /tmp/grit-local.txt
-  $remote_dump | save -f /tmp/grit-remote.txt
-  do -i { ^diff --color=always /tmp/grit-local.txt /tmp/grit-remote.txt }
-  let choice = (input "\nkeep [l]ocal or [r]emote? ")
-  if $choice == "r" {
-    print "\n--- local changes being discarded (re-add manually) ---"
-    do -i { ^diff --color=always /tmp/grit-remote.txt /tmp/grit-local.txt }
-    cp -f $remote_db $DB_PATH
-  } else if $choice == "l" {
-    print "\n--- remote changes being discarded (re-add manually) ---"
-    do -i { ^diff --color=always /tmp/grit-local.txt /tmp/grit-remote.txt }
-  } else {
-    rm -f $remote_enc $remote_db /tmp/grit-local.txt /tmp/grit-remote.txt
-    error make {msg: "invalid choice"}
-  }
-  rm -f $remote_enc $remote_db /tmp/grit-local.txt /tmp/grit-remote.txt
-  let recipient = (open $KEY_PATH | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
-  ^grit | save -f $SNAPSHOT_PATH
-  rm -f $ENC_PATH
-  ^age -r $recipient -o $ENC_PATH $DB_PATH
-  ^git add graph.db.age
-  ^git commit -m $"resolve: keep ($choice) (date now | format date '%Y-%m-%d %H:%M')"
-  ^git push --force-with-lease
-}
+  ^git show "origin/main:graph.db.age" | save -f $tmp_remote_enc
+  ^age -d -i $KEY_PATH -o $tmp_remote_db $tmp_remote_enc
 
-def "grit status" [] {
-  if not ($SNAPSHOT_PATH | path exists) {
-    print "no previous snapshot — run grit save first"
-    return
-  }
-  let current = (^grit | str trim)
-  let saved = (open $SNAPSHOT_PATH | str trim)
-  if $current == $saved {
-    print "no changes since last save"
-  } else {
-    $saved | save -f /tmp/grit-old.txt
-    $current | save -f /tmp/grit-new.txt
-    do -i { ^diff --color=always /tmp/grit-old.txt /tmp/grit-new.txt }
-    rm -f /tmp/grit-old.txt /tmp/grit-new.txt
-  }
+  let local = (open $DB_PATH)
+  let remote = (open $tmp_remote_db)
+
+  let local_nodes = ($local.nodes | reject node_created node_completed node_alias | sort-by node_id | to csv | qsv table)
+  let remote_nodes = ($remote.nodes | reject node_created node_completed node_alias | sort-by node_id | to csv | qsv table)
+
+  let local_links = ($local.links | sort-by link_id | to csv | qsv table)
+  let remote_links = ($remote.links | sort-by link_id | to csv | qsv table)
+
+  $"Nodes:\n($local_nodes)\n\nLinks:\n($local_links)\n" | save -f $tmp_local_pview
+  $"Nodes:\n($remote_nodes)\n\nLinks:\n($remote_links)\n" | save -f $tmp_remote_pview
+
+  let args = [$tmp_remote_pview $tmp_local_pview]
+  do -i { delta --line-numbers --hunk-header-style=plain ...$args }
+
+  # Cleanup
+  rm -f $tmp_remote_enc $tmp_remote_db $tmp_local_pview $tmp_remote_pview
 }

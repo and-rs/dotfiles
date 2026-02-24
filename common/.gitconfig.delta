@@ -11,6 +11,8 @@
     plus-emph-style = syntax "#a3dcc1"
     line-numbers-plus-style = "#3d8259"
     line-numbers-zero-style = "#1a1a1a"
+    whitespace-error-style = reverse
+    zero-style = syntax
 
 [delta "neovim-default"]
     minus-style = syntax "#351d2b"
@@ -25,6 +27,8 @@
     plus-emph-style = syntax "#007631"
     line-numbers-plus-style = "#00d157"
     line-numbers-zero-style = "#79839c"
+    whitespace-error-style = reverse
+    zero-style = syntax
 
 [delta "tokyo-night-dark"]
     minus-style = syntax "#3f2d3d"
@@ -39,6 +43,8 @@
     plus-emph-style = syntax "#316172"
     line-numbers-plus-style = "#449dab"
     line-numbers-zero-style = "#3b4261"
+    whitespace-error-style = reverse
+    zero-style = syntax
 
 [delta "tokyo-night-light"]
     minus-style = syntax "#E7C8D5"
@@ -53,3 +59,5 @@
     plus-empty-line-marker-style = syntax "#B6D4DC"
     line-numbers-plus-style = "#449dab"
     line-numbers-zero-style = "#8187B1"
+    whitespace-error-style = reverse
+    zero-style = syntax
