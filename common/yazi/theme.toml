@@ -39,6 +39,24 @@ sep_inner = { open = "", close = "" }
 active = { fg = "cyan", bg = "grey", underline = true }
 inactive = { fg = "white", bg = "reset"  }
 
+[filetype]
+rules = [
+	# Image
+	{ mime = "image/*", fg = "yellow" },
+
+	# Video
+	{ mime = "{audio,video}/*", fg = "magenta" },
+
+	# Empty file
+	{ mime = "inode/empty", fg = "cyan" },
+
+  # Fallback for dirs
+	{ url = "*/", fg = "blue" },
+
+	# Orphan symbolic links
+  { mime = "*", is = "orphan", fg = "red", bg = "grey" }
+]
+
 [icon]
 globs = []
 dirs  = []
