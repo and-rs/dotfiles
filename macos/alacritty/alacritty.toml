@@ -10,13 +10,13 @@ shell = "/run/current-system/sw/bin/nu"
 [font]
 size = 18
 
-# offset = { y = 7 }
-# glyph_offset = { y = 3 }
-# normal = { family = "CommitMonoFucker"}
-
 offset = { y = 10 }
-glyph_offset = { y = 2 }
-normal = { family = "Input Mono"}
+glyph_offset = { y = 5 }
+normal = { family = "CommitMonoFucker"}
+
+# offset = { y = 10 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Input Mono"}
 
 [window]
 title = "Terminalino"

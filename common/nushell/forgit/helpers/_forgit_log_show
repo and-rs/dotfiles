@@ -8,9 +8,11 @@ export def main [line: string] {
     return
   }
 
-  let has_delta = (which delta | is-not-empty)
-
-  with-env { GIT_PAGER_IN_USE: "true" } {
-    git show --color=always $sha | if $has_delta { delta } else { less -R }
+  with-env {
+    GIT_PAGER_IN_USE: "true"
+    LESS: "-R -c -+X -+F"
+  } {
+    git show --color=always $sha
+    | if (which delta | is-not-empty) { delta --paging always } else { less -R }
   }
 }

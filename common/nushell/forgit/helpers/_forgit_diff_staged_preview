@@ -1,0 +1,12 @@
+#!/usr/bin/env nu
+
+export def main [file: string] {
+  let clean_file = ($file | ansi strip | str trim)
+  if ($clean_file | is-empty) { return }
+
+  let has_delta = (which delta | is-not-empty)
+
+  with-env { GIT_PAGER_IN_USE: "true" } {
+    git diff --staged --color=always -- $clean_file | if $has_delta { delta --paging=never } else { cat }
+  }
+}
