@@ -2,7 +2,7 @@
 #
 # Usage:
 #   sync-icloud [--force] [--resync]
-export def sync-icloud [...args] {
+def sync-icloud [...args] {
    if (sys host | get name) != "Linux" {
       print "(ansi red)This function only works on Linux systems.(ansi reset)"
       return

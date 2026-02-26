@@ -1,14 +1,12 @@
-let GRIT_DIR = if $nu.os-info.name == "macos" {
-  $"($env.HOME)/Library/Application Support/grit"
+const GRIT_DIR = if $nu.os-info.name == "macos" {
+  "~/Library/Application Support/grit"
 } else {
-  $"($env.HOME)/.config/grit"
+  "~/.config/grit"
 }
 
-
-let DB_PATH = ($GRIT_DIR | path join "graph.db")
-let ENC_PATH = ($GRIT_DIR | path join "graph.db.age")
-let KEY_PATH = ($GRIT_DIR | path join "age-key.txt")
-
+const DB_PATH = ($GRIT_DIR)/graph.db
+const ENC_PATH = ($GRIT_DIR)/graph.db.age
+const KEY_PATH = ($GRIT_DIR)/age-key.txt
 
 alias gt = grit
 alias gtl = grit ls

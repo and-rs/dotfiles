@@ -1,5 +1,4 @@
-^oh-my-posh init nu --config ~/.config/oh-my-posh/config.yaml --print | save --force ~/.cache/oh-my-posh-init.nu
-source ~/.cache/oh-my-posh-init.nu
+oh-my-posh init nu --config ~/.config/oh-my-posh/config.yaml
 
 $env.TRANSIENT_PROMPT_COMMAND_RIGHT = null
 $env.TRANSIENT_PROMPT_INDICATOR_VI_INSERT = null

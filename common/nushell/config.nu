@@ -1,19 +1,20 @@
 use std/config *
 
+# MUST be at the top: custom oh-my-posh setup
+source settings/prompt.nu # 30ms
+source settings/theme.nu
+source settings/keybinds.nu
+
 # Forgit Helpers Path
 $env.PATH ++= [
   $"($env.HOME)/.config/nushell/forgit/helpers"
 ]
-
 
 # Nix path
 $env.PATH ++= [
   $"($env.HOME)/.nix-profile/bin"
   "/run/current-system/sw/bin"
 ]
-
-# MUST be at the top: custom oh-my-posh setup
-source nushelter/prompt.nu
 
 if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
   exec tmux -u new -s code -A -D
@@ -40,7 +41,6 @@ $env.config.table.mode = "rounded"
 $env.EDITOR = "nvim"
 $env.MANPAGER = "nvim +Man!"
 $env.BAT_THEME = "nosyntax"
-$env.DIRENV_LOG_FORMAT = "" # Silence direnv logs
 $env.AICHAT_CONFIG_DIR = $"($env.HOME)/.config/aichat"
 $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"
 
@@ -55,10 +55,8 @@ $env._ZO_FZF_OPTS = ($env.FZF_DEFAULT_OPTS +
   " --layout=reverse --height=100% --multi --cycle"
 )
 
-# Nushelter
-source nushelter/theme.nu
-source nushelter/clip.nu
-source nushelter/keybinds.nu
+# Nushelter: faster than module, order matters
+source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
 source nushelter/aichat.nu
 source nushelter/rclone.nu
@@ -67,11 +65,10 @@ source nushelter/data.nu
 source nushelter/grit.nu
 source nushelter/git.nu
 
-# Forgit port
+# Forgit & git completions 8ms
 use forgit *
-
-# Completions
 source completions/git_completions.nu
+
 
 # Util source
 $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []

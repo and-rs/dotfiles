@@ -15,7 +15,7 @@ def clip-copy [] {
 
 # Read content from system clipboard.
 # Supports wl-paste, xclip, and pbpaste.
-export def clip-paste [] {
+def clip-paste [] {
     if (which wl-paste | is-not-empty) {
         wl-paste --no-newline
     } else if (which xclip | is-not-empty) {

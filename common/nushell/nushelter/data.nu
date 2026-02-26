@@ -1,5 +1,3 @@
-use clip.nu
-
 # Run a DuckDB query on a database and inspect the result in csvlens.
 # Example:
 #   duck-inspect my.db "select * from users limit 100"
