@@ -1,0 +1,16 @@
+#!/usr/bin/env nu
+
+export def main [line: string] {
+  let clean_line = ($line | ansi strip)
+  let sha = ($clean_line | parse --regex '\b(?P<sha>[0-9a-fA-F]{7,40})\b' | get 0?.sha? | default "")
+
+  if ($sha | is-empty) {
+    return
+  }
+
+  let has_delta = (which delta | is-not-empty)
+
+  with-env { GIT_PAGER_IN_USE: "true" } {
+    git show --color=always $sha | if $has_delta { delta } else { less -R }
+  }
+}

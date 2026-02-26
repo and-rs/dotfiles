@@ -1,3 +1,4 @@
 steps:
-  - .file `git log -n 10 --date=relative; git diff --staged` -- generate git commit message with previous commit style, be descriptive.
+  - .model novita:deepseek/deepseek-v3.2
+  - .file `git log -n 10 --date=relative; git diff` -- generate git commit message with previous commit style, be descriptive but keep it in short lines, DON'T use long lines per commit message line.
   - .copy

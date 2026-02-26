@@ -37,7 +37,6 @@ zsh-autosuggestions
 powerlevel10k
 zsh-defer
 fzf-tab
-forgit
 
 .zcompdump
 .zcompdump.zwc

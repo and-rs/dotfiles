@@ -1,0 +1,15 @@
+#!/usr/bin/env nu
+
+export def main [file: string] {
+  let status = (git status -s -- $file | str trim)
+
+  let has_delta = (which delta | is-not-empty)
+
+  with-env { GIT_PAGER_IN_USE: "true" } {
+    if ($status | str starts-with '??') {
+      ^git diff --no-index -- /dev/null $file | if $has_delta { delta --paging=never } else { cat }
+    } else {
+      ^git diff -- $file | if $has_delta { delta --paging=never } else { cat }
+    }
+  }
+}

@@ -3,7 +3,7 @@ stream: true
 wrap: 80
 save: true
 use_tools: 'fs'
-model: novita:deepseek/deepseek-v3.2
+model: novita:zai-org/glm-5
 compress_threshold: 40000
 rag_embedding_model: google:gemini-embedding-001
 rag_reranker_model: jina:jina-reranker-v3
@@ -22,8 +22,6 @@ clients:
     models:
       - name: deepseek/deepseek-v3.2
       - name: zai-org/glm-5
-      - name: qwen/qwen3-reranker-8b
-        type: reranker
   - type: openai-compatible
     name: google
     api_base: https://generativelanguage.googleapis.com/v1beta/openai/

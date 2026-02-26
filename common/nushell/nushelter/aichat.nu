@@ -1,8 +1,8 @@
 alias ai = aichat -r meaningful -s
 alias aie = aichat -e
-alias ai-gc = aichat -r meaningful --macro commit
-alias ai-gcs = aichat -r meaningful --macro commit-staged
-alias ai-rag = aichat -r indexer --rag
+alias "ai gc" = aichat -r meaningful --macro commit
+alias "ai gcs" = aichat -r meaningful --macro commit-staged
+alias "ai rag" = aichat -r indexer --rag
 
 # The 'ret' Context Helper
 # Examples:
