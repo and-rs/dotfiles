@@ -1,7 +1,6 @@
+# git restore --staged selector with fzf
 export def grs [...files: string] {
-  if (git rev-parse --is-inside-work-tree | complete | get exit_code) != 0 {
-    error make {msg: "Not in a git repository"}
-  }
+  check-repo
 
   if ($files | is-not-empty) {
     git restore --staged ...$files
@@ -18,7 +17,7 @@ export def grs [...files: string] {
         $row.path
       }
       {
-        status: $"(ansi reset)[(ansi green)($row.x)(ansi reset)]",
+        status: $"(ansi reset)[(ansi green)($row.x)($row.y)(ansi reset)]",
         path: $"(ansi reset)($clean_path)"
       }
     }
@@ -34,7 +33,7 @@ export def grs [...files: string] {
     "--prompt=Git restore staged > "
     "--header-lines=1"
     "--delimiter=\t"
-    "--preview=_forgit_diff_staged_preview '{2}'"
+    "--preview=_forgit_diff_preview -s '{2}'"
   ]
 
   let selected = (

@@ -1,16 +1,20 @@
 #!/usr/bin/env nu
 
-export def main [file: string] {
+export def main [
+  file: string # Target file
+  --staged (-s) # Show staged diff
+] {
   let clean_file = ($file | ansi strip | str trim)
   if ($clean_file | is-empty) { return }
 
   let has_delta = (which delta | is-not-empty)
+  let args = ["--color=always"] ++ (if $staged { ["--staged"] } else { [] })  
 
   with-env {
     GIT_PAGER_IN_USE: "true"
     LESS: "-R -c -+X -+F"
   } {
-    git diff --staged --color=always -- $clean_file
+    git diff ...$args --color=always -- $clean_file
     | if (which delta | is-not-empty) { delta --paging always } else { less -R }
   }
 }

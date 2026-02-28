@@ -1,8 +1,6 @@
-# Main: git log viewer with fzf
+# git log viewer with fzf
 export def glo [...args: string] {
-  if (git rev-parse --is-inside-work-tree | complete | get exit_code) != 0 {
-    error make {msg: "Not in a git repository"}
-  }
+  check-repo
 
   let log_format = "%C(auto)%h%d %s %C(blue)%C(italic)%cr%Creset"
   let fzf_flags = [

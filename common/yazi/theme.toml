@@ -1,60 +1,61 @@
 [mgr]
-border_style = { fg = "darkgray" }
+border_style = { fg = "7" }
 border_symbol = ""
 preview_hovered = { underline = false }
-count_selected = { reversed = true, fg = "blue" }
-count_copied = { reversed = true, fg = "yellow" }
-count_cut = { reversed = true, fg = "red" }
-marker_marked = { fg = "green", bg = "green" }
-marker_selected = { fg = "blue", bg = "blue" }
-marker_copied = { fg = "yellow", bg = "yellow" }
-marker_cut = { fg = "red", bg = "red" }
+count_selected = { reversed = true, fg = "4" }
+count_copied = { reversed = true, fg = "3" }
+count_cut = { reversed = true, fg = "1" }
+marker_marked = { fg = "5", bg = "5" }
+marker_selected = { fg = "4", bg = "4" }
+marker_copied = { fg = "3", bg = "3" }
+marker_cut = { fg = "1", bg = "1" }
 
 [indicator]
 padding = { open = "█", close = "█"}
 
 [which]
-cols = 2
-mask = { bg = "grey" }
+cols = 1
+separator = " > "
+mask = { bg = "7" }
 
 [status]
 sep_left = { open = "", close = "" }
 sep_right = { open = "", close = "" }
-overall = { bg = "grey"}
-progress_label = { bg = "grey", fg = "blue"  }
-progress_error = { bg = "grey",  fg = "red" }
-progress_normal = { bg = "grey",  fg = "blue" }
+overall = { bg = "7"}
+progress_label = { bg = "7", fg = "4"  }
+progress_error = { bg = "7",  fg = "1" }
+progress_normal = { bg = "7",  fg = "4" }
 
 [mode]
-normal_main = { bg = "grey", bold = true}
-normal_alt = { bg = "grey", bold = true}
-select_main = { fg = "red", bg = "grey", bold = true}
-select_alt = { fg = "red", bg = "grey", bold = true}
-unset_main = { fg = "blue", bg = "grey", bold = true}
-unset_alt = { fg = "blue", bg = "grey", bold = true}
+normal_main = { bg = "7", bold = true}
+normal_alt = { bg = "7", bold = true}
+select_main = { fg = "1", bg = "7", bold = true}
+select_alt = { fg = "1", bg = "7", bold = true}
+unset_main = { fg = "4", bg = "7", bold = true}
+unset_alt = { fg = "4", bg = "7", bold = true}
 
 [tabs]
 sep_outer = { open = "", close = "" }
 sep_inner = { open = "", close = "" }
-active = { fg = "cyan", bg = "grey", underline = true }
-inactive = { fg = "white", bg = "reset"  }
+active = { fg = "6", bg = "7", underline = true }
+inactive = { fg = "7", bg = "reset"  }
 
 [filetype]
 rules = [
 	# Image
-	{ mime = "image/*", fg = "yellow" },
+	{ mime = "image/*", fg = "3" },
 
 	# Video
-	{ mime = "{audio,video}/*", fg = "magenta" },
+	{ mime = "{audio,video}/*", fg = "5" },
 
 	# Empty file
-	{ mime = "inode/empty", fg = "cyan" },
+	{ mime = "inode/empty", fg = "6" },
 
   # Fallback for dirs
-	{ url = "*/", fg = "blue" },
+	{ url = "*/", fg = "4" },
 
 	# Orphan symbolic links
-  { mime = "*", is = "orphan", fg = "red", bg = "grey" }
+  { mime = "*", is = "orphan", fg = "1", bg = "7" }
 ]
 
 [icon]

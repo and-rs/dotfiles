@@ -1,8 +1,6 @@
-# Main: git add selector with fzf
+# git add selector with fzf
 export def ga [...files: string] {
-  if (git rev-parse --is-inside-work-tree | complete | get exit_code) != 0 {
-    error make {msg: "Not in a git repository"}
-  }
+  check-repo
 
   if ($files | is-not-empty) {
     git add ...$files
@@ -22,7 +20,7 @@ export def ga [...files: string] {
         $row.path
       }
       {
-        status: $"(ansi reset)[(ansi red)($row.x)($row.y)(ansi reset)]",
+        status: $"(ansi reset)[(ansi yellow)($row.x)(if $row.y == "D" {ansi red})($row.y)(ansi reset)]",
         path: $"(ansi reset)($clean_path)"
       }
     }

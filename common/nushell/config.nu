@@ -1,6 +1,12 @@
 use std/config *
 
-# MUST be at the top: custom oh-my-posh setup
+# Nix path: keep at top!
+$env.PATH ++= [
+  $"($env.HOME)/.nix-profile/bin"
+  "/run/current-system/sw/bin"
+]
+
+# custom oh-my-posh setup & misc
 source settings/prompt.nu # 30ms
 source settings/theme.nu
 source settings/keybinds.nu
@@ -8,12 +14,6 @@ source settings/keybinds.nu
 # Forgit Helpers Path
 $env.PATH ++= [
   $"($env.HOME)/.config/nushell/forgit/helpers"
-]
-
-# Nix path
-$env.PATH ++= [
-  $"($env.HOME)/.nix-profile/bin"
-  "/run/current-system/sw/bin"
 ]
 
 if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
