@@ -1,6 +1,6 @@
 # git log viewer with fzf
 export def glo [...args: string] {
-  check-repo
+  _forgit_check_repo
 
   let log_format = "%C(auto)%h%d %s %C(blue)%C(italic)%cr%Creset"
   let fzf_flags = [

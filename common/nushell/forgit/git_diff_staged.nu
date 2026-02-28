@@ -1,6 +1,6 @@
 # git diff --staged selector with fzf
 export def gds [] {
-  check-repo
+  _forgit_check_repo
 
   let entries = (
     git status --porcelain | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' 

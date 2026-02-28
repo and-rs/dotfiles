@@ -1,6 +1,6 @@
 # git add selector with fzf
 export def ga [...files: string] {
-  check-repo
+  _forgit_check_repo
 
   if ($files | is-not-empty) {
     git add ...$files

@@ -1,6 +1,6 @@
 # git restore --staged selector with fzf
 export def grs [...files: string] {
-  check-repo
+  _forgit_check_repo
 
   if ($files | is-not-empty) {
     git restore --staged ...$files

@@ -4,7 +4,7 @@ export use git_diff_staged.nu *
 export use git_log.nu *
 export use git_restore_staged.nu *
 
-export def check-repo [] {
+export def _forgit_check_repo [] {
   if (git rev-parse --is-inside-work-tree | complete | get exit_code) != 0 {
     error make {msg: "Not in a git repository"}
   }
