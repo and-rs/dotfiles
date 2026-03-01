@@ -11,11 +11,12 @@ alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infini
 
 # --- Maintenance ---
 
-alias clean-nix = do {
-  sudo nix-collect-garbage -d
-  nix-collect-garbage -d
-  nix store optimise
+# Clean the nix store
+def clean-nix [] {
+  sudo nix-collect-garbage --delete-old
+  sudo nix-store --gc
 }
+
 alias update-darwin = sudo darwin-rebuild switch --flake $"($env.HOME)/Vault/personal/nixos#M1"
 alias update-nixos = sudo nixos-rebuild switch --flake $"($env.HOME)/Vault/personal/nixos#default"
 alias update-nixos-boot = sudo nixos-rebuild boot --flake $"($env.HOME)/Vault/personal/nixos#default"
