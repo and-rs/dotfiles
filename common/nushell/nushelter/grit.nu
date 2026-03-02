@@ -34,7 +34,9 @@ def gtp [id: int] {
 }
 
 
-def "gt refresh" [target?: string] {
+def "gt refresh" [
+  target?: string # Pass a target node ID
+] {
   let target = if $target != null { $target } else { "yesterday" | date from-human | format date "%Y-%m-%d" }
   let nodes = gtt $target
   let ids = $nodes
