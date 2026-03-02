@@ -33,22 +33,30 @@ def gtp [id: int] {
   }
 }
 
-def "gt refresh" [] {
-    let yesterday = "yesterday" | date from-human | format date "%Y-%m-%d"
-    let nodes = gtt $yesterday
-    let ids = $nodes
-        | lines
-        | drop 1
-        | parse --regex '.*?(?P<check>\[.\])\s+.*?\((?P<id>\d+)\)$'
-        | where check == '[ ]'
-        | get id
-        | into int
 
-    for id in $ids {
-        gt day $id
-        gt unlink $yesterday $id
-    }
+def "gt refresh" [target?: string] {
+  let target = if $target != null { $target } else { "yesterday" | date from-human | format date "%Y-%m-%d" }
+  let nodes = gtt $target
+  let ids = $nodes
+  | lines
+  | skip 1
+  | parse --regex '.*?(?P<check>\[.\])\s+.*?\((?P<id>\d+)\)$'
+  | where check == '[ ]'
+  | get id
+  | into int
+
+  if ($ids | is-empty) {
+    print "No Node IDs found"
+  } else {
+    print $ids
+  }
+
+  for id in $ids {
+    gt day $id
+    gt unlink $target $id
+  }
 }
+
 
 def "gt init" [remote: string] {
   if ($KEY_PATH | path exists) { error make {msg: "already initialized"} }

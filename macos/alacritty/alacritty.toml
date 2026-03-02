@@ -22,6 +22,8 @@ normal = { family = "CommitMonoFucker"}
 title = "Terminalino"
 dynamic_padding = true
 decorations = "Buttonless"
+option_as_alt = "Both"
+
 
 [window.padding]
 x = 8
