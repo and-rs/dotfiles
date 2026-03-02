@@ -59,7 +59,6 @@ $env._ZO_FZF_OPTS = ($env.FZF_DEFAULT_OPTS +
 source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
 source nushelter/aichat.nu
-source nushelter/rclone.nu
 source nushelter/utils.nu
 source nushelter/data.nu
 source nushelter/grit.nu

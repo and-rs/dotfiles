@@ -4,10 +4,6 @@ const GRIT_DIR = if $nu.os-info.name == "macos" {
   "~/.config/grit"
 }
 
-const DB_PATH = ($GRIT_DIR)/graph.db
-const ENC_PATH = ($GRIT_DIR)/graph.db.age
-const KEY_PATH = ($GRIT_DIR)/age-key.txt
-
 alias gt = grit
 alias gtl = grit ls
 alias gtd = grit lsd
@@ -60,12 +56,18 @@ def "gt refresh" [
 }
 
 
+def grit-paths [] {
+  let dir = ($GRIT_DIR | path expand)
+  { dir: $dir, db: ($dir | path join "graph.db"), enc: ($dir | path join "graph.db.age"), key: ($dir | path join "age-key.txt") }
+}
+
 def "gt init" [remote: string] {
-  if ($KEY_PATH | path exists) { error make {msg: "already initialized"} }
-  ^age-keygen -o $KEY_PATH
-  cd $GRIT_DIR
+  let p = grit-paths
+  if ($p.key | path exists) { error make {msg: "already initialized"} }
+  ^age-keygen -o $p.key
+  cd $p.dir
   ^git init
-  "graph.db\nage-key.txt\n" | save -f ($GRIT_DIR | path join ".gitignore")
+  "graph.db\nage-key.txt\n" | save -f ($p.dir | path join ".gitignore")
   ^git add .gitignore
   ^git commit -m "init: grit encrypted sync"
   ^git remote add origin $remote
@@ -73,54 +75,49 @@ def "gt init" [remote: string] {
 }
 
 def "gt push" [] {
-  if not ($DB_PATH | path exists) { error make {msg: "db not found"} }
-  let recipient = (open $KEY_PATH | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
-  rm -f $ENC_PATH
-  ^age -r $recipient -o $ENC_PATH $DB_PATH
-  cd $GRIT_DIR
+  let p = grit-paths
+  if not ($p.db | path exists) { error make {msg: "db not found"} }
+  let recipient = (open $p.key | lines | where {|l| $l starts-with "# public key:"} | first | str replace "# public key: " "")
+  rm -f $p.enc
+  ^age -r $recipient -o $p.enc $p.db
+  cd $p.dir
   ^git add graph.db.age
   ^git commit -m $"push: (date now | format date '%Y-%m-%d %H:%M')"
   ^git push --force
 }
 
 def "gt pull" [] {
-  cd $GRIT_DIR
+  let p = grit-paths
+  cd $p.dir
   ^git pull
-  if not ($ENC_PATH | path exists) { error make {msg: "no encrypted db found"} }
-  rm -f $DB_PATH
-  ^age -d -i $KEY_PATH -o $DB_PATH $ENC_PATH
+  if not ($p.enc | path exists) { error make {msg: "no encrypted db found"} }
+  rm -f $p.db
+  ^age -d -i $p.key -o $p.db $p.enc
   print "pulled and decrypted"
 }
 
-
 def "gt diff" [] {
-  let tmp_remote_enc = "/tmp/grit-remote.db.age"
-  let tmp_remote_db = "/tmp/grit-remote.db"
-  let tmp_local_pview = "/tmp/grit-local-preview.txt"
-  let tmp_remote_pview = "/tmp/grit-remote-preview.txt"
+  let p = grit-paths
+  let tmp = (mktemp -d)
 
-  if not ($DB_PATH | path exists) { error make {msg: "local db not found"} }
+  if not ($p.key | path exists) { error make {msg: "age-key.txt not found"} }
+  if not ($p.db  | path exists) { error make {msg: "local db not found"} }
 
-  cd $GRIT_DIR
+  cd $p.dir
   ^git fetch origin
-  ^git show "origin/main:graph.db.age" | save -f $tmp_remote_enc
-  ^age -d -i $KEY_PATH -o $tmp_remote_db $tmp_remote_enc
+  ^git show "origin/main:graph.db.age" | save -f ($tmp | path join "remote.db.age")
+  ^age -d -i $p.key -o ($tmp | path join "remote.db") ($tmp | path join "remote.db.age")
 
-  let local = (open $DB_PATH)
-  let remote = (open $tmp_remote_db)
+  let preview = {|path|
+    let d = (open $path)
+    let nodes = ($d.nodes | reject node_created node_completed node_alias | sort-by node_id | to tsv)
+    let links = ($d.links | sort-by link_id | to tsv)
+    $"Nodes:\n($nodes)\n\nLinks:\n($links)\n"
+  }
 
-  let local_nodes = ($local.nodes | reject node_created node_completed node_alias | sort-by node_id | to csv | qsv table)
-  let remote_nodes = ($remote.nodes | reject node_created node_completed node_alias | sort-by node_id | to csv | qsv table)
+  do $preview $p.db | save -f ($tmp | path join "local.txt")
+  do $preview ($tmp | path join "remote.db") | save -f ($tmp | path join "remote.txt")
 
-  let local_links = ($local.links | sort-by link_id | to csv | qsv table)
-  let remote_links = ($remote.links | sort-by link_id | to csv | qsv table)
-
-  $"Nodes:\n($local_nodes)\n\nLinks:\n($local_links)\n" | save -f $tmp_local_pview
-  $"Nodes:\n($remote_nodes)\n\nLinks:\n($remote_links)\n" | save -f $tmp_remote_pview
-
-  let args = [$tmp_remote_pview $tmp_local_pview]
-  do -i { delta --line-numbers --hunk-header-style=plain ...$args }
-
-  # Cleanup
-  rm -f $tmp_remote_enc $tmp_remote_db $tmp_local_pview $tmp_remote_pview
+  do -i { delta --line-numbers --hunk-header-style=plain ($tmp | path join "remote.txt") ($tmp | path join "local.txt") }
+  rm -rf $tmp
 }
