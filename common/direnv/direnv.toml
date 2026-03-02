@@ -1,0 +1,4 @@
+[global]
+warn_timeout = "0"
+log_format = "direnv: %s"
+log_filter = "status|error"

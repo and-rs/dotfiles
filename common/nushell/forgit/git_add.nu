@@ -8,6 +8,7 @@ export def ga [...files: string] {
     return
   }
 
+  # TODO: nested entries handling & new files indicator
   let entries = (
     ^git status --porcelain -u
     | lines

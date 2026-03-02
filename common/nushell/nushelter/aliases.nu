@@ -9,17 +9,6 @@ alias ld = eza -lha --no-permissions --no-user --no-time
 alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity
 
-# --- Maintenance ---
-
-# Clean the nix store
-def clean-nix [] {
-  sudo nix-collect-garbage --delete-old
-  sudo nix-store --gc
-}
-
-alias update-darwin = sudo darwin-rebuild switch --flake $"($env.HOME)/Vault/personal/nixos#M1"
-alias update-nixos = sudo nixos-rebuild switch --flake $"($env.HOME)/Vault/personal/nixos#default"
-alias update-nixos-boot = sudo nixos-rebuild boot --flake $"($env.HOME)/Vault/personal/nixos#default"
 alias link-nvim = ln -s $"($env.HOME)/Vault/personal/nvim" $"($env.HOME)/.config"
 
 # Fastfetch

@@ -68,6 +68,7 @@ source nushelter/git.nu
 # Forgit & git completions 8ms
 use forgit *
 source completions/git_completions.nu
+source completions/just_completions.nu
 
 
 # Util source

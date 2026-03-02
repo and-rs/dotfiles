@@ -17,6 +17,7 @@
     ~/.config/yazi: common/yazi
     ~/.config/broot: common/broot
     ~/.config/aichat: common/aichat
+    ~/.config/direnv: common/direnv
     ~/.config/neovide: common/neovide
     ~/.config/nushell: common/nushell
     ~/.config/opencode: common/opencode
