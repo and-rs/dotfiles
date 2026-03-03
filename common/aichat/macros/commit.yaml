@@ -1,4 +1,3 @@
 steps:
-  - .model novita:deepseek/deepseek-v3.2
-  - .file `git log -n 10 --date=relative; git diff` -- generate git commit message with previous commit style, be descriptive but keep it in short lines, DON'T use long lines per commit message line.
+  - .file `~/.config/aichat/macros/_get_git_status` -- generate git commit message with previous commit style, be descriptive but keep it in short lines, DON'T use long lines per commit message line.
   - .copy

@@ -1,0 +1,12 @@
+#!/usr/bin/env nu
+
+def main [] {
+  with-env { GIT_TERMINAL_PROMPT: "0" } {
+    let log = (^git --no-pager log -n 10 --date=relative --color=never
+      | decode utf-8)
+    let diff = (^git --no-pager diff --staged --color=never
+      | decode utf-8)
+    print $log
+    print $diff
+  }
+}

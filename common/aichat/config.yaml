@@ -3,7 +3,7 @@ stream: true
 wrap: 80
 save: true
 use_tools: 'fs'
-model: novita:zai-org/glm-5:dumb
+model: google:gemini-3-flash-preview
 compress_threshold: 60000
 rag_embedding_model: google:gemini-embedding-001
 rag_reranker_model: jina:jina-reranker-v3
@@ -62,7 +62,7 @@ clients:
         max_output_tokens: 65536
         input_price: 0.6
         output_price: 3.6
-      - name: qwen/qwen3.5-397b-a17b:thinking
+      - name: qwen/qwen3.5-397b-a17b:dumb
         real_name: qwen/qwen3.5-397b-a17b
         supports_vision: true
         max_input_tokens: 262144
@@ -72,7 +72,7 @@ clients:
         patch:
           body:
             thinking:
-              type: enabled
+              type: false
               budget_tokens: 16000
   - type: openai-compatible
     name: google

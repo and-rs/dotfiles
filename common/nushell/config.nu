@@ -66,9 +66,13 @@ source nushelter/git.nu
 
 # Forgit & git completions 8ms
 use forgit *
-source completions/git_completions.nu
 source completions/just_completions.nu
 
+let autoload_dir = ($nu.vendor-autoload-dirs | last)
+if not ($autoload_dir | path exists) {
+  mkdir $autoload_dir
+}
+carapace _carapace nushell | save -f $"($autoload_dir)/carapace.nu"
 
 # Util source
 $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []
