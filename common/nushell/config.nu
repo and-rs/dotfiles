@@ -2,6 +2,7 @@ use std/config *
 
 # Nix path: keep at top!
 $env.PATH ++= [
+  $"($env.HOME)/bins"
   $"($env.HOME)/.nix-profile/bin"
   "/run/current-system/sw/bin"
 ]

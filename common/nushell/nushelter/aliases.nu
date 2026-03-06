@@ -8,8 +8,18 @@ alias l = ls -a
 alias ld = eza -lha --no-permissions --no-user --no-time
 alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity
-
 alias link-nvim = ln -s $"($env.HOME)/Vault/personal/nvim" $"($env.HOME)/.config"
+
+# Load opam env vars to the path (of course it isn't eval)
+def --env "opam eval" [] {
+  opam env --shell=powershell
+  | lines
+  | where ($it | str starts-with '$env:')
+  | parse "$env:{key} = '{value}'"
+  | transpose -rd
+  | update PATH {|r| $r.PATH | split row (char esep)}
+  | load-env
+}
 
 # Fastfetch
 alias ff = fastfetch --logo-color-1 cyan --file $"($env.DOTS)/utils/ascii/spider2.txt"

@@ -1,5 +1,5 @@
 [mgr]
-border_style = { fg = "7" }
+border_style = { fg = "0" }
 border_symbol = ""
 preview_hovered = { underline = false }
 count_selected = { reversed = true, fg = "4" }
@@ -16,29 +16,29 @@ padding = { open = "█", close = "█"}
 [which]
 cols = 1
 separator = " > "
-mask = { bg = "7" }
+mask = { bg = "0" }
 
 [status]
 sep_left = { open = "", close = "" }
 sep_right = { open = "", close = "" }
-overall = { bg = "7"}
-progress_label = { bg = "7", fg = "4"  }
-progress_error = { bg = "7",  fg = "1" }
-progress_normal = { bg = "7",  fg = "4" }
+overall = { bg = "0"}
+progress_label = { bg = "0", fg = "4"  }
+progress_error = { bg = "0",  fg = "1" }
+progress_normal = { bg = "0",  fg = "4" }
 
 [mode]
-normal_main = { bg = "7", bold = true}
-normal_alt = { bg = "7", bold = true}
-select_main = { fg = "1", bg = "7", bold = true}
-select_alt = { fg = "1", bg = "7", bold = true}
-unset_main = { fg = "4", bg = "7", bold = true}
-unset_alt = { fg = "4", bg = "7", bold = true}
+normal_main = { bg = "0", bold = true}
+normal_alt = { bg = "0", bold = true}
+select_main = { fg = "1", bg = "0", bold = true}
+select_alt = { fg = "1", bg = "0", bold = true}
+unset_main = { fg = "4", bg = "0", bold = true}
+unset_alt = { fg = "4", bg = "0", bold = true}
 
 [tabs]
 sep_outer = { open = "", close = "" }
 sep_inner = { open = "", close = "" }
-active = { fg = "6", bg = "7", underline = true }
-inactive = { fg = "7", bg = "reset"  }
+active = { fg = "6", bg = "0", underline = true }
+inactive = { fg = "0", bg = "reset"  }
 
 [filetype]
 rules = [
@@ -55,7 +55,7 @@ rules = [
 	{ url = "*/", fg = "4" },
 
 	# Orphan symbolic links
-  { mime = "*", is = "orphan", fg = "1", bg = "7" }
+  { mime = "*", is = "orphan", fg = "1", bg = "0" }
 ]
 
 [icon]

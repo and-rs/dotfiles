@@ -3,7 +3,7 @@ stream: true
 wrap: 80
 save: true
 use_tools: 'fs'
-model: google:gemini-3-flash-preview
+model: novita:qwen/qwen3.5-397b-a17b
 compress_threshold: 60000
 rag_embedding_model: google:gemini-embedding-001
 rag_reranker_model: jina:jina-reranker-v3
@@ -27,7 +27,7 @@ clients:
         input_price: 0.269
         output_price: 0.1345
       - name: deepseek/deepseek-v3.2:thinking
-        realname: deepseek/deepseek-v3.2
+        real_name: deepseek/deepseek-v3.2
         supports_vision: false
         max_input_tokens: 163840
         max_output_tokens: 65536
@@ -37,15 +37,14 @@ clients:
           body:
             thinking:
               type: enabled
-              budget_tokens: 16000
-      - name: zai-org/glm-5
+      - name: zai-org/glm-5:thinking
+        real_name: zai-org/glm-5
         supports_vision: false
         max_input_tokens: 202800
         max_output_tokens: 131072
         input_price: 1
         output_price: 3.2
-      - name: zai-org/glm-5:dumb
-        real_name: zai-org/glm-5
+      - name: zai-org/glm-5
         supports_vision: false
         max_input_tokens: 202800
         max_output_tokens: 131072
@@ -55,15 +54,14 @@ clients:
           body:
             thinking:
               type: disabled
-              budget_tokens: 16000
-      - name: qwen/qwen3.5-397b-a17b
+      - name: qwen/qwen3.5-397b-a17b:thinking
+        real_name: qwen/qwen3.5-397b-a17b
         supports_vision: true
         max_input_tokens: 262144
         max_output_tokens: 65536
         input_price: 0.6
         output_price: 3.6
-      - name: qwen/qwen3.5-397b-a17b:dumb
-        real_name: qwen/qwen3.5-397b-a17b
+      - name: qwen/qwen3.5-397b-a17b
         supports_vision: true
         max_input_tokens: 262144
         max_output_tokens: 65536
@@ -71,9 +69,7 @@ clients:
         output_price: 3.6
         patch:
           body:
-            thinking:
-              type: false
-              budget_tokens: 16000
+            enable_thinking: false
   - type: openai-compatible
     name: google
     api_base: https://generativelanguage.googleapis.com/v1beta/openai/

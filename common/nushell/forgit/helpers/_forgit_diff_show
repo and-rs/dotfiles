@@ -10,6 +10,8 @@ export def main [
   let has_delta = (which delta | is-not-empty)
   let args = ["--color=always"] ++ (if $staged { ["--staged"] } else { [] })  
 
+  # TODO: new files should appear in the preview as totally new, not empty
+  # even when there is nothing else to compare to
   with-env {
     GIT_PAGER_IN_USE: "true"
     LESS: "-R -c -+X -+F"

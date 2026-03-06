@@ -1,4 +1,7 @@
 final_space: true
+secondary_prompt:
+  foreground: "darkGray"
+  template: "   & "
 blocks:
   - type: prompt
     alignment: left

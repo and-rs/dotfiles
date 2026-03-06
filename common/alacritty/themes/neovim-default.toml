@@ -7,14 +7,14 @@ text = "#000000"
 cursor = "#ffffff"
 
 [colors.normal]
-black = "#07080d"
+black = "#1b1e25"
 red = "#ffc0b9"
 green = "#b3f6c0"
 yellow = "#fce094"
 blue = "#a6dbff"
 magenta = "#ffcaff"
 cyan = "#8cf8f7"
-white = "#1b1e25"
+white = "#eef1f8"
 
 [colors.bright]
 black = "#79839c"

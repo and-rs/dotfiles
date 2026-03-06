@@ -1,6 +1,6 @@
 # Copy input to system clipboard.
 # Supports wl-copy, xclip, and pbcopy.
-def clip-copy [] {
+export def clip-copy [] {
     let input = $in
     if (which wl-copy | is-not-empty) {
         $input | wl-copy
@@ -15,7 +15,7 @@ def clip-copy [] {
 
 # Read content from system clipboard.
 # Supports wl-paste, xclip, and pbpaste.
-def clip-paste [] {
+export def clip-paste [] {
     if (which wl-paste | is-not-empty) {
         wl-paste --no-newline
     } else if (which xclip | is-not-empty) {
