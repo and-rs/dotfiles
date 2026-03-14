@@ -24,7 +24,7 @@ export def gd [] {
 
   let fzf_flags = [
     ...$env.FORGIT_NU_DEFAULT_FLAGS
-    "--prompt=Git diff staged > "
+    "--prompt=Git diff unstaged > "
     "--delimiter=\t"
     "--header-lines=1"
     "--preview=_forgit_diff_preview {2}"

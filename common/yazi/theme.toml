@@ -38,7 +38,7 @@ unset_alt = { fg = "4", bg = "0", bold = true}
 sep_outer = { open = "", close = "" }
 sep_inner = { open = "", close = "" }
 active = { fg = "6", bg = "0", underline = true }
-inactive = { fg = "0", bg = "reset"  }
+inactive = { fg = "7", bg = "reset"  }
 
 [filetype]
 rules = [

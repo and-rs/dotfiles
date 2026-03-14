@@ -7,7 +7,7 @@ screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 prefer-no-csd
 // ---
 overview {
-    zoom 0.6
+    zoom 0.7
     backdrop-color "#1b1e25"
     workspace-shadow {
         off
@@ -66,7 +66,7 @@ input {
     }
 }
 layout {
-    gaps 12
+    gaps 10
     background-color "transparent"
     tab-indicator {
         off
@@ -80,24 +80,23 @@ layout {
         proportion 1.0
     }
     border {
-        // width 2
-        // active-color "#79839c"
-        off
+        on
+        width 2
+        active-color "#4b5467"
+        inactive-color "#1b1e25"
     }
     focus-ring {
-        // off
-        // active-color "#79839c"
-        width 2
-        active-gradient from="#79839c" to="#07080d" angle=180
+        off
+        active-gradient from="#a6dbff" to="#79839c" angle=60
     }
     shadow {
-        on
+        off
         spread 1
         softness 0
-        offset x=4 y=4
+        offset x=2 y=2
         draw-behind-window true
-        color "#00000080"
-        inactive-color "#00000080"
+        color "#a6dbff60"
+        inactive-color "#79839c20"
     }
 }
 workspace "1"
@@ -129,6 +128,12 @@ window-rule {
 window-rule {
     match app-id="spotify"
     match app-id="zathura"
+    open-maximized false
+    default-column-width {
+        proportion 0.6
+    }
+}
+window-rule {
     match app-id="obsidian"
     match app-id="org.gnome.Nautilus"
     open-maximized false
@@ -234,7 +239,7 @@ binds {
         spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"
     }
     Mod+F12 allow-inhibiting=false hotkey-overlay-title="Take screenshot with Satty" {
-        spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim - | satty -f -"
+        spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim -t ppm - | satty -f -"
     }
     Mod+Super+U {
         spawn-sh "quickshell ipc call recorder toggle"
@@ -332,10 +337,10 @@ binds {
     Mod+WheelScrollUp {
         focus-workspace-up
     }
-    Mod+Shift+WheelScrollDown {
+    Mod+Control+WheelScrollDown {
         focus-column-right
     }
-    Mod+Shift+WheelScrollUp {
+    Mod+Control+WheelScrollUp {
         focus-column-left
     }
     Mod+BracketLeft {
@@ -351,16 +356,16 @@ binds {
         expel-window-from-column
     }
     Mod+Minus {
-        set-column-width "-10%"
+        set-column-width "-5%"
     }
     Mod+Equal {
-        set-column-width "+10%"
+        set-column-width "+5%"
     }
     Mod+Shift+Minus {
-        set-window-height "-10%"
+        set-window-height "-5%"
     }
     Mod+Shift+Equal {
-        set-window-height "+10%"
+        set-window-height "+5%"
     }
     Mod+F11 allow-inhibiting=false {
         fullscreen-window
@@ -370,7 +375,7 @@ binds {
     }
 }
 animations {
-    slowdown 0.8
+    slowdown 0.6
     workspace-switch {
         // off
         spring damping-ratio=1.0 stiffness=1000 epsilon=1e-5

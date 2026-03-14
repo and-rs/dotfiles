@@ -2,7 +2,8 @@ fork = true
 vsync = true
 
 [font]
-normal = ["Rec Mono Semicasual", "Adwaita Mono"]
+# normal = ["Rec Mono Semicasual", "Adwaita Mono"]
+normal = ["CommitMono", "Adwaita Mono"]
 size = 14
 
 [font.features]
