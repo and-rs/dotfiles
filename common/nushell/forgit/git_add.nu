@@ -1,20 +1,14 @@
 # git add selector with fzf
 export def ga [...files: string] {
   _forgit_check_repo
-
   if ($files | is-not-empty) {
     git add ...$files
     git status -s
     return
   }
-
   # TODO: nested entries handling & new files indicator
   let entries = (
-    ^git status --porcelain -u
-    | lines
-    | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$'
-    | where y != " "
-    | each {|row|
+    ^git status --porcelain -u | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' | where y != " " | each {|row|
       let clean_path = if ($row.path | str contains ' -> ') {
         $row.path | split row ' -> ' | last
       } else {
@@ -26,12 +20,10 @@ export def ga [...files: string] {
       }
     }
   )
-
   if ($entries | is-empty) {
     print "Nothing to add."
     return
   }
-
   let fzf_flags = [
     ...$env.FORGIT_NU_DEFAULT_FLAGS
     "--delimiter=\t"
@@ -39,9 +31,9 @@ export def ga [...files: string] {
     "--prompt=Git add > "
     "--preview=_forgit_add_preview '{2}'"
   ]
-
-  let selected = ($entries | to tsv | fzf ...$fzf_flags | from tsv --noheaders | get column1)
-
+  let selected = (
+    $entries | to tsv | fzf ...$fzf_flags | from tsv --noheaders | get column1
+  )
   if ($selected | is-not-empty) {
     git add ...$selected
     git status -s

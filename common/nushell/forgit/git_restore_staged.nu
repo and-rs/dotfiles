@@ -1,16 +1,13 @@
 # git restore --staged selector with fzf
 export def grs [...files: string] {
   _forgit_check_repo
-
   if ($files | is-not-empty) {
     git restore --staged ...$files
     git status -s
     return
   }
-
   let entries = (
-    git status --porcelain | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$'
-    | where x != " " and x != "?" | each {|row|
+    git status --porcelain | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' | where x != " " and x != "?" | each {|row|
       let clean_path = if ($row.path | str contains ' -> ') {
         $row.path | split row ' -> ' | last
       } else {
@@ -22,12 +19,10 @@ export def grs [...files: string] {
       }
     }
   )
-
   if ($entries | is-empty) {
     print "No staged changes to restore."
     return
   }
-
   let fzf_flags = [
     ...$env.FORGIT_NU_DEFAULT_FLAGS
     "--prompt=Git restore staged > "
@@ -35,16 +30,9 @@ export def grs [...files: string] {
     "--delimiter=\t"
     "--preview=_forgit_diff_preview -s '{2}'"
   ]
-
   let selected = (
-    $entries
-    | to tsv
-    | fzf ...$fzf_flags
-    | from tsv --noheaders
-    | get column1
-    | ansi strip
+    $entries | to tsv | fzf ...$fzf_flags | from tsv --noheaders | get column1 | ansi strip
   )
-
   if ($selected | is-not-empty) {
     git restore --staged ...$selected
     git status -s
