@@ -5,6 +5,7 @@ $env.PATH ++= [
   "/run/current-system/sw/bin"
   $"($env.HOME)/bins"
   $"($env.HOME)/.nix-profile/bin"
+  $"($env.HOME)/.config/nushell/helpers"
   $"($env.HOME)/.config/nushell/forgit/helpers"
 ]
 
@@ -33,6 +34,9 @@ $env.config.history = {
 }
 $env.config.show_banner = false
 $env.config.table.mode = "rounded"
+
+$env.config.completions.quick = false
+$env.config.completions.partial = false
 
 # Options
 $env.EDITOR = "nvim"
@@ -89,13 +93,13 @@ source zoxide.nu
 alias cd = z
 alias ci = zi
 
-$env.is_startup = false
-
-$env.config.hooks.pre_prompt = [
-  {||
-    if $nu.is-interactive and not $env.is_startup {
-      print $"\n(ansi cyan)took > (ansi rst)($nu.startup-time)\n"
-      $env.is_startup = true
-    }
-  }
-]
+# only enable when debugging
+# $env.is_startup = false
+# $env.config.hooks.pre_prompt = [
+#   {||
+#     if $nu.is-interactive and not $env.is_startup {
+#       print $"\n(ansi cyan)took > (ansi rst)($nu.startup-time)\n"
+#       $env.is_startup = true
+#     }
+#   }
+# ]
