@@ -1,3 +1,4 @@
+import Quickshell.Wayland
 import Quickshell
 import QtQuick
 
@@ -8,18 +9,24 @@ Scope {
     PanelWindow {
       id: notifPanel
       required property var modelData
-      color: "transparent"
 
+      Component.onCompleted: {
+        if (this.WlrLayershell != null) {
+          this.WlrLayershell.namespace = "quickshell-hidden";
+        }
+      }
+
+      color: "transparent"
       exclusiveZone: -1
       screen: modelData
-      visible: true
+      visible: notifWindow.hasNotifications
 
       anchors {
         top: true
-        bottom: true
-        left: true
         right: true
       }
+      implicitWidth: notifWindow.width
+      implicitHeight: notifWindow.height
 
       mask: Region {
         Region {

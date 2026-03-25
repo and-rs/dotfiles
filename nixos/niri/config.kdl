@@ -189,6 +189,7 @@ window-rule {
 }
 layer-rule {
     match namespace="notifications"
+    match namespace="quickshell-hidden"
     block-out-from "screencast"
     opacity 0.9
 }

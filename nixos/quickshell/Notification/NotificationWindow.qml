@@ -133,13 +133,6 @@ Item {
     radius: Config.radius.large
     color: Config.colors.dim
 
-    Behavior on height {
-      NumberAnimation {
-        duration: Config.durations.normal
-        easing.type: Config.curves.standard
-      }
-    }
-
     Item {
       anchors.fill: parent
       anchors.leftMargin: Config.spacing.large

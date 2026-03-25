@@ -4,6 +4,7 @@ use std/config *
 $env.PATH ++= [
   "/run/current-system/sw/bin"
   $"($env.HOME)/bins"
+  $"($env.HOME)/.local/bin"
   $"($env.HOME)/.nix-profile/bin"
   $"($env.HOME)/.config/nushell/execs"
   $"($env.HOME)/.config/nushell/forgit/helpers"
