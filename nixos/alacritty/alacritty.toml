@@ -8,7 +8,7 @@ TERM = "alacritty"
 shell = "nu"
 
 [font]
-size = 13
+size = 14
 
 # offset = { y = 12 }
 # glyph_offset = { y = 6 }
@@ -21,16 +21,16 @@ size = 13
 # glyph_offset = { y = 4 }
 # normal = { family = "CommitMono"}
 
-offset = { y = 12 }
-glyph_offset = { y = 6 }
-normal = { family = "Input"}
+# offset = { y = 8 }
+# glyph_offset = { y = 4 }
+# normal = { family = "Input"}
 
-# offset = { y = 4 }
-# glyph_offset = { y = 2 }
-# normal = { family = "Monaspace Neon" }
-# bold = { family = "Monaspace Neon" }
-# italic = { family = "Monaspace Argon", style = "Italic" }
-# bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
+offset = { y = 4 }
+glyph_offset = { y = 2 }
+normal = { family = "Monaspace Neon" }
+bold = { family = "Monaspace Neon" }
+italic = { family = "Monaspace Argon", style = "Italic" }
+bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
 
 [window]
 title = "Terminalino"

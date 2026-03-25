@@ -257,7 +257,7 @@ binds {
         spawn "hyprlock"
     }
     Mod+Return repeat=false {
-        spawn "alacritty"
+        spawn "kitty"
     }
     Mod+Q {
         close-window
