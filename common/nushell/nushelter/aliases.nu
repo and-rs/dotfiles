@@ -2,7 +2,7 @@ alias yz = yazi
 alias nv = nvim
 alias r = exec nu
 alias nd = neovide
-alias sw = stow -t $env.HOME
+alias md = table -t markdown
 alias c = clear --keep-scrollback
 alias l = ls -a
 alias ld = eza -lha --no-permissions --no-user --no-time
@@ -10,9 +10,10 @@ alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity
 alias link-nvim = ln -s $"($env.HOME)/Vault/personal/nvim" $"($env.HOME)/.config"
 #
-# Load opam env vars to the path (of course it isn't eval)
-def --env "opam eval" [] {
-  opam env --shell=powershell | lines | where ($it | str starts-with '$env:') | parse "$env:{key} = '{value}'" | transpose -rd | update PATH {|r| $r.PATH | split row (char esep)} | load-env
+# Load opam env vars to the path (of course it isn't eval) (with oxcaml handling)
+def --env "opam eval" [switch?: string] {
+  if ($switch | is-empty) { $env.OPAMSWITCH = "5.2.0+ox" }
+  opam env --shell=powershell (if ($switch | is-empty) { "--switch=5.2.0+ox" }) | lines | where ($it | str starts-with '$env:') | parse "$env:{key} = '{value}'" | transpose -rd | update PATH {|r| $r.PATH | split row (char esep)} | load-env
 }
 #
 # Fastfetch

@@ -1,18 +1,18 @@
 def _fzf_history [] {
   let fzf_flags = [
+    "--ansi"
     "--read0"
-    "--layout=reverse"
-    "--height=100%"
-    "--prompt=History > "
-    "--padding=1,0,0,1"
     "--with-nth=1"
+    "--height=100%"
     "--delimiter=\t"
-    "--bind=ctrl-d:execute-silent(_fzf_drop_history {2})+reload(_fzf_reload_history)"
+    "--scheme=history"
+    "--layout=reverse"
+    "--padding=1,0,0,1"
+    "--prompt=History > "
     "--header=<C-d> Delete entry"
+    "--bind=ctrl-d:execute-silent(_fzf_drop_history {2})+reload(_fzf_fetch_history)"
   ]
-  let raw_selection = (
-    open $nu.history-path | query db "SELECT command_line, MAX(start_timestamp) AS latest_start FROM history GROUP BY command_line ORDER BY latest_start DESC" | each { |it| $"( $it.command_line )\t( $it.latest_start )" } | str join (char -i 0) | fzf ...$fzf_flags
-  )
+  let raw_selection = (_fzf_fetch_history | fzf ...$fzf_flags)
   if ($raw_selection | is-empty) { return }
   ($raw_selection | split row -n 2 (char tab) | get 0)
 }
