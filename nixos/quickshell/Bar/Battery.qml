@@ -89,7 +89,7 @@ Row {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: txt
-            font.weight: 800
+            font.weight: 700
             font.pointSize: 10
             color: Config.colors.bg
 

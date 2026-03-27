@@ -4,6 +4,9 @@ import qs.Bar.SystemTray
 import qs.Bar.Recording
 
 Scope {
+  id: barScope
+  required property var mainHeight
+
   Variants {
     model: Quickshell.screens
     PanelWindow {
@@ -12,7 +15,7 @@ Scope {
 
       screen: modelData
       aboveWindows: true
-      implicitHeight: 32
+      implicitHeight: barScope.mainHeight
       color: "transparent"
 
       anchors {

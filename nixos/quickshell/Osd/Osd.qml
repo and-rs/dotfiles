@@ -138,6 +138,11 @@ Scope {
         right: true
       }
 
+      Component.onCompleted: {
+        if (WlrLayershell != null)
+          WlrLayershell.namespace = "quickshell-osd";
+      }
+
       mask: Region {
         Region {
           x: (osdWindow.width - 300) / 2

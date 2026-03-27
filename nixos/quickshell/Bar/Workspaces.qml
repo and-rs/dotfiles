@@ -82,7 +82,7 @@ Row {
         color: rect.updateTextColor()
         anchors.centerIn: parent
         text: model.index
-        font.weight: model.isFocused ? 800 : 500
+        font.weight: model.isFocused ? 700 : 500
         font.pointSize: 10
       }
 

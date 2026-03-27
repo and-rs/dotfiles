@@ -5,7 +5,13 @@ import qs.Notification
 import qs.Osd
 
 Scope {
-  Bar {}
+  property int height: 32
+
   Osd {}
-  Notification {}
+  Bar {
+    mainHeight: height
+  }
+  Notification {
+    mainHeight: height
+  }
 }
