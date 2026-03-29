@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 
 Row {
-  spacing: Config.spacing.extraSmall
+  spacing: Config.spacing.extraSmall - 2
   anchors.verticalCenter: parent.verticalCenter
 
   function isWorkspaceEmpty(workspaceId: int): bool {

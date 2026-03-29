@@ -55,13 +55,17 @@ Rectangle {
             visible: (root.notification?.image || "") !== "" && (root.notification?.appIcon || "") !== "" && appIconImage.status !== Image.Error
             anchors.verticalCenter: parent.verticalCenter
 
-            Image {
-              id: appIconImage
-              width: Config.sizes.normal
-              height: Config.sizes.normal
-              source: root.notification?.appIcon || ""
-              fillMode: Image.PreserveAspectFit
-              visible: status === Image.Ready
+            Rectangle {
+              radius: Config.radius.normal
+              Image {
+                id: appIconImage
+                width: Config.sizes.normal
+                height: Config.sizes.normal
+                source: root.notification?.appIcon || ""
+                fillMode: Image.PreserveAspectFit
+                visible: status === Image.Ready
+                layer.enabled: true
+              }
             }
           }
 
@@ -77,7 +81,10 @@ Rectangle {
 
         Text {
           width: parent.width
-          text: root.notification?.summary || ""
+          text: {
+            let s = root.notification?.summary || "";
+            return s.length > 30 ? s.substring(0, 25) + "..." : s;
+          }
           font.pixelSize: Config.sizes.normal
           font.weight: Font.Medium
           color: Config.colors.fg
@@ -88,13 +95,14 @@ Rectangle {
 
     Text {
       width: parent.width
-      text: root.notification?.body
+      text: root.notification?.body || ""
       visible: text !== ""
       linkColor: Config.colors.primary
       onLinkActivated: link => Qt.openUrlExternally(link)
       font.pixelSize: Config.sizes.normal
       color: Config.colors.fg
       wrapMode: Text.Wrap
+      maximumLineCount: 5
     }
   }
 }

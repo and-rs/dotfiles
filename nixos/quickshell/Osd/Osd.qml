@@ -1,5 +1,6 @@
-import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell
 import QtQuick
 import qs.Bar
 
@@ -139,8 +140,10 @@ Scope {
       }
 
       Component.onCompleted: {
-        if (WlrLayershell != null)
+        if (WlrLayershell != null) {
           WlrLayershell.namespace = "quickshell-osd";
+          WlrLayershell.layer = WlrLayer.Overlay;
+        }
       }
 
       mask: Region {
