@@ -1,18 +1,9 @@
 fork = true
-vsync = true
+neovim-bin = "/home/and-rs/.local/share/bob/v0.12.0/bin/nvim"
 
-[font]
-# normal = ["Rec Mono Semicasual", "Adwaita Mono"]
-normal = ["CommitMono", "Adwaita Mono"]
+[font.normal]
+family = "Commit Mono"
 size = 14
-
-[font.features]
-"Input Mono Narrow"   = [ "-liga", "-calt" ]
-"Rec Mono Casual"     = [ "-liga", "-calt" ]
-"Rec Mono Semicasual" = [ "-liga", "-calt" ]
 
 [box-drawing]
 mode = "native"
-
-[box-drawing.sizes]
-default = [2, 6]  # Thin and thick values respectively, for all sizes

@@ -1,3 +1,0 @@
-steps:
-  - .file `~/.config/aichat/macros/_get_git_status` -- generate git commit message with previous commit style, be descriptive but keep it in short lines, DON'T use long lines per commit message line.
-  - .copy

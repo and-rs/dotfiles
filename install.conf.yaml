@@ -19,6 +19,7 @@
     ~/.config/aichat: common/aichat
     ~/.config/direnv: common/direnv
     ~/.config/neovide: common/neovide
+    ~/.config/topiary: common/topiary
     ~/.config/nushell: common/nushell
     ~/.config/opencode: common/opencode
     ~/.config/fastfetch: common/fastfetch
