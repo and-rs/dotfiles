@@ -3,6 +3,7 @@ export use git_diff.nu *
 export use git_diff_staged.nu *
 export use git_log.nu *
 export use git_restore_staged.nu *
+
 #
 #
 export def _forgit_check_repo [] {
@@ -10,6 +11,7 @@ export def _forgit_check_repo [] {
     error make {msg: "Not in a git repository"}
   }
 }
+
 #
 #
 export-env {

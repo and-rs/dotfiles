@@ -3,6 +3,6 @@
 use ../nushelter/clip.nu clip-copy
 
 def main [] {
-    let wrapped = $"```\n(^cat)\n```\n"
-    $wrapped | clip-copy
+  let wrapped = $"```\n(^cat)\n```\n"
+  $wrapped | clip-copy
 }

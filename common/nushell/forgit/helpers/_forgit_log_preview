@@ -12,7 +12,7 @@ export def main [line: string] {
   let sha = $extracted
   let has_delta = (which delta | is-not-empty)
 
-  with-env { GIT_PAGER_IN_USE: "true" } {
+  with-env {GIT_PAGER_IN_USE: "true"} {
     git show --color=always -U3 $sha | if $has_delta { delta --paging=never } else { cat }
   }
 }

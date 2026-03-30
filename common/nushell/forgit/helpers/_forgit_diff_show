@@ -8,7 +8,7 @@ export def main [
   if ($clean_file | is-empty) { return }
 
   let has_delta = (which delta | is-not-empty)
-  let args = ["--color=always"] ++ (if $staged { ["--staged"] } else { [] })  
+  let args = ["--color=always"] ++ (if $staged { ["--staged"] } else { [] })
 
   # TODO: new files should appear in the preview as totally new, not empty
   # even when there is nothing else to compare to

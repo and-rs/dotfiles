@@ -9,7 +9,7 @@ export def gd [] {
         $row.path
       }
       {
-        status: $"(ansi reset)[(ansi yellow)($row.x)(if $row.y == "D" {ansi red})($row.y)(ansi reset)]",
+        status: $"(ansi reset)[(ansi yellow)($row.x)(if $row.y == "D" { ansi red })($row.y)(ansi reset)]"
         path: $"(ansi reset)($clean_path)"
       }
     }

@@ -14,7 +14,7 @@ export def grs [...files: string] {
         $row.path
       }
       {
-        status: $"(ansi reset)[(ansi green)($row.x)($row.y)(ansi reset)]",
+        status: $"(ansi reset)[(ansi green)($row.x)($row.y)(ansi reset)]"
         path: $"(ansi reset)($clean_path)"
       }
     }
