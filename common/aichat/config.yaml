@@ -3,7 +3,7 @@ stream: true
 wrap: 80
 save: true
 use_tools: 'fs'
-model: novita:qwen/qwen3.5-397b-a17b
+model: novita:zai-org/glm-5
 compress_threshold: 60000
 rag_embedding_model: google:gemini-embedding-001
 rag_reranker_model: jina:jina-reranker-v3

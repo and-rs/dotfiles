@@ -67,18 +67,13 @@ automatically-unhide-macos-hidden-apps = true
     run = 'move-node-to-workspace 4'
 
 [mode.main.binding]
-    cmd-slash = 'layout tiles vertical'
     cmd-period = 'layout tiles horizontal'
     cmd-comma = 'layout accordion horizontal'
 
     cmd-h = 'focus left'
-    cmd-j = 'focus down'
-    cmd-k = 'focus up'
     cmd-l = 'focus right'
 
     cmd-shift-h = 'move left'
-    cmd-shift-j = 'move down'
-    cmd-shift-k = 'move up'
     cmd-shift-l = 'move right'
 
     cmd-1 = 'workspace 1'
