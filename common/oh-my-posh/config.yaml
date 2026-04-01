@@ -54,6 +54,6 @@ blocks:
         foreground: "blue"
         foreground_templates:
           - "{{ if gt .Code 0 }}red{{ end }}"
-        template: "$"
+        template: ">"
         options:
           always_enabled: true
