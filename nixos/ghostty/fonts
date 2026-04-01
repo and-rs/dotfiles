@@ -1,13 +1,30 @@
+# font-feature = -liga
+# font-feature = -calt
+# font-feature = -dlig
+# font-thicken = false
+# font-synthetic-style = false
+
+font-size = 15
+font-family = OCR-X
+font-feature = +ss02
+font-feature = +ss04
+font-synthetic-style = italic
+
+font-style-bold = Regular
+font-style-italic = Regular
+font-style-bold-italic = Regular
+
 # font-family = Input
 # font-family = CommitMono
+# font-family = Hermit
 
-font-family = Rec Mono Linear
-font-family-bold = Rec Mono Linear
-font-family-italic = Rec Mono Casual
-font-family-bold-italic = Rec Mono Casual
-font-style-bold = Bold
-font-style-italic = Italic
-font-style-bold-italic = Bold Italic
+# font-family = Rec Mono Linear
+# font-family-bold = Rec Mono Linear
+# font-family-italic = Rec Mono Casual
+# font-family-bold-italic = Rec Mono Casual
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic
 
 # font-family = Monaspace Neon
 # font-family-bold = Monaspace Neon

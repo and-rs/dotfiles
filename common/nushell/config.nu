@@ -97,14 +97,14 @@ if not ($autoload_dir | path exists) {
 carapace _carapace nushell | save -f $"($autoload_dir)/carapace.nu"
 
 # only enable when debugging
-export-env {
-  $env.is_startup = false
-  $env.config.hooks.pre_prompt = [
-    {||
-      if $nu.is-interactive and not $env.is_startup {
-        print $"\n(ansi cyan)took > (ansi rst)($nu.startup-time)\n"
-        $env.is_startup = true
-      }
-    }
-  ]
-}
+# export-env {
+#   $env.is_startup = false
+#   $env.config.hooks.pre_prompt = [
+#     {||
+#       if $nu.is-interactive and not $env.is_startup {
+#         print $"\n(ansi cyan)took > (ansi rst)($nu.startup-time)\n"
+#         $env.is_startup = true
+#       }
+#     }
+#   ]
+# }
