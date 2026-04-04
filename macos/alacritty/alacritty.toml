@@ -8,7 +8,7 @@ TERM = "alacritty"
 shell = "/run/current-system/sw/bin/nu"
 
 [font]
-size = 18
+size = 19
 
 # offset = { y = 10 }
 # glyph_offset = { y = 5 }
@@ -16,7 +16,11 @@ size = 18
 
 offset = { y = 10 }
 glyph_offset = { y = 2 }
-normal = { family = "Input Mono"}
+normal = { family = "OCR-X TTF"}
+
+# offset = { y = 10 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Input Mono"}
 
 [window]
 title = "Terminalino"
