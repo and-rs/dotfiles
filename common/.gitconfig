@@ -22,7 +22,7 @@
 	tool = vscode-diff
 
 [mergetool "vscode-diff"]
-	cmd = nvim \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
+	cmd = bob run 0.12.0 \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
 
 [user]
   name = "and-rs"
