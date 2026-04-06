@@ -1,7 +1,9 @@
+# start nushell from nix
 command = /run/current-system/sw/bin/nu
+
+fullscreen = false
 window-padding-y = 0
 window-padding-x = 0
-fullscreen = false
 window-decoration = false
 macos-option-as-alt = true
 auto-update-channel = stable
@@ -25,14 +27,13 @@ window-padding-y = 4
 window-padding-balance = true
 
 adjust-icon-height = 8
-adjust-cell-height = 11
+adjust-cell-height = 6
 adjust-font-baseline = 0
 adjust-cursor-height = 0
 adjust-underline-position = 5
 
 font-size = 19
-font-feature = +ss02
-font-feature = +ss04
+#font-feature = +ss02
+#font-feature = +ss04
 
-font-family = OCR-X
-font-style-bold = Regular
+font-family = Input
