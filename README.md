@@ -1,5 +1,8 @@
 # Dotfiles
 
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/515adecf-da7b-4a31-8d04-e94efae7008c" />
+<img width="2559" height="1598" alt="image" src="https://github.com/user-attachments/assets/35cd4461-017e-4b89-9d54-2883f19818f5" />
+
 My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
 keyboard-driven workflow, custom shell tooling, and consistent theming across
 terminals, editors, and desktop components.
