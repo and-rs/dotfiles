@@ -2,6 +2,11 @@ command = nu
 config-file = fonts
 config-file = themes/neovim-default
 
+#--- WINDOW ---#
+window-padding-x = 1
+window-padding-y = 0
+window-decoration = none
+window-padding-balance = true
 quit-after-last-window-closed = true
 confirm-close-surface = false
 gtk-single-instance = true
@@ -25,11 +30,6 @@ keybind = super+l=text:\x1bl
 keybind = alt+c=copy_to_clipboard
 keybind = alt+v=paste_from_clipboard
 keybind = alt+shift+,=reload_config
-
-window-decoration = none
-window-padding-x = 1
-window-padding-y = 0
-window-padding-balance = true
 
 adjust-icon-height = 8
 adjust-cell-height = 6
