@@ -1,31 +1,63 @@
-# dotfiles
+# Dotfiles
 
-<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/9dca69e7-be3b-4362-83cd-b376148edea4" />
+My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
+keyboard-driven workflow, custom shell tooling, and consistent theming across
+terminals, editors, and desktop components.
 
-## These are my goats (and their links for my configs)
+## What this repo configures
 
-- [NixOS & Nix Darwin](https://github.com/and-rs/nixos)
-- [neovim](https://github.com/and-rs/nvim)
-- ghostty
-- tmux
-- yazi
-- niri
-- zsh (perhaps not anymore, I am trying out fish and nushell)
+- Shell: Nushell
+- Terminal emulators: Ghostty, Kitty, Alacritty
+- Window managers / compositors:
+  - Linux: Niri, Quickshell, Hypridle, Hyprlock, Rofi
+  - macOS: Aerospace
+- File management: Yazi
+- CLI tooling: direnv, zoxide, aichat, fastfetch, topiary
+- Themes and palettes: Neovim, Ghostty, Kitty, Alacritty, fastfetch, rofi, bat
 
-Clone the repo
+## Structure
+
+- `install.conf.yaml` - Dotbot link map and OS-specific targets
+- `common/` - shared config used across platforms
+- `nixos/` - Linux-specific configs
+- `macos/` - macOS-specific configs
+- `scripts/` - helper scripts and command wrappers
+- `utils/` - random things
+
+## Install
 
 ```sh
-git clone https://github.com/and-rs/dotfiles.git
+dotbot -c install.conf.yaml
 ```
 
-Using this repo with stow, linking the base `.config` and ignoring the rest
+IIt handles macos and linux specific configs.
 
-```sh
-stow -t "$HOME" .
-```
+## Highlights
 
-Linking the MacOS package.
+### Linux desktop
 
-```sh
-stow -t "$HOME" -S macos zden
-```
+- Niri window manager configuration with workspace rules, keybindings, and layer
+  rules
+- Quickshell bar, notifications, OSD, tray, battery, and recording widgets
+- Idle / lock handling through Hypridle and Hyprlock
+- Rofi launcher and power menu integration
+
+### Shell workflow
+
+- Nushell configuration with custom prompt, keybinds, history tooling, git
+  helpers, and file utilities
+- Aichat and LLM helpers
+- Zoxide, direnv, and completion setup
+
+### Terminal workflow
+
+- Shared terminal themes and font configs
+- Consistent palettes across Ghostty, Kitty, Alacritty, Neovim, and Fastfetch
+
+## Notes
+
+- The repo is intentionally opinionated; it is optimized for a specific
+  workflow, not for generic portability.
+- Several configs assume availability of external tools, review my
+  [nix setup](https://github.com/and-rs/nixed)
+- Also check my [nvim setup](https://github.com/and-rs/nvim)
