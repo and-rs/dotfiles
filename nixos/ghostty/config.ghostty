@@ -1,5 +1,5 @@
 command = nu
-config-file = fonts
+config-file = fonts.ghostty
 config-file = themes/neovim-default
 
 #--- WINDOW ---#

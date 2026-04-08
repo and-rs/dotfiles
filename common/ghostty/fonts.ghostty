@@ -1,4 +1,4 @@
-font-size = 15
+font-size = 14
 
 font-feature = -liga
 font-feature = -calt
@@ -6,15 +6,15 @@ font-feature = -dlig
 font-thicken = false
 font-synthetic-style = false
 
-font-family = OCR-X
-font-feature = +ss02
-font-feature = +ss04
-font-feature = +ss03
-font-style-bold = Regular
-font-style-italic = Regular
-font-style-bold-italic = Regular
+#font-family = OCR-X
+#font-feature = +ss02
+#font-feature = +ss04
+#font-feature = +ss03
+#font-style-bold = Regular
+#font-style-italic = Regular
+#font-style-bold-italic = Regular
 
-#font-family = Input
+font-family = Input
 #font-family = CommitMono
 #font-family = Hermit
 

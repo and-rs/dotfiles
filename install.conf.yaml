@@ -5,10 +5,10 @@
 - shell:
     - [sh -c uname -s, "Current OS"]
 - defaults:
-    link: &base_settings
+    link:
       relink: true
       create: true
-- link: #links for everything
+- link:
     ~/.tmux.conf: common/.tmux.conf
     ~/.gitconfig: common/.gitconfig
     ~/.gitconfig.delta: common/.gitconfig.delta
@@ -25,31 +25,32 @@
     ~/.config/fastfetch: common/fastfetch
     ~/.config/oh-my-posh: common/oh-my-posh
     ~/.config/kitty/themes: common/kitty/themes
+    ~/.config/alacritty/themes: common/alacritty/themes
+    # ghostty common
     ~/.config/ghostty/themes: common/ghostty/themes
     ~/.config/ghostty/shaders: common/ghostty/shaders
-    ~/.config/alacritty/themes: common/alacritty/themes
+    ~/.config/ghostty/fonts.ghostty: common/ghostty/fonts.ghostty
 - defaults:
     link:
-      !!merge <<: *base_settings
-      if: uname -s | grep -q Linux
-- link: # links for nixos
+      relink: true
+      create: true
+      if: sh -c "uname -s | grep -q Linux"
+- link:
     ~/.config/hypr: nixos/hypr
     ~/.config/rofi: nixos/rofi
     ~/.config/niri: nixos/niri
     ~/.config/quickshell: nixos/quickshell
-    ~/.config/ghostty/fonts: nixos/ghostty/fonts
-    ~/.config/ghostty/config: nixos/ghostty/config
     ~/.config/kitty/kitty.conf: nixos/kitty/kitty.conf
+    ~/.config/ghostty/config.ghostty: nixos/ghostty/config.ghostty
     ~/.config/alacritty/alacritty.toml: nixos/alacritty/alacritty.toml
 - defaults:
     link:
-      !!merge <<: *base_settings
-      if: uname -s | grep -q Darwin
-- link: # links for macos
-    ~/.config/skhd: macos/skhd
+      relink: true
+      create: true
+      if: sh -c "uname -s | grep -q Darwin"
+- link:
     ~/.config/aerospace: macos/aerospace
-    ~/.hyprspace.toml: macos/.hyprspace.toml
-    ~/.config/ghostty/config: macos/ghostty/config
     ~/.cargo/config.toml: macos/.cargo/config.toml
     ~/.config/kitty/kitty.conf: macos/kitty/kitty.conf
+    ~/.config/ghostty/config.ghostty: macos/ghostty/config.ghostty
     ~/.config/alacritty/alacritty.toml: macos/alacritty/alacritty.toml
