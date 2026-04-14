@@ -1,9 +1,11 @@
 fork = true
-neovim-bin = "/home/and-rs/.local/share/bob/v0.12.0/bin/nvim"
+neovim-bin = "/home/and-rs/.local/share/bob/v0.12.0/bin/nv"
+
+[font]
+size = 14
 
 [font.normal]
-family = "Commit Mono"
-size = 14
+family = "Input"
 
 [box-drawing]
 mode = "native"

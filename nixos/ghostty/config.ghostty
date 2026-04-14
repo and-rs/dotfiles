@@ -13,6 +13,8 @@ gtk-single-instance = true
 alpha-blending = native
 
 custom-shader = ./shaders/text.glsl
+custom-shader = ./shaders/blue_crt.glsl
+# Enabling this increases cpu usage by quite a bit
 custom-shader-animation = false
 
 #--- KEYBINDS ---#
@@ -32,11 +34,9 @@ keybind = alt+v=paste_from_clipboard
 keybind = alt+shift+,=reload_config
 
 adjust-icon-height = 8
-adjust-cell-height = 6
-adjust-font-baseline = -2
 adjust-cursor-thickness = 3
-adjust-underline-position = 10
 adjust-underline-thickness = 1
+adjust-underline-position = 6
 
 freetype-load-flags = false
 # freetype-load-flags = force-autohint

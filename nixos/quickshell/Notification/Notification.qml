@@ -74,7 +74,6 @@ Scope {
 
         height: isExpanded ? contentHeight : count > 0 ? firstHeight + Math.min(count - 1, maxStacked) * stackTailHeight : 0
         spacing: isExpanded ? Config.spacing.normal : 0
-        opacity: isExpanded ? 1.0 : collapsedStackOpacity
 
         Behavior on spacing {
           NumberAnimation {
@@ -83,22 +82,7 @@ Scope {
           }
         }
 
-        Behavior on opacity {
-          NumberAnimation {
-            duration: root.animDuration
-            easing.type: root.animEasing
-          }
-        }
-
         add: Transition {
-          NumberAnimation {
-            property: "opacity"
-            from: 0
-            to: 1
-            duration: root.animDuration
-            easing.type: root.animEasing
-          }
-
           NumberAnimation {
             property: "x"
             from: 20
@@ -109,13 +93,6 @@ Scope {
         }
 
         remove: Transition {
-          NumberAnimation {
-            property: "opacity"
-            to: 0
-            duration: root.animDuration
-            easing.type: root.animEasing
-          }
-
           NumberAnimation {
             property: "scale"
             to: 0.92
@@ -183,17 +160,9 @@ Scope {
             onDismissRequested: server.dismiss(wrapper.cardModel.id)
 
             scale: isExpanded ? 1.0 : Math.max(0.85, 1.0 - index * 0.05)
-            opacity: isExpanded ? 1.0 : index <= listView.maxStacked ? 1.0 - index * 0.1 : 0.0
             transformOrigin: Item.Bottom
 
             Behavior on scale {
-              NumberAnimation {
-                duration: root.animDuration
-                easing.type: root.animEasing
-              }
-            }
-
-            Behavior on opacity {
               NumberAnimation {
                 duration: root.animDuration
                 easing.type: root.animEasing

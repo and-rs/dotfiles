@@ -110,6 +110,18 @@ window-rule {
     geometry-corner-radius 6
     draw-border-with-background false
 }
+// custom terminal launcher
+window-rule {
+    match app-id="launcher"
+    default-column-width {
+        proportion 0.4
+    }
+    default-window-height {
+        fixed 400
+    }
+    open-floating true
+    open-focused true
+}
 // This is for tkinter with python native dialogs
 window-rule {
     match app-id="TkFDialog"

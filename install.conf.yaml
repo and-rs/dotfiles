@@ -39,6 +39,7 @@
     ~/.config/hypr: nixos/hypr
     ~/.config/rofi: nixos/rofi
     ~/.config/niri: nixos/niri
+    ~/.config/launcher: common/launcher
     ~/.config/quickshell: nixos/quickshell
     ~/.config/kitty/kitty.conf: nixos/kitty/kitty.conf
     ~/.config/ghostty/config.ghostty: nixos/ghostty/config.ghostty
