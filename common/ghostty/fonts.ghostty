@@ -1,5 +1,4 @@
 font-size = 15
-adjust-cell-height = 6
 adjust-font-baseline = 1
 
 font-feature = -liga
@@ -17,9 +16,16 @@ font-style-bold = Regular
 font-style-italic = Regular
 font-style-bold-italic = Regular
 font-codepoint-map = U+0024=Hermit
+adjust-underline-thickness = 1
+adjust-underline-position = 6
 adjust-box-thickness = 2
+adjust-cell-height = 6
 
 #font-family = Input
+#adjust-cell-height = 8
+#adjust-underline-position = 9
+#adjust-underline-thickness = 0
+
 #font-family = CommitMono
 #font-family = Hermit
 

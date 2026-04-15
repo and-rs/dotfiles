@@ -3,7 +3,7 @@
 
 [core]
   pager = delta
-  editor = bob run 0.12.0
+  editor = bob run 0.12.1
 
 [interactive]
   diffFilter = delta --color-only
@@ -22,7 +22,7 @@
 	tool = vscode-diff
 
 [mergetool "vscode-diff"]
-	cmd = bob run 0.12.0 \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
+	cmd = bob run 0.12.1 \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
 
 [user]
   name = "and-rs"

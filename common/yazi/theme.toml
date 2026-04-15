@@ -63,4 +63,6 @@ globs = []
 dirs  = []
 files = []
 exts  = []
-conds = []
+conds = [
+  { if = "dir", text = ">" }
+]

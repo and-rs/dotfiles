@@ -1,6 +1,6 @@
-const float SHADOW_CRUSH = 3.0;
-const float HIGHLIGHT_ROLL = 2.0;
-const float MIDPOINT = 0.2;
+const float SHADOW_CRUSH = 2.0;
+const float HIGHLIGHT_ROLL = 4.8;
+const float MIDPOINT = 0.35;
 
 const float BRIGHTNESS = 1.7;
 
