@@ -10,6 +10,7 @@ Rectangle {
 
   required property PanelWindow window
   readonly property bool hasItems: trayItem.itemCount > 0
+  readonly property bool popupVisible: window.activePopup === "tray"
 
   MaterialIcon {
     id: trayIcon
@@ -18,44 +19,21 @@ Rectangle {
     iconSize: 18
   }
 
-  PopupWindow {
-    id: overlay
-    anchor.window: trayRect.window
-    implicitWidth: screen.width
-    implicitHeight: screen.height
-    visible: popupVisible
-    color: "transparent"
-
-    Item {
-      id: popupHole
-      x: trayPopup.anchor.rect.x
-      y: trayPopup.anchor.rect.y
-      width: trayPopup.width
-      height: trayPopup.height
-    }
-
-    mask: Region {
-      item: popupHole
-      intersection: Intersection.Xor
-    }
-
-    MouseArea {
-      anchors.fill: parent
-      onClicked: popupVisible = false
-    }
-  }
-
   MouseArea {
     anchors.fill: parent
     onClicked: if (hasItems)
-      popupVisible = !popupVisible
+      window.switchPopup("tray")
   }
-
-  property bool popupVisible: false
 
   PopupWindow {
     id: trayPopup
     anchor.window: trayRect.window
+    grabFocus: true
+
+    onVisibleChanged: {
+      if (!visible && window.activePopup === "tray")
+        window.activePopup = "";
+    }
 
     anchor.rect.x: {
       window.width; // idk why this works this way but we need to reference
@@ -67,7 +45,7 @@ Rectangle {
 
     implicitWidth: trayItem.rowWidth + 8
     implicitHeight: trayRect.width + 2
-    visible: popupVisible || trayItem.opacity > 0
+    visible: popupVisible
     color: "transparent"
 
     TrayItem {

@@ -12,6 +12,30 @@ Scope {
     PanelWindow {
       id: main
       required property var modelData
+      property string activePopup: ""
+      property string _pendingPopup: ""
+
+      function switchPopup(id) {
+        if (activePopup === id) {
+          activePopup = "";
+          return;
+        }
+        if (activePopup !== "") {
+          _pendingPopup = id;
+          activePopup = "";
+        } else {
+          activePopup = id;
+        }
+      }
+
+      Timer {
+        interval: 50
+        running: main._pendingPopup !== ""
+        onTriggered: {
+          main.activePopup = main._pendingPopup;
+          main._pendingPopup = "";
+        }
+      }
 
       screen: modelData
       aboveWindows: true
@@ -64,6 +88,20 @@ Scope {
           }
           Caffeine {
             id: caffeine
+            window: main
+          }
+          Rectangle {
+            width: 2
+            height: parent.height * 0.5
+            color: Config.colors.muted
+            anchors.verticalCenter: parent.verticalCenter
+          }
+          Bluetooth {
+            id: bt
+            window: main
+          }
+          Network {
+            id: network
             window: main
           }
         }
