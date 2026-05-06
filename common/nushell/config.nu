@@ -71,6 +71,7 @@ export-env {
 
 source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
+source nushelter/copilot.nu
 source nushelter/aichat.nu
 source nushelter/utils.nu
 source nushelter/data.nu
