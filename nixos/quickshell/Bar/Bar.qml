@@ -90,6 +90,10 @@ Scope {
             id: caffeine
             window: main
           }
+          LockButton {
+            id: lockButton
+            window: main
+          }
           Rectangle {
             width: 2
             height: parent.height * 0.5
