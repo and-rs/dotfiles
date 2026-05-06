@@ -112,13 +112,13 @@ Scope {
 
     function adjustBrightness(step: string): void {
       osdScope.mode = "brightness";
-      osdExec.command = ["sh", "-c", "brightnessctl set " + step + " -q && brightnessctl -m | awk -F, '{print substr($4, 1, length($4)-1)}'"];
+      osdExec.command = ["sh", "-c", "brightnessctl set " + step + " -q && brightnessctl -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
       osdExec.running = true;
     }
 
     function adjustKbdBrightness(step: string): void {
       osdScope.mode = "kbd";
-      osdExec.command = ["sh", "-c", "brightnessctl -d asus::kbd_backlight set " + step + " -q && brightnessctl -d asus::kbd_backlight -m | awk -F, '{print substr($4, 1, length($4)-1)}'"];
+      osdExec.command = ["sh", "-c", "brightnessctl -d asus::kbd_backlight set " + step + " -q && brightnessctl -d asus::kbd_backlight -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
       osdExec.running = true;
     }
   }

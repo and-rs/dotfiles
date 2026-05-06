@@ -5,6 +5,17 @@ Row {
   spacing: Config.spacing.extraSmall - 2
   anchors.verticalCenter: parent.verticalCenter
 
+  // Incremented on windows model changes to trigger binding re-evaluation
+  property int windowsRevision: 0
+
+  Connections {
+    target: NiriService.instance.windows
+    function onDataChanged() { windowsRevision++; }
+    function onRowsInserted() { windowsRevision++; }
+    function onRowsRemoved() { windowsRevision++; }
+    function onModelReset() { windowsRevision++; }
+  }
+
   function isWorkspaceEmpty(workspaceId: int): bool {
     for (let i = 0; i < NiriService.instance.windows.count; i++) {
       let item = NiriService.instance.windows.data(NiriService.instance.windows.index(i, 0), Qt.UserRole + 5);
@@ -15,14 +26,6 @@ Row {
     return true;
   }
 
-  function updateWorkspaceVisuals(rect: Rectangle, model: QtObject) {
-    rect.color = rect.updateColors();
-    rect.border.color = rect.updateBorderColor();
-    if (rect.workspaceText) {
-      rect.workspaceText.color = rect.updateTextColor();
-    }
-  }
-
   Repeater {
     id: repeater
     model: NiriService.instance.workspaces
@@ -30,9 +33,18 @@ Row {
     delegate: Rectangle {
       id: rect
 
-      property Text workspaceText: textItem
+      // Reference windowsRevision to re-evaluate when windows change
+      readonly property bool empty: { windowsRevision; return isWorkspaceEmpty(model.id); }
 
-      gradient: Gradient {
+      gradient: model.isFocused && !empty ? grad : null
+      color: model.isFocused && !empty ? "transparent" : empty ? Config.colors.dim : Config.colors.muted
+      border.color: model.isFocused ? Config.colors.primary : empty ? Config.colors.dim : Config.colors.muted
+      border.width: 2
+      height: Config.sizes.extraLarge
+      radius: Config.radius.small
+      width: model.isFocused ? 52 : Config.sizes.extraLarge
+
+      Gradient {
         id: grad
         orientation: Gradient.Vertical
         GradientStop {
@@ -45,31 +57,6 @@ Row {
         }
       }
 
-      color: updateColors()
-      border.color: updateBorderColor()
-
-      function updateColors() {
-        if (model.isFocused && !isWorkspaceEmpty(model.id)) {
-          rect.gradient = grad;
-          return "transparent";
-        }
-        rect.gradient = null;
-        return isWorkspaceEmpty(model.id) ? Config.colors.dim : Config.colors.muted;
-      }
-
-      function updateBorderColor() {
-        return model.isFocused ? Config.colors.primary : isWorkspaceEmpty(model.id) ? Config.colors.dim : Config.colors.muted;
-      }
-
-      function updateTextColor() {
-        return isWorkspaceEmpty(model.id) ? Config.colors.accent : Config.colors.fg;
-      }
-
-      border.width: 2
-      height: Config.sizes.extraLarge
-      radius: Config.radius.small
-      width: model.isFocused ? 52 : Config.sizes.extraLarge
-
       Behavior on width {
         NumberAnimation {
           duration: Config.durations.normal
@@ -79,7 +66,7 @@ Row {
 
       Text {
         id: textItem
-        color: rect.updateTextColor()
+        color: rect.empty ? Config.colors.accent : Config.colors.fg
         anchors.centerIn: parent
         text: model.index
         font.weight: model.isFocused ? 700 : 500
@@ -90,35 +77,6 @@ Row {
         anchors.fill: parent
         onClicked: NiriService.instance.focusWorkspaceById(model.id)
         cursorShape: Qt.PointingHandCursor
-      }
-
-      Connections {
-        target: NiriService.instance.windows
-
-        function onDataChanged() {
-          updateWorkspaceVisuals(rect, model);
-        }
-
-        function onRowsInserted() {
-          updateWorkspaceVisuals(rect, model);
-        }
-
-        function onRowsRemoved() {
-          updateWorkspaceVisuals(rect, model);
-        }
-
-        function onModelReset() {
-          updateWorkspaceVisuals(rect, model);
-        }
-      }
-
-      Connections {
-        target: model
-
-        function onIsFocusedChanged() {
-          rect.color = rect.updateColors();
-          rect.border.color = rect.updateBorderColor();
-        }
       }
     }
   }

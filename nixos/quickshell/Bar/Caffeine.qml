@@ -20,7 +20,7 @@ Rectangle {
   }
 
   MouseArea {
-    anchors.fill: caffeine
+    anchors.fill: parent
     onClicked: {
       caffeine.isActive = !isActive;
     }
@@ -29,9 +29,26 @@ Rectangle {
   Process {
     id: cmd
     running: caffeine.isActive
-    command: ["sh", "-c", "systemd-inhibit --what=idle:sleep --why=no-sleep sleep infinity"]
-    stdout: StdioCollector {
-      onStreamFinished: console.log(">>> Not inhibiting anymore")
+    command: ["systemd-inhibit", "--what=idle:sleep", "--why=Caffeine", "sleep", "infinity"]
+
+    onRunningChanged: {
+      if (running)
+        console.log("[Caffeine] inhibitor started");
+      else
+        console.log("[Caffeine] inhibitor process stopped");
+    }
+
+    onExited: (code, status) => {
+      console.log("[Caffeine] exited code=" + code + " status=" + status);
+      if (caffeine.isActive && code !== 0)
+        caffeine.isActive = false;
+    }
+
+    stderr: StdioCollector {
+      onStreamFinished: {
+        if (this.text.trim())
+          console.warn("[Caffeine] stderr: " + this.text.trim());
+      }
     }
   }
 }

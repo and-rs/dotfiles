@@ -55,64 +55,10 @@ Rectangle {
     onClicked: window.switchPopup("bluetooth")
   }
 
-  PopupWindow {
-    id: btPopup
-    anchor.window: bluetooth.window
-    grabFocus: true
-
-    anchor.rect.x: {
-      window.width;
-      bluetooth.width;
-      var pos = bluetooth.mapToItem(window.contentItem, 0, 0);
-      return pos.x - (width / 2) + (bluetooth.width / 2);
-    }
-    anchor.rect.y: window.height + 6
-
-    implicitWidth: 240
-    implicitHeight: popupColumn.implicitHeight + Config.padding.large * 2
-    visible: popupVisible
-    color: "transparent"
-
-    onVisibleChanged: {
-      if (!visible && window.activePopup === "bluetooth")
-        window.activePopup = "";
-    }
-
-    Item {
-      id: btContent
-      anchors.fill: parent
-      opacity: 0
-
-      states: State {
-        name: "visible"
-        when: popupVisible
-        PropertyChanges { target: btContent; opacity: 1 }
-      }
-
-      transitions: Transition {
-        to: "visible"
-        NumberAnimation {
-          property: "opacity"
-          duration: Config.durations.fast
-          easing.type: Config.curves.standard
-        }
-      }
-
-      Rectangle {
-        anchors.fill: parent
-        color: Config.colors.bg
-        border.color: Config.colors.accent
-        border.width: 2
-        radius: Config.radius.normal
-      }
-
-      Column {
-        id: popupColumn
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: Config.padding.large
-        spacing: Config.spacing.small
+  PopupPanel {
+    anchor_item: bluetooth
+    window: bluetooth.window
+    popupVisible: bluetooth.popupVisible
 
       // Header
       Text {
@@ -401,8 +347,6 @@ Rectangle {
         color: Config.colors.bright
         font.pointSize: 9
       }
-    }
-    }
   }
 
   Process {

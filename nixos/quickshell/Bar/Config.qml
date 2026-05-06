@@ -12,8 +12,15 @@ Singleton {
   property QtObject padding
   property QtObject sizes
   property QtObject durations
+  property QtObject popup
   property QtObject transparency
   property QtObject curves
+
+  popup: QtObject {
+    property int width: 240
+    property int gap: 6
+    property int borderWidth: 2
+  }
 
   // lightmode
   // colors: QtObject {

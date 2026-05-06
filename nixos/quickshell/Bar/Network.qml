@@ -75,64 +75,10 @@ Rectangle {
     onClicked: window.switchPopup("network")
   }
 
-  PopupWindow {
-    id: networkPopup
-    anchor.window: network.window
-    grabFocus: true
-
-    onVisibleChanged: {
-      if (!visible && window.activePopup === "network")
-        window.activePopup = "";
-    }
-
-    anchor.rect.x: {
-      window.width;
-      network.width;
-      var pos = network.mapToItem(window.contentItem, 0, 0);
-      return pos.x - (width / 2) + (network.width / 2);
-    }
-    anchor.rect.y: window.height + 6
-
-    implicitWidth: 240
-    implicitHeight: popupColumn.implicitHeight + Config.padding.large * 2
-    visible: popupVisible
-    color: "transparent"
-
-    Item {
-      id: netContent
-      anchors.fill: parent
-      opacity: 0
-
-      states: State {
-        name: "visible"
-        when: popupVisible
-        PropertyChanges { target: netContent; opacity: 1 }
-      }
-
-      transitions: Transition {
-        to: "visible"
-        NumberAnimation {
-          property: "opacity"
-          duration: Config.durations.fast
-          easing.type: Config.curves.standard
-        }
-      }
-
-      Rectangle {
-        anchors.fill: parent
-        color: Config.colors.bg
-        border.color: Config.colors.accent
-        border.width: 2
-        radius: Config.radius.normal
-      }
-
-      Column {
-        id: popupColumn
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: Config.padding.large
-        spacing: Config.spacing.small
+  PopupPanel {
+    anchor_item: network
+    window: network.window
+    popupVisible: network.popupVisible
 
       // Header
       Text {
@@ -333,7 +279,5 @@ Rectangle {
         color: Config.colors.bright
         font.pointSize: 9
       }
-      }
-    }
   }
 }

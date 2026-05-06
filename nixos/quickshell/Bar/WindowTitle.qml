@@ -7,20 +7,15 @@ Row {
   anchors.verticalCenter: parent.verticalCenter
   property var focusedWindow: NiriService.instance.focusedWindow
 
-  function elide(str, len): string {
-    if (!str)
-      return "";
-    if (str.length > len)
-      return str.slice(0, len) + "...";
-    return str;
-  }
-
   Text {
-    text: root.elide(focusedWindow ? focusedWindow.title : "", 28)
+    text: focusedWindow ? focusedWindow.title : ""
     anchors.verticalCenter: parent.verticalCenter
     color: Config.colors.fg
     font.pointSize: 10
     font.weight: 500
+    elide: Text.ElideRight
+    maximumLineCount: 1
+    width: Math.min(implicitWidth, 250)
   }
 
   Text {

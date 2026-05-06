@@ -4,6 +4,7 @@ import QtQuick
 import qs.Bar
 import qs.Notification
 import qs.Osd
+import qs.Lock
 
 Scope {
   property int height: 32
@@ -15,4 +16,5 @@ Scope {
   Notification {
     mainHeight: height
   }
+  Lock {}
 }

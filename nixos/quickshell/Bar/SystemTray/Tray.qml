@@ -25,32 +25,33 @@ Rectangle {
       window.switchPopup("tray")
   }
 
-  PopupWindow {
-    id: trayPopup
-    anchor.window: trayRect.window
-    grabFocus: true
+  onPopupVisibleChanged: {
+    if (!popupVisible)
+      trayItem.expandedIndex = -1;
+  }
 
-    onVisibleChanged: {
-      if (!visible && window.activePopup === "tray")
-        window.activePopup = "";
+  PopupPanel {
+    anchor_item: trayRect
+    window: trayRect.window
+    popupVisible: trayRect.popupVisible
+
+    // Header
+    Text {
+      text: "System Tray"
+      color: Config.colors.fg
+      font.pointSize: 10
+      font.weight: 700
     }
 
-    anchor.rect.x: {
-      window.width; // idk why this works this way but we need to reference
-      trayRect.width;
-      var pos = trayRect.mapToItem(window.contentItem, 0, 0);
-      return pos.x - (width / 2) + (trayRect.width / 2);
+    Rectangle {
+      width: parent.width
+      height: 1
+      color: Config.colors.muted
     }
-    anchor.rect.y: window.height + 6
-
-    implicitWidth: trayItem.rowWidth + 8
-    implicitHeight: trayRect.width + 2
-    visible: popupVisible
-    color: "transparent"
 
     TrayItem {
       id: trayItem
-      popupVisible: trayRect.popupVisible
+      width: parent.width
     }
   }
 }

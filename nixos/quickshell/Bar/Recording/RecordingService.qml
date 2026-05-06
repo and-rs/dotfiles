@@ -5,7 +5,14 @@ import Quickshell.Io
 Scope {
   id: root
 
-  property int status: 0
+  // Status constants
+  readonly property int statusIdle: 0
+  readonly property int statusSelect: 1
+  readonly property int statusRecording: 2
+  readonly property int statusCompressPrompt: 3
+  readonly property int statusSaving: 4
+
+  property int status: statusIdle
   property int elapsedSeconds: 0
   property string currentFile: ""
   readonly property string homeDir: Quickshell.env("HOME") ?? "/tmp"
@@ -17,9 +24,9 @@ Scope {
   }
 
   function start() {
-    if (status !== 0)
+    if (status !== statusIdle)
       return;
-    status = 1;
+    status = statusSelect;
     Quickshell.execDetached({
       command: ["sh", "-c", "rm -f /tmp/qs_geo; slurp -b 00000055 -c ff0000 > /tmp/qs_geo || true"]
     });
@@ -27,7 +34,7 @@ Scope {
   }
 
   function stop() {
-    if (status === 2) {
+    if (status === statusRecording) {
       recProc.running = false;
       Quickshell.execDetached({
         command: ["pkill", "-INT", "-x", "wf-recorder"]
@@ -36,14 +43,14 @@ Scope {
   }
 
   function compress() {
-    if (status === 3) {
-      status = 4;
+    if (status === statusCompressPrompt) {
+      status = statusSaving;
       ffmpegProc.running = true;
     }
   }
 
   function dismiss() {
-    status = 0;
+    status = statusIdle;
     elapsedSeconds = 0;
     slurpWatcher.running = false;
     readGeoProc.running = false;
@@ -52,33 +59,33 @@ Scope {
   }
 
   function handlePrimaryAction() {
-    if (status === 0)
+    if (status === statusIdle)
       start();
-    else if (status === 2)
+    else if (status === statusRecording)
       stop();
-    else if (status === 3)
+    else if (status === statusCompressPrompt)
       compress();
   }
 
   function handleSecondaryAction() {
-    if (status === 3)
+    if (status === statusCompressPrompt)
       dismiss();
   }
 
   Timer {
     interval: 1000
     repeat: true
-    running: root.status === 2
+    running: root.status === root.statusRecording
     onTriggered: root.elapsedSeconds++
   }
 
   IpcHandler {
     target: "recorder"
     function toggle() {
-      if (root.status === 2) {
+      if (root.status === root.statusRecording) {
         root.stop();
       } else {
-        if (root.status !== 0)
+        if (root.status !== root.statusIdle)
           root.dismiss();
         root.start();
       }
@@ -100,11 +107,11 @@ Scope {
         if (geo && geo.length > 0) {
           root.currentFile = root.homeDir + "/recording_" + root.getTimestamp() + ".mp4";
           recProc.command = ["wf-recorder", "-y", "-g", geo, "-c", "libx264rgb", "-p", "crf=18", "-p", "preset=veryfast", "--file=" + root.currentFile];
-          root.status = 2;
+          root.status = root.statusRecording;
           root.elapsedSeconds = 0;
           recProc.running = true;
         } else {
-          root.status = 0;
+          root.status = root.statusIdle;
         }
       }
     }
@@ -113,8 +120,8 @@ Scope {
   Process {
     id: recProc
     onExited: code => {
-      if (root.status === 2) {
-        root.status = (code === 0 || code === 255 || code === 2 || code === -15) ? 3 : 0;
+      if (root.status === root.statusRecording) {
+        root.status = (code === 0 || code === 255 || code === 2 || code === -15) ? root.statusCompressPrompt : root.statusIdle;
       }
     }
     stderr: StdioCollector {
@@ -126,7 +133,7 @@ Scope {
     id: ffmpegProc
     command: ["ffmpeg", "-y", "-i", root.currentFile, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22", "-preset", "fast", root.currentFile.slice(0, -4) + "_web.mp4"]
     onExited: code => {
-      root.status = 0;
+      root.status = root.statusIdle;
       root.elapsedSeconds = 0;
     }
     stderr: StdioCollector {

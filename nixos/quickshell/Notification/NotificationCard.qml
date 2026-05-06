@@ -81,14 +81,12 @@ Rectangle {
 
         Text {
           width: parent.width
-          text: {
-            let s = root.notification?.summary || "";
-            return s.length > 30 ? s.substring(0, 25) + "..." : s;
-          }
+          text: root.notification?.summary || ""
           font.pixelSize: Config.sizes.normal
           font.weight: Font.Medium
           color: Config.colors.fg
           elide: Text.ElideRight
+          maximumLineCount: 1
         }
       }
     }

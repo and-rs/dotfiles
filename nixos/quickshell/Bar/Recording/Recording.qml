@@ -12,25 +12,20 @@ Row {
     id: svc
   }
 
-  visible: svc.status !== 0
-
-  readonly property int status_select: 1
-  readonly property int status_recording: 2
-  readonly property int status_compress_prompt: 3
-  readonly property int status_saving: 4
+  visible: svc.status !== svc.statusIdle
 
   readonly property var statusColors: ({
-      [status_select]: Config.colors.fg,
-      [status_recording]: Config.colors.light_red,
-      [status_compress_prompt]: Config.colors.secondary,
-      [status_saving]: Config.colors.primary
+      [svc.statusSelect]: Config.colors.fg,
+      [svc.statusRecording]: Config.colors.light_red,
+      [svc.statusCompressPrompt]: Config.colors.secondary,
+      [svc.statusSaving]: Config.colors.primary
     })
 
   readonly property var statusIcons: ({
-      [status_select]: 0xE69C,
-      [status_recording]: 0xE3EE,
-      [status_compress_prompt]: 0xEB2A,
-      [status_saving]: 0xE6B6
+      [svc.statusSelect]: 0xE69C,
+      [svc.statusRecording]: 0xE3EE,
+      [svc.statusCompressPrompt]: 0xEB2A,
+      [svc.statusSaving]: 0xE6B6
     })
 
   readonly property color stateColor: statusColors[svc.status] || Config.colors.fg
@@ -38,17 +33,17 @@ Row {
 
   readonly property string statusText: {
     switch (svc.status) {
-    case status_select:
+    case svc.statusSelect:
       return "Select";
-    case status_recording:
+    case svc.statusRecording:
       {
         const m = Math.floor(svc.elapsedSeconds / 60).toString().padStart(2, "0");
         const s = (svc.elapsedSeconds % 60).toString().padStart(2, "0");
         return m + ":" + s;
       }
-    case status_compress_prompt:
+    case svc.statusCompressPrompt:
       return "Compress?";
-    case status_saving:
+    case svc.statusSaving:
       return "Saving...";
     default:
       return "";
@@ -69,7 +64,7 @@ Row {
       iconColor: recordingRoot.stateColor
 
       SequentialAnimation on opacity {
-        running: svc.status === status_recording
+        running: svc.status === svc.statusRecording
         loops: Animation.Infinite
         NumberAnimation {
           to: 0.5
@@ -122,7 +117,7 @@ Row {
 
       Rectangle {
         id: savingBackground
-        visible: svc.status === status_saving
+        visible: svc.status === svc.statusSaving
         anchors.fill: parent
         radius: parent.radius
         color: recordingRoot.stateColor
@@ -131,7 +126,7 @@ Row {
 
       Item {
         id: shimmerLayer
-        visible: svc.status === status_saving
+        visible: svc.status === svc.statusSaving
         anchors.fill: parent
 
         layer.enabled: true
@@ -165,7 +160,7 @@ Row {
           }
 
           PropertyAnimation on x {
-            running: svc.status === status_saving
+            running: svc.status === svc.statusSaving
             loops: Animation.Infinite
             from: -shimmerScan.width
             to: shell.width + shimmerScan.width
