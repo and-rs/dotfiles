@@ -42,8 +42,10 @@
     ~/.config/launcher: common/launcher
     ~/.config/quickshell: nixos/quickshell
     ~/.config/kitty/kitty.conf: nixos/kitty/kitty.conf
+    ~/.config/xremap/config.yaml: nixos/xremap/config.yaml
     ~/.config/ghostty/config.ghostty: nixos/ghostty/config.ghostty
     ~/.config/alacritty/alacritty.toml: nixos/alacritty/alacritty.toml
+    ~/.config/xdg-desktop-portal/niri-portals.conf: nixos/xdg-desktop-portal/niri-portals.conf
 - defaults:
     link:
       relink: true

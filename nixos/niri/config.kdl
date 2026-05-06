@@ -1,7 +1,9 @@
-spawn-at-startup "awww-daemon"
-spawn-sh-at-startup "$HOME/.config/quickshell/launch.sh"
+// spawn-at-startup "awww-daemon"
+
 spawn-at-startup "hypridle"
-spawn-at-startup "xrdb -merge ~/.Xresources"
+spawn-sh-at-startup "globalprotect launch-ui"
+spawn-sh-at-startup "sudo /usr/local/bin/xremap-niri"
+spawn-sh-at-startup "~/.config/quickshell/launch.sh"
 screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 // no decorations
 prefer-no-csd
@@ -22,6 +24,7 @@ hotkey-overlay {
     hide-not-bound
 }
 environment {
+    WAYLAND_DISPLAY "wayland-1"
     QT_QPA_PLATFORM "wayland"
     QT_QPA_PLATFORMTHEME "qt6ct"
     QT_AUTO_SCREEN_SCALE_FACTOR "0"
@@ -30,8 +33,6 @@ environment {
     QT_WAYLAND_FORCE_DPI "100"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
     PROTON_ENABLE_WAYLAND "1"
-    DISPLAY ":0"
-    WAYLAND "1"
 }
 cursor {
     xcursor-theme "macOS"
@@ -50,11 +51,10 @@ input {
     }
     touchpad {
         tap
-        dwt
         drag-lock
         accel-speed 0.1
         accel-profile "flat"
-        scroll-factor 0.1
+        scroll-factor 0.08
         // natural-scroll
         middle-emulation
         click-method "clickfinger"
@@ -103,6 +103,13 @@ workspace "1"
 workspace "2"
 workspace "3"
 workspace "4"
+// globalprotect
+window-rule {
+    match app-id="PanGPUI"
+    open-floating true
+    open-focused true
+}
+// general
 window-rule {
     open-maximized true
     open-focused true
@@ -110,7 +117,17 @@ window-rule {
     geometry-corner-radius 6
     draw-border-with-background false
 }
-// custom terminal launcher
+// windows without an app id
+window-rule {
+    match app-id="^$"
+    border {
+        off
+    }
+    focus-ring {
+        off
+    }
+}
+// custom terminal launcher (testing)
 window-rule {
     match app-id="launcher"
     default-column-width {
@@ -177,6 +194,7 @@ window-rule {
     match app-id="spotify"
     match app-id="zen-beta"
     match app-id="google-chrome"
+    match app-id="microsoft-edge"
     open-on-workspace "2"
 }
 window-rule {
@@ -263,13 +281,13 @@ binds {
         screenshot-window
     }
     Mod+Space repeat=false {
-        spawn "~/.config/rofi/launch-rofi.sh"
+        spawn-sh "rofi -modes run,window,calc -show run"
     }
     Mod+Super+L repeat=false {
-        spawn "hyprlock"
+        spawn-sh "quickshell ipc call lock lock"
     }
     Mod+Return repeat=false {
-        spawn "ghostty"
+        spawn "alacritty"
     }
     Mod+Q {
         close-window

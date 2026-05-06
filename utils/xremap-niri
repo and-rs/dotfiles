@@ -1,0 +1,3 @@
+#!/bin/sh
+exec /nix/store/9ad43sfqdy7pnr047pqc764lrkf4igkd-xremap-wlroots-0.15.2/bin/xremap \
+  /home/jbautista/.config/xremap/config.yaml

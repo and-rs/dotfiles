@@ -8,39 +8,39 @@ font-thicken = false
 font-synthetic-style = false
 
 # always use TTF version
-font-family = OCR-X TTF
-font-feature = +ss02
-font-feature = +ss04
-font-feature = +ss03
-font-style-bold = Regular
-font-style-italic = Regular
-font-style-bold-italic = Regular
-font-codepoint-map = U+0024=Hermit
-adjust-underline-thickness = 1
-adjust-underline-position = 6
-adjust-box-thickness = 2
-adjust-cell-height = 6
+# font-family = OCR-X TTF
+# font-feature = +ss02
+# font-feature = +ss04
+# font-feature = +ss03
+# font-style-bold = Regular
+# font-style-italic = Regular
+# font-style-bold-italic = Regular
+# font-codepoint-map = U+0024=Hermit
+# adjust-underline-thickness = 1
+# adjust-underline-position = 6
+# adjust-box-thickness = 2
+# adjust-cell-height = 6
 
-#font-family = Input
-#adjust-cell-height = 8
-#adjust-underline-position = 9
-#adjust-underline-thickness = 0
+# font-family = Input
+# adjust-cell-height = 8
+# adjust-underline-position = 9
+# adjust-underline-thickness = 0
 
-#font-family = CommitMono
-#font-family = Hermit
+# font-family = CommitMono
+# font-family = Hermit
 
-#font-family = Rec Mono Linear
-#font-family-bold = Rec Mono Linear
-#font-family-italic = Rec Mono Casual
-#font-family-bold-italic = Rec Mono Casual
-#font-style-bold = Bold
-#font-style-italic = Italic
-#font-style-bold-italic = Bold Italic
+# font-family = Rec Mono Linear
+# font-family-bold = Rec Mono Linear
+# font-family-italic = Rec Mono Casual
+# font-family-bold-italic = Rec Mono Casual
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic
 
-#font-family = Monaspace Neon
-#font-family-bold = Monaspace Neon
-#font-family-italic = Monaspace Argon
-#font-family-bold-italic = Monaspace Argon
-#font-style-bold = Bold
-#font-style-italic = Italic
-#font-style-bold-italic = Bold Italic
+# font-family = Monaspace Neon
+# font-family-bold = Monaspace Neon
+# font-family-italic = Monaspace Argon
+# font-family-bold-italic = Monaspace Argon
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic

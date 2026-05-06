@@ -1,0 +1,86 @@
+modmap:
+  - name: caps_ctrl
+    remap:
+      capslock: ctrl_l
+
+keymap:
+  - name: post_select_all_backspace
+    mode: [post_select_all]
+    remap:
+      alt_l-backspace:
+        - backspace
+        - set_mode: default
+      backspace:
+        - backspace
+        - set_mode: default
+
+  - name: better_chrome_search
+    application:
+      only:
+        - helium
+        - firefox
+        - google-chrome
+        - microsoft-edge
+    remap:
+      alt_l-i: F6
+
+  - name: wheres_my_tilde
+    remap:
+      alt-apostrophe: grave
+
+  - name: emacs_macos
+    application:
+      not:
+        - com.mitchellh.ghostty
+        - steam_app_813780
+        - org.pwmt.zathura
+        - Alacritty
+        - xfreerdp
+        - launcher
+        - neovide
+        - kitty
+    remap:
+      ctrl_l-b: left
+      ctrl_l-f: right
+      ctrl_l-p: up
+      ctrl_l-n: down
+      ctrl_l-a: home
+      ctrl_l-e: end
+      ctrl_l-d: delete
+
+      ctrl_l-k:
+        - shift-end
+        - ctrl-x
+      ctrl_l-u:
+        - shift-home
+        - ctrl-x
+      alt_l-backspace:
+        - shift-home
+        - ctrl-x
+
+      super-ctrl-b: ctrl-left
+      super-ctrl-f: ctrl-right
+      super-backspace:
+        - ctrl-backspace
+
+      alt_l-a:
+        - ctrl-a
+        - set_mode: post_select_all
+
+      alt_l-b: ctrl-b
+      alt_l-c: ctrl-c
+      alt_l-d: ctrl-d
+      alt_l-e: ctrl-e
+      alt_l-f: ctrl-f
+      alt_l-m: ctrl-m
+      alt_l-n: ctrl-n
+      alt_l-o: ctrl-o
+      alt_l-p: ctrl-p
+      alt_l-r: ctrl-r
+      alt_l-t: ctrl-t
+      alt_l-v: ctrl-v
+      alt_l-w: ctrl-w
+      alt_l-x: ctrl-x
+      alt_l-y: ctrl-y
+      alt_l-z: ctrl-z
+      alt_l-i: ctrl-i

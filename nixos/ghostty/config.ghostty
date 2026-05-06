@@ -13,7 +13,7 @@ gtk-single-instance = true
 alpha-blending = native
 
 custom-shader = ./shaders/text.glsl
-custom-shader = ./shaders/blue_crt.glsl
+#custom-shader = ./shaders/blue_crt.glsl
 # Enabling this increases cpu usage by quite a bit
 custom-shader-animation = false
 

@@ -98,6 +98,16 @@ Scope {
       WlSessionLockSurface {
         color: "#141414"
 
+        // Click anywhere to recover focus
+        MouseArea {
+          anchors.fill: parent
+          onClicked: passwordField.forceActiveFocus()
+        }
+
+        Component.onCompleted: {
+          passwordField.forceActiveFocus();
+        }
+
         Timer {
           id: clockTimer
           interval: 1000
@@ -161,6 +171,11 @@ Scope {
               clip: true
               focus: true
               enabled: !lockScope.authenticating
+
+              // Re-grab focus when re-enabled after auth attempt
+              onEnabledChanged: {
+                if (enabled) forceActiveFocus();
+              }
 
               Keys.onReturnPressed: {
                 if (passwordField.text && !lockScope.authenticating) {
