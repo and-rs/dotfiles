@@ -41,6 +41,7 @@
     ~/.config/niri: nixos/niri
     ~/.config/launcher: common/launcher
     ~/.config/quickshell: nixos/quickshell
+    ~/.local/bin/xremap-niri: utils/xremap-niri
     ~/.config/kitty/kitty.conf: nixos/kitty/kitty.conf
     ~/.config/xremap/config.yaml: nixos/xremap/config.yaml
     ~/.config/ghostty/config.ghostty: nixos/ghostty/config.ghostty

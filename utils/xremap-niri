@@ -1,3 +1,53 @@
 #!/bin/sh
-exec /nix/store/9ad43sfqdy7pnr047pqc764lrkf4igkd-xremap-wlroots-0.15.2/bin/xremap \
-  /home/jbautista/.config/xremap/config.yaml
+set -eu
+
+user_name="${SUDO_USER:-${USER:-}}"
+
+if [ -z "$user_name" ]; then
+  echo "xremap-niri: could not determine target user" >&2
+  exit 1
+fi
+
+user_home="$(getent passwd "$user_name" | cut -d: -f6)"
+if [ -z "$user_home" ]; then
+  echo "xremap-niri: could not resolve home for $user_name" >&2
+  exit 1
+fi
+
+PATH="$user_home/.nix-profile/bin:/etc/profiles/per-user/$user_name/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:$PATH"
+export PATH
+
+xremap_path="$(which xremap 2>/dev/null || true)"
+if [ -z "$xremap_path" ]; then
+  echo "xremap-niri: xremap not found in PATH" >&2
+  exit 1
+fi
+
+xremap_bin="$(readlink -f "$xremap_path" 2>/dev/null || true)"
+if [ -z "$xremap_bin" ]; then
+  echo "xremap-niri: could not resolve xremap path from $xremap_path" >&2
+  exit 1
+fi
+
+config_home="${XDG_CONFIG_HOME:-$user_home/.config}"
+log_file="/tmp/xremap-niri-$user_name.log"
+pid_file="/tmp/xremap-niri-$user_name.pid"
+
+if [ -f "$pid_file" ]; then
+  existing_pid="$(cat "$pid_file" 2>/dev/null || true)"
+  if [ -n "$existing_pid" ] && kill -0 "$existing_pid" 2>/dev/null; then
+    exit 0
+  fi
+  rm -f "$pid_file"
+fi
+
+rm -f "$log_file.1"
+if [ -f "$log_file" ]; then
+  mv "$log_file" "$log_file.1"
+fi
+
+nohup "$xremap_bin" --watch=config,device "$config_home/xremap/config.yaml" \
+  >"$log_file" 2>&1 </dev/null &
+echo "$!" >"$pid_file"
+
+exit 0
