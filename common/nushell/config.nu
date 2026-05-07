@@ -38,8 +38,13 @@ export-env {
   $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary queries)
 
   $env.config.buffer_editor = null # Fallbacks to $env.EDITOR
-  $env.EDITOR = ["bob" "run" "0.12.1"]
-  $env.MANPAGER = "bob run 0.12.1 +Man!"
+  let bob_version = "0.12.2"
+  let bob_cmd = ["bob" "run" $bob_version]
+  let bob_run = $"((which bob | get path | first)) run ($bob_version)"
+  $env.EDITOR = $bob_cmd
+  $env.VISUAL = $bob_run
+  $env.SUDO_EDITOR = $bob_run
+  $env.MANPAGER = $"($bob_run) +Man!"
 
   $env.BAT_THEME = "nosyntax"
   $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"

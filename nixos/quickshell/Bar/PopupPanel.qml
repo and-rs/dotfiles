@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import qs.Bar
+import qs.Lock
 
 PopupWindow {
   id: popup
@@ -13,7 +14,7 @@ PopupWindow {
 
   grabFocus: true
   anchor.window: popup.window
-  visible: popupVisible
+  visible: popupVisible && !LockService.locked
   color: "transparent"
 
   implicitWidth: Config.popup.width

@@ -12,9 +12,8 @@ Rectangle {
   required property PanelWindow window
 
   MaterialIcon {
-    code: 0xE306
-    iconColor: Config.colors.fg
-    iconSize: 16
+    code: 0xE308
+    iconColor: Config.colors.bright
   }
 
   MouseArea {

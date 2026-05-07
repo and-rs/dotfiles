@@ -2,7 +2,7 @@
 
 spawn-at-startup "hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"
-spawn-sh-at-startup "sudo /usr/local/bin/xremap-niri"
+spawn-sh-at-startup "sudo ~/.local/bin/xremap-niri"
 spawn-sh-at-startup "~/.config/quickshell/launch.sh"
 screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 // no decorations
@@ -415,4 +415,3 @@ animations {
         spring damping-ratio=1.0 stiffness=1500 epsilon=1e-5
     }
 }
-

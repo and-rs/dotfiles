@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import qs.Lock
 import qs.Bar.SystemTray
 import qs.Bar.Recording
 
@@ -14,8 +15,18 @@ Scope {
       required property var modelData
       property string activePopup: ""
       property string _pendingPopup: ""
+      readonly property bool popupsBlocked: LockService.locked
+
+      function closePopups() {
+        _pendingPopup = "";
+        activePopup = "";
+      }
 
       function switchPopup(id) {
+        if (popupsBlocked) {
+          closePopups();
+          return;
+        }
         if (activePopup === id) {
           activePopup = "";
           return;
@@ -28,10 +39,23 @@ Scope {
         }
       }
 
+      Connections {
+        target: LockService
+
+        function onLockedChanged() {
+          if (LockService.locked)
+            main.closePopups();
+        }
+      }
+
       Timer {
         interval: 50
-        running: main._pendingPopup !== ""
+        running: main._pendingPopup !== "" && !main.popupsBlocked
         onTriggered: {
+          if (main.popupsBlocked) {
+            main._pendingPopup = "";
+            return;
+          }
           main.activePopup = main._pendingPopup;
           main._pendingPopup = "";
         }
@@ -82,10 +106,6 @@ Scope {
           spacing: Config.spacing.small
           anchors.verticalCenter: parent.verticalCenter
           Recording {}
-          Tray {
-            id: tray
-            window: main
-          }
           Caffeine {
             id: caffeine
             window: main
@@ -99,6 +119,10 @@ Scope {
             height: parent.height * 0.5
             color: Config.colors.muted
             anchors.verticalCenter: parent.verticalCenter
+          }
+          Tray {
+            id: tray
+            window: main
           }
           Bluetooth {
             id: bt

@@ -4,7 +4,6 @@ import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 import QtQuick.Layouts
-import qs.Bar
 
 Scope {
   id: lockScope
@@ -96,16 +95,38 @@ Scope {
 
     surface: Component {
       WlSessionLockSurface {
+        id: lockSurface
         color: "#141414"
+
+        function requestPasswordFocus() {
+          focusRetryTimer.restart();
+          Qt.callLater(() => passwordField.forceActiveFocus());
+        }
 
         // Click anywhere to recover focus
         MouseArea {
           anchors.fill: parent
-          onClicked: passwordField.forceActiveFocus()
+          onClicked: lockSurface.requestPasswordFocus()
         }
 
         Component.onCompleted: {
-          passwordField.forceActiveFocus();
+          lockSurface.requestPasswordFocus();
+        }
+
+        Connections {
+          target: LockService
+
+          function onLockedChanged() {
+            if (LockService.locked)
+              lockSurface.requestPasswordFocus();
+          }
+        }
+
+        Timer {
+          id: focusRetryTimer
+          interval: 75
+          repeat: false
+          onTriggered: passwordField.forceActiveFocus()
         }
 
         Timer {
@@ -174,7 +195,7 @@ Scope {
 
               // Re-grab focus when re-enabled after auth attempt
               onEnabledChanged: {
-                if (enabled) forceActiveFocus();
+                if (enabled) lockSurface.requestPasswordFocus();
               }
 
               Keys.onReturnPressed: {
