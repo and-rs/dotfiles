@@ -1,6 +1,6 @@
-// spawn-at-startup "awww-daemon"
-
+spawn-at-startup "awww-daemon"
 spawn-at-startup "hypridle"
+
 spawn-sh-at-startup "globalprotect launch-ui"
 spawn-sh-at-startup "sudo ~/.local/bin/xremap-niri"
 spawn-sh-at-startup "~/.config/quickshell/launch.sh"
@@ -181,6 +181,15 @@ window-rule {
     }
 }
 window-rule {
+    match app-id="^Alacritty$"
+    match app-id="^kitty$"
+    match app-id="^com.mitchellh.ghostty$"
+
+    background-effect {
+        blur true
+    }
+}
+window-rule {
     match app-id="kitty"
     match app-id="Alacritty"
     match app-id="neovide"
@@ -287,7 +296,7 @@ binds {
         spawn-sh "quickshell ipc call lock lock"
     }
     Mod+Return repeat=false {
-        spawn "alacritty"
+        spawn "ghostty"
     }
     Mod+Q {
         close-window
