@@ -1,4 +1,6 @@
-def "gh gs" [] { 
+alias ai = pi
+
+def "ai gs" [] {
   let entries = (
     git status --porcelain | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' | where x != " " and x != "?" | each {|row|
       let clean_path = if ($row.path | str contains ' -> ') {
@@ -16,5 +18,13 @@ def "gh gs" [] {
     print "No staged changes."
     return
   }
-  gh copilot --model "claude-haiku-4.5" -p $"generate git commit message with previous commit style, be descriptive but keep it in short lines, DON'T use long lines per commit message line, if the command failed explain why. DON'T INCLUDE ANYTHING ELSE in the message. DON'T use any other command only the provided message \n --- (_ai_git_status)" 
+
+  let prompt = $"generate git commit message. mimic style of previous commits
+  closely. use contents of current staged diff. be descriptive but keep lines
+  short. don't use long lines per commit message line. if command failed
+  explain why. DON'T INCLUDE ANYTHING ELSE in the message. NO OPENING.
+  ---
+  (_ai_git_status)"
+
+  pi -p $prompt
 }

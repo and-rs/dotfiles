@@ -1,0 +1,14 @@
+{
+  "defaultProvider": "github-copilot",
+  "defaultThinkingLevel": "medium",
+  "collapseChangelog": true,
+  "hideThinkingBlock": true,
+  "enabledModels": [
+    "claude-*",
+    "gpt-*",
+    "gemini-*"
+  ],
+  "defaultModel": "gpt-5.4",
+  "theme": "terminal",
+  "lastChangelogVersion": "0.74.0"
+}

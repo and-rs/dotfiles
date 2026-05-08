@@ -5,6 +5,7 @@ $env.PATH ++= [
   "/run/current-system/sw/bin"
   $"($env.HOME)/zig"
   $"($env.HOME)/.local/bin"
+  $"($env.HOME)/.local/share/pi-node/current/bin"
   $"($env.HOME)/.nix-profile/bin"
   $"($env.HOME)/.config/nushell/execs"
   $"($env.HOME)/.config/nushell/forgit/helpers"
@@ -37,18 +38,31 @@ export-env {
   $env.TOPIARY_CONFIG_FILE = ($env.XDG_CONFIG_HOME | path join topiary languages.ncl)
   $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary queries)
 
-  $env.config.buffer_editor = null # Fallbacks to $env.EDITOR
   let bob_version = "0.12.2"
-  let bob_cmd = ["bob" "run" $bob_version]
-  let bob_run = $"((which bob | get path | first)) run ($bob_version)"
-  $env.EDITOR = $bob_cmd
-  $env.VISUAL = $bob_run
-  $env.SUDO_EDITOR = $bob_run
-  $env.MANPAGER = $"($bob_run) +Man!"
+  if not (which bob | is-empty) {
+    let bob_cmd = ["bob" "run" $bob_version]
+    let bob_run = $"((which bob | get path | first)) run ($bob_version)"
+    $env.config.buffer_editor = $bob_cmd
+    $env.EDITOR = $bob_run
+    $env.VISUAL = $bob_run
+    $env.SUDO_EDITOR = $bob_run
+    $env.MANPAGER = $"($bob_run) +Man!"
+  } else if not (which nvim | is-empty) {
+    $env.config.buffer_editor = "nvim"
+    $env.EDITOR = "nvim"
+    $env.VISUAL = "nvim"
+    $env.SUDO_EDITOR = "nvim"
+    $env.MANPAGER = "nvim +Man!"
+  } else {
+    $env.config.buffer_editor = "vim"
+    $env.EDITOR = "vim"
+    $env.VISUAL = "vim"
+    $env.SUDO_EDITOR = "vim"
+    $env.MANPAGER = "vim +Man!"
+  }
 
   $env.BAT_THEME = "nosyntax"
   $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"
-  $env.AICHAT_CONFIG_DIR = $"($env.HOME)/.config/aichat"
   $env.FZF_DEFAULT_OPTS = [
     "--bind=ctrl-y:toggle+down --info=right --reverse"
     "--color=16,bg:-1,bg+:0,fg:8,fg+:4,pointer:4,marker:4,gutter:0,header:5,border:0,hl:6,hl+:6,info:6"
@@ -76,8 +90,8 @@ export-env {
 
 source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
-source nushelter/copilot.nu
-source nushelter/aichat.nu
+source nushelter/pi.nu
+source nushelter/ret.nu
 source nushelter/utils.nu
 source nushelter/data.nu
 source nushelter/grit.nu

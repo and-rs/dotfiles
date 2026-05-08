@@ -10,6 +10,9 @@ history.txt
 messages.md
 models-override.yaml
 
+**/pi/agent/sessions
+**/pi/agent/auth.json
+
 **/aichat/rags
 **/aichat/sessions
 **/aichat/messages

@@ -15,7 +15,7 @@ terminals, editors, and desktop components.
   - Linux: Niri, Quickshell, Hypridle, Hyprlock, Rofi
   - macOS: Aerospace
 - File management: Yazi
-- CLI tooling: direnv, zoxide, aichat, fastfetch, topiary
+- CLI tooling: direnv, zoxide, pi, fastfetch, topiary
 - Themes and palettes: Neovim, Ghostty, Kitty, Alacritty, fastfetch, rofi, bat
 
 ## Structure
@@ -49,7 +49,7 @@ IIt handles macos and linux specific configs.
 
 - Nushell configuration with custom prompt, keybinds, history tooling, git
   helpers, and file utilities
-- Aichat and LLM helpers
+- Pi and shell LLM helpers
 - Zoxide, direnv, and completion setup
 
 ### Terminal workflow
