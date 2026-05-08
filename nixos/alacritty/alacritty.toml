@@ -35,6 +35,7 @@ normal = { family = "JetBrainsMono"}
 [window]
 title = "Terminalino"
 dynamic_padding = true
+opacity = 0.9
 
 [window.padding]
 x = 8
