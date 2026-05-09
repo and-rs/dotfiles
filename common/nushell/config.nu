@@ -38,6 +38,11 @@ export-env {
   $env.TOPIARY_CONFIG_FILE = ($env.XDG_CONFIG_HOME | path join topiary languages.ncl)
   $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary queries)
 
+  let node_extra_ca = "/usr/local/share/ca-certificates/ocpamacaroot1.crt"
+  if ($node_extra_ca | path exists) {
+    $env.NODE_EXTRA_CA_CERTS = $node_extra_ca
+  }
+
   let bob_version = "0.12.2"
   if not (which bob | is-empty) {
     let bob_cmd = ["bob" "run" $bob_version]
@@ -102,7 +107,7 @@ source completions/just_completions.nu
 use forgit *
 
 # Generate zoxide
-if ("~/.config/nushell/zoxide.nu" | path exists) != true {
+if ($"($env.HOME)/.config/nushell/zoxide.nu" | path exists) != true {
   zoxide init nushell | save -f ~/.config/nushell/zoxide.nu
 }
 source zoxide.nu

@@ -3,6 +3,7 @@
   "tui.editor.cursorDown": ["down", "ctrl+n"],
   "tui.select.up": ["up", "ctrl+p"],
   "tui.select.down": ["down", "ctrl+n"],
+  "app.interrupt": [],
   "app.model.cycleForward": ["f11"],
   "app.model.cycleBackward": ["f12"],
   "app.session.togglePath": ["alt+p"],

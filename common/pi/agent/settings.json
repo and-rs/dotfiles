@@ -1,6 +1,7 @@
 {
   "defaultProvider": "github-copilot",
   "defaultThinkingLevel": "medium",
+  "quietStartup": true,
   "collapseChangelog": true,
   "hideThinkingBlock": true,
   "enabledModels": [
@@ -8,7 +9,7 @@
     "gpt-*",
     "gemini-*"
   ],
-  "defaultModel": "gpt-5.4",
+  "defaultModel": "claude-sonnet-4.6",
   "theme": "terminal",
   "lastChangelogVersion": "0.74.0"
 }
