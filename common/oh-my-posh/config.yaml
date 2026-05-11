@@ -39,7 +39,7 @@ blocks:
       - type: git
         foreground: "white"
         templates:
-          - "<darkGray>├─ on </><green>{{ .HEAD }}</>"
+          - "<darkGray>├─ on </><cyan>{{ .HEAD }}</>"
           - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email
             }}</><darkGray>]</>{{ end -}}"
           - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains

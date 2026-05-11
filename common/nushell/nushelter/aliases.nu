@@ -30,10 +30,6 @@ def --env "opam eval" [switch?: string] {
   | load-env
 }
 
-def office-screen [] {
-  niri msg output eDP-1 off
-  niri msg output DP-2 scale 1.666
-}
 
 # Docker + VM Start
 def win-start [] {
