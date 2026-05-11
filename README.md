@@ -24,8 +24,7 @@ terminals, editors, and desktop components.
 - `common/` - shared config used across platforms
 - `nixos/` - Linux-specific configs
 - `macos/` - macOS-specific configs
-- `scripts/` - helper scripts and command wrappers
-- `utils/` - random things
+- `utils/` - scripts and tooling for work Ubuntu / Nix environments
 
 ## Install
 
@@ -33,7 +32,7 @@ terminals, editors, and desktop components.
 dotbot -c install.conf.yaml
 ```
 
-IIt handles macos and linux specific configs.
+It handles macOS and Linux specific configs.
 
 ## Highlights
 
@@ -56,6 +55,19 @@ IIt handles macos and linux specific configs.
 
 - Shared terminal themes and font configs
 - Consistent palettes across Ghostty, Kitty, Alacritty, Neovim, and Fastfetch
+
+## Switching themes
+
+These are all the places that need to change for a full theme swap:
+
+- `nixos/ghostty/config.ghostty` + `macos/ghostty/config.ghostty` — `config-file = themes/<name>`
+- `nixos/kitty/kitty.conf` + `macos/kitty/kitty.conf` — `include ./themes/<name>.conf`
+- `nixos/alacritty/alacritty.toml` + `macos/alacritty/alacritty.toml` — `import = ["themes/<name>.toml"]`
+- `common/alacritty/themes/` — create theme file if it doesn't exist
+- `common/nushell/config.nu` — `BAT_THEME`
+- `nixos/quickshell/Bar/Config.qml` — `_dark` and `_light` palette blocks
+- `nixos/rofi/monochrome.rasi` — `color0` through `color4` + `text`
+- `nixos/niri/config.kdl` — backdrop, border active/inactive, focus ring, shadow colors
 
 ## Notes
 

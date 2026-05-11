@@ -10,14 +10,14 @@ prefer-no-csd
 // ---
 overview {
     zoom 0.7
-    backdrop-color "#1b1e25"
+    backdrop-color "#212330"
     workspace-shadow {
         off
     }
 }
 output "eDP-1" {
     scale 1.666
-    backdrop-color "#1b1e25"
+    backdrop-color "#212330"
 }
 hotkey-overlay {
     skip-at-startup
@@ -82,12 +82,12 @@ layout {
     border {
         on
         width 2
-        active-color "#4b5467"
-        inactive-color "#1b1e25"
+        active-color "#2f334d"
+        inactive-color "#212330"
     }
     focus-ring {
         off
-        active-gradient from="#a6dbff" to="#79839c" angle=60
+        active-gradient from="#82aaff" to="#c099ff" angle=60
     }
     shadow {
         off
@@ -95,8 +95,8 @@ layout {
         softness 0
         offset x=2 y=2
         draw-behind-window true
-        color "#a6dbff60"
-        inactive-color "#79839c20"
+        color "#82aaff60"
+        inactive-color "#727aac20"
     }
 }
 workspace "1"

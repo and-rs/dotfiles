@@ -14,7 +14,7 @@ macos-non-native-fullscreen = true
 quit-after-last-window-closed = true
 
 # ->theme
-config-file = themes/neovim-default
+config-file = themes/tokyo-night
 
 # ->only for darkmode
 custom-shader-animation = false
