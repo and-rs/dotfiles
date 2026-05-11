@@ -104,10 +104,11 @@ def "ai gs" [] {
     return
   }
 
-  let msg = (^pi -p --no-session $prompt | str trim)
+  let msg = (^pi --model "claude-haiku" -p --no-session $prompt | str trim)
   print $msg
 
-  let answer = (input "\ncommit? [y/N] " | str trim | str downcase)
+  print "\n"
+  let answer = (input $"(ansi blue)commit? [y/N] " | str trim | str downcase)
   if $answer != "y" {
     return
   }
