@@ -107,7 +107,6 @@ def "ai gs" [] {
   let msg = (^pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt | str trim)
   print $msg
 
-  print "\n"
   let answer = (input $"(ansi blue)commit? [y/N] " | str trim | str downcase)
   if $answer != "y" {
     return

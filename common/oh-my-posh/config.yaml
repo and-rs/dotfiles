@@ -34,6 +34,10 @@ blocks:
         options:
           fetch_status: true
           branch_icon: ""
+      - type: executiontime
+        template: " <darkGray>took</> <blue>{{ .FormattedMs }}</>"
+        options:
+          threshold: 1000
   - type: prompt
     alignment: left
     newline: true
@@ -53,10 +57,6 @@ blocks:
           fetch_status: false
           fetch_user: true
           branch_icon: ""
-      - type: executiontime
-        template: " <darkGray>took</> <blue>{{ .FormattedMs }}</>"
-        options:
-          threshold: 1000
   - type: prompt
     alignment: left
     newline: true
