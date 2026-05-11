@@ -16,7 +16,7 @@ Row {
 
   readonly property var statusColors: ({
       [svc.statusSelect]: Config.colors.fg,
-      [svc.statusRecording]: Config.colors.light_red,
+      [svc.statusRecording]: Config.colors.destructive,
       [svc.statusCompressPrompt]: Config.colors.secondary,
       [svc.statusSaving]: Config.colors.primary
     })
@@ -88,7 +88,7 @@ Row {
       width: label.paintedWidth + 16
       height: 20
       radius: Config.radius.small
-      color: Config.colors.accent
+      color: Config.colors.surface4
       anchors.verticalCenter: parent.verticalCenter
       clip: true
 
@@ -177,7 +177,7 @@ Row {
         text: recordingRoot.statusText
         font.weight: 700
         font.pointSize: 10
-        color: Config.colors.bg
+        color: Config.colors.base
       }
 
       MouseArea {

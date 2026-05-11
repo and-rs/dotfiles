@@ -11,14 +11,14 @@ Rectangle {
   height: size
   clip: true
   radius: Config.radius.small
-  color: Config.colors.dim
+  color: Config.colors.surface1
 
   Text {
     anchors.centerIn: parent
     text: root.fallbackText
     font.pixelSize: Config.sizes.extraLarge
     font.weight: Font.Bold
-    color: Config.colors.light
+    color: Config.colors.surface5
   }
 
   Image {

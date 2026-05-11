@@ -38,7 +38,7 @@ Rectangle {
 
   readonly property color iconColor: {
     if (!isEnabled)
-      return Config.colors.bright;
+      return Config.colors.surface3;
     if (hasConnectedDevice)
       return Config.colors.primary;
     return Config.colors.fg;
@@ -72,7 +72,7 @@ Rectangle {
       Rectangle {
         width: parent.width
         height: 1
-        color: Config.colors.muted
+        color: Config.colors.surface2
       }
 
       // Power toggle
@@ -80,7 +80,7 @@ Rectangle {
         width: parent.width
         height: 28
         radius: Config.radius.small
-        color: btToggleHover.hovered ? Config.colors.muted : Config.colors.dim
+        color: btToggleHover.hovered ? Config.colors.surface2 : Config.colors.surface1
 
         HoverHandler {
           id: btToggleHover
@@ -98,7 +98,7 @@ Rectangle {
 
         Text {
           text: isEnabled ? "On" : "Off"
-          color: isEnabled ? Config.colors.light_green : Config.colors.bright
+          color: isEnabled ? Config.colors.success : Config.colors.surface3
           font.pointSize: 9
           font.weight: 500
           anchors.verticalCenter: parent.verticalCenter
@@ -123,7 +123,7 @@ Rectangle {
         width: parent.width
         height: 28
         radius: Config.radius.small
-        color: btScanHover.hovered ? Config.colors.muted : Config.colors.dim
+        color: btScanHover.hovered ? Config.colors.surface2 : Config.colors.surface1
         visible: isEnabled
 
         HoverHandler {
@@ -142,7 +142,7 @@ Rectangle {
 
         Text {
           text: bluetooth.adapter && bluetooth.adapter.discovering ? "On" : "Off"
-          color: bluetooth.adapter && bluetooth.adapter.discovering ? Config.colors.primary : Config.colors.bright
+          color: bluetooth.adapter && bluetooth.adapter.discovering ? Config.colors.primary : Config.colors.surface3
           font.pointSize: 9
           font.weight: 500
           anchors.verticalCenter: parent.verticalCenter
@@ -169,14 +169,14 @@ Rectangle {
         Rectangle {
           width: parent.width
           height: 1
-          color: Config.colors.muted
+          color: Config.colors.surface2
         }
 
         Row {
           spacing: Config.spacing.small
           Text {
             text: "Adapter"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -191,7 +191,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "State"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -207,7 +207,7 @@ Rectangle {
       Rectangle {
         width: parent.width
         height: 1
-        color: Config.colors.muted
+        color: Config.colors.surface2
         visible: isEnabled
       }
 
@@ -239,7 +239,7 @@ Rectangle {
               width: connectedCol.width
               height: modelData.connected ? 36 : 0
               radius: Config.radius.small
-              color: Config.colors.muted
+              color: Config.colors.surface2
               visible: modelData.connected
 
               Text {
@@ -254,7 +254,7 @@ Rectangle {
 
               Text {
                 text: modelData.batteryAvailable ? Math.round(modelData.battery * 100) + "%" : "Connected"
-                color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? Config.colors.destructive : Config.colors.fg) : Config.colors.light_green
+                color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? Config.colors.destructive : Config.colors.fg) : Config.colors.success
                 font.pointSize: 8
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
@@ -300,7 +300,7 @@ Rectangle {
               width: availableCol.width
               height: !modelData.connected ? 36 : 0
               radius: Config.radius.small
-              color: Config.colors.dim
+              color: Config.colors.surface1
               visible: !modelData.connected
 
               Text {
@@ -315,7 +315,7 @@ Rectangle {
 
               Text {
                 text: modelData.paired ? "Paired" : "New"
-                color: modelData.paired ? Config.colors.accent : Config.colors.bright
+                color: modelData.paired ? Config.colors.surface4 : Config.colors.surface3
                 font.pointSize: 8
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
@@ -336,7 +336,7 @@ Rectangle {
       Text {
         visible: !isEnabled
         text: "Bluetooth is off"
-        color: Config.colors.bright
+        color: Config.colors.surface3
         font.pointSize: 9
       }
 
@@ -344,7 +344,7 @@ Rectangle {
       Text {
         visible: isEnabled && (Bluetooth.devices.values ?? []).length === 0
         text: "No devices found"
-        color: Config.colors.bright
+        color: Config.colors.surface3
         font.pointSize: 9
       }
   }

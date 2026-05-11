@@ -70,7 +70,7 @@ Column {
         width: parent.width
         height: Config.sizes.large + Config.padding.normal
         radius: Config.radius.small
-        color: headerHover.hovered ? Config.colors.primary : Config.colors.muted
+        color: headerHover.hovered ? Config.colors.primary : Config.colors.surface2
 
         HoverHandler {
           id: headerHover
@@ -104,14 +104,14 @@ Column {
               anchors.centerIn: parent
               code: 0xE3E8
               iconSize: Config.sizes.normal
-              iconColor: Config.colors.accent
+              iconColor: Config.colors.surface4
               visible: headerIcon.status !== Image.Ready
             }
           }
 
           Text {
             text: itemDelegate.modelData.title || itemDelegate.modelData.id || "Unknown"
-            color: headerHover.hovered ? Config.colors.bg : Config.colors.fg
+            color: headerHover.hovered ? Config.colors.base : Config.colors.fg
             font.pointSize: 9
             font.weight: 600
             anchors.verticalCenter: parent.verticalCenter
@@ -129,7 +129,7 @@ Column {
               anchors.centerIn: parent
               code: itemDelegate.isExpanded ? 0xE136 : 0xE13A
               iconSize: Config.sizes.small + 2
-              iconColor: headerHover.hovered ? Config.colors.bg : Config.colors.fg
+              iconColor: headerHover.hovered ? Config.colors.base : Config.colors.fg
               visible: itemDelegate.hasMenuEntries
             }
           }
@@ -183,7 +183,7 @@ Column {
             id: entryDelegate
             width: menuContent.width
             height: Config.sizes.large + Config.padding.extraSmall + 3
-            color: entryHover.hovered && modelData.enabled ? Config.colors.muted : Config.colors.dim
+            color: entryHover.hovered && modelData.enabled ? Config.colors.surface2 : Config.colors.surface1
             radius: Config.radius.small
 
             required property var modelData
@@ -210,7 +210,7 @@ Column {
                 radius: modelData.buttonType === QsMenuButtonType.RadioButton ? Config.radius.full : 3
                 color: isChecked ? Config.colors.primary : "transparent"
                 border.width: 2
-                border.color: Config.colors.bright
+                border.color: Config.colors.surface3
                 anchors.verticalCenter: parent.verticalCenter
               }
 
@@ -233,14 +233,14 @@ Column {
                   anchors.centerIn: parent
                   code: 0xE3E8
                   iconSize: Config.sizes.small
-                  iconColor: Config.colors.accent
+                  iconColor: Config.colors.surface4
                   visible: entryIcon.status !== Image.Ready
                 }
               }
 
               Text {
                 text: modelData.text || ""
-                color: modelData.enabled ? Config.colors.fg : Config.colors.bright
+                color: modelData.enabled ? Config.colors.fg : Config.colors.surface3
                 font.pointSize: 9
                 font.weight: 500
                 anchors.verticalCenter: parent.verticalCenter

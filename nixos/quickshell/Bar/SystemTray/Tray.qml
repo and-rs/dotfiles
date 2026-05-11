@@ -15,7 +15,7 @@ Rectangle {
   MaterialIcon {
     id: trayIcon
     code: !hasItems ? 0xECE0 : popupVisible ? 0xE13C : 0xE136
-    iconColor: !hasItems ? Config.colors.bright : popupVisible ? Config.colors.destructive : Config.colors.fg
+    iconColor: !hasItems ? Config.colors.surface3 : popupVisible ? Config.colors.destructive : Config.colors.fg
     iconSize: 18
   }
 
@@ -46,7 +46,7 @@ Rectangle {
     Rectangle {
       width: parent.width
       height: 1
-      color: Config.colors.muted
+      color: Config.colors.surface2
     }
 
     TrayItem {

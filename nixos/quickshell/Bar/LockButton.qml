@@ -13,7 +13,7 @@ Rectangle {
 
   MaterialIcon {
     code: 0xE308
-    iconColor: Config.colors.bright
+    iconColor: Config.colors.surface3
   }
 
   MouseArea {

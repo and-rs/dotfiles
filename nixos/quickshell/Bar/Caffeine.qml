@@ -15,7 +15,7 @@ Rectangle {
   MaterialIcon {
     id: caffeineIcon
     code: isActive ? 0xE220 : 0xE224
-    iconColor: isActive ? Config.colors.fg : Config.colors.bright
+    iconColor: isActive ? Config.colors.fg : Config.colors.surface3
     iconSize: 16
   }
 

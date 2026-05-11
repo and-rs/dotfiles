@@ -36,7 +36,7 @@ Row {
           anchors.centerIn: parent
           code: 0xE2DE
           iconSize: 14
-          iconColor: Config.colors.light_green
+          iconColor: Config.colors.success
           scale: parent.active ? 1 : 0
           opacity: parent.active ? 1 : 0
 
@@ -64,7 +64,7 @@ Row {
           width: 30
           height: 16
           radius: Config.radius.small
-          color: Config.colors.bright
+          color: Config.colors.surface5
           anchors.verticalCenter: parent.verticalCenter
 
           Item {
@@ -78,7 +78,7 @@ Row {
               width: batShell.width
               height: batShell.height
               radius: batShell.radius
-              color: p < 0.2 ? Config.colors.light_red : Config.colors.light_green
+              color: p < 0.2 ? Config.colors.destructive : Config.colors.success
             }
           }
 
@@ -89,9 +89,9 @@ Row {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: txt
-            font.weight: 700
+            font.weight: 800
             font.pointSize: 10
-            color: Config.colors.bg
+            color: Config.colors.base
 
             layer.enabled: true
             layer.effect: MultiEffect {
@@ -106,7 +106,7 @@ Row {
         Rectangle {
           width: 2.5
           height: 7.5
-          color: p < 1 ? Config.colors.bright : Config.colors.light_green
+          color: p < 1 ? Config.colors.surface5 : Config.colors.success
           topRightRadius: Config.radius.small
           bottomRightRadius: Config.radius.small
           anchors.verticalCenter: parent.verticalCenter

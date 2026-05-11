@@ -9,10 +9,10 @@ Rectangle {
 
   width: parent.width - Config.spacing.small
   height: contentCol.implicitHeight + Config.padding.large * 2
-  color: Config.colors.bg
+  color: Config.colors.base
 
   border.width: 2
-  border.color: Config.colors.muted
+  border.color: Config.colors.surface2
   radius: Config.radius.normal
 
   MouseArea {

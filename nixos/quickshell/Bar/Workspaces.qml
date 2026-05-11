@@ -37,8 +37,8 @@ Row {
       readonly property bool empty: { windowsRevision; return isWorkspaceEmpty(model.id); }
 
       gradient: model.isFocused && !empty ? grad : null
-      color: model.isFocused && !empty ? "transparent" : empty ? Config.colors.dim : Config.colors.muted
-      border.color: model.isFocused ? Config.colors.primary : empty ? Config.colors.dim : Config.colors.muted
+      color: model.isFocused && !empty ? "transparent" : empty ? Config.colors.surface1 : Config.colors.surface2
+      border.color: model.isFocused ? Config.colors.primary : empty ? Config.colors.surface1 : Config.colors.surface2
       border.width: 2
       height: Config.sizes.extraLarge
       radius: Config.radius.small
@@ -49,7 +49,7 @@ Row {
         orientation: Gradient.Vertical
         GradientStop {
           position: 0
-          color: Config.colors.bg
+          color: Config.colors.base
         }
         GradientStop {
           position: 4
@@ -66,7 +66,7 @@ Row {
 
       Text {
         id: textItem
-        color: rect.empty ? Config.colors.accent : Config.colors.fg
+        color: rect.empty ? Config.colors.surface4 : Config.colors.fg
         anchors.centerIn: parent
         text: model.index
         font.weight: model.isFocused ? 700 : 500

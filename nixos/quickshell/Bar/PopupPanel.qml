@@ -55,8 +55,8 @@ PopupWindow {
 
     Rectangle {
       anchors.fill: parent
-      color: Config.colors.bg
-      border.color: Config.colors.accent
+      color: Config.colors.base
+      border.color: Config.colors.surface4
       border.width: Config.popup.borderWidth
       radius: Config.radius.normal
     }

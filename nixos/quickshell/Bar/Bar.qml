@@ -75,14 +75,14 @@ Scope {
       Rectangle {
         id: background
         anchors.fill: parent
-        color: Config.colors.bg
+        color: Config.colors.base
         Rectangle {
           id: bottomBorder
           anchors.left: parent.left
           anchors.right: parent.right
           anchors.bottom: parent.bottom
           height: 2
-          color: Config.colors.dim
+          color: Config.colors.surface1
         }
       }
 
@@ -117,7 +117,7 @@ Scope {
           Rectangle {
             width: 2
             height: parent.height * 0.5
-            color: Config.colors.muted
+            color: Config.colors.surface2
             anchors.verticalCenter: parent.verticalCenter
           }
           Tray {

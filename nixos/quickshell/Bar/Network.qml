@@ -56,7 +56,7 @@ Rectangle {
 
   readonly property color iconColor: {
     if (!Networking.wifiEnabled || !connectedNetwork)
-      return Config.colors.bright;
+      return Config.colors.surface3;
 
     if (!hasInternet)
       return Config.colors.destructive;
@@ -92,7 +92,7 @@ Rectangle {
       Rectangle {
         width: parent.width
         height: 1
-        color: Config.colors.muted
+        color: Config.colors.surface2
       }
 
       // Connectivity
@@ -100,7 +100,7 @@ Rectangle {
         spacing: Config.spacing.small
         Text {
           text: "Status"
-          color: Config.colors.accent
+          color: Config.colors.surface4
           font.pointSize: 9
         }
         Text {
@@ -116,12 +116,12 @@ Rectangle {
         spacing: Config.spacing.small
         Text {
           text: "WiFi"
-          color: Config.colors.accent
+          color: Config.colors.surface4
           font.pointSize: 9
         }
         Text {
           text: Networking.wifiEnabled ? "Enabled" : "Disabled"
-          color: Networking.wifiEnabled ? Config.colors.light_green : Config.colors.bright
+          color: Networking.wifiEnabled ? Config.colors.success : Config.colors.surface3
           font.pointSize: 9
           font.weight: 600
         }
@@ -136,7 +136,7 @@ Rectangle {
         Rectangle {
           width: parent.width
           height: 1
-          color: Config.colors.muted
+          color: Config.colors.surface2
         }
 
         // SSID
@@ -144,7 +144,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "SSID"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -160,7 +160,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "Signal"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -176,7 +176,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "Security"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -192,7 +192,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "Saved"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -213,7 +213,7 @@ Rectangle {
         Rectangle {
           width: parent.width
           height: 1
-          color: Config.colors.muted
+          color: Config.colors.surface2
         }
 
         // Device name
@@ -221,7 +221,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "Device"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -237,7 +237,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "State"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -253,7 +253,7 @@ Rectangle {
           spacing: Config.spacing.small
           Text {
             text: "MAC"
-            color: Config.colors.accent
+            color: Config.colors.surface4
             font.pointSize: 9
           }
           Text {
@@ -269,14 +269,14 @@ Rectangle {
       Text {
         visible: !connectedNetwork && Networking.wifiEnabled
         text: "Not connected"
-        color: Config.colors.bright
+        color: Config.colors.surface3
         font.pointSize: 9
       }
 
       Text {
         visible: !Networking.wifiEnabled
         text: "WiFi is disabled"
-        color: Config.colors.bright
+        color: Config.colors.surface3
         font.pointSize: 9
       }
   }

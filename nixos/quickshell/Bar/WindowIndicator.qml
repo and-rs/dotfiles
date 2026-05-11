@@ -20,7 +20,7 @@ Row {
           return Config.colors.primary;
         }
 
-        return index === NiriService.focusedWindowIndex ? Config.colors.primary : Config.colors.bright;
+        return index === NiriService.focusedWindowIndex ? Config.colors.primary : Config.colors.surface3;
       }
     }
   }

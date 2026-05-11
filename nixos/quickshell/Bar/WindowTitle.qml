@@ -21,7 +21,7 @@ Row {
   Text {
     text: focusedWindow ? focusedWindow.appId : ""
     anchors.verticalCenter: parent.verticalCenter
-    color: Config.colors.accent
+    color: Config.colors.surface4
     font.pointSize: 10
     font.weight: 500
   }
