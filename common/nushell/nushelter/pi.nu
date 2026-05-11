@@ -104,7 +104,7 @@ def "ai gs" [] {
     return
   }
 
-  let msg = (^pi --model "claude-haiku" -p --no-session $prompt | str trim)
+  let msg = (^pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt | str trim)
   print $msg
 
   print "\n"
