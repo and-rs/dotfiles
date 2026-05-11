@@ -104,5 +104,13 @@ def "ai gs" [] {
     return
   }
 
-  ^pi -p $prompt
+  let msg = (^pi -p --no-session $prompt | str trim)
+  print $msg
+
+  let answer = (input "\ncommit? [y/N] " | str trim | str downcase)
+  if $answer != "y" {
+    return
+  }
+
+  ^git commit -e -m $msg
 }
