@@ -1,3 +1,6 @@
+# hide local git identity
+**/.gitconfig-work.local
+
 # hide nu history
 **/nushell/zoxide.nu
 history.sqlite3

@@ -18,6 +18,8 @@ blocks:
         foreground: "white"
         templates:
           - "<darkGray> on </><blue>{{ .HEAD }}</>"
+          - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email }}</><darkGray>]</>{{ end -}}"
+          - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>azure</><darkGray>]</>{{ else if contains \"github.com\" $origin }} <darkGray>[</><magenta>github</><darkGray>]</>{{ end -}}"
           - "{{- if gt .StashCount 0 }} <darkGray>*{{ .StashCount }}</>{{ end -}}"
           - "{{- if gt .Behind 0 }} <magenta>↓{{ .Behind }}</>{{ end -}}"
           - "{{- if gt .Ahead 0 }} <cyan>↑{{ .Ahead }}</>{{ end -}}"
@@ -28,6 +30,7 @@ blocks:
           - "{{- if .Working.Unmerged }} <red>?{{ .Working.Unmerged }}</>{{ end -}}"
         options:
           fetch_status: true
+          fetch_user: true
           branch_icon: ""
       - type: executiontime
         template: " <darkGray>took</> <blue>{{ .FormattedMs }}</>"

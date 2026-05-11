@@ -40,3 +40,6 @@
 [credential "https://gitlab.com"]
 	helper =
 	helper = !/usr/bin/env glab auth git-credential
+
+[includeIf "gitdir:~/Work/"]
+    path = ~/.gitconfig-work

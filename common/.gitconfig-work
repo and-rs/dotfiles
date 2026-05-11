@@ -1,0 +1,12 @@
+[include]
+    path = ~/.gitconfig-work.local
+
+[user]
+    useConfigOnly = true
+
+[url "git@github-work:"]
+    insteadOf = git@github.com:
+    insteadOf = https://github.com/
+
+[url "git@ssh.dev.azure.com:v3/"]
+    insteadOf = ssh://git@ssh.dev.azure.com/v3/
