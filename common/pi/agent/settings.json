@@ -6,8 +6,7 @@
   "hideThinkingBlock": true,
   "enabledModels": [
     "claude-*",
-    "gpt-*",
-    "gemini-*"
+    "gpt-*"
   ],
   "defaultModel": "claude-sonnet-4.6",
   "theme": "terminal",

@@ -1,9 +1,11 @@
 {
   "tui.editor.cursorUp": ["up", "ctrl+p"],
   "tui.editor.cursorDown": ["down", "ctrl+n"],
+  "tui.editor.deleteCharForward": ["delete"],
   "tui.select.up": ["up", "ctrl+p"],
   "tui.select.down": ["down", "ctrl+n"],
-  "app.interrupt": [],
+  "app.interrupt": ["ctrl+d"],
+  "app.exit": [],
   "app.model.cycleForward": ["f11"],
   "app.model.cycleBackward": ["f12"],
   "app.session.togglePath": ["alt+p"],
