@@ -15,7 +15,7 @@ alpha-blending = native
 #background-opacity = 0.86
 mouse-scroll-multiplier = 0.4
 
-#custom-shader = ./shaders/text.glsl
+custom-shader = ./shaders/text.glsl
 #custom-shader = ./shaders/blue_crt.glsl
 #Enabling this increases cpu usage by quite a bit
 custom-shader-animation = false

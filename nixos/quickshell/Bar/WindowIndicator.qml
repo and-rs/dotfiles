@@ -30,10 +30,10 @@ Row {
       anchors.verticalCenter: parent.verticalCenter
 
       Image {
-        width: 18
-        height: 18
-        sourceSize.width: 48
-        sourceSize.height: 48
+        width: 16
+        height: 16
+        sourceSize.width: 16
+        sourceSize.height: 16
         anchors.horizontalCenter: parent.horizontalCenter
         source: iconSourceForWindow(modelData)
         fillMode: Image.PreserveAspectFit
@@ -83,7 +83,7 @@ Row {
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.top: parent.top
       anchors.verticalCenter: undefined
-      code: 0xE468
+      code: 0xE0F8
       iconColor: Config.colors.primary
       iconSize: 14
     }

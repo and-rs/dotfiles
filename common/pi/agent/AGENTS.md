@@ -27,8 +27,17 @@ Respond in english only. Caveman mode: compress hard, save tokens.
 
 ## Shell & Nushell
 
-- Default to nushell syntax unless bash is explicitly requested.
-- Run commands via bash tool with `nu -c '...'`, or write `.nu` scripts.
+- User-facing command examples default to nushell syntax unless bash is explicitly requested.
+- Internal tool execution can use bash by default; use `nu -c '...'` only when nushell execution is required.
+- If user asks for nushell output, never return bash syntax.
+- Format shell examples for copy/paste: multiline, one flag per line for long commands; avoid long single-line commands.
+- For multiline nushell external commands, prefer wrapped form:
+  ```nu
+  (
+    cmd
+    --flag value
+  )
+  ```
 - No bash-isms in `.nu`: no `$()`, `&&`/`||`, `export VAR=val`, `[[ ]]`.
 - When unsure about nushell syntax, load the `nu-syntax` skill first.
 

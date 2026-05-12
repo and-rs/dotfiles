@@ -73,6 +73,10 @@ def "ai bootstrap" [name?: string] {
   }
 }
 
+def aip [prompt: string] {
+  pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
+}
+
 def "ai gs" [] {
   let entries = (
     git status --porcelain | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' | where x != " " and x != "?" | each {|row|
