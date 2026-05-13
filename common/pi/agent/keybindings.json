@@ -10,5 +10,5 @@
   "app.model.cycleBackward": ["f12"],
   "app.session.togglePath": ["alt+p"],
   "app.session.toggleNamedFilter": ["alt+n"],
-  "app.models.toggleProvider": ["alt+p"]
+  "app.models.toggleProvider": ["alt+o"]
 }

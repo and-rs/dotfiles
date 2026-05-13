@@ -1,9 +1,3 @@
-import { exec as execCallback } from "node:child_process";
-import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
-import { promisify } from "node:util";
-
 import { Text } from "@earendil-works/pi-tui";
 import { Readability } from "@mozilla/readability";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -13,21 +7,16 @@ import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import { Type } from "typebox";
 
-const exec = promisify(execCallback);
+import { AUTH_PATH, clearExaKey, formatExaSource, resolveExaKey, saveExaKey } from "../lib/exa-auth.ts";
+
 const SEARCH_TYPES = ["auto", "fast", "instant", "deep-lite", "deep", "deep-reasoning"] as const;
 const FETCH_MODES = ["markdown", "text", "html"] as const;
-const AUTH_PATH = join(homedir(), ".pi", "agent", "auth.json");
+
 const USER_AGENT = "pi-web-docs-extension/0.1";
+const ADMIN_BASE = "https://admin-api.exa.ai/team-management";
 
 type SearchType = (typeof SEARCH_TYPES)[number];
 type FetchMode = (typeof FETCH_MODES)[number];
-
-type AuthRecord = Record<string, unknown>;
-
-type ApiKeyEntry = {
-  type?: string;
-  key?: string;
-};
 
 type ExaSearchResult = {
   title?: string | null;
@@ -38,6 +27,18 @@ type ExaSearchResult = {
   text?: string | null;
   score?: number | null;
   id?: string | null;
+};
+
+type ListApiKeysResponse = {
+  apiKeys?: Array<{
+    id: string;
+    budgetCents?: number | null;
+    isOverBudget?: boolean;
+  }>;
+};
+
+type UsageResponse = {
+  total_cost_usd?: number;
 };
 
 function isSearchType(value: string): value is SearchType {
@@ -113,92 +114,64 @@ function parseHtmlDocument(html: string, url: string): {
   };
 }
 
-async function readAuthFile(): Promise<AuthRecord> {
-  try {
-    const raw = await readFile(AUTH_PATH, "utf8");
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("auth.json must contain an object");
-    }
-    return parsed as AuthRecord;
-  } catch (error) {
-    const nodeError = error as NodeJS.ErrnoException;
-    if (nodeError.code === "ENOENT") {
-      return {};
-    }
-    throw error;
-  }
+function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
-async function writeAuthFile(data: AuthRecord): Promise<void> {
-  await mkdir(dirname(AUTH_PATH), { recursive: true, mode: 0o700 });
-  await writeFile(AUTH_PATH, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
-  await chmod(AUTH_PATH, 0o600);
+function fmtUsd(value: number): string {
+  return `$${value.toFixed(2)}`;
 }
 
-async function resolveStoredKeyValue(value: string): Promise<string> {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return "";
+async function fetchJson<T>(url: string, apiKey: string): Promise<T> {
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": apiKey,
+      accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
   }
 
-  if (trimmed.startsWith("!")) {
-    const command = trimmed.slice(1).trim();
-    if (!command) {
-      return "";
-    }
-    const { stdout } = await exec(command, { shell: "/bin/sh" });
-    return stdout.trim();
-  }
-
-  if (/^[A-Z][A-Z0-9_]*$/.test(trimmed) && process.env[trimmed]) {
-    return process.env[trimmed]?.trim() ?? "";
-  }
-
-  return trimmed;
+  return (await res.json()) as T;
 }
 
-async function getStoredExaEntry(): Promise<ApiKeyEntry | null> {
-  const auth = await readAuthFile();
-  const entry = auth.exa as ApiKeyEntry | undefined;
-  if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-    return null;
-  }
-  return entry;
-}
+async function computeExaUsageSummary(apiKey: string): Promise<string> {
+  const list = await fetchJson<ListApiKeysResponse>(`${ADMIN_BASE}/api-keys`, apiKey);
+  const apiKeys = Array.isArray(list.apiKeys) ? list.apiKeys : [];
 
-async function resolveExaApiKey(): Promise<{ key: string | null; source: "auth" | "env" | null }> {
-  const stored = await getStoredExaEntry();
-  if (stored?.type === "api_key" && typeof stored.key === "string") {
-    const resolved = await resolveStoredKeyValue(stored.key);
-    if (resolved) {
-      return { key: resolved, source: "auth" };
-    }
+  if (apiKeys.length === 0) {
+    return "EXA no-api-keys";
   }
 
-  const envKey = process.env.EXA_API_KEY?.trim();
-  if (envKey) {
-    return { key: envKey, source: "env" };
+  const startDate = encodeURIComponent(isoDaysAgo(30));
+  const totals = await Promise.all(
+    apiKeys.map(async (item) => {
+      const usage = await fetchJson<UsageResponse>(
+        `${ADMIN_BASE}/api-keys/${item.id}/usage?start_date=${startDate}`,
+        apiKey,
+      );
+      return typeof usage.total_cost_usd === "number" ? usage.total_cost_usd : 0;
+    }),
+  );
+
+  const totalUsd = totals.reduce((acc, value) => acc + value, 0);
+  const budgetCents = apiKeys.reduce((acc, item) => acc + (typeof item.budgetCents === "number" ? item.budgetCents : 0), 0);
+  const anyBudget = apiKeys.some((item) => typeof item.budgetCents === "number");
+  const anyOver = apiKeys.some((item) => item.isOverBudget === true);
+
+  if (!anyBudget) {
+    return `EXA 30d ${fmtUsd(totalUsd)}`;
   }
 
-  return { key: null, source: null };
+  const budgetUsd = budgetCents / 100;
+  const remaining = budgetUsd - totalUsd;
+  const status = anyOver || remaining < 0 ? "over" : "left";
+  return `EXA 30d ${fmtUsd(totalUsd)} ${status} ${fmtUsd(Math.abs(remaining))}`;
 }
 
-async function saveExaApiKey(key: string): Promise<void> {
-  const auth = await readAuthFile();
-  auth.exa = { type: "api_key", key: key.trim() };
-  await writeAuthFile(auth);
-}
-
-async function clearExaApiKey(): Promise<boolean> {
-  const auth = await readAuthFile();
-  if (!("exa" in auth)) {
-    return false;
-  }
-  delete auth.exa;
-  await writeAuthFile(auth);
-  return true;
-}
 
 function summarizeUrlHost(url: string): string {
   try {
@@ -316,14 +289,14 @@ export default function webDocsExtension(pi: ExtensionAPI) {
   pi.registerCommand("exa", {
     description: "Configure Exa API key for web search",
     getArgumentCompletions: (prefix) => {
-      const items = ["login", "status", "logout"];
+      const items = ["login", "status", "logout", "service-login", "service-status", "service-logout", "usage"];
       return items.filter((item) => item.startsWith(prefix)).map((value) => ({ value, label: value }));
     },
     handler: async (args, ctx) => {
       let action = args.trim().toLowerCase();
 
       if (!action) {
-        const choice = await ctx.ui.select("Exa", ["login", "status", "logout"]);
+        const choice = await ctx.ui.select("Exa", ["login", "status", "logout", "service-login", "service-status", "service-logout", "usage"]);
         if (!choice) {
           ctx.ui.notify("Cancelled", "info");
           return;
@@ -337,29 +310,71 @@ export default function webDocsExtension(pi: ExtensionAPI) {
           ctx.ui.notify("No key saved", "info");
           return;
         }
-        await saveExaApiKey(value);
+        await saveExaKey("api", value);
         ctx.ui.notify(`Saved Exa key to ${AUTH_PATH}`, "info");
         return;
       }
 
+      if (action === "service-login") {
+        const value = await ctx.ui.input("Exa service API key", "exa_...");
+        if (!value?.trim()) {
+          ctx.ui.notify("No service key saved", "info");
+          return;
+        }
+        await saveExaKey("service", value);
+        ctx.ui.notify(`Saved Exa service key to ${AUTH_PATH}`, "info");
+        return;
+      }
+
       if (action === "status") {
-        const resolved = await resolveExaApiKey();
+        const resolved = await resolveExaKey("api");
         if (!resolved.key || !resolved.source) {
           ctx.ui.notify("Exa not configured", "warning");
           return;
         }
-        const source = resolved.source === "auth" ? AUTH_PATH : "EXA_API_KEY env";
-        ctx.ui.notify(`Exa configured via ${source}`, "info");
+        ctx.ui.notify(`Exa configured via ${formatExaSource("api", resolved.source)}`, "info");
+        return;
+      }
+
+      if (action === "service-status") {
+        const resolved = await resolveExaKey("service");
+        if (!resolved.key || !resolved.source) {
+          ctx.ui.notify("Exa service key not configured", "warning");
+          return;
+        }
+        ctx.ui.notify(`Exa service key configured via ${formatExaSource("service", resolved.source)}`, "info");
+        return;
+      }
+
+      if (action === "usage") {
+        const resolved = await resolveExaKey("service");
+        if (!resolved.key) {
+          ctx.ui.notify("Exa service key not configured. Use /exa service-login.", "warning");
+          return;
+        }
+
+        try {
+          ctx.ui.notify(await computeExaUsageSummary(resolved.key), "info");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "unknown error";
+          ctx.ui.notify(`Exa usage unavailable: ${message}`, "error");
+        }
         return;
       }
 
       if (action === "logout") {
-        const cleared = await clearExaApiKey();
+        const cleared = await clearExaKey("api");
         ctx.ui.notify(cleared ? "Removed stored Exa key" : "No stored Exa key", "info");
         return;
       }
 
-      ctx.ui.notify("Usage: /exa [login|status|logout]", "error");
+      if (action === "service-logout") {
+        const cleared = await clearExaKey("service");
+        ctx.ui.notify(cleared ? "Removed stored Exa service key" : "No stored Exa service key", "info");
+        return;
+      }
+
+      ctx.ui.notify("Usage: /exa [login|status|logout|service-login|service-status|service-logout|usage]", "error");
     },
   });
 
@@ -395,7 +410,7 @@ export default function webDocsExtension(pi: ExtensionAPI) {
       ),
     }),
     execute: async (_toolCallId, params) => {
-      const resolved = await resolveExaApiKey();
+      const resolved = await resolveExaKey("api");
       if (!resolved.key) {
         throw new Error("No Exa API key. Use /exa login or set EXA_API_KEY.");
       }

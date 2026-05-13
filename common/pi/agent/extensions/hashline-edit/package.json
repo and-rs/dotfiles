@@ -1,0 +1,17 @@
+{
+  "name": "pi-hashline-edit-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "dependencies": {
+    "@earendil-works/pi-tui": "^0.74.0",
+    "diff": "^7.0.0",
+    "typebox": "^1.0.55",
+    "xxhashjs": "^0.2.2"
+  }
+}

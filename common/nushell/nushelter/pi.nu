@@ -1,14 +1,18 @@
+def _pi_tools [] {
+  "bash,grep,find,ls,exa_search,web_fetch,hashline_read,hashline_edit,file_create"
+}
+
 def ai [...args: string] {
   if ($args | length) == 0 {
     if (which pi | is-empty) {
       print "pi not installed. run: ai install"
       return
     }
-    ^pi
+    ^pi --tools (_pi_tools)
     return
   }
 
-  ^pi ...$args
+  ^pi --tools (_pi_tools) ...$args
 }
 
 def "ai install" [...args: string] {
@@ -74,7 +78,7 @@ def "ai bootstrap" [name?: string] {
 }
 
 def aip [prompt: string] {
-  pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
+  pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
 }
 
 def "ai gs" [] {
@@ -96,21 +100,28 @@ def "ai gs" [] {
     return
   }
 
-  let prompt = $"generate git commit message. mimic style of previous commits
-  closely. use contents of current staged diff. be descriptive but keep lines
-  short. don't use long lines per commit message line. if command failed
-  explain why. DON'T INCLUDE ANYTHING ELSE in the message. NO OPENING.
-  ---
-  (_ai_git_status)"
+  let prompt = "generate git commit message. mimic style of previous commits closely. use contents of attached staged diff. be descriptive but keep lines short. don't use long lines per commit message line. if command failed explain why. DON'T INCLUDE ANYTHING ELSE in the message. NO OPENING."
+  let diff_context = (_ai_git_status)
 
   if (which pi | is-empty) {
     print "pi not installed. run: ai install"
     return
   }
 
-  let msg = (^pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt | str trim)
+  let prompt_file = (mktemp -t pi-gs-diff.XXXXXXXX)
+  $diff_context | save --force $prompt_file
+  let msg = (
+    try {
+      ^pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $"@($prompt_file)" $prompt
+    } catch {|err|
+      rm --force $prompt_file
+      error make {msg: $err.msg}
+    } | str trim
+  )
+  rm --force $prompt_file
   print $msg
 
+  print
   let answer = (input $"(ansi blue)commit? [y/N] " | str trim | str downcase)
   if $answer != "y" {
     return
