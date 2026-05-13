@@ -40,14 +40,14 @@ PopupWindow {
   property bool keepAlive: false
 
   grabFocus: true
-  anchor.window: window
+  anchor.item: hostItem
   visible: !LockService.locked && (popupVisible || keepAlive)
   color: "transparent"
 
   implicitWidth: rightEdge - leftEdge
   implicitHeight: panelY + panelFrame.height
 
-  anchor.rect.x: hostPos.x + leftEdge
+  anchor.rect.x: leftEdge
   anchor.rect.y: 0
 
   onPopupVisibleChanged: {

@@ -8,7 +8,7 @@
     "claude-*",
     "gpt-*"
   ],
-  "defaultModel": "claude-sonnet-4.6",
+  "defaultModel": "gpt-5.5",
   "theme": "terminal",
   "lastChangelogVersion": "0.74.0"
 }

@@ -290,7 +290,7 @@ binds {
         screenshot-window
     }
     Mod+Space repeat=false {
-        spawn-sh "rofi -modes run,window,calc -show run"
+        spawn-sh "rofi -modes drun,calc -show"
     }
     Mod+Super+L repeat=false {
         spawn-sh "quickshell ipc call lock lock"

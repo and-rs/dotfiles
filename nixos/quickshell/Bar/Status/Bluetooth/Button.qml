@@ -38,7 +38,6 @@ Rectangle {
 
   width: controller.window.implicitHeight + horizontalPadding * 2
   height: controller.window.implicitHeight
-  anchors.verticalCenter: parent.verticalCenter
   color: "transparent"
 
   MaterialIcon {
