@@ -10,7 +10,6 @@ Singleton {
 
   property Niri instance: Niri {
     Component.onCompleted: connect()
-    onConnected: console.log("Connected to niri")
     onErrorOccurred: error => console.error("Error:", error)
   }
 

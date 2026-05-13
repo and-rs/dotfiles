@@ -5,7 +5,7 @@ import qs.Bar
 
 Column {
   id: root
-  width: Config.popup.width
+  width: parent ? parent.width : Config.popup.width
   spacing: 2
 
   readonly property int itemCount: trayRepeater.count
@@ -65,7 +65,6 @@ Column {
         }
       }
 
-      // Header row
       Rectangle {
         width: parent.width
         height: Config.sizes.large + Config.padding.normal
@@ -148,7 +147,6 @@ Column {
         }
       }
 
-      // Menu entries
       Column {
         id: menuContent
         width: parent.width
@@ -261,4 +259,3 @@ Column {
     }
   }
 }
-

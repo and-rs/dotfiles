@@ -18,9 +18,6 @@ Rectangle {
 
   MouseArea {
     anchors.fill: parent
-    onClicked: {
-      console.log("[LockButton] clicked, locking session");
-      LockService.locked = true;
-    }
+    onClicked: LockService.locked = true
   }
 }

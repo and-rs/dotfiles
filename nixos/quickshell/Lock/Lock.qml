@@ -12,14 +12,9 @@ Scope {
   property string errorMessage: ""
   property string pendingPassword: ""
 
-  Component.onCompleted: {
-    console.log("[Lock] module loaded successfully");
-  }
-
   Connections {
     target: LockService
     function onLockedChanged() {
-      console.log("[Lock] LockService.locked changed to:", LockService.locked);
       sessionLock.locked = LockService.locked;
     }
   }
@@ -27,7 +22,6 @@ Scope {
   IpcHandler {
     target: "lock"
     function lock(): void {
-      console.log("[Lock] IPC lock called");
       LockService.locked = true;
     }
   }
@@ -37,24 +31,19 @@ Scope {
     config: "quickshell"
 
     onPamMessage: {
-      console.log("[Lock] PAM message:", pam.message, "responseRequired:", pam.responseRequired);
       if (pam.responseRequired) {
-        console.log("[Lock] responding to PAM");
         pam.respond(lockScope.pendingPassword);
         lockScope.pendingPassword = "";
       }
     }
 
     onCompleted: result => {
-      console.log("[Lock] PAM completed:", PamResult.toString(result));
       lockScope.authenticating = false;
 
       if (result === PamResult.Success) {
-        console.log("[Lock] auth success, unlocking");
         lockScope.errorMessage = "";
         LockService.locked = false;
       } else {
-        console.log("[Lock] auth failed");
         lockScope.errorMessage = "Authentication failed";
         errorTimer.restart();
       }
@@ -79,7 +68,6 @@ Scope {
     lockScope.authenticating = true;
     lockScope.errorMessage = "";
     lockScope.pendingPassword = password;
-    console.log("[Lock] starting PAM auth");
     pam.start();
   }
 
@@ -87,7 +75,6 @@ Scope {
     id: sessionLock
 
     onLockStateChanged: {
-      console.log("[Lock] lockStateChanged, locked=" + locked + " secure=" + secure);
       if (!locked) {
         LockService.locked = false;
       }

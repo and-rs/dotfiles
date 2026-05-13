@@ -31,15 +31,7 @@ Rectangle {
     running: caffeine.isActive
     command: ["systemd-inhibit", "--what=idle:sleep", "--why=Caffeine", "sleep", "infinity"]
 
-    onRunningChanged: {
-      if (running)
-        console.log("[Caffeine] inhibitor started");
-      else
-        console.log("[Caffeine] inhibitor process stopped");
-    }
-
     onExited: (code, status) => {
-      console.log("[Caffeine] exited code=" + code + " status=" + status);
       if (caffeine.isActive && code !== 0)
         caffeine.isActive = false;
     }

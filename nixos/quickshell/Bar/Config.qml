@@ -54,6 +54,7 @@ Singleton {
     property int width: 240
     property int gap: 6
     property int borderWidth: 2
+    property bool debug: false
   }
 
   readonly property QtObject curves: QtObject {
@@ -86,6 +87,7 @@ Singleton {
 
   readonly property QtObject padding: QtObject {
     property real scale: 1
+    property int micro: 4 * scale
     property int extraSmall: 5 * scale
     property int small: 7 * scale
     property int normal: 10 * scale
@@ -104,6 +106,7 @@ Singleton {
 
   readonly property QtObject durations: QtObject {
     property real scale: 1
+    property int instant: 75 * scale
     property int extraFast: 100 * scale
     property int fast: 200 * scale
     property int normal: 400 * scale

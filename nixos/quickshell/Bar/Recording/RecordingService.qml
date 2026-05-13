@@ -124,9 +124,7 @@ Scope {
         root.status = (code === 0 || code === 255 || code === 2 || code === -15) ? root.statusCompressPrompt : root.statusIdle;
       }
     }
-    stderr: StdioCollector {
-      onStreamFinished: console.log("[REC] wf-recorder log:", this.text)
-    }
+    stderr: StdioCollector {}
   }
 
   Process {
@@ -136,8 +134,6 @@ Scope {
       root.status = root.statusIdle;
       root.elapsedSeconds = 0;
     }
-    stderr: StdioCollector {
-      onStreamFinished: console.log("[REC] ffmpeg log:", this.text)
-    }
+    stderr: StdioCollector {}
   }
 }
