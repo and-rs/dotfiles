@@ -100,7 +100,7 @@ async function ensureReadablePath(cwd: string, candidatePath: string): Promise<s
   const absolute = resolveToolPath(cwd, candidatePath);
   const resolved = (await realpathIfExists(absolute)) ?? absolute;
   if (isPathInRoot(cwd, resolved) || isPathInRoot(HOME_DIR, resolved)) return absolute;
-  throw new Error(`Path outside allowed read roots: ${candidatePath}. hashline_read allows current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
+  throw new Error(`Path outside allowed read roots: ${candidatePath}. hashline-read allows current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
 }
 
 function getSnapshot(path: string): HashlineSnapshot {
@@ -264,7 +264,7 @@ async function buildEditDiff(cwd: string, files: Array<{ path: string; before: s
 }
 
 function blockedToolMessage(toolName: string): string {
-  return `Tool "${toolName}" is disabled. Use hashline_read for file reads, hashline_edit for file edits, and file_create for new files.`;
+  return `Tool "${toolName}" is disabled. Use hashline-read for file reads, hashline-edit for file edits, and file-create for new files.`;
 }
 
 function registerBlockedFileTool(pi: ExtensionAPI, name: "read" | "edit" | "write"): void {
@@ -291,7 +291,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
     };
     const active = typeof api.getActiveTools === "function" ? api.getActiveTools() : [];
     const filtered = active.filter((name) => name !== "edit" && name !== "write" && name !== "read");
-    const next = Array.from(new Set([...filtered, "hashline_read", "hashline_edit", "file_create"]));
+    const next = Array.from(new Set([...filtered, "hashline-read", "hashline-edit", "file-create"]));
     if (typeof api.setActiveTools === "function") {
       api.setActiveTools(next);
     }
@@ -302,14 +302,14 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
   registerBlockedFileTool(pi, "write");
 
   pi.registerTool({
-    name: "hashline_read",
+    name: "hashline-read",
     label: "Hashline Read",
     description: "Read a text file with hashline anchors in each line. Paths may be inside cwd or $HOME.",
     promptSnippet: "Read file content with line+hash anchors before hashline edits.",
     promptGuidelines: [
-      "Use hashline_read before hashline_edit.",
+      "Use hashline-read before hashline-edit.",
       "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
-      "hashline_read may inspect text files under cwd or $HOME; hashline_edit and file_create stay cwd-bound.",
+      "hashline-read may inspect text files under cwd or $HOME; hashline-edit and file-create stay cwd-bound.",
       "If output is truncated, continue with :L<line> offset.",
     ],
     parameters: Type.Object({
@@ -355,7 +355,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
     renderResult(result, _options, theme) {
       const details = result.details as { path?: string; startLine?: number; endLine?: number; totalLines?: number; truncated?: boolean } | undefined;
       if (!details) {
-        return new Text(theme.fg("dim", "hashline_read"), 0, 0);
+        return new Text(theme.fg("dim", "hashline-read"), 0, 0);
       }
       const range = `${details.startLine ?? "?"}-${details.endLine ?? "?"}`;
       const suffix = details.truncated ? " truncated" : "";
@@ -364,10 +364,10 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
   });
 
   pi.registerTool({
-    name: "file_create",
+    name: "file-create",
     label: "File Create",
     description: "Create a new text file. Refuses to overwrite existing files. Returns only a diff.",
-    promptSnippet: "Create new files with file_create. Use hashline_edit only for existing-file edits.",
+    promptSnippet: "Create new files with file-create. Use hashline-edit only for existing-file edits.",
     parameters: Type.Object({
       path: Type.String({ description: "Path to new file. Must be inside cwd." }),
       content: Type.String({ description: "Complete UTF-8 file content." }),
@@ -377,7 +377,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
       const absolutePath = await ensureCreatablePathInCwd(ctx.cwd, args.path);
       return withFileMutationQueue(absolutePath, async () => {
         if (await pathExists(absolutePath)) {
-          throw new Error(`File already exists: ${args.path}. Use hashline_read then hashline_edit.`);
+          throw new Error(`File already exists: ${args.path}. Use hashline-read then hashline-edit.`);
         }
 
         await mkdir(dirname(absolutePath), { recursive: true });
@@ -399,7 +399,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
   });
 
   pi.registerTool({
-    name: "hashline_edit",
+    name: "hashline-edit",
     label: "Hashline Edit",
     description: "Apply hashline patch sections (@@ path + <|+|-|= ops) with strict anchor validation.",
     promptSnippet: "Apply line-anchored hashline edits with strict mismatch detection.",
@@ -408,7 +408,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
       "Use anchors only, e.g. 1gs, not full read lines like 1gs|text.",
       "Delete and replace require explicit ranges, e.g. - 1gs..1gs or = 1gs..1gs.",
       "Payload lines start with the edit separator, default ~.",
-      "hashline_edit stays cwd-bound; start pi in target repo before editing another repo.",
+      "hashline-edit stays cwd-bound; start pi in target repo before editing another repo.",
     ],
     parameters: Type.Object({
       input: Type.String({ description: "Hashline patch input. First non-blank line must be @@ PATH." }),
@@ -426,7 +426,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
         const result = await withFileMutationQueue(absolutePath, async () => {
           const source = await readTextFile(absolutePath);
           if (!source.exists) {
-            throw new Error(`File not found: ${section.path}. Use file_create for new files.`);
+              throw new Error(`File not found: ${section.path}. Use file-create for new files.`);
           }
           const ending = detectLineEnding(source.text);
           const normalized = normalizeToLf(source.text);

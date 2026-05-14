@@ -139,13 +139,13 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   if (toolName === "bash") {
     tailLineCount = message.isError ? FAILED_BASH_TAIL_LINES : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
-  } else if (toolName === "hashline_read") {
+  } else if (toolName === "hashline-read" || toolName === "hashline_read") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path)}`);
     if (args.offset !== undefined) header.push(`offset: ${preview(args.offset)}`);
     if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
     header.push("note: file body omitted; re-read exact path/range before editing.");
-  } else if (toolName === "hashline_edit" || toolName === "file_create") {
+  } else if (toolName === "hashline-edit" || toolName === "hashline_edit" || toolName === "file-create" || toolName === "file_create") {
     tailLineCount = EDIT_TAIL_LINES;
     header.push("note: old diff trimmed; inspect git diff for current worktree state.");
   } else if (toolName === "grep") {
@@ -159,11 +159,11 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   } else if (toolName === "ls") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path ?? ".")}`);
-  } else if (toolName === "web_fetch") {
+  } else if (toolName === "web-fetch" || toolName === "web_fetch") {
     tailLineCount = 0;
     header.push(`url: ${preview(args.url, 2000)}`);
     header.push("note: fetched body omitted; refetch URL if needed.");
-  } else if (toolName === "exa_search") {
+  } else if (toolName === "exa-search" || toolName === "exa_search") {
     tailLineCount = 0;
     header.push(`query: ${preview(args.query, 500)}`);
     const urls = extractUrls(text);

@@ -36,6 +36,11 @@ type SearchParams = {
   limit?: number;
   context?: number;
 };
+type SearchMatch = {
+  file: string;
+  lineNumber: number;
+  text: string;
+};
 
 function splitLines(value: string): string[] {
   return value.split("\n").map((line) => line.trimEnd()).filter((line) => line.length > 0);
@@ -104,7 +109,7 @@ function formatOverview(root: string, cwd: string, files: string[], status: stri
   const languages = topCounts(files.map(languageKey), 16).map(([name, count]) => `${String(count).padStart(4)}  ${name}`);
   const visibleStatus = status.slice(0, limit);
   return [
-    "code_overview",
+    "code-overview",
     `root: ${root}`,
     `cwd: ${displayPath(root, cwd)}`,
     `files: ${files.length}${files.length >= MAX_OVERVIEW_FILES ? "+" : ""}`,
@@ -119,8 +124,8 @@ function formatOverview(root: string, cwd: string, files: string[], status: stri
   ].join("\n");
 }
 
-function parseRgJson(stdout: string, limit: number): string[] {
-  const rows: string[] = [];
+function parseRgJson(stdout: string, limit: number): SearchMatch[] {
+  const rows: SearchMatch[] = [];
   for (const line of splitLines(stdout)) {
     if (rows.length >= limit) break;
     try {
@@ -137,7 +142,7 @@ function parseRgJson(stdout: string, limit: number): string[] {
       const lineNumber = event.data?.line_number;
       const text = event.data?.lines?.text?.trimEnd();
       if (!file || !lineNumber || text === undefined) continue;
-      rows.push(`${file}:${lineNumber}: ${text}`);
+      rows.push({ file, lineNumber, text });
     } catch {
       continue;
     }
@@ -145,15 +150,20 @@ function parseRgJson(stdout: string, limit: number): string[] {
   return rows;
 }
 
+function formatSearchMatches(matches: SearchMatch[]): string[] {
+  if (matches.length === 0) return ["    └── none"];
+  return formatTree(matches.map((match) => `${match.file}:${match.lineNumber}: ${match.text}`), "    ");
+}
+
 export default function codeToolsExtension(pi: ExtensionAPI): void {
   pi.registerTool({
-    name: "code_overview",
+    name: "code-overview",
     label: "Code Overview",
     description: "Return compact git-aware codebase overview. Use before ls/find for unfamiliar repos.",
-    promptSnippet: "Use code_overview for first-pass repo exploration instead of raw ls/find.",
+    promptSnippet: "Use code-overview for first-pass repo exploration instead of raw ls/find.",
     promptGuidelines: [
-      "Use code_overview before broad ls/find commands in unfamiliar repos.",
-      "Use code_search for content lookup; read exact files only when edits require anchors.",
+      "Use code-overview before broad ls/find commands in unfamiliar repos.",
+      "Use code-search for content lookup; read exact files only when edits require anchors.",
     ],
     parameters: Type.Object({
       path: Type.Optional(Type.String({ description: "Directory to inspect. Defaults to cwd." })),
@@ -168,7 +178,7 @@ export default function codeToolsExtension(pi: ExtensionAPI): void {
       return { content: [{ type: "text", text }], details: { root, cwd, files: files.length, status: status.length } };
     },
     renderCall(args, theme) {
-      return new Text(`${theme.fg("toolTitle", theme.bold("code_overview"))} ${theme.fg("accent", args.path ?? ".")}`, 0, 0);
+      return new Text(`${theme.fg("toolTitle", theme.bold("code-overview"))} ${theme.fg("accent", args.path ?? ".")}`, 0, 0);
     },
     renderResult(result, { expanded }, theme) {
       const text = result.content.find((item) => item.type === "text")?.text ?? "";
@@ -178,12 +188,12 @@ export default function codeToolsExtension(pi: ExtensionAPI): void {
   });
 
   pi.registerTool({
-    name: "code_search",
+    name: "code-search",
     label: "Code Search",
     description: "Ripgrep-backed code search with capped ranked snippets. Use instead of broad grep.",
-    promptSnippet: "Use code_search for repository content lookup instead of broad grep.",
+    promptSnippet: "Use code-search for repository content lookup instead of broad grep.",
     promptGuidelines: [
-      "Prefer code_search over raw grep for repo exploration.",
+      "Prefer code-search over raw grep for repo exploration.",
       "Keep query specific. Increase limit only when needed.",
     ],
     parameters: Type.Object({
@@ -204,19 +214,23 @@ export default function codeToolsExtension(pi: ExtensionAPI): void {
       const result = await exec(pi, root, "rg", args);
       if (result.code > 1) throw new Error(result.stderr || "rg failed");
       const matches = parseRgJson(result.stdout, limit);
+      const files = new Set(matches.map((match) => match.file));
+      const truncated = matches.length >= limit;
       const text = [
-        "code_search",
+        "code-search",
         `query: ${params.query}`,
         `path: ${displayPath(root, cwd)}`,
         params.glob ? `glob: ${params.glob}` : undefined,
-        `matches: ${matches.length}${matches.length >= limit ? "+" : ""}`,
+        `matches: ${matches.length}${truncated ? "+" : ""}`,
+        `files: ${files.size}`,
+        `truncated: ${truncated}`,
         "└── results",
-        ...(matches.length > 0 ? formatTree(matches, "    ") : ["    └── none"]),
+        ...formatSearchMatches(matches),
       ].filter((line): line is string => typeof line === "string").join("\n");
-      return { content: [{ type: "text", text }], details: { root, cwd, query: params.query, returned: matches.length, limit } };
+      return { content: [{ type: "text", text }], details: { root, cwd, query: params.query, returned: matches.length, files: files.size, limit, truncated } };
     },
     renderCall(args, theme) {
-      return new Text(`${theme.fg("toolTitle", theme.bold("code_search"))} ${theme.fg("accent", JSON.stringify(args.query ?? ""))}`, 0, 0);
+      return new Text(`${theme.fg("toolTitle", theme.bold("code-search"))} ${theme.fg("accent", JSON.stringify(args.query ?? ""))}`, 0, 0);
     },
     renderResult(result, { expanded }, theme) {
       const text = result.content.find((item) => item.type === "text")?.text ?? "";

@@ -61,8 +61,8 @@ Respond in english only. Caveman full active always.
 
 ## Hashline Editing Protocol
 
-- Use `hashline_read` before file edits. It can inspect text files under cwd or `$HOME`; `hashline_edit` and `file_create` stay cwd-bound.
-- Use `file_create` for new files. Use `hashline_edit` only for existing files.
+- Use `hashline-read` before file edits. It can inspect text files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
+- Use `file-create` for new files. Use `hashline-edit` only for existing files.
 - Do not use `read`, `edit`, or `write`. Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly approves bypass.
 - Use anchor tokens only: `1gs`, not full read lines like `1gs|text`.
 - Op lines require `OP SPACE ANCHOR`; delete/replace require explicit ranges: `= 1gs..1gs`, not `=1gs|text`.

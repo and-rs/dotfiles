@@ -2,13 +2,13 @@
 
 ## Extensions
 
-- `web-docs`: `/exa` auth command, `exa_search`, `web_fetch`.
-- `hashline-edit`: strict `hashline_read`, `hashline_edit`, and `file_create` tools.
-- `hashline_read` can inspect files under cwd or `$HOME`; `hashline_edit` and `file_create` stay cwd-bound.
+- `web-docs`: `/exa` auth command, `exa-search`, `web-fetch`.
+- `hashline-edit`: strict `hashline-read`, `hashline-edit`, and `file-create` tools.
+- `hashline-read` can inspect files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
 - `focus-border`: dim input border on terminal focus loss.
 - `context-mask`: automatically masks old bulky tool results from LLM context and logs context operations.
 - `pi-checkpoint`: local `[PI]` checkpoint commits after file-changing turns; blocks `git push`; adds `/undo` for latest checkpoint.
-- `code-tools`: `code_overview` and `code_search` for compact JIT repo exploration.
+- `code-tools`: `code-overview` and `code-search` for compact JIT repo exploration.
 - `tool-policy`: disables built-in `read`, `edit`, `write`, `grep`, `find`, and `ls`; keeps replacement tools active.
 - `lib`: shared extension helpers. Not loaded as an extension.
 

@@ -55,7 +55,7 @@ function formatMessage(details: CheckpointDetails): string {
   if (details.status === "created") {
     const files = details.files ?? [];
     return [
-      `created ${details.hash ?? "unknown"}`,
+      `created [PI] ${details.hash ?? "unknown"}`,
       "├── files",
       ...formatTreeItems(files, "│   "),
       "└── undo",

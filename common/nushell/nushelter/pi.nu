@@ -1,5 +1,5 @@
 def _pi_tools [] {
-  "bash,grep,find,ls,exa_search,web_fetch,hashline_read,hashline_edit,file_create"
+  "bash,exa-search,web-fetch,hashline-read,hashline-edit,file-create,code-overview,code-search"
 }
 
 def ai [...args: string] {

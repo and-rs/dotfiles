@@ -481,14 +481,14 @@ export default function webDocsExtension(pi: ExtensionAPI) {
   });
 
   pi.registerTool({
-    name: "exa_search",
+    name: "exa-search",
     label: "Exa Search",
     description: "Search the web for documentation and relevant URLs using Exa.",
     promptSnippet: "Find authoritative web pages and docs URLs with Exa search.",
     promptGuidelines: [
-      "Use exa_search first when you need to find current docs, reference pages, or external URLs.",
-      "Use web_fetch after exa_search to read the exact page you chose.",
-      "Prefer exa_search with includeDomains when the user already knows the vendor or docs host.",
+      "Use exa-search first when you need to find current docs, reference pages, or external URLs.",
+      "Use web-fetch after exa-search to read the exact page you chose.",
+      "Prefer exa-search with includeDomains when the user already knows the vendor or docs host.",
     ],
     parameters: Type.Object({
       query: Type.String({ description: "Search query for the docs, API, error, or concept." }),
@@ -545,7 +545,7 @@ export default function webDocsExtension(pi: ExtensionAPI) {
     },
     renderCall(args, theme) {
       return new Text(
-        `${theme.fg("toolTitle", theme.bold("exa_search"))} ${theme.fg("accent", JSON.stringify(args.query ?? ""))}`,
+        `${theme.fg("toolTitle", theme.bold("exa-search"))} ${theme.fg("accent", JSON.stringify(args.query ?? ""))}`,
         0,
         0,
       );
@@ -576,14 +576,14 @@ export default function webDocsExtension(pi: ExtensionAPI) {
   });
 
   pi.registerTool({
-    name: "web_fetch",
+    name: "web-fetch",
     label: "Web Fetch",
     description: "Fetch a URL directly and extract readable content.",
     promptSnippet: "Fetch and extract readable content from a known URL.",
     promptGuidelines: [
-      "Use web_fetch only after you already know the URL you want to inspect.",
-      "Use web_fetch with mode markdown or text for docs pages; use html only when structure matters.",
-      "Keep web_fetch maxCharacters small unless the user explicitly needs a long page dump.",
+      "Use web-fetch only after you already know the URL you want to inspect.",
+      "Use web-fetch with mode markdown or text for docs pages; use html only when structure matters.",
+      "Keep web-fetch maxCharacters small unless the user explicitly needs a long page dump.",
     ],
     parameters: Type.Object({
       url: Type.String({ description: "Full URL to fetch." }),
@@ -616,7 +616,7 @@ export default function webDocsExtension(pi: ExtensionAPI) {
     },
     renderCall(args, theme) {
       return new Text(
-        `${theme.fg("toolTitle", theme.bold("web_fetch"))} ${theme.fg("accent", summarizeUrlHost(args.url ?? ""))}`,
+        `${theme.fg("toolTitle", theme.bold("web-fetch"))} ${theme.fg("accent", summarizeUrlHost(args.url ?? ""))}`,
         0,
         0,
       );
