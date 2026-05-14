@@ -4,7 +4,11 @@ import { Text } from "@earendil-works/pi-tui";
 
 const CUSTOM_TYPE = "context-mask";
 const MASK_NOTICE_PREFIX = "[context masked:";
-const KEEP_TAIL_LINES = 40;
+const DEFAULT_TAIL_LINES = 20;
+const FAILED_BASH_TAIL_LINES = 40;
+const SUCCESS_BASH_TAIL_LINES = 10;
+const EDIT_TAIL_LINES = 30;
+const RAW_RECENT_USER_TURNS = 3;
 const MIN_MASK_CHARACTERS = 1000;
 
 type TextContent = { type: "text"; text: string };
@@ -56,6 +60,7 @@ function lineCount(value: string): number {
 }
 
 function tailLines(value: string, count: number): string {
+  if (count <= 0) return "";
   const lines = value.split("\n");
   if (lines.length <= count) return value;
   return lines.slice(-count).join("\n");
@@ -65,6 +70,11 @@ function preview(value: unknown, maxLength = 160): string {
   const text = typeof value === "string" ? value : JSON.stringify(value ?? "");
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength - 1)}…`;
+}
+
+function extractUrls(value: string, limit = 12): string[] {
+  const matches = value.match(/https?:\/\/[^\s)\]}>"]+/g) ?? [];
+  return Array.from(new Set(matches)).slice(0, limit);
 }
 
 function formatCharacters(value: number): string {
@@ -90,19 +100,22 @@ function buildToolCallMap(messages: ContextMessage[]): Map<string, ToolCallInfo>
   return toolCalls;
 }
 
-function findCurrentTurnStart(messages: ContextMessage[]): number {
+function findRecentTurnStart(messages: ContextMessage[], turns: number): number {
+  let seen = 0;
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === "user") return i;
+    if (messages[i].role !== "user") continue;
+    seen += 1;
+    if (seen === turns) return i;
   }
-  return messages.length;
+  return 0;
 }
 
 function isContextLog(message: ContextMessage): boolean {
   return message.role === "custom" && message.customType === CUSTOM_TYPE;
 }
 
-function shouldMask(message: ContextMessage, index: number, currentTurnStart: number): boolean {
-  if (index >= currentTurnStart) return false;
+function shouldMask(message: ContextMessage, index: number, rawWindowStart: number): boolean {
+  if (index >= rawWindowStart) return false;
   if (message.role !== "toolResult") return false;
   const text = textFromContent(message.content);
   if (text.startsWith(MASK_NOTICE_PREFIX)) return false;
@@ -115,7 +128,7 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   const text = textFromContent(message.content);
   const lines = lineCount(text);
   const status = message.isError ? "error" : "ok";
-  const tail = tailLines(text.trimEnd(), KEEP_TAIL_LINES).trimEnd();
+  let tailLineCount = DEFAULT_TAIL_LINES;
   const header = [
     `${MASK_NOTICE_PREFIX} old tool result]`,
     `tool: ${toolName}`,
@@ -124,23 +137,45 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   ];
 
   if (toolName === "bash") {
+    tailLineCount = message.isError ? FAILED_BASH_TAIL_LINES : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
   } else if (toolName === "hashline_read") {
+    tailLineCount = 0;
     header.push(`path: ${preview(args.path)}`);
-    header.push("note: file body omitted; use hashline_read again for exact anchors before editing.");
+    if (args.offset !== undefined) header.push(`offset: ${preview(args.offset)}`);
+    if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
+    header.push("note: file body omitted; re-read exact path/range before editing.");
+  } else if (toolName === "hashline_edit" || toolName === "file_create") {
+    tailLineCount = EDIT_TAIL_LINES;
+    header.push("note: old diff trimmed; inspect git diff for current worktree state.");
   } else if (toolName === "grep") {
+    tailLineCount = 0;
     header.push(`query: ${preview(args.pattern)}`);
     header.push(`path: ${preview(args.path ?? ".")}`);
   } else if (toolName === "find") {
+    tailLineCount = 0;
     header.push(`pattern: ${preview(args.pattern)}`);
     header.push(`path: ${preview(args.path ?? ".")}`);
   } else if (toolName === "ls") {
+    tailLineCount = 0;
     header.push(`path: ${preview(args.path ?? ".")}`);
   } else if (toolName === "web_fetch") {
-    header.push(`url: ${preview(args.url)}`);
+    tailLineCount = 0;
+    header.push(`url: ${preview(args.url, 2000)}`);
+    header.push("note: fetched body omitted; refetch URL if needed.");
+  } else if (toolName === "exa_search") {
+    tailLineCount = 0;
+    header.push(`query: ${preview(args.query, 500)}`);
+    const urls = extractUrls(text);
+    if (urls.length > 0) {
+      header.push("urls:");
+      header.push(...urls.map((url) => `- ${url}`));
+    }
   } else if (Object.keys(args).length > 0) {
     header.push(`args: ${preview(args)}`);
   }
+
+  const tail = tailLines(text.trimEnd(), tailLineCount).trimEnd();
 
   if (tail) {
     header.push("tail:");
@@ -153,7 +188,7 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
 function maskContext(messages: CoreAgentMessage[]): { messages: CoreAgentMessage[]; stats: MaskStats } {
   const sourceMessages = messages.filter((message) => !isContextLog(message as ContextMessage)) as ContextMessage[];
   const toolCalls = buildToolCallMap(sourceMessages);
-  const currentTurnStart = findCurrentTurnStart(sourceMessages);
+  const rawWindowStart = findRecentTurnStart(sourceMessages, RAW_RECENT_USER_TURNS);
   const stats: MaskStats = {
     maskedCount: 0,
     beforeCharacters: 0,
@@ -163,7 +198,7 @@ function maskContext(messages: CoreAgentMessage[]): { messages: CoreAgentMessage
     samples: [],
   };
   const nextMessages = sourceMessages.map((message, index) => {
-    if (!shouldMask(message, index, currentTurnStart)) return message;
+    if (!shouldMask(message, index, rawWindowStart)) return message;
 
     const toolCallId = typeof message.toolCallId === "string" ? message.toolCallId : "unknown";
     const toolCall = toolCalls.get(toolCallId);
@@ -212,7 +247,7 @@ function formatStats(stats: MaskStats): string {
     `         ├── masked ${stats.maskedCount} old tool result${stats.maskedCount === 1 ? "" : "s"}`,
     "         ├── policy",
     "         │   ├── current turn kept raw",
-    `         │   └── old outputs keep metadata + tail ${KEEP_TAIL_LINES} lines`,
+    `         │   └── latest ${RAW_RECENT_USER_TURNS} user turns kept raw; old outputs keep per-tool breadcrumbs`,
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),
     "         └── samples",

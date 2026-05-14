@@ -96,7 +96,7 @@ def _ai_pi_commit_count [] {
 def "ai gs" [] {
   let pi_count = (_ai_pi_commit_count)
   if $pi_count > 0 {
-    print $"Found ($pi_count) [PI] checkpoint commit(s). Run: ai squash"
+    print $"Found ($pi_count) [PI] checkpoint commits. Run: ai squash"
     return
   }
   let entries = (
@@ -128,18 +128,25 @@ def "ai gs" [] {
   let prompt_file = (mktemp -t pi-gs-diff.XXXXXXXX)
   $diff_context | save --force $prompt_file
   let msg = (
-    try {
-      ^pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $"@($prompt_file)" $prompt
-    } catch {|err|
-      rm --force $prompt_file
-      error make {msg: $err.msg}
+    spinner "Summarizing commit" {
+      let result = (
+        ^pi --tools (_pi_tools)
+        --model "github-copilot/claude-haiku-4.5:off"
+        -p --no-session $"@($prompt_file)" $prompt
+        | complete
+      )
+      if $result.exit_code != 0 {
+        rm --force $prompt_file
+        error make {msg: ($result.stderr | str trim)}
+      }
+      $result.stdout
     } | str trim
   )
   rm --force $prompt_file
   print $msg
 
-  print
-  let answer = (input $"(ansi blue)commit? [y/N] " | str trim | str downcase)
+  print "\n"
+  let answer = (try { input $"(ansi blue)commit? [y/N] " } catch { "n" } | str trim | str downcase)
   if $answer != "y" {
     return
   }
@@ -170,35 +177,39 @@ def "ai squash" [] {
   let stat = (^git diff --stat $range)
   let names = (^git diff --name-status $range)
   let diff = (^git diff $range)
-  let diff_context = ([
-    $"Squash ($pi_count) local [PI] checkpoint commit(s)."
-    ""
-    "Changed files:"
-    $names
-    ""
-    "Diff stat:"
-    $stat
-    ""
-    "Diff:"
-    $diff
-  ] | str join "\n")
+  let diff_context = (
+    [
+      $"Squash ($pi_count) local [PI] checkpoint commits."
+      ""
+      "Changed files:"
+      $names
+      ""
+      "Diff stat:"
+      $stat
+      ""
+      "Diff:"
+      $diff
+    ] | str join "\n"
+  )
 
   let prompt = "generate final git commit message for squashed [PI] checkpoint commits. mimic previous commit style. be descriptive but concise. don't mention pi or checkpoint. DON'T INCLUDE ANYTHING ELSE in the message. NO OPENING."
   let prompt_file = (mktemp -t pi-squash-diff.XXXXXXXX)
   $diff_context | save --force $prompt_file
   let msg = (
-    try {
-      ^pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $"@($prompt_file)" $prompt
-    } catch {|err|
-      rm --force $prompt_file
-      error make {msg: $err.msg}
+    spinner "Summarizing squash" {
+      let result = (^pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $"@($prompt_file)" $prompt | complete)
+      if $result.exit_code != 0 {
+        rm --force $prompt_file
+        error make {msg: ($result.stderr | str trim)}
+      }
+      $result.stdout
     } | str trim
   )
   rm --force $prompt_file
 
   print $msg
   print
-  let answer = (input $"(ansi blue)squash ($pi_count) [PI] commit(s)? [y/N] " | str trim | str downcase)
+  let answer = (try { input $"(ansi blue)squash ($pi_count) [PI] commits? [y/N] " } catch { "n" } | str trim | str downcase)
   if $answer != "y" {
     return
   }

@@ -96,6 +96,7 @@ export-env {
 
 source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
+source nushelter/spinner.nu
 source nushelter/screen.nu
 source nushelter/pi.nu
 source nushelter/ret.nu
