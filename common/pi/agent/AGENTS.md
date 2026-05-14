@@ -41,14 +41,13 @@ Respond in english only. Caveman full active always.
 - Internal tool execution can use bash by default; use `nu -c '...'` only when nushell execution is required.
 - If user asks for nushell output, never return bash syntax.
 - Format shell examples for copy/paste: multiline, one flag per line for long commands; avoid long single-line commands.
-- For multiline nushell external commands, prefer wrapped form:
-
-```nu
-(
- cmd
- --flag value
-)
-```
+- For multiline nushell external commands, prefer wrapped form WITH ():
+   ```nu
+      (
+       cmd
+       --flag value
+      )
+      ```
 
 - No bash-isms in `.nu`: no `$()`, `&&`/`||`, `export VAR=val`, `[[ ]]`.
 - When unsure about nushell syntax, load the `nu-syntax` skill first.
@@ -62,10 +61,16 @@ Respond in english only. Caveman full active always.
 
 ## Hashline Editing Protocol
 
-- For file reading before edits, use `hashline_read` (not `read`).
-- For new files, use `file_create`.
-- For existing-file modifications, use `hashline_edit` only.
-- Do not use `edit` or `write` unless user explicitly overrides this rule.
-- Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly overrides.
-- Copy anchors exactly from `hashline_read` output.
+- Use `hashline_read` before file edits. It can inspect text files under cwd or `$HOME`; `hashline_edit` and `file_create` stay cwd-bound.
+- Use `file_create` for new files. Use `hashline_edit` only for existing files.
+- Do not use `read`, `edit`, or `write`. Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly approves bypass.
+- Use anchor tokens only: `1gs`, not full read lines like `1gs|text`.
+- Op lines require `OP SPACE ANCHOR`; delete/replace require explicit ranges: `= 1gs..1gs`, not `=1gs|text`.
+- Payload lines start with `~`:
+  ```
+  @@ file
+  = 1gs..1gs
+  ~new text
+  ```
 - If read output is truncated, continue with `offset`/`:L` and re-anchor before editing.
+- For cross-repo edits, start pi in target repo. If path is blocked, follow tool error action exactly.

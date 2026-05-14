@@ -17,7 +17,7 @@ source settings/theme.nu
 source settings/keybinds.nu
 
 if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
-  exec tmux -u new -s code -A -D
+  exec tmux -u new -s work -A -D
 }
 
 # Options

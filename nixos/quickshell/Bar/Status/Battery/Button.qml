@@ -23,7 +23,7 @@ Rectangle {
   readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
   readonly property string label: Math.round(fillLevel * 100)
   readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
-  readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.primary : Config.colors.success
+  readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.success : Config.colors.success
 
   visible: hasBattery
   width: contentRow.implicitWidth + horizontalPadding * 2
@@ -38,7 +38,8 @@ Rectangle {
 
     Item {
       width: charging ? 14 : 0
-      height: charging ? 14 : 0
+      anchors.verticalCenter: parent.verticalCenter
+      height: 14
 
       MaterialIcon {
         anchors.centerIn: parent
@@ -83,7 +84,7 @@ Rectangle {
           horizontalAlignment: Text.AlignHCenter
           verticalAlignment: Text.AlignVCenter
           text: root.label
-          font.weight: 800
+          font.weight: 900
           font.pointSize: 10
           color: Config.colors.base
 

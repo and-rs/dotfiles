@@ -4,6 +4,7 @@
 
 - `web-docs`: `/exa` auth command, `exa_search`, `web_fetch`.
 - `hashline-edit`: strict `hashline_read`, `hashline_edit`, and `file_create` tools.
+- `hashline_read` can inspect files under cwd or `$HOME`; `hashline_edit` and `file_create` stay cwd-bound.
 - `focus-border`: dim input border on terminal focus loss.
 - `lib`: shared extension helpers. Not loaded as an extension.
 

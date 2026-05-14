@@ -1,9 +1,9 @@
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdtemp, mkdir, readFile, realpath, rm, stat, writeFile } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { spawn } from "node:child_process";
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { type ExtensionAPI, withFileMutationQueue } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
@@ -31,16 +31,76 @@ const DEFAULT_READ_LIMIT = 300;
 const MAX_READ_LIMIT = 2000;
 const READ_TRUNCATION_NOTICE = (start: number, end: number, total: number): string =>
   `[Showing lines ${start}-${end} of ${total}. Use :L${end + 1} to continue]`;
+const HOME_DIR = resolve(homedir());
+const MAX_TEXT_FILE_BYTES = 10 * 1024 * 1024;
 
 const snapshots = new Map<string, HashlineSnapshot>();
 
-function ensurePathInCwd(cwd: string, candidatePath: string): string {
-  const absolute = isAbsolute(candidatePath) ? resolve(candidatePath) : resolve(cwd, candidatePath);
-  const rel = relative(cwd, absolute);
-  if (rel.startsWith("..") || isAbsolute(rel)) {
-    throw new Error(`Path escapes cwd: ${candidatePath}`);
+function normalizeToolPathInput(candidatePath: string): string {
+  const trimmed = candidatePath.trim();
+  return trimmed.startsWith("@") && trimmed.length > 1 ? trimmed.slice(1) : candidatePath;
+}
+
+function resolveToolPath(cwd: string, candidatePath: string): string {
+  const normalized = normalizeToolPathInput(candidatePath);
+  return isAbsolute(normalized) ? resolve(normalized) : resolve(cwd, normalized);
+}
+
+function isPathInRoot(root: string, candidatePath: string): boolean {
+  const rel = relative(resolve(root), candidatePath);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+async function realpathIfExists(path: string): Promise<string | null> {
+  try {
+    return await realpath(path);
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") return null;
+    throw error;
   }
+}
+
+async function findExistingAncestor(path: string): Promise<string> {
+  let current = dirname(path);
+  while (true) {
+    const resolved = await realpathIfExists(current);
+    if (resolved) return resolved;
+    const parent = dirname(current);
+    if (parent === current) return current;
+    current = parent;
+  }
+}
+
+function assertPathInCwd(cwd: string, candidatePath: string, absolutePath: string): void {
+  if (!isPathInRoot(cwd, absolutePath)) {
+    throw new Error(`Path outside cwd: ${candidatePath}. Start pi in target repo before editing or creating files. Current cwd: ${cwd}`);
+  }
+}
+
+async function ensureExistingPathInCwd(cwd: string, candidatePath: string): Promise<string> {
+  const absolute = resolveToolPath(cwd, candidatePath);
+  assertPathInCwd(cwd, candidatePath, absolute);
+  const resolved = await realpathIfExists(absolute);
+  if (resolved) assertPathInCwd(cwd, candidatePath, resolved);
   return absolute;
+}
+
+async function ensureCreatablePathInCwd(cwd: string, candidatePath: string): Promise<string> {
+  const absolute = resolveToolPath(cwd, candidatePath);
+  assertPathInCwd(cwd, candidatePath, absolute);
+  const existing = await realpathIfExists(absolute);
+  if (existing) assertPathInCwd(cwd, candidatePath, existing);
+  const ancestor = await findExistingAncestor(absolute);
+  assertPathInCwd(cwd, candidatePath, ancestor);
+  return absolute;
+}
+
+async function ensureReadablePath(cwd: string, candidatePath: string): Promise<string> {
+  const absolute = resolveToolPath(cwd, candidatePath);
+  const resolved = (await realpathIfExists(absolute)) ?? absolute;
+  if (isPathInRoot(cwd, resolved) || isPathInRoot(HOME_DIR, resolved)) return absolute;
+  throw new Error(`Path outside allowed read roots: ${candidatePath}. hashline_read allows current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
 }
 
 function getSnapshot(path: string): HashlineSnapshot {
@@ -72,9 +132,35 @@ function restoreLineEndings(text: string, ending: "\n" | "\r\n"): string {
   return text.replace(/\n/g, "\r\n");
 }
 
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await stat(path);
+    return true;
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") return false;
+    throw error;
+  }
+}
+
+function looksBinary(buffer: Buffer): boolean {
+  const sampleLength = Math.min(buffer.length, 8192);
+  for (let i = 0; i < sampleLength; i++) {
+    if (buffer[i] === 0) return true;
+  }
+  return false;
+}
+
 async function readTextFile(path: string): Promise<{ exists: boolean; text: string }> {
   try {
-    return { exists: true, text: await readFile(path, "utf8") };
+    const info = await stat(path);
+    if (!info.isFile()) throw new Error(`Not a file: ${path}`);
+    if (info.size > MAX_TEXT_FILE_BYTES) {
+      throw new Error(`File too large for hashline tools: ${path} (${info.size} bytes, max ${MAX_TEXT_FILE_BYTES})`);
+    }
+    const buffer = await readFile(path);
+    if (looksBinary(buffer)) throw new Error(`Binary file not supported by hashline tools: ${path}`);
+    return { exists: true, text: buffer.toString("utf8") };
   } catch (error) {
     const nodeError = error as NodeJS.ErrnoException;
     if (nodeError.code === "ENOENT") return { exists: false, text: "" };
@@ -218,11 +304,12 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
   pi.registerTool({
     name: "hashline_read",
     label: "Hashline Read",
-    description: "Read a text file with hashline anchors in each line.",
+    description: "Read a text file with hashline anchors in each line. Paths may be inside cwd or $HOME.",
     promptSnippet: "Read file content with line+hash anchors before hashline edits.",
     promptGuidelines: [
       "Use hashline_read before hashline_edit.",
-      "Copy anchors exactly from hashline_read output.",
+      "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
+      "hashline_read may inspect text files under cwd or $HOME; hashline_edit and file_create stay cwd-bound.",
       "If output is truncated, continue with :L<line> offset.",
     ],
     parameters: Type.Object({
@@ -232,7 +319,7 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
     }),
     execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
       const args = params as ReadParams;
-      const absolutePath = ensurePathInCwd(ctx.cwd, args.path);
+      const absolutePath = await ensureReadablePath(ctx.cwd, args.path);
       const source = await readTextFile(absolutePath);
       if (!source.exists) {
         throw new Error(`File not found: ${args.path}`);
@@ -287,21 +374,22 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
     }),
     execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
       const args = params as CreateFileParams;
-      const absolutePath = ensurePathInCwd(ctx.cwd, args.path);
-      const source = await readTextFile(absolutePath);
-      if (source.exists) {
-        throw new Error(`File already exists: ${args.path}. Use hashline_read then hashline_edit.`);
-      }
+      const absolutePath = await ensureCreatablePathInCwd(ctx.cwd, args.path);
+      return withFileMutationQueue(absolutePath, async () => {
+        if (await pathExists(absolutePath)) {
+          throw new Error(`File already exists: ${args.path}. Use hashline_read then hashline_edit.`);
+        }
 
-      await mkdir(dirname(absolutePath), { recursive: true });
-      await writeFile(absolutePath, args.content, "utf8");
-      rememberRange(absolutePath, 1, normalizeToLf(args.content).split("\n"));
+        await mkdir(dirname(absolutePath), { recursive: true });
+        await writeFile(absolutePath, args.content, "utf8");
+        rememberRange(absolutePath, 1, normalizeToLf(args.content).split("\n"));
 
-      const diff = await buildEditDiff(ctx.cwd, [{ path: absolutePath, before: "", after: args.content, changed: true }]);
-      return {
-        content: [{ type: "text", text: diff }],
-        details: { path: args.path, diff },
-      };
+        const diff = await buildEditDiff(ctx.cwd, [{ path: absolutePath, before: "", after: args.content, changed: true }]);
+        return {
+          content: [{ type: "text", text: diff }],
+          details: { path: args.path, diff },
+        };
+      });
     },
     renderResult(result, _options, theme) {
       const details = result.details as { diff?: string } | undefined;
@@ -315,6 +403,13 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
     label: "Hashline Edit",
     description: "Apply hashline patch sections (@@ path + <|+|-|= ops) with strict anchor validation.",
     promptSnippet: "Apply line-anchored hashline edits with strict mismatch detection.",
+    promptGuidelines: [
+      "Use op lines as OP SPACE ANCHOR, e.g. = 1gs..1gs, not =1gs|text.",
+      "Use anchors only, e.g. 1gs, not full read lines like 1gs|text.",
+      "Delete and replace require explicit ranges, e.g. - 1gs..1gs or = 1gs..1gs.",
+      "Payload lines start with the edit separator, default ~.",
+      "hashline_edit stays cwd-bound; start pi in target repo before editing another repo.",
+    ],
     parameters: Type.Object({
       input: Type.String({ description: "Hashline patch input. First non-blank line must be @@ PATH." }),
       path: Type.Optional(Type.String({ description: "Fallback path when input omits @@ PATH." })),
@@ -327,40 +422,50 @@ export default function hashlineEditExtension(pi: ExtensionAPI) {
       const details: Array<{ path: string; changed: boolean; warnings: string[] }> = [];
 
       for (const section of sections) {
-        const absolutePath = ensurePathInCwd(ctx.cwd, section.path);
-        const source = await readTextFile(absolutePath);
-        const ending = detectLineEnding(source.text);
-        const normalized = normalizeToLf(source.text);
-        const { edits, warnings: parseWarnings } = parseHashlineWithWarnings(section.diff);
-
-        let applied;
-        try {
-          applied = applyHashlineEdits(normalized, edits, {
-            autoDropPureInsertDuplicates: args.autoDropPureInsertDuplicates,
-          });
-        } catch (error) {
-          if (error instanceof HashlineMismatchError) {
-            throw new Error(error.displayMessage);
+        const absolutePath = await ensureExistingPathInCwd(ctx.cwd, section.path);
+        const result = await withFileMutationQueue(absolutePath, async () => {
+          const source = await readTextFile(absolutePath);
+          if (!source.exists) {
+            throw new Error(`File not found: ${section.path}. Use file_create for new files.`);
           }
-          throw error;
-        }
+          const ending = detectLineEnding(source.text);
+          const normalized = normalizeToLf(source.text);
+          const { edits, warnings: parseWarnings } = parseHashlineWithWarnings(section.diff);
 
-        const changed = applied.lines !== normalized;
-        const warnings = mergeWarnings(parseWarnings, applied.warnings);
+          let applied;
+          try {
+            applied = applyHashlineEdits(normalized, edits, {
+              autoDropPureInsertDuplicates: args.autoDropPureInsertDuplicates,
+            });
+          } catch (error) {
+            if (error instanceof HashlineMismatchError) {
+              throw new Error(error.displayMessage);
+            }
+            throw error;
+          }
 
-        if (changed) {
-          await mkdir(dirname(absolutePath), { recursive: true });
-          await writeFile(absolutePath, restoreLineEndings(applied.lines, ending), "utf8");
-          rememberRange(absolutePath, 1, applied.lines.split("\n"));
-        }
+          const changed = applied.lines !== normalized;
+          const warnings = mergeWarnings(parseWarnings, applied.warnings);
+          const after = restoreLineEndings(applied.lines, ending);
 
-        editedFiles.push({
-          path: absolutePath,
-          before: source.text,
-          after: restoreLineEndings(applied.lines, ending),
-          changed,
+          if (changed) {
+            await writeFile(absolutePath, after, "utf8");
+            rememberRange(absolutePath, 1, applied.lines.split("\n"));
+          }
+
+          return {
+            editedFile: {
+              path: absolutePath,
+              before: source.text,
+              after,
+              changed,
+            },
+            detail: { path: section.path, changed, warnings },
+          };
         });
-        details.push({ path: section.path, changed, warnings });
+
+        editedFiles.push(result.editedFile);
+        details.push(result.detail);
       }
 
       const diff = await buildEditDiff(ctx.cwd, editedFiles);

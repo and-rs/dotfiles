@@ -1,7 +1,7 @@
-const float SHARPEN_STRENGTH = 0.70;
-const float RADIUS_PX = 1.10;
+const float SHARPEN_STRENGTH = 1.70;
+const float RADIUS_PX = 0.50;
 const float EDGE_THRESHOLD = 0.01;
-const float CLAMP_MAX = 0.20;
+const float CLAMP_MAX = 0.60;
 
 const vec3 LUMA_COEFF = vec3(0.2126, 0.7152, 0.0722);
 
