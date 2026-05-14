@@ -173,15 +173,9 @@ async function createCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, before:
     return;
   }
 
-  if (before.dirtyFiles.size > 0) {
-    await sendCheckpointMessage(pi, {
-      status: "skipped",
-      reason: `worktree was already dirty at turn start (${before.dirtyFiles.size} files)` ,
-    });
-    return;
-  }
-
-  const changedFiles = uniqueSorted(after.dirtyFiles);
+  const changedFiles = uniqueSorted(
+    Array.from(after.dirtyFiles).filter((f) => !before.dirtyFiles.has(f)),
+  );
   if (changedFiles.length === 0) return;
 
   const sensitiveFiles = changedFiles.filter(isSensitivePath);

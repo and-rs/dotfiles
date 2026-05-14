@@ -34,6 +34,7 @@ Respond in english only. Caveman full active always.
 - No placeholders, no TODOs. Must work.
 - If code not requested, don't dump it.
 - Follow repo patterns, not personal style.
+- Tool names must use kebab-case, e.g. `code-search`, never snake_case.
 
 ## Shell & Nushell
 
