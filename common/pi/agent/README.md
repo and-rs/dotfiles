@@ -6,6 +6,8 @@
 - `hashline-edit`: strict `hashline_read`, `hashline_edit`, and `file_create` tools.
 - `hashline_read` can inspect files under cwd or `$HOME`; `hashline_edit` and `file_create` stay cwd-bound.
 - `focus-border`: dim input border on terminal focus loss.
+- `context-mask`: automatically masks old bulky tool results from LLM context and logs context operations.
+- `pi-checkpoint`: local `[PI]` checkpoint commits after file-changing turns; blocks `git push`; adds `/undo` for latest checkpoint.
 - `lib`: shared extension helpers. Not loaded as an extension.
 
 ## Exa auth
@@ -33,6 +35,8 @@ Run after clone/update:
 ai bootstrap web-docs
 ai bootstrap hashline-edit
 ai bootstrap focus-border
+ai bootstrap context-mask
+ai bootstrap pi-checkpoint
 ```
 
 ## Tmux focus
@@ -50,6 +54,13 @@ Restart tmux if existing panes still do not emit focus events.
 
 - `alt+p`: toggle session path filter.
 - `alt+o`: toggle model provider.
+
+## Checkpoints
+
+- `pi-checkpoint` creates local `[PI] checkpoint:` commits only when a turn changes files and the worktree was clean at turn start.
+- `/undo` resets files by dropping latest `[PI]` commit when worktree is clean.
+- `ai gs` refuses normal commit flow while `[PI]` commits are at `HEAD`; run `ai squash` to squash them into a final commit.
+- Agent `git push` is blocked; push manually outside Pi.
 
 ## Local secrets
 
