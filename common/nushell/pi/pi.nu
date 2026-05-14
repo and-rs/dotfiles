@@ -1,21 +1,6 @@
-def _pi_tools [] {
-  "bash,exa-search,web-fetch,hashline-read,hashline-edit,file-create,code-overview,code-search,code-files"
-}
+alias "ai" = pi
 
-def ai [...args: string] {
-  if ($args | length) == 0 {
-    if (which pi | is-empty) {
-      print "pi not installed. run: ai install"
-      return
-    }
-    ^pi --tools (_pi_tools)
-    return
-  }
-
-  ^pi --tools (_pi_tools) ...$args
-}
-
-def "ai install" [...args: string] {
+export def "ai install" [...args: string] {
   if (which npm | is-empty) {
     print "npm not found"
     return
@@ -23,19 +8,19 @@ def "ai install" [...args: string] {
 
   if ($args | is-empty) {
     print "ai install > installing pi"
-    ^npm install -g @earendil-works/pi-coding-agent
+    npm install -g @earendil-works/pi-coding-agent
     return
   }
 
   if (which pi | is-empty) {
     print "ai install > installing pi"
-    ^npm install -g @earendil-works/pi-coding-agent
+    npm install -g @earendil-works/pi-coding-agent
   }
 
-  ^pi install ...$args
+  pi install ...$args
 }
 
-def "ai bootstrap" [name?: string] {
+export def "ai bootstrap" [name?: string] {
   if (which npm | is-empty) {
     print "npm not found"
     return
@@ -72,11 +57,11 @@ def "ai bootstrap" [name?: string] {
     print $"pi bootstrap > npm install (($dir | path basename))"
     do {
       cd $dir
-      ^npm install
+      npm install
     }
   }
 }
 
-def aip [prompt: string] {
-  pi --tools (_pi_tools) --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
+export def aip [prompt: string] {
+  pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
 }

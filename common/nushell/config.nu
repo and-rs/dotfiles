@@ -98,14 +98,15 @@ source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
 source nushelter/spinner.nu
 source nushelter/screen.nu
-source pi/pi.nu
-source pi/pi-git.nu
 source nushelter/ret.nu
 source nushelter/utils.nu
 source nushelter/data.nu
 source nushelter/grit.nu
 source nushelter/git.nu
 source completions/just_completions.nu
+
+# Pi setup 8ms
+use pi *
 
 # Forgit & git completions 8ms
 use forgit *
