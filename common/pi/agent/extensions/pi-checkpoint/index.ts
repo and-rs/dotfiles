@@ -54,13 +54,7 @@ function checkpointSubject(files: string[]): string {
 function formatMessage(details: CheckpointDetails): string {
   if (details.status === "created") {
     const files = details.files ?? [];
-    return [
-      `created [PI] ${details.hash ?? "unknown"}`,
-      "├── files",
-      ...formatTreeItems(files, "│   "),
-      "└── undo",
-      "    └── /undo resets files to previous commit if HEAD is [PI]",
-    ].join("\n");
+    return [`created [PI] ${details.hash ?? "unknown"}`, "└── files", ...formatTreeItems(files, "    ")].join("\n");
   }
 
   if (details.status === "undone") {
@@ -155,7 +149,7 @@ async function sendCheckpointMessage(pi: ExtensionAPI, details: CheckpointDetail
       display: true,
       details,
     },
-    { deliverAs: "nextTurn" },
+    { deliverAs: "steer" },
   );
 }
 

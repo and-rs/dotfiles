@@ -284,6 +284,7 @@ export default function codeToolsExtension(pi: ExtensionAPI): void {
       const limit = clamp(params.limit, 1, MAX_SEARCH_RESULTS, 30);
       const context = clamp(params.context, 0, 3, 0);
       const args = ["--json", "--line-number", "--no-heading", "--color", "never", "--context", String(context)];
+      args.push("--glob", "!**/*.map", "--glob", "!**/node_modules/**", "--glob", "!**/.git/**");
       if (params.glob) args.push("--glob", params.glob);
       args.push(params.query, cwd);
       const result = await exec(pi, root, "rg", args);
