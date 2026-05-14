@@ -33,7 +33,7 @@ def spinner [msg: string action: closure] {
     }
 
     let frame = ($frames | get ($i mod ($frames | length)))
-    print -n $"\r(ansi reset)($frame) ($msg)..."
+    print -n $"\r(ansi reset)($frame) ($msg)"
     $i = $i + 1
   }
 }
