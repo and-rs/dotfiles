@@ -1,0 +1,13 @@
+#!/usr/bin/env nu
+
+def main [] {
+  mut count = 0
+  for subject in (^git log --format=%s | lines) {
+    if ($subject | str starts-with "[PI] checkpoint:") {
+      $count = $count + 1
+    } else {
+      break
+    }
+  }
+  print $count
+}

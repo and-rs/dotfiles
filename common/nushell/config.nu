@@ -98,7 +98,8 @@ source nushelter/clip.nu # 1st
 source nushelter/aliases.nu
 source nushelter/spinner.nu
 source nushelter/screen.nu
-source nushelter/pi.nu
+source pi/pi.nu
+source pi/pi-git.nu
 source nushelter/ret.nu
 source nushelter/utils.nu
 source nushelter/data.nu
