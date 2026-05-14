@@ -8,6 +8,7 @@ const DEFAULT_TAIL_LINES = 20;
 const FAILED_BASH_TAIL_LINES = 40;
 const SUCCESS_BASH_TAIL_LINES = 10;
 const EDIT_TAIL_LINES = 30;
+const CODE_FILES_TAIL_LINES = 100;
 const RAW_RECENT_USER_TURNS = 3;
 const MIN_MASK_CHARACTERS = 1000;
 
@@ -159,6 +160,11 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   } else if (toolName === "ls") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path ?? ".")}`);
+  } else if (toolName === "code-files" || toolName === "code_files") {
+    tailLineCount = CODE_FILES_TAIL_LINES;
+    header.push(`path: ${preview(args.path ?? ".")}`);
+    if (args.glob !== undefined) header.push(`glob: ${preview(args.glob)}`);
+    if (args.type !== undefined) header.push(`type: ${preview(args.type)}`);
   } else if (toolName === "web-fetch" || toolName === "web_fetch") {
     tailLineCount = 0;
     header.push(`url: ${preview(args.url, 2000)}`);

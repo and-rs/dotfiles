@@ -6,6 +6,7 @@ import path from "node:path";
 const EXEC_TIMEOUT = 15_000;
 const MAX_SEARCH_RESULTS = 80;
 const MAX_OVERVIEW_FILES = 5000;
+const MAX_FILES_RESULTS = 500;
 
 const MANIFESTS = [
   "package.json",
@@ -40,6 +41,14 @@ type SearchMatch = {
   file: string;
   lineNumber: number;
   text: string;
+};
+
+
+type FilesParams = {
+  path?: string;
+  glob?: string;
+  type?: "file" | "dir";
+  limit?: number;
 };
 
 function splitLines(value: string): string[] {
@@ -155,6 +164,72 @@ function formatSearchMatches(matches: SearchMatch[]): string[] {
   return formatTree(matches.map((match) => `${match.file}:${match.lineNumber}: ${match.text}`), "    ");
 }
 
+
+async function listFiles(
+  pi: ExtensionAPI,
+  searchDir: string,
+  glob: string | undefined,
+  type: "file" | "dir" | undefined,
+  limit: number,
+): Promise<{ files: string[]; truncated: boolean; via: string }> {
+  const fdArgs: string[] = ["--color", "never", "--strip-cwd-prefix"];
+  if (type === "file") fdArgs.push("--type", "f");
+  else if (type === "dir") fdArgs.push("--type", "d");
+  if (glob) fdArgs.push("--glob", glob);
+  const fdResult = await exec(pi, searchDir, "fd", fdArgs);
+  if (fdResult.code === 0) {
+    const files = splitLines(fdResult.stdout);
+    const truncated = files.length > limit;
+    return { files: files.slice(0, limit), truncated, via: "fd" };
+  }
+
+  if (type !== "dir") {
+    const rgArgs: string[] = ["--files", "--color", "never", "--hidden", "-g", "!.git"];
+    if (glob) rgArgs.push("--glob", glob);
+    rgArgs.push(".");
+    const rgResult = await exec(pi, searchDir, "rg", rgArgs);
+    if (rgResult.code === 0) {
+      const files = splitLines(rgResult.stdout).map((f) => f.replace(/^\.\//, ""));
+      const truncated = files.length > limit;
+      return { files: files.slice(0, limit), truncated, via: "rg" };
+    }
+  }
+
+  if (type !== "dir") {
+    const gitArgs: string[] = ["ls-files"];
+    if (glob && !glob.startsWith("**/")) gitArgs.push(glob);
+    const gitResult = await exec(pi, searchDir, "git", gitArgs);
+    if (gitResult.code === 0) {
+      const files = splitLines(gitResult.stdout);
+      const truncated = files.length > limit;
+      return { files: files.slice(0, limit), truncated, via: "git ls-files" };
+    }
+  }
+
+  return { files: [], truncated: false, via: "none" };
+}
+
+function formatFilesList(
+  root: string,
+  searchDir: string,
+  files: string[],
+  glob: string | undefined,
+  type: string | undefined,
+  truncated: boolean,
+  via: string,
+): string {
+  return [
+    "code-files",
+    `path: ${displayPath(root, searchDir)}`,
+    glob ? `glob: ${glob}` : undefined,
+    type ? `type: ${type}` : undefined,
+    `files: ${files.length}${truncated ? "+" : ""}`,
+    `truncated: ${truncated}`,
+    `via: ${via}`,
+    "└── results",
+    ...(files.length > 0 ? formatTree(files, "    ") : ["    └── none"]),
+  ].filter((line): line is string => typeof line === "string").join("\n");
+}
 export default function codeToolsExtension(pi: ExtensionAPI): void {
   pi.registerTool({
     name: "code-overview",
@@ -231,6 +306,44 @@ export default function codeToolsExtension(pi: ExtensionAPI): void {
     },
     renderCall(args, theme) {
       return new Text(`${theme.fg("toolTitle", theme.bold("code-search"))} ${theme.fg("accent", JSON.stringify(args.query ?? ""))}`, 0, 0);
+    },
+    renderResult(result, { expanded }, theme) {
+      const text = result.content.find((item) => item.type === "text")?.text ?? "";
+      if (!expanded) return new Text(theme.fg("success", text.split("\n").slice(1, 5).join(" · ")), 0, 0);
+      return new Text(`\n${theme.fg("toolOutput", text)}`, 0, 0);
+    },
+  });
+
+  pi.registerTool({
+    name: "code-files",
+    label: "Code Files",
+    description: "List file paths by glob or type. fd-backed with rg/git fallbacks. Use instead of ls/find.",
+    promptSnippet: "Use code-files for file path listing instead of bash ls or find.",
+    promptGuidelines: [
+      "Use code-files for file path discovery. Never use bash ls or find.",
+      "Use code-overview for first repo orientation; code-files for specific path enumeration.",
+    ],
+    parameters: Type.Object({
+      path: Type.Optional(Type.String({ description: "Directory to search. Defaults to cwd." })),
+      glob: Type.Optional(Type.String({ description: "Glob filter, e.g. **/*.ts or *.nu." })),
+      type: Type.Optional(Type.String({ description: "Filter by 'file' or 'dir'. Omit for both." })),
+      limit: Type.Optional(Type.Integer({ minimum: 1, maximum: MAX_FILES_RESULTS, description: "Max results. Default 100." })),
+    }),
+    execute: async (_toolCallId, params: FilesParams) => {
+      const searchDir = params.path ? path.resolve(params.path) : process.cwd();
+      const root = await repoRoot(pi, searchDir);
+      const limit = clamp(params.limit, 1, MAX_FILES_RESULTS, 100);
+      const typeFilter = params.type === "file" || params.type === "dir" ? params.type : undefined;
+      const { files, truncated, via } = await listFiles(pi, searchDir, params.glob, typeFilter, limit);
+      const text = formatFilesList(root, searchDir, files, params.glob, typeFilter, truncated, via);
+      return {
+        content: [{ type: "text", text }],
+        details: { root, searchDir, returned: files.length, truncated, via },
+      };
+    },
+    renderCall(args, theme) {
+      const parts = [args.path ?? ".", args.glob, args.type].filter(Boolean).join(" · ");
+      return new Text(`${theme.fg("toolTitle", theme.bold("code-files"))} ${theme.fg("accent", parts)}`, 0, 0);
     },
     renderResult(result, { expanded }, theme) {
       const text = result.content.find((item) => item.type === "text")?.text ?? "";

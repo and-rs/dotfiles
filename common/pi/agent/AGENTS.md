@@ -60,9 +60,18 @@ Respond in english only. Caveman full active always.
 - Run smallest useful validation after change.
 - Report path and result only. If blocked, say so.
 
+## Tool Usage
+
+- `code-overview` first pass in unfamiliar repos.
+- `code-files` for file path listing. Never `bash ls` or `bash find` — hard-blocked.
+- `code-search` for content search. Never `bash grep` — hard-blocked.
+- `hashline-read` to read any file. Never `bash cat`, `bash head`, or `bash tail` — hard-blocked.
+- `bash` for execution only: run commands, validate, install. Not file reading or directory listing.
+- `exa-search` then `web-fetch` for external docs. Always exa-search first to get URL.
+
 ## Hashline Editing Protocol
 
-- Use `hashline-read` before file edits. It can inspect text files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
+- Use `hashline-read` to read any file. It can inspect text files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
 - Use `file-create` for new files. Use `hashline-edit` only for existing files.
 - Do not use `read`, `edit`, or `write`. Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly approves bypass.
 - Use anchor tokens only: `1gs`, not full read lines like `1gs|text`.

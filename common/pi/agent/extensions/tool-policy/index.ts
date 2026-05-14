@@ -2,6 +2,24 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const BLOCKED_TOOLS = new Set(["read", "edit", "write", "grep", "find", "ls"]);
 
+const BASH_BLOCKED: Record<string, string> = {
+  cat: "Use hashline-read to read file content.",
+  head: "Use hashline-read with limit parameter for partial reads.",
+  tail: "Use hashline-read with offset parameter for partial reads.",
+  ls: "Use code-files for directory listing or code-overview for repo structure.",
+  find: "Use code-files for file path discovery.",
+  grep: "Use code-search for content search.",
+};
+
+function bashBlockedReason(command: unknown): string | null {
+  if (typeof command !== "string") return null;
+  const token = command.trimStart().split(/\s+/)[0] ?? "";
+  const base = token.split("/").at(-1) ?? token;
+  const hint = BASH_BLOCKED[base];
+  if (!hint) return null;
+  return `bash ${base} is blocked by tool-policy. ${hint}`;
+}
+
 function replacementFor(toolName: string): string {
   switch (toolName) {
     case "read":
@@ -38,10 +56,15 @@ export default function toolPolicyExtension(pi: ExtensionAPI): void {
   });
 
   pi.on("tool_call", (event) => {
-    if (!BLOCKED_TOOLS.has(event.toolName)) return;
-    return {
-      block: true,
-      reason: `${event.toolName} is disabled by tool-policy. ${replacementFor(event.toolName)}`,
-    };
+    if (BLOCKED_TOOLS.has(event.toolName)) {
+      return {
+        block: true,
+        reason: `${event.toolName} is disabled by tool-policy. ${replacementFor(event.toolName)}`,
+      };
+    }
+    if (event.toolName === "bash") {
+      const reason = bashBlockedReason(event.input.command);
+      if (reason) return { block: true, reason };
+    }
   });
 }
