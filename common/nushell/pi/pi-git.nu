@@ -29,11 +29,8 @@ def "ai gs" [] {
     return
   }
 
-  print $"(ansi dark_gray)staged:(ansi reset)"
-  print $staged
-  print ""
 
-  let prompt = "Generate a git commit message. Mimic the style of previous commits closely. Be descriptive but concise. Keep each line short. DON'T INCLUDE ANYTHING ELSE. NO OPENING LINE."
+  let prompt = "Output ONLY a raw git commit message. No explanations, no questions, no alternatives, no markdown, no code blocks. Mimic the style and format of recent commits exactly. Be descriptive but concise."
   let msg = (_ai_summarize "generating..." (_ai_git_status) $prompt)
 
   print ""
@@ -62,26 +59,23 @@ def "ai squash" [] {
 
   let base = (^git rev-parse $"HEAD~($pi_count)" | str trim)
   let range = $"($base)..HEAD"
-  let stat = (^git diff --stat $range | str trim)
+  let stat = (^git --no-pager diff --stat --color=never $range | str trim)
 
-  print $"(ansi dark_gray)squashing ($pi_count) [PI] commit(if $pi_count > 1 {"s"} else {""}):(ansi reset)"
-  print $stat
-  print ""
 
   let context = ([
     $"Squashing ($pi_count) [PI] checkpoint commits."
     ""
     "Changed files:"
-    (^git diff --name-status $range)
+    (^git --no-pager diff --name-status --color=never $range)
     ""
     "Diff stat:"
     $stat
     ""
     "Diff:"
-    (^git diff $range)
+    (^git --no-pager diff --color=never $range)
   ] | str join "\n")
 
-  let prompt = "Generate a git commit message for these squashed commits. Mimic previous commit style. Be descriptive but concise. Keep each line short. Don't mention pi or checkpoints. DON'T INCLUDE ANYTHING ELSE. NO OPENING LINE."
+  let prompt = "Output ONLY a raw git commit message. No explanations, no questions, no alternatives, no markdown, no code blocks. Mimic the style and format of recent commits exactly. Be descriptive but concise. Do not mention pi or checkpoints."
   let msg = (_ai_summarize "generating..." $context $prompt)
 
   print ""

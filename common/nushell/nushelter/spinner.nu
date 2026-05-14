@@ -25,7 +25,7 @@ def spinner [msg: string action: closure] {
   loop {
     let result = (try { job recv --timeout 80ms } catch { null })
     if $result != null {
-      print -n $"\r(ansi reset)"
+      print -n $"\r\u{1b}[2K"
       if not $result.ok {
         error make {msg: $result.msg}
       }
