@@ -145,12 +145,13 @@ def "ai gs" [] {
   rm --force $prompt_file
   print $msg
 
-  print "\n"
+  echo "\n"
   let answer = (try { input $"(ansi blue)commit? [y/N] " } catch { "n" } | str trim | str downcase)
   if $answer != "y" {
     return
   }
 
+  echo "\n"
   ^git commit -e -m $msg
 }
 
