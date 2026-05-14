@@ -9,6 +9,7 @@
 - `context-mask`: automatically masks old bulky tool results from LLM context and logs context operations.
 - `pi-checkpoint`: local `[PI]` checkpoint commits after file-changing turns; blocks `git push`; adds `/undo` for latest checkpoint.
 - `code-tools`: `code_overview` and `code_search` for compact JIT repo exploration.
+- `tool-policy`: disables built-in `read`, `edit`, `write`, `grep`, `find`, and `ls`; keeps replacement tools active.
 - `lib`: shared extension helpers. Not loaded as an extension.
 
 ## Exa auth
@@ -39,6 +40,7 @@ ai bootstrap focus-border
 ai bootstrap context-mask
 ai bootstrap pi-checkpoint
 ai bootstrap code-tools
+ai bootstrap tool-policy
 ```
 
 ## Tmux focus

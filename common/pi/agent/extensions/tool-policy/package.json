@@ -1,0 +1,21 @@
+{
+  "name": "pi-tool-policy-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "check": "tsc --noEmit --target ES2022 --module ESNext --moduleResolution Bundler --skipLibCheck index.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.74.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3"
+  }
+}
