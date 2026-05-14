@@ -1,4 +1,4 @@
-alias "ai" = pi
+export alias "ai" = pi
 
 export def "ai install" [...args: string] {
   if (which npm | is-empty) {

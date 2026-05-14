@@ -32,36 +32,25 @@ export default function focusBorderExtension(pi: ExtensionAPI): void {
   let terminalFocused = true;
   let unsubscribeTerminalFocus: (() => void) | null = null;
   let requestRender: (() => void) | null = null;
-  let unsubscribeProcessCleanup: (() => void) | null = null;
 
-  const disableFocusReporting = () => {
+  const writeFocusReporting = (sequence: string): void => {
     try {
-      process.stdout.write(FOCUS_REPORTING_OFF);
+      process.stdout.write(sequence);
     } catch {
       return;
     }
   };
 
-  const registerProcessCleanup = () => {
-    if (unsubscribeProcessCleanup) return;
-    const onExit = () => disableFocusReporting();
-    const onSigint = () => {
-      disableFocusReporting();
-      process.exit(130);
-    };
-    const onSigterm = () => {
-      disableFocusReporting();
-      process.exit(143);
-    };
-    process.once("exit", onExit);
-    process.once("SIGINT", onSigint);
-    process.once("SIGTERM", onSigterm);
-    unsubscribeProcessCleanup = () => {
-      process.off("exit", onExit);
-      process.off("SIGINT", onSigint);
-      process.off("SIGTERM", onSigterm);
-      unsubscribeProcessCleanup = null;
-    };
+  const enableFocusReporting = (): void => writeFocusReporting(FOCUS_REPORTING_ON);
+  const disableFocusReporting = (): void => writeFocusReporting(FOCUS_REPORTING_OFF);
+
+  const updateTerminalFocus = (focused: boolean): void => {
+    if (terminalFocused === focused) {
+      return;
+    }
+
+    terminalFocused = focused;
+    requestRender?.();
   };
 
   pi.on("session_start", (_event, ctx) => {
@@ -70,16 +59,14 @@ export default function focusBorderExtension(pi: ExtensionAPI): void {
     }
 
     terminalFocused = true;
-    process.stdout.write(FOCUS_REPORTING_ON);
-    registerProcessCleanup();
+    enableFocusReporting();
     unsubscribeTerminalFocus?.();
     unsubscribeTerminalFocus = ctx.ui.onTerminalInput((data) => {
-      if (data === "\u001b[I") {
-        terminalFocused = true;
-        requestRender?.();
-      } else if (data === "\u001b[O") {
-        terminalFocused = false;
-        requestRender?.();
+      if (data.includes("\u001b[I")) {
+        updateTerminalFocus(true);
+      }
+      if (data.includes("\u001b[O")) {
+        updateTerminalFocus(false);
       }
       return {};
     });
@@ -104,7 +91,6 @@ export default function focusBorderExtension(pi: ExtensionAPI): void {
     disableFocusReporting();
     unsubscribeTerminalFocus?.();
     unsubscribeTerminalFocus = null;
-    unsubscribeProcessCleanup?.();
     requestRender = null;
   });
 }
