@@ -63,5 +63,6 @@ export def "ai bootstrap" [name?: string] {
 }
 
 export def aip [prompt: string] {
-  pi --model "github-copilot/claude-haiku-4.5:off" -p --no-session $prompt
+  let model = (_ai_summarize_model)
+  pi --model $model -p --no-session $prompt
 }

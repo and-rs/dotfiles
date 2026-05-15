@@ -12,7 +12,7 @@ def _ai_has_provider_auth [provider: string] {
   }
 }
 
-def _ai_summarize_model [] {
+export def _ai_summarize_model [] {
   let override = ($env.PI_SUMMARIZE_MODEL? | default "")
   if not ($override | is-empty) {
     return $override
