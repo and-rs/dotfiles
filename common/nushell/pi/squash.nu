@@ -5,11 +5,7 @@ export def "ai squash" [] {
     return
   }
 
-  let dirty = (git status --porcelain | str trim)
-  if not ($dirty | is-empty) {
-    print $"(ansi red)worktree dirty(ansi reset) — commit, stash, or clean before squash"
-    return
-  }
+  git stash
 
   let base = (git rev-parse $"HEAD~($pi_count)" | str trim)
   let range = $"($base)..HEAD"
