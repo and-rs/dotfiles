@@ -1,28 +1,28 @@
 export alias "ai" = pi
 
 export def "ai install" [...args: string] {
-  if (which npm | is-empty) {
-    print "npm not found"
+  if (which bun | is-empty) {
+    print "bun not found"
     return
   }
 
   if ($args | is-empty) {
     print "ai install > installing pi"
-    npm install -g @earendil-works/pi-coding-agent
+    bun install --global @earendil-works/pi-coding-agent
     return
   }
 
   if (which pi | is-empty) {
     print "ai install > installing pi"
-    npm install -g @earendil-works/pi-coding-agent
+    bun install --global @earendil-works/pi-coding-agent
   }
 
   pi install ...$args
 }
 
 export def "ai bootstrap" [name?: string] {
-  if (which npm | is-empty) {
-    print "npm not found"
+  if (which bun | is-empty) {
+    print "bun not found"
     return
   }
 
@@ -54,10 +54,10 @@ export def "ai bootstrap" [name?: string] {
   }
 
   for dir in $dirs {
-    print $"pi bootstrap > npm install (($dir | path basename))"
+    print $"pi bootstrap > bun install (($dir | path basename))"
     do {
       cd $dir
-      npm install
+      bun install
     }
   }
 }

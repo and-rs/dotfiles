@@ -6,6 +6,7 @@ $env.PATH ++= [
   $"($env.HOME)/zig"
   $"($env.HOME)/.local/bin"
   $"($env.HOME)/.local/share/pi-node/current/bin"
+  $"($env.HOME)/.bun/bin"
   $"($env.HOME)/.nix-profile/bin"
   $"($env.HOME)/.config/nushell/execs"
   $"($env.HOME)/.config/nushell/forgit/helpers"
