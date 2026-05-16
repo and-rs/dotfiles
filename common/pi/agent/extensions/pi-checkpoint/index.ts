@@ -6,6 +6,8 @@ const CUSTOM_TYPE = "pi-checkpoint";
 const PI_PREFIX = "[PI] checkpoint:";
 const EXEC_TIMEOUT = 15_000;
 const BLOCKED_PUSH_RE = /(^|[\s;&|()])git\s+push(\s|$)/;
+const MAX_PENDING_TURNS = 3;
+const MAX_PENDING_FILES = 6;
 
 const SECRET_PATH_RE = /(^|\/)(\.env(\..*)?|auth\.json|id_rsa|id_ed25519|.*\.pem|.*\.key)$/i;
 
@@ -19,10 +21,16 @@ type Snapshot = {
 };
 
 type CheckpointDetails = {
-  status: "created" | "skipped" | "blocked" | "undone" | "failed";
+  status: "created" | "skipped" | "blocked" | "failed";
   hash?: string;
   files?: string[];
   reason?: string;
+};
+
+type BatchState = {
+  root: string;
+  files: Set<string>;
+  turns: number;
 };
 
 function splitZ(value: string): string[] {
@@ -55,10 +63,6 @@ function formatMessage(details: CheckpointDetails): string {
   if (details.status === "created") {
     const files = details.files ?? [];
     return [`created [PI] ${details.hash ?? "unknown"}`, "└── files", ...formatTreeItems(files, "    ")].join("\n");
-  }
-
-  if (details.status === "undone") {
-    return [`undone ${details.hash ?? "unknown"}`, "└── files reset to previous commit"].join("\n");
   }
 
   return [`${details.status}`, `└── ${details.reason ?? "no details"}`].join("\n");
@@ -153,23 +157,27 @@ async function sendCheckpointMessage(pi: ExtensionAPI, details: CheckpointDetail
   );
 }
 
-async function createCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, before: Snapshot): Promise<void> {
-  if (!before.ok || !before.root) return;
+function changedFilesSince(before: Snapshot, after: Snapshot): string[] {
+  return uniqueSorted(Array.from(after.dirtyFiles).filter((file) => !before.dirtyFiles.has(file)));
+}
 
-  const after = await snapshot(pi, ctx.cwd);
-  if (!after.ok || !after.root) {
-    await sendCheckpointMessage(pi, { status: "skipped", reason: after.reason ?? "git state unavailable" });
+function checkpointThresholdReached(batch: BatchState): boolean {
+  return batch.turns >= MAX_PENDING_TURNS || batch.files.size >= MAX_PENDING_FILES;
+}
+
+async function flushCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, batch: BatchState): Promise<void> {
+  const current = await snapshot(pi, ctx.cwd);
+  if (!current.ok || !current.root) {
+    await sendCheckpointMessage(pi, { status: "skipped", reason: current.reason ?? "git state unavailable" });
     return;
   }
 
-  if (before.root !== after.root) {
-    await sendCheckpointMessage(pi, { status: "skipped", reason: "git root changed during turn" });
+  if (current.root !== batch.root) {
+    await sendCheckpointMessage(pi, { status: "skipped", reason: "git root changed during checkpoint batch" });
     return;
   }
 
-  const changedFiles = uniqueSorted(
-    Array.from(after.dirtyFiles).filter((f) => !before.dirtyFiles.has(f)),
-  );
+  const changedFiles = uniqueSorted(Array.from(batch.files).filter((file) => current.dirtyFiles.has(file)));
   if (changedFiles.length === 0) return;
 
   const sensitiveFiles = changedFiles.filter(isSensitivePath);
@@ -182,7 +190,7 @@ async function createCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, before:
     return;
   }
 
-  const add = await git(pi, after.root, ["add", "--", ...changedFiles]);
+  const add = await git(pi, current.root, ["add", "--", ...changedFiles]);
   if (add.code !== 0) {
     await sendCheckpointMessage(pi, { status: "failed", files: changedFiles, reason: firstLine(add.stderr) || "git add failed" });
     return;
@@ -193,12 +201,13 @@ async function createCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, before:
     "Local Pi checkpoint commit.",
     "Squash before push.",
     `Session: ${ctx.sessionManager.getSessionId()}`,
+    `File-changing turns batched: ${batch.turns}`,
     "",
     "Files:",
     ...changedFiles.map((file) => `- ${file}`),
   ].join("\n");
 
-  const commit = await git(pi, after.root, ["commit", "--no-verify", "-m", subject, "-m", body]);
+  const commit = await git(pi, current.root, ["commit", "--no-verify", "-m", subject, "-m", body]);
   if (commit.code !== 0) {
     await sendCheckpointMessage(pi, {
       status: "failed",
@@ -208,16 +217,13 @@ async function createCheckpoint(pi: ExtensionAPI, ctx: ExtensionContext, before:
     return;
   }
 
-  const hash = (await gitOutput(pi, after.root, ["rev-parse", "--short", "HEAD"])) ?? "unknown";
+  const hash = (await gitOutput(pi, current.root, ["rev-parse", "--short", "HEAD"])) ?? "unknown";
   await sendCheckpointMessage(pi, { status: "created", hash, files: changedFiles });
-}
-
-async function latestCommitSubject(pi: ExtensionAPI, cwd: string): Promise<string | null> {
-  return gitOutput(pi, cwd, ["log", "-1", "--pretty=%s"]);
 }
 
 export default function piCheckpointExtension(pi: ExtensionAPI): void {
   let turnSnapshot: Snapshot | null = null;
+  let pendingBatch: BatchState | null = null;
 
   pi.registerMessageRenderer<CheckpointDetails>(CUSTOM_TYPE, (message, _options, theme) => {
     const content = typeof message.content === "string" ? message.content : "";
@@ -244,42 +250,57 @@ export default function piCheckpointExtension(pi: ExtensionAPI): void {
       turnSnapshot = null;
       return;
     }
+
     const before = turnSnapshot;
     turnSnapshot = null;
-    if (!before?.ok) return;
-    await createCheckpoint(pi, ctx, before);
+    if (!before?.ok || !before.root) return;
+
+    const after = await snapshot(pi, ctx.cwd);
+    if (!after.ok || !after.root) {
+      if (pendingBatch) {
+        await sendCheckpointMessage(pi, { status: "skipped", reason: after.reason ?? "git state unavailable" });
+        pendingBatch = null;
+      }
+      return;
+    }
+
+    const changedFiles = changedFilesSince(before, after);
+
+    if (!pendingBatch) {
+      if (before.dirtyFiles.size !== 0 || changedFiles.length === 0) return;
+      pendingBatch = {
+        root: after.root,
+        files: new Set(changedFiles),
+        turns: 1,
+      };
+      if (checkpointThresholdReached(pendingBatch)) {
+        const batch = pendingBatch;
+        pendingBatch = null;
+        await flushCheckpoint(pi, ctx, batch);
+      }
+      return;
+    }
+
+    if (pendingBatch.root !== after.root) {
+      await sendCheckpointMessage(pi, { status: "skipped", reason: "git root changed during checkpoint batch" });
+      pendingBatch = null;
+      return;
+    }
+
+    for (const file of changedFiles) pendingBatch.files.add(file);
+    if (changedFiles.length > 0) pendingBatch.turns += 1;
+
+    if (changedFiles.length === 0 || checkpointThresholdReached(pendingBatch)) {
+      const batch = pendingBatch;
+      pendingBatch = null;
+      await flushCheckpoint(pi, ctx, batch);
+    }
   });
 
-  pi.registerCommand("undo", {
-    description: "Undo latest [PI] checkpoint commit with git reset --hard HEAD~1",
-    handler: async (_args, ctx) => {
-      await ctx.waitForIdle();
-      const current = await snapshot(pi, ctx.cwd);
-      if (!current.ok || !current.root) {
-        ctx.ui.notify(current.reason ?? "not inside git worktree", "warning");
-        return;
-      }
-
-      const dirty = uniqueSorted(current.dirtyFiles);
-      if (dirty.length > 0) {
-        ctx.ui.notify("Refusing /undo with dirty worktree. Commit, stash, or clean changes first.", "warning");
-        return;
-      }
-
-      const subject = await latestCommitSubject(pi, current.root);
-      if (!subject?.startsWith(PI_PREFIX)) {
-        ctx.ui.notify("HEAD is not a [PI] checkpoint commit; file undo skipped.", "warning");
-        return;
-      }
-
-      const hash = (await gitOutput(pi, current.root, ["rev-parse", "--short", "HEAD"])) ?? "unknown";
-      const reset = await git(pi, current.root, ["reset", "--hard", "HEAD~1"]);
-      if (reset.code !== 0) {
-        ctx.ui.notify(firstLine(reset.stderr) || "git reset failed", "error");
-        return;
-      }
-
-      await sendCheckpointMessage(pi, { status: "undone", hash });
-    },
+  pi.on("session_shutdown", async (_event, ctx) => {
+    if (!pendingBatch) return;
+    const batch = pendingBatch;
+    pendingBatch = null;
+    await flushCheckpoint(pi, ctx, batch);
   });
 }

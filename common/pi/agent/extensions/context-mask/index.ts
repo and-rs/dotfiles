@@ -11,6 +11,8 @@ const EDIT_TAIL_LINES = 30;
 const CODE_FILES_TAIL_LINES = 100;
 const RAW_RECENT_USER_TURNS = 3;
 const MIN_MASK_CHARACTERS = 1000;
+const PRESERVED_HASHLINE_READS = 4;
+const PRESERVED_EDIT_RESULTS = 2;
 
 type TextContent = { type: "text"; text: string };
 type ToolCallContent = { type: "toolCall"; id: string; name: string; arguments: Record<string, unknown> };
@@ -74,7 +76,7 @@ function preview(value: unknown, maxLength = 160): string {
 }
 
 function extractUrls(value: string, limit = 12): string[] {
-  const matches = value.match(/https?:\/\/[^\s)\]}>"]+/g) ?? [];
+  const matches = value.match(/https?:\/\/[^\s)\]}>\"]+/g) ?? [];
   return Array.from(new Set(matches)).slice(0, limit);
 }
 
@@ -86,6 +88,10 @@ function formatCharacters(value: number): string {
 
 function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`;
+}
+
+function normalizeToolName(name: string | undefined): string {
+  return (name ?? "unknown").replaceAll("_", "-");
 }
 
 function buildToolCallMap(messages: ContextMessage[]): Map<string, ToolCallInfo> {
@@ -115,16 +121,50 @@ function isContextLog(message: ContextMessage): boolean {
   return message.role === "custom" && message.customType === CUSTOM_TYPE;
 }
 
-function shouldMask(message: ContextMessage, index: number, rawWindowStart: number): boolean {
+function preserveToolResultIds(messages: ContextMessage[], toolCalls: Map<string, ToolCallInfo>, rawWindowStart: number): Set<string> {
+  const keep = new Set<string>();
+  const keptReadPaths = new Set<string>();
+  let keptReads = 0;
+  let keptEdits = 0;
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (i >= rawWindowStart) continue;
+    const message = messages[i];
+    if (message.role !== "toolResult") continue;
+    const toolCallId = typeof message.toolCallId === "string" ? message.toolCallId : "";
+    if (!toolCallId) continue;
+    const toolCall = toolCalls.get(toolCallId);
+    const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
+
+    if (toolName === "hashline-read") {
+      const path = typeof toolCall?.arguments.path === "string" ? toolCall.arguments.path.trim() : "";
+      if (!path || keptReadPaths.has(path) || keptReads >= PRESERVED_HASHLINE_READS) continue;
+      keptReadPaths.add(path);
+      keep.add(toolCallId);
+      keptReads += 1;
+      continue;
+    }
+
+    if ((toolName === "hashline-edit" || toolName === "file-create") && keptEdits < PRESERVED_EDIT_RESULTS) {
+      keep.add(toolCallId);
+      keptEdits += 1;
+    }
+  }
+
+  return keep;
+}
+
+function shouldMask(message: ContextMessage, index: number, rawWindowStart: number, preservedIds: Set<string>): boolean {
   if (index >= rawWindowStart) return false;
   if (message.role !== "toolResult") return false;
+  if (typeof message.toolCallId === "string" && preservedIds.has(message.toolCallId)) return false;
   const text = textFromContent(message.content);
   if (text.startsWith(MASK_NOTICE_PREFIX)) return false;
   return text.length >= MIN_MASK_CHARACTERS;
 }
 
 function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | undefined): string {
-  const toolName = message.toolName ?? toolCall?.name ?? "unknown";
+  const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
   const args = toolCall?.arguments ?? {};
   const text = textFromContent(message.content);
   const lines = lineCount(text);
@@ -140,13 +180,13 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   if (toolName === "bash") {
     tailLineCount = message.isError ? FAILED_BASH_TAIL_LINES : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
-  } else if (toolName === "hashline-read" || toolName === "hashline_read") {
+  } else if (toolName === "hashline-read") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path)}`);
     if (args.offset !== undefined) header.push(`offset: ${preview(args.offset)}`);
     if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
-    header.push("note: file body omitted; re-read exact path/range before editing.");
-  } else if (toolName === "hashline-edit" || toolName === "hashline_edit" || toolName === "file-create" || toolName === "file_create") {
+    header.push("note: file body omitted; re-read only if anchors may be stale or exact range needed.");
+  } else if (toolName === "hashline-edit" || toolName === "file-create") {
     tailLineCount = EDIT_TAIL_LINES;
     header.push("note: old diff trimmed; inspect git diff for current worktree state.");
   } else if (toolName === "grep") {
@@ -160,16 +200,16 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   } else if (toolName === "ls") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path ?? ".")}`);
-  } else if (toolName === "code-files" || toolName === "code_files") {
+  } else if (toolName === "code-files") {
     tailLineCount = CODE_FILES_TAIL_LINES;
     header.push(`path: ${preview(args.path ?? ".")}`);
     if (args.glob !== undefined) header.push(`glob: ${preview(args.glob)}`);
     if (args.type !== undefined) header.push(`type: ${preview(args.type)}`);
-  } else if (toolName === "web-fetch" || toolName === "web_fetch") {
+  } else if (toolName === "web-fetch") {
     tailLineCount = 0;
     header.push(`url: ${preview(args.url, 2000)}`);
     header.push("note: fetched body omitted; refetch URL if needed.");
-  } else if (toolName === "exa-search" || toolName === "exa_search") {
+  } else if (toolName === "exa-search") {
     tailLineCount = 0;
     header.push(`query: ${preview(args.query, 500)}`);
     const urls = extractUrls(text);
@@ -182,7 +222,6 @@ function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | u
   }
 
   const tail = tailLines(text.trimEnd(), tailLineCount).trimEnd();
-
   if (tail) {
     header.push("tail:");
     header.push(tail);
@@ -195,6 +234,7 @@ function maskContext(messages: CoreAgentMessage[]): { messages: CoreAgentMessage
   const sourceMessages = messages.filter((message) => !isContextLog(message as ContextMessage)) as ContextMessage[];
   const toolCalls = buildToolCallMap(sourceMessages);
   const rawWindowStart = findRecentTurnStart(sourceMessages, RAW_RECENT_USER_TURNS);
+  const preservedIds = preserveToolResultIds(sourceMessages, toolCalls, rawWindowStart);
   const stats: MaskStats = {
     maskedCount: 0,
     beforeCharacters: 0,
@@ -203,12 +243,13 @@ function maskContext(messages: CoreAgentMessage[]): { messages: CoreAgentMessage
     ids: [],
     samples: [],
   };
+
   const nextMessages = sourceMessages.map((message, index) => {
-    if (!shouldMask(message, index, rawWindowStart)) return message;
+    if (!shouldMask(message, index, rawWindowStart, preservedIds)) return message;
 
     const toolCallId = typeof message.toolCallId === "string" ? message.toolCallId : "unknown";
     const toolCall = toolCalls.get(toolCallId);
-    const toolName = message.toolName ?? toolCall?.name ?? "unknown";
+    const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
     const beforeText = textFromContent(message.content);
     const afterText = summarizeToolResult(message, toolCall);
 
@@ -253,7 +294,8 @@ function formatStats(stats: MaskStats): string {
     `         ├── masked ${stats.maskedCount} old tool result${stats.maskedCount === 1 ? "" : "s"}`,
     "         ├── policy",
     "         │   ├── current turn kept raw",
-    `         │   └── latest ${RAW_RECENT_USER_TURNS} user turns kept raw; old outputs keep per-tool breadcrumbs`,
+    `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turns kept raw`,
+    `         │   └── preserve ${PRESERVED_HASHLINE_READS} recent hashline reads + ${PRESERVED_EDIT_RESULTS} recent edit diffs`,
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),
     "         └── samples",

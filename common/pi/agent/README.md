@@ -6,10 +6,11 @@
 - `hashline-edit`: strict `hashline-read`, `hashline-edit`, and `file-create` tools.
 - `hashline-read` can inspect files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
 - `focus-border`: dim input border on terminal focus loss.
-- `context-mask`: automatically masks old bulky tool results from LLM context and logs context operations.
-- `pi-checkpoint`: local `[PI]` checkpoint commits after file-changing turns; blocks `git push`; adds `/undo` for latest checkpoint.
+- `context-mask`: masks old bulky tool results while preserving recent active `hashline-read`/edit working set and logs context operations.
+- `pi-checkpoint`: local `[PI]` checkpoint commits in small batches after file-changing turns; blocks agent `git push`.
 - `code-tools`: `code-overview` and `code-search` for compact JIT repo exploration.
 - `tool-policy`: disables built-in `read`, `edit`, `write`, `grep`, `find`, and `ls`; keeps replacement tools active.
+- `forge`: optional phased workflow with color-coded footer chip, `/forge`, `/phase`, read-only `tactic`/`temper`, and interactive human-first `temper` coaching.
 - `lib`: shared extension helpers. Not loaded as an extension.
 
 ## Exa auth
@@ -41,6 +42,7 @@ ai bootstrap context-mask
 ai bootstrap pi-checkpoint
 ai bootstrap code-tools
 ai bootstrap tool-policy
+ai bootstrap forge
 ```
 
 ## Tmux focus
@@ -61,8 +63,8 @@ Restart tmux if existing panes still do not emit focus events.
 
 ## Checkpoints
 
-- `pi-checkpoint` creates local `[PI] checkpoint:` commits only when a turn changes files and the worktree was clean at turn start.
-- `/undo` resets files by dropping latest `[PI]` commit when worktree is clean.
+- `pi-checkpoint` creates local `[PI] checkpoint:` commits only when a file-changing batch starts from a clean worktree.
+- Batches flush after a short quiet pause, when file count/turn count grows, or on session shutdown.
 - `ai gs` refuses normal commit flow while `[PI]` commits are at `HEAD`; run `ai squash` to squash them into a final commit.
 - Agent `git push` is blocked; push manually outside Pi.
 

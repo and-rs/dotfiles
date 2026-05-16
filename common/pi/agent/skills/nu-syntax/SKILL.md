@@ -5,9 +5,8 @@ description: Nushell syntax reference and common patterns. Load when writing, ed
 
 # Nushell Syntax Reference
 
-Official docs: https://www.nushell.sh/book/
-Command reference: https://www.nushell.sh/commands/
-Cookbook: https://www.nushell.sh/cookbook/
+Official docs: https://www.nushell.sh/book/ Command reference:
+https://www.nushell.sh/commands/ Cookbook: https://www.nushell.sh/cookbook/
 
 ## Variables
 
@@ -194,16 +193,16 @@ nu -c 'ls | get name'  # run nushell from within nushell/bash
 
 ## Key Bash Gotchas
 
-| Bash | Nushell |
-|------|---------|
-| `$VAR` | `$env.VAR` |
-| `$(cmd)` | `(cmd)` |
-| `"${var}"` | `$"($var)"` |
-| `export FOO=bar` | `$env.FOO = "bar"` |
-| `cmd1 && cmd2` | `cmd1; cmd2` or `if ... { cmd2 }` |
-| `[[ -f path ]]` | `($path \| path exists)` |
-| `arr=(a b c)` | `let arr = [a b c]` |
-| `${arr[@]}` | `$arr` |
-| `for x in "${arr[@]}"` | `for x in $arr { }` |
-| `cmd > file` | `cmd \| save file` |
-| `cmd >> file` | `cmd \| save --append file` |
+| Bash                   | Nushell                           |
+| ---------------------- | --------------------------------- |
+| `$VAR`                 | `$env.VAR`                        |
+| `$(cmd)`               | `(cmd)`                           |
+| `"${var}"`             | `$"($var)"`                       |
+| `export FOO=bar`       | `$env.FOO = "bar"`                |
+| `cmd1 && cmd2`         | `cmd1; cmd2` or `if ... { cmd2 }` |
+| `[[ -f path ]]`        | `($path \| path exists)`          |
+| `arr=(a b c)`          | `let arr = [a b c]`               |
+| `${arr[@]}`            | `$arr`                            |
+| `for x in "${arr[@]}"` | `for x in $arr { }`               |
+| `cmd > file`           | `cmd \| save file`                |
+| `cmd >> file`          | `cmd \| save --append file`       |
