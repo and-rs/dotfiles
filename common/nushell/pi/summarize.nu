@@ -59,16 +59,18 @@ export def _ai_summarize [
     error make {msg: "pi not installed — run: ai install"}
   }
 
-  let sp = "you follow instructions to the letter with no failure. you don't
+  let sp = "You follow instructions to the letter with no failure. you don't
   have acknowledge that you understood the instructions. and your commit
-  message output is always less than 60 characters long per line and concise."
+  message output is always less than 60 characters long per line, you
+  prioritize adding details to the commit message while staying true to the
+  commit style seen previously."
 
   let model = (_ai_summarize_model)
   let input = (_ai_summarize_input $context $prompt)
 
   spinner $label {
     let result = (
-      ^pi -ns -nt -nbt --no-session
+      pi -ns -nt -nbt --no-session
       --system-prompt $sp
       --model $model
       -p $input

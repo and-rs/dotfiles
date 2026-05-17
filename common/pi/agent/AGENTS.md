@@ -84,3 +84,20 @@ Respond in english only. Caveman full active always.
   ```
 - If read output is truncated, continue with `offset`/`:L` and re-anchor before editing.
 - For cross-repo edits, start pi in target repo. If path is blocked, follow tool error action exactly.
+
+## Pi setup architecture
+
+- One project root only: `common/pi/agent/extensions/`.
+- Backend-style layout:
+  - `src/app/` for assembly.
+  - `src/ui/` for footer/widget chrome ownership.
+  - `src/features/<feature>/` for domain modules.
+- `package.json` loads one extension only: `src/app/index.ts`.
+- `app/` composes features and UI. Features do not self-assemble globally.
+- Only `ui/` owns footer/widget/status mutations.
+- Features expose `index.ts` as public facade.
+- Small composition-only helpers belong in `index.ts`.
+- Separate file only when concern has real behavior depth, reuse, or boundary value.
+- Avoid ad-hoc per-extension packages, locks, bootstrap steps.
+- Prefer repeating module grammar over clever one-offs.
+- Stop splitting when file becomes fake wrapper with no semantic value.

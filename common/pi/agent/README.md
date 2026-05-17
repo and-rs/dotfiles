@@ -13,6 +13,23 @@
 - `forge`: optional phased workflow with color-coded footer chip, `/forge`, `/phase`, read-only `tactic`/`temper`, and interactive human-first `temper` coaching.
 - `lib`: shared extension helpers. Not loaded as an extension.
 
+
+## Architecture rules
+
+- One project root only: `common/pi/agent/extensions/`.
+- Backend-style layout:
+  - `src/app/` for assembly.
+  - `src/ui/` for footer/widget chrome ownership.
+  - `src/features/<feature>/` for domain modules.
+- `package.json` loads one extension only: `src/app/index.ts`.
+- `app/` composes features and UI. Features do not self-assemble globally.
+- Only `ui/` owns footer/widget/status mutations.
+- Features expose `index.ts` as public facade.
+- Small composition-only helpers belong in `index.ts`.
+- Separate file only when concern has real behavior depth, reuse, or boundary value.
+- Avoid ad-hoc per-extension packages, locks, bootstrap steps.
+- Prefer repeating module grammar over clever one-offs.
+- Stop splitting when file becomes fake wrapper with no semantic value.
 ## Exa auth
 
 - `/exa login`: save regular Exa search API key as `auth.exa`.
@@ -35,14 +52,7 @@ Stored key values may also be an env var name or `!command` that prints a key.
 Run after clone/update:
 
 ```nu
-ai bootstrap web-docs
-ai bootstrap hashline-edit
-ai bootstrap focus-border
-ai bootstrap context-mask
-ai bootstrap pi-checkpoint
-ai bootstrap code-tools
-ai bootstrap tool-policy
-ai bootstrap forge
+ai bootstrap
 ```
 
 ## Tmux focus

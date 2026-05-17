@@ -26,39 +26,25 @@ export def "ai bootstrap" [name?: string] {
     return
   }
 
-  let extensions_dir = ($env.HOME | path join ".pi" "agent" "extensions")
-  if not ($extensions_dir | path exists) {
-    print "no pi extensions dir"
+  let target = ($name | default "agent")
+  if $target != "agent" {
+    print $"unknown bootstrap target: ($target)"
+    print "use: ai bootstrap"
     return
   }
 
-  let dirs = (
-    ls $extensions_dir
-    | where type == dir
-    | get name
-    | where {|dir|
-      let package_json = ($dir | path join "package.json")
-      if not ($package_json | path exists) {
-        false
-      } else if ($name | is-empty) {
-        true
-      } else {
-        (($dir | path basename) == $name)
-      }
-    }
-  )
-
-  if ($dirs | is-empty) {
-    print "no matching pi extension packages"
+  let agent_dir = ($env.HOME | path join ".pi" "agent")
+  let extensions_dir = ($agent_dir | path join "extensions")
+  let extensions_package = ($extensions_dir | path join "package.json")
+  if not ($extensions_package | path exists) {
+    print "no pi agent extensions package"
     return
   }
 
-  for dir in $dirs {
-    print $"pi bootstrap > bun install (($dir | path basename))"
-    do {
-      cd $dir
-      bun install
-    }
+  print "pi bootstrap > bun install agent extensions"
+  do {
+    cd $extensions_dir
+    bun install
   }
 }
 

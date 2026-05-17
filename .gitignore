@@ -13,11 +13,10 @@ history.txt
 messages.md
 models-override.yaml
 
+.npm
+node_modules
 **/pi/agent/sessions
 **/pi/agent/auth.json
-**/pi/agent/extensions/*/node_modules/
-**/pi/agent/extensions/*/.npm/
-**/pi/agent/extensions/*/npm-debug.log*
 
 **/aichat/rags
 **/aichat/sessions

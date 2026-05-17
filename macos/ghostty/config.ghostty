@@ -32,7 +32,11 @@ adjust-font-baseline = 0
 adjust-cursor-height = 0
 adjust-underline-position = 5
 
-font-size = 19
+#--- KEYBINDS ---#
+keybind = opt+ctrl+f=text:\x1bf
+keybind = opt+ctrl+b=text:\x1bb
+
+font-size = 18
 #font-feature = +ss02
 #font-feature = +ss04
 

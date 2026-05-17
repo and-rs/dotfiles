@@ -1,0 +1,37 @@
+{
+  "name": "pi-local-agent",
+  "private": true,
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./src/app/index.ts"
+    ],
+    "skills": [
+      "../skills"
+    ],
+    "themes": [
+      "../themes"
+    ]
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "@earendil-works/pi-tui": "^0.74.0",
+    "@mozilla/readability": "^0.6.0",
+    "diff": "^7.0.0",
+    "exa-js": "^1.9.1",
+    "jsdom": "^26.1.0",
+    "turndown": "^7.2.0",
+    "turndown-plugin-gfm": "^1.0.2",
+    "typebox": "^1.0.55",
+    "xxhashjs": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.10.0",
+    "@types/turndown": "^5.0.5",
+    "typescript": "^5.9.3"
+  }
+}
