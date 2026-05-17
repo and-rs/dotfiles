@@ -9,11 +9,102 @@ import { buildEditDiff, pathExists, renderDiffResult } from "./diff.ts";
 import { ensureCreatablePathInCwd, ensureExistingPathInCwd, ensureReadablePath, readTextFile, rememberRange } from "./paths.ts";
 import { registerBlockedFileTool } from "./renderers.ts";
 import { detectLineEnding, normalizeToLf, restoreLineEndings } from "./text.ts";
-import { DEFAULT_READ_LIMIT, MAX_READ_LIMIT, READ_TRUNCATION_NOTICE, type CreateFileParams, type EditParams, type ReadParams } from "./types.ts";
+import { AUTO_FULL_FILE_LINES, type CreateFileParams, type EditParams, type ReadParams } from "./types.ts";
+
+type ReadRangeDetails = {
+  kind: "range";
+  path: string;
+  absolutePath: string;
+  startLine: number;
+  endLine: number;
+  totalLines: number;
+  segment?: string;
+};
+
+type SegmentOption = {
+  label: string;
+  startLine: number;
+  endLine: number;
+  lineCount: number;
+  preview: string;
+};
+
+type ReadMapDetails = {
+  kind: "map";
+  path: string;
+  totalLines: number;
+  segment?: string;
+  options: SegmentOption[];
+};
 
 function mergeWarnings(parseWarnings: string[], applyWarnings?: string[]): string[] {
   if (!applyWarnings || applyWarnings.length === 0) return parseWarnings;
   return [...parseWarnings, ...applyWarnings];
+}
+
+function previewSegmentLine(line: string): string {
+  const compact = line.trim().replace(/\s+/g, " ");
+  if (!compact) return "(blank)";
+  return compact.length <= 80 ? compact : `${compact.slice(0, 79)}…`;
+}
+
+function midpoint(startLine: number, endLine: number): number {
+  return Math.floor((startLine + endLine) / 2);
+}
+
+function splitSegment(label: string, startLine: number, endLine: number): SegmentOption[] {
+  if (startLine >= endLine) return [{ label, startLine, endLine, lineCount: endLine - startLine + 1, preview: "single line" }];
+  const mid = midpoint(startLine, endLine);
+  return [
+    { label: `${label}A`, startLine, endLine: mid, lineCount: mid - startLine + 1, preview: "" },
+    { label: `${label}B`, startLine: mid + 1, endLine, lineCount: endLine - mid, preview: "" },
+  ];
+}
+
+function resolveSegment(totalLines: number, segment: string): { startLine: number; endLine: number } {
+  let startLine = 1;
+  let endLine = totalLines;
+  for (const step of segment) {
+    if (step !== "A" && step !== "B") throw new Error(`Invalid segment: ${segment}. Use labels like A, B, AA, or AB.`);
+    if (startLine >= endLine) break;
+    const mid = midpoint(startLine, endLine);
+    if (step === "A") endLine = mid;
+    else startLine = mid + 1;
+  }
+  return { startLine, endLine };
+}
+
+function buildSegmentOptions(lines: string[], startLine: number, endLine: number, baseLabel = ""): SegmentOption[] {
+  return splitSegment(baseLabel, startLine, endLine).map((option) => {
+    const first = previewSegmentLine(lines[option.startLine - 1] ?? "");
+    const last = previewSegmentLine(lines[option.endLine - 1] ?? "");
+    const preview = option.startLine === option.endLine ? first : `${first} … ${last}`;
+    return { ...option, preview };
+  });
+}
+
+function formatSegmentMap(path: string, totalLines: number, options: SegmentOption[], segment?: string): string {
+  const title = segment ? `segment ${segment}` : "file";
+  return [
+    `${path}: ${totalLines} lines`,
+    `${title} too large for whole-file read`,
+    "choose segment:",
+    ...options.map((option) => `- ${option.label}: lines ${option.startLine}-${option.endLine} (${option.lineCount} lines) :: ${option.preview}`),
+    "call hashline-read again with same path and chosen segment label",
+    "re-read chosen segment before edit for fresh anchors",
+  ].join("\n");
+}
+
+function renderReadRange(details: ReadRangeDetails, theme: Parameters<typeof renderDiffResult>[1]): Text {
+  const range = `${details.startLine}-${details.endLine}`;
+  const segment = details.segment ? ` segment ${details.segment}` : "";
+  return new Text(theme.fg("dim", `${details.path}: read${segment} lines ${range}/${details.totalLines}`), 0, 0);
+}
+
+function renderReadMap(details: ReadMapDetails, theme: Parameters<typeof renderDiffResult>[1]): Text {
+  const segment = details.segment ? ` segment ${details.segment}` : "";
+  const labels = details.options.map((option) => option.label).join(", ");
+  return new Text(theme.fg("dim", `${details.path}:${segment} choose segment ${labels} (${details.totalLines} total lines)`), 0, 0);
 }
 
 export function registerHashlineEditTools(pi: ExtensionAPI): void {
@@ -24,18 +115,18 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
   pi.registerTool({
     name: "hashline-read",
     label: "Hashline Read",
-    description: "Read a text file with hashline anchors in each line. Paths may be inside cwd or $HOME.",
+    description: "Read a text file with hashline anchors in each line. Small files return whole body; huge files return simple binary segment choices.",
     promptSnippet: "Read file content with line+hash anchors before hashline edits.",
     promptGuidelines: [
       "Use hashline-read before hashline-edit.",
+      "Small files return whole body. Huge files return segment labels like A or B so you avoid line math.",
+      "Re-read chosen file or chosen segment right before edit for fresh anchors.",
       "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
       "hashline-read may inspect text files under cwd or $HOME; hashline-edit and file-create stay cwd-bound.",
-      "If output is truncated, continue with :L<line> offset.",
     ],
     parameters: Type.Object({
       path: Type.String({ description: "Path to the file to read" }),
-      offset: Type.Optional(Type.Integer({ minimum: 1, description: "Line number to start (1-indexed)" })),
-      limit: Type.Optional(Type.Integer({ minimum: 1, maximum: MAX_READ_LIMIT, description: "Max lines to read" })),
+      segment: Type.Optional(Type.String({ description: "Binary segment label like A, B, AA, or AB for huge files" })),
     }),
     execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
       const args = params as ReadParams;
@@ -44,24 +135,29 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       if (!source.exists) throw new Error(`File not found: ${args.path}`);
       const normalized = normalizeToLf(source.text);
       const allLines = normalized.split("\n");
-      const offset = typeof args.offset === "number" ? args.offset : 1;
-      const limit = Math.min(typeof args.limit === "number" ? args.limit : DEFAULT_READ_LIMIT, MAX_READ_LIMIT);
-      const startIndex = Math.max(0, offset - 1);
-      const slice = allLines.slice(startIndex, startIndex + limit);
-      const startLine = startIndex + 1;
-      const endLine = startIndex + slice.length;
-      rememberRange(absolutePath, startLine, slice);
-      const body = formatHashLines(slice.join("\n"), startLine);
-      const truncated = endLine < allLines.length;
-      const suffix = truncated ? `\n\n${READ_TRUNCATION_NOTICE(startLine, endLine, allLines.length)}` : "";
-      return { content: [{ type: "text", text: `${body}${suffix}` }], details: { path: args.path, absolutePath, startLine, endLine, totalLines: allLines.length, truncated } };
+      const totalLines = allLines.length;
+      const segment = typeof args.segment === "string" && args.segment.trim() ? args.segment.trim().toUpperCase() : undefined;
+      const target = segment ? resolveSegment(totalLines, segment) : { startLine: 1, endLine: totalLines };
+      const targetLineCount = target.endLine - target.startLine + 1;
+      if (targetLineCount <= AUTO_FULL_FILE_LINES) {
+        const slice = allLines.slice(target.startLine - 1, target.endLine);
+        rememberRange(absolutePath, target.startLine, slice);
+        const body = formatHashLines(slice.join("\n"), target.startLine);
+        return {
+          content: [{ type: "text", text: body }],
+          details: { kind: "range", path: args.path, absolutePath, startLine: target.startLine, endLine: target.endLine, totalLines, segment } satisfies ReadRangeDetails,
+        };
+      }
+      const options = buildSegmentOptions(allLines, target.startLine, target.endLine, segment ?? "");
+      return {
+        content: [{ type: "text", text: formatSegmentMap(args.path, totalLines, options, segment) }],
+        details: { kind: "map", path: args.path, totalLines, segment, options } satisfies ReadMapDetails,
+      };
     },
     renderResult(result, _options, theme) {
-      const details = result.details as { path?: string; startLine?: number; endLine?: number; totalLines?: number; truncated?: boolean } | undefined;
+      const details = result.details as ReadRangeDetails | ReadMapDetails | undefined;
       if (!details) return new Text(theme.fg("dim", "hashline-read"), 0, 0);
-      const range = `${details.startLine ?? "?"}-${details.endLine ?? "?"}`;
-      const suffix = details.truncated ? " truncated" : "";
-      return new Text(theme.fg("dim", `${details.path ?? "file"}: read lines ${range}/${details.totalLines ?? "?"}${suffix}`), 0, 0);
+      return details.kind === "range" ? renderReadRange(details, theme) : renderReadMap(details, theme);
     },
   });
 
@@ -101,6 +197,7 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       "Use anchors only, e.g. 1gs, not full read lines like 1gs|text.",
       "Delete and replace require explicit ranges, e.g. - 1gs..1gs or = 1gs..1gs.",
       "Payload lines start with the edit separator, default ~.",
+      "Re-read target file or target segment before edit when current file shape matters.",
       "hashline-edit stays cwd-bound; start pi in target repo before editing another repo.",
     ],
     parameters: Type.Object({

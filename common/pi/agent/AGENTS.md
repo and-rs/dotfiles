@@ -23,7 +23,8 @@ Respond in english only. Caveman full active always.
 
 ## Format
 
-- No bold or italics. Hyphen bullets for lists.
+- No bold or italics.
+- Hyphen bullets for lists.
 - Code blocks only for actual code or structured output.
 - No headings unless structure is necessary.
 
@@ -72,6 +73,7 @@ Respond in english only. Caveman full active always.
 ## Hashline Editing Protocol
 
 - Use `hashline-read` to read any file. It can inspect text files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
+- For huge files, use `hashline-read` segment labels like `A`, `B`, `AA`, `AB` instead of raw line math.
 - Use `file-create` for new files. Use `hashline-edit` only for existing files.
 - Do not use `read`, `edit`, or `write`. Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly approves bypass.
 - Use anchor tokens only: `1gs`, not full read lines like `1gs|text`.
@@ -82,8 +84,13 @@ Respond in english only. Caveman full active always.
   = 1gs..1gs
   ~new text
   ```
-- If read output is truncated, continue with `offset`/`:L` and re-anchor before editing.
 - For cross-repo edits, start pi in target repo. If path is blocked, follow tool error action exactly.
+
+## Fresh-read rule
+
+- Re-read target file right before edit when possible.
+- Fresh hashline anchors beat stale cached context.
+- For changes that depend on current file shape, do not trust old snippets.
 
 ## Pi setup architecture
 

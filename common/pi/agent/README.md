@@ -4,15 +4,14 @@
 
 - `web-docs`: `/exa` auth command, `exa-search`, `web-fetch`.
 - `hashline-edit`: strict `hashline-read`, `hashline-edit`, and `file-create` tools.
-- `hashline-read` can inspect files under cwd or `$HOME`; `hashline-edit` and `file-create` stay cwd-bound.
+- `hashline-read` can inspect files under cwd or `$HOME`; small files return whole body, huge files return simple segment labels like `A` and `B`.
 - `focus-border`: dim input border on terminal focus loss.
-- `context-mask`: masks old bulky tool results while preserving recent active `hashline-read`/edit working set and logs context operations.
+- `context-mask`: aggressively masks old bulky tool results; expect stale file context to disappear and re-read for fresh anchors.
 - `pi-checkpoint`: local `[PI]` checkpoint commits in small batches after file-changing turns; blocks agent `git push`.
 - `code-tools`: `code-overview` and `code-search` for compact JIT repo exploration.
 - `tool-policy`: disables built-in `read`, `edit`, `write`, `grep`, `find`, and `ls`; keeps replacement tools active.
 - `forge`: optional phased workflow with color-coded footer chip, `/forge`, `/phase`, read-only `tactic`/`temper`, and interactive human-first `temper` coaching.
 - `lib`: shared extension helpers. Not loaded as an extension.
-
 
 ## Architecture rules
 
@@ -30,6 +29,7 @@
 - Avoid ad-hoc per-extension packages, locks, bootstrap steps.
 - Prefer repeating module grammar over clever one-offs.
 - Stop splitting when file becomes fake wrapper with no semantic value.
+
 ## Exa auth
 
 - `/exa login`: save regular Exa search API key as `auth.exa`.
@@ -64,7 +64,6 @@ tmux set-option -g focus-events on
 ```
 
 Restart tmux if existing panes still do not emit focus events.
-
 
 ## Keybindings
 

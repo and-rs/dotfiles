@@ -74,7 +74,7 @@ export function summarizeToolResult(message: ContextMessage, toolCall: ToolCallI
     header.push(`path: ${preview(args.path)}`);
     if (args.offset !== undefined) header.push(`offset: ${preview(args.offset)}`);
     if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
-    header.push("note: file body omitted; re-read only if anchors may be stale or exact range needed.");
+    header.push("note: body intentionally omitted; re-read for fresh file context and fresh anchors before edit.");
   } else if (toolName === "hashline-edit" || toolName === "file-create") {
     tailLineCount = EDIT_TAIL_LINES;
     header.push("note: old diff trimmed; inspect git diff for current worktree state.");
@@ -119,8 +119,11 @@ export function formatStats(stats: MaskStats): string {
     `         ├── masked ${stats.maskedCount} old tool result${stats.maskedCount === 1 ? "" : "s"}`,
     "         ├── policy",
     "         │   ├── current turn kept raw",
-    `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turns kept raw`,
-    `         │   └── preserve ${PRESERVED_HASHLINE_READS} recent hashline reads + ${PRESERVED_EDIT_RESULTS} recent edit diffs`,
+    `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turn${RAW_RECENT_USER_TURNS === 1 ? "" : "s"} kept raw`,
+    `         │   ├── preserve ${PRESERVED_HASHLINE_READS} recent hashline read${PRESERVED_HASHLINE_READS === 1 ? "" : "s"}`,
+    `         │   └── preserve ${PRESERVED_EDIT_RESULTS} recent edit diff${PRESERVED_EDIT_RESULTS === 1 ? "" : "s"}`,
+    "         ├── why",
+    "         │   └── re-read files for fresh context and fresh hashline anchors",
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),
     "         └── samples",

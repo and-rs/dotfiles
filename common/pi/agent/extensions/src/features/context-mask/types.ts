@@ -7,10 +7,10 @@ export const FAILED_BASH_TAIL_LINES = 40;
 export const SUCCESS_BASH_TAIL_LINES = 10;
 export const EDIT_TAIL_LINES = 30;
 export const CODE_FILES_TAIL_LINES = 100;
-export const RAW_RECENT_USER_TURNS = 3;
-export const MIN_MASK_CHARACTERS = 1000;
-export const PRESERVED_HASHLINE_READS = 4;
-export const PRESERVED_EDIT_RESULTS = 2;
+export const RAW_RECENT_USER_TURNS = 1;
+export const MIN_MASK_CHARACTERS = 600;
+export const PRESERVED_HASHLINE_READS = 1;
+export const PRESERVED_EDIT_RESULTS = 1;
 
 export type TextContent = { type: "text"; text: string };
 export type ToolCallContent = { type: "toolCall"; id: string; name: string; arguments: Record<string, unknown> };

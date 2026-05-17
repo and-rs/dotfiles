@@ -17,13 +17,6 @@
   line-numbers = true
   navigate = true
 
-[merge]
-  conflictstyle = diff3
-	tool = vscode-diff
-
-[mergetool "vscode-diff"]
-	cmd = bob run 0.12.2 \"$MERGED\" -c \"CodeDiff merge \\\"$MERGED\\\"\"
-
 [user]
   name = "and-rs"
   email = "deserd@protonmail.com"
