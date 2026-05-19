@@ -1,4 +1,9 @@
-import type { ContextMessage, MaskStats, MessageContent, ToolCallInfo } from "./types.ts";
+import type {
+  ContextMessage,
+  MaskStats,
+  MessageContent,
+  ToolCallInfo,
+} from "./types.ts";
 import {
   CODE_FILES_TAIL_LINES,
   DEFAULT_TAIL_LINES,
@@ -14,7 +19,14 @@ import {
 export function textFromContent(content: ContextMessage["content"]): string {
   if (typeof content === "string") return content;
   if (!Array.isArray(content)) return "";
-  return content.filter((part): part is MessageContent & { type: "text"; text: string } => part.type === "text" && typeof (part as { text?: unknown }).text === "string").map((part) => part.text).join("\n");
+  return content
+    .filter(
+      (part): part is MessageContent & { type: "text"; text: string } =>
+        part.type === "text" &&
+        typeof (part as { text?: unknown }).text === "string",
+    )
+    .map((part) => part.text)
+    .join("\n");
 }
 
 export function lineCount(value: string): number {
@@ -53,7 +65,10 @@ export function normalizeToolName(name: string | undefined): string {
   return (name ?? "unknown").replaceAll("_", "-");
 }
 
-export function summarizeToolResult(message: ContextMessage, toolCall: ToolCallInfo | undefined): string {
+export function summarizeToolResult(
+  message: ContextMessage,
+  toolCall: ToolCallInfo | undefined,
+): string {
   const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
   const args = toolCall?.arguments ?? {};
   const text = textFromContent(message.content);
@@ -67,17 +82,24 @@ export function summarizeToolResult(message: ContextMessage, toolCall: ToolCallI
     `size: ${lines} lines, ${formatCharacters(text.length)}`,
   ];
   if (toolName === "bash") {
-    tailLineCount = message.isError ? FAILED_BASH_TAIL_LINES : SUCCESS_BASH_TAIL_LINES;
+    tailLineCount = message.isError
+      ? FAILED_BASH_TAIL_LINES
+      : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
   } else if (toolName === "hashline-read") {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path)}`);
-    if (args.offset !== undefined) header.push(`offset: ${preview(args.offset)}`);
+    if (args.offset !== undefined)
+      header.push(`offset: ${preview(args.offset)}`);
     if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
-    header.push("note: body intentionally omitted; re-read for fresh file context and fresh anchors before edit.");
+    header.push(
+      "note: body intentionally omitted; re-read for fresh file context and fresh anchors before edit.",
+    );
   } else if (toolName === "hashline-edit" || toolName === "file-create") {
     tailLineCount = EDIT_TAIL_LINES;
-    header.push("note: old diff trimmed; inspect git diff for current worktree state.");
+    header.push(
+      "note: old diff trimmed; inspect git diff for current worktree state.",
+    );
   } else if (toolName === "code-files") {
     tailLineCount = CODE_FILES_TAIL_LINES;
     header.push(`path: ${preview(args.path ?? ".")}`);
@@ -107,13 +129,19 @@ export function summarizeToolResult(message: ContextMessage, toolCall: ToolCallI
 }
 
 export function formatTreeItems(items: string[], indent = ""): string[] {
-  return items.map((item, index) => `${indent}${index === items.length - 1 ? "└──" : "├──"} ${item}`);
+  return items.map(
+    (item, index) =>
+      `${indent}${index === items.length - 1 ? "└──" : "├──"} ${item}`,
+  );
 }
 
 export function formatStats(stats: MaskStats): string {
   const saved = Math.max(0, stats.beforeCharacters - stats.afterCharacters);
-  const savedPercent = stats.beforeCharacters === 0 ? 0 : (saved / stats.beforeCharacters) * 100;
-  const toolItems = Array.from(stats.tools.entries()).sort((a, b) => b[1] - a[1]).map(([name, count]) => `${String(count).padStart(3)}  ${name}`);
+  const savedPercent =
+    stats.beforeCharacters === 0 ? 0 : (saved / stats.beforeCharacters) * 100;
+  const toolItems = Array.from(stats.tools.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => `${String(count).padStart(3)}  ${name}`);
   return [
     `${formatCharacters(stats.beforeCharacters).padStart(8)} → ${formatCharacters(stats.afterCharacters).padStart(8)}  saved ${formatCharacters(saved)} (${formatPercent(savedPercent)})`,
     `         ├── masked ${stats.maskedCount} old tool result${stats.maskedCount === 1 ? "" : "s"}`,
@@ -122,8 +150,6 @@ export function formatStats(stats: MaskStats): string {
     `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turn${RAW_RECENT_USER_TURNS === 1 ? "" : "s"} kept raw`,
     `         │   ├── preserve ${PRESERVED_HASHLINE_READS} recent hashline read${PRESERVED_HASHLINE_READS === 1 ? "" : "s"}`,
     `         │   └── preserve ${PRESERVED_EDIT_RESULTS} recent edit diff${PRESERVED_EDIT_RESULTS === 1 ? "" : "s"}`,
-    "         ├── why",
-    "         │   └── re-read files for fresh context and fresh hashline anchors",
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),
     "         └── samples",

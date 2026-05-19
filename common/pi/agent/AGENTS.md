@@ -43,14 +43,16 @@ Respond in english only. Caveman full active always.
 - Internal tool execution can use bash by default; use `nu -c '...'` only when nushell execution is required.
 - If user asks for nushell output, never return bash syntax.
 - Format shell examples for copy/paste: multiline, one flag per line for long commands; avoid long single-line commands.
-- For multiline nushell external commands, prefer wrapped form WITH ():
-   ```nu
-      (
-       cmd
-       --flag value
-      )
-      ```
-
+- In fenced code blocks, do not indent command lines unless indentation is required by syntax.
+- Nushell multiline means one command split across lines. Multiple sequential commands stay as separate lines. Use `do { ... }` only when block semantics are needed.
+- For multiline nushell external commands, prefer wrapped form WITH `(` `)` only for one external command split across lines:
+  ```nu
+  (
+    cmd
+    --flag value
+  )
+  ```
+- Do not prefix external commands with `^` unless you must bypass Nushell command/alias resolution and force external executable.
 - No bash-isms in `.nu`: no `$()`, `&&`/`||`, `export VAR=val`, `[[ ]]`.
 - When unsure about nushell syntax, load the `nu-syntax` skill first.
 
@@ -84,6 +86,9 @@ Respond in english only. Caveman full active always.
   = 1gs..1gs
   ~new text
   ```
+- `@@ PATH` belongs only on first line of each file section. Never emit raw `@@` inside payload; use `~@@ ...` for literal content.
+- Prefer one file and one contiguous hunk per `hashline-edit` call. If edits are distant or multi-file, prefer separate calls.
+- Re-read after each nontrivial `hashline-edit` before next patch.
 - For cross-repo edits, start pi in target repo. If path is blocked, follow tool error action exactly.
 
 ## Fresh-read rule
@@ -92,19 +97,7 @@ Respond in english only. Caveman full active always.
 - Fresh hashline anchors beat stale cached context.
 - For changes that depend on current file shape, do not trust old snippets.
 
-## Pi setup architecture
+## Pi setup
 
-- One project root only: `common/pi/agent/extensions/`.
-- Backend-style layout:
-  - `src/app/` for assembly.
-  - `src/ui/` for footer/widget chrome ownership.
-  - `src/features/<feature>/` for domain modules.
-- `package.json` loads one extension only: `src/app/index.ts`.
-- `app/` composes features and UI. Features do not self-assemble globally.
-- Only `ui/` owns footer/widget/status mutations.
-- Features expose `index.ts` as public facade.
-- Small composition-only helpers belong in `index.ts`.
-- Separate file only when concern has real behavior depth, reuse, or boundary value.
-- Avoid ad-hoc per-extension packages, locks, bootstrap steps.
-- Prefer repeating module grammar over clever one-offs.
-- Stop splitting when file becomes fake wrapper with no semantic value.
+- When modifying `common/pi/agent/extensions/`, `common/pi/agent/skills/`, or other Pi agent setup files, load the `pi-architecture` skill first.
+- Keep Pi setup aligned with `pi-architecture`; update that skill when architecture changes.

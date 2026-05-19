@@ -2,7 +2,9 @@ import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { clearForgeChrome, renderForgeChrome } from "../../ui/chrome.ts";
 import type { ForgeState, Phase } from "./types.ts";
 
-export function phaseColor(phase: Phase): "accent" | "warning" | "error" | "success" | "dim" {
+export function phaseColor(
+  phase: Phase,
+): "accent" | "warning" | "error" | "success" | "dim" {
   switch (phase) {
     case "tactic":
       return "accent";
@@ -47,42 +49,6 @@ export function phaseSummary(phase: Phase): string {
   }
 }
 
-export function phaseWidgetLines(state: ForgeState): string[] {
-  switch (state.phase) {
-    case "tactic":
-      return [
-        `${phaseGlyph(state.phase)} tactic: map smallest next move`,
-        "no edits • define constraints, risk, done-check",
-        "when clear: /phase exert",
-      ];
-    case "exert":
-      return [
-        `${phaseGlyph(state.phase)} exert: patch as soon as possible, not as big as possible`,
-        "leave seams for human follow-up",
-        "when patch lands: /phase refine or /phase temper",
-      ];
-    case "refine":
-      return [
-        `${phaseGlyph(state.phase)} refine: fix failures, not whole world`,
-        "separate conceptual flaws from mechanical breakage",
-        "when stable: /phase temper",
-      ];
-    case "temper": {
-      const lines = [
-        `${phaseGlyph(state.phase)} temper: human must change code`,
-        "agent rereads touched files, assigns one meaningful task, then reassesses",
-        "use /phase tactic to re-scope after learning",
-      ];
-      if (state.touchedFiles.length > 0) {
-        lines.push(`touched: ${state.touchedFiles.slice(-3).join(", ")}`);
-      }
-      return lines;
-    }
-    default:
-      return [];
-  }
-}
-
 export function updateForgeUi(ctx: ExtensionContext, state: ForgeState): void {
   if (!ctx.hasUI || state.phase === "off") {
     clearForgeChrome(ctx);
@@ -94,6 +60,5 @@ export function updateForgeUi(ctx: ExtensionContext, state: ForgeState): void {
     glyph: phaseGlyph(state.phase),
     summary: phaseSummary(state.phase),
     color: phaseColor(state.phase),
-    lines: phaseWidgetLines(state),
   });
 }

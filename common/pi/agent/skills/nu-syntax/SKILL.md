@@ -187,9 +187,35 @@ export-env {
 ## Running External Commands
 
 ```nu
-^git status            # ^ forces external, bypasses nushell aliases
+git status             # external command works directly
+^ls                    # force external only when bypassing Nushell command/alias
 nu -c 'ls | get name'  # run nushell from within nushell/bash
 ```
+
+## User-facing Command Formatting
+
+- In fenced `nu` blocks, do not indent command lines unless syntax requires indentation.
+- Multiple sequential commands are not multiline command syntax. Put one command per line:
+
+```nu
+touch keep.txt
+git add keep.txt
+rm keep.txt
+zig build run -- files --cwd .
+```
+
+- Use wrapped `(` `)` form only when one external command is split across lines:
+
+```nu
+(
+  git
+  status
+  --short
+)
+```
+
+- Use `do { ... }` only when block semantics are needed, not for ordinary sequential commands.
+- Do not prefix external commands with `^` unless you must bypass Nushell command/alias resolution.
 
 ## Key Bash Gotchas
 

@@ -28,12 +28,10 @@ function normalizeHashlinePath(rawPath: string, cwd?: string): string {
 function parseHashlineHeaderLine(line: string, cwd?: string): HashlineInputSection | null {
 	const trimmed = line.trimEnd();
 	if (!trimmed.startsWith(FILE_HEADER_PREFIX)) return null;
-	// Some models occasionally emit unified-diff-style "@@ path" (or even longer
-	// runs of "@"). Strip every leading "@" before resolving the path so those
-	// stray headers still route to the right file.
-	let prefixEnd = 0;
-	while (prefixEnd < trimmed.length && trimmed[prefixEnd] === FILE_HEADER_PREFIX) prefixEnd++;
-	const rest = trimmed.slice(prefixEnd);
+	if (!trimmed.startsWith(`${FILE_HEADER_PREFIX} `)) {
+		throw new Error(`input header must start with exactly "${FILE_HEADER_PREFIX} PATH". Do not use extra leading @ or malformed header text.`);
+	}
+	const rest = trimmed.slice(FILE_HEADER_PREFIX.length + 1);
 	if (rest.trim().length === 0) {
 		throw new Error(`Input header "${FILE_HEADER_PREFIX}" is empty; provide a file path.`);
 	}
@@ -112,12 +110,30 @@ export function splitHashlineInputs(input: string, options: SplitHashlineOptions
 		currentLines = [];
 	};
 
+	const lastNonBlankLine = (): string | null => {
+		for (let index = currentLines.length - 1; index >= 0; index -= 1) {
+			const line = stripTrailingCarriageReturn(currentLines[index]);
+			if (line.trim().length > 0) return line;
+		}
+		return null;
+	};
+
 	for (const rawLine of lines) {
 		const line = stripTrailingCarriageReturn(rawLine);
 		if (line.trimEnd() === END_PATCH_MARKER || line.trimEnd() === ABORT_MARKER) break;
 		if (isPatchEnvelopeMarker(line)) continue;
 		const header = parseHashlineHeaderLine(line, options.cwd);
 		if (header !== null) {
+			if (currentPath.length > 0) {
+				const previous = lastNonBlankLine();
+				if (previous && (/^[+<=-]\s+/.test(previous) || previous.startsWith(HL_EDIT_SEP))) {
+					throw new Error(
+						`ambiguous raw "${FILE_HEADER_PREFIX} PATH" encountered inside active edit block for ${currentPath}. ` +
+							`If you need literal content starting with ${FILE_HEADER_PREFIX}, prefix it as payload like "${HL_EDIT_SEP}${FILE_HEADER_PREFIX} text". ` +
+							`If you meant another file section, insert a blank line before next header or use a separate hashline-edit call.`,
+					);
+				}
+			}
 			flush();
 			currentPath = header.path;
 			currentLines = [];

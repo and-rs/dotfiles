@@ -197,6 +197,8 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       "Use anchors only, e.g. 1gs, not full read lines like 1gs|text.",
       "Delete and replace require explicit ranges, e.g. - 1gs..1gs or = 1gs..1gs.",
       "Payload lines start with the edit separator, default ~.",
+      'Use "@@ PATH" only on first line of each file section. If literal content must contain @@, write it as payload like "~@@ text".',
+      "Prefer one file and one contiguous hunk per hashline-edit call. If edits are distant or multi-file, prefer separate calls.",
       "Re-read target file or target segment before edit when current file shape matters.",
       "hashline-edit stays cwd-bound; start pi in target repo before editing another repo.",
     ],
