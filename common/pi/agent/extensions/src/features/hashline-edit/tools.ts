@@ -4,17 +4,25 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
-import { HashlineMismatchError, applyHashlineEdits, formatHashLines, parseHashlineWithWarnings, splitHashlineInputs } from "./hashline/index";
+import {
+  HashlineMismatchError,
+  applyHashlineJsonEdits,
+  computeHashlineSnapshotId,
+  formatHashLines,
+  formatSnapshotStaleError,
+  parseHashlineJsonEditParams,
+} from "./hashline/index";
 import { buildEditDiff, pathExists, renderDiffResult } from "./diff.ts";
-import { ensureCreatablePathInCwd, ensureExistingPathInCwd, ensureReadablePath, readTextFile, rememberRange } from "./paths.ts";
+import { ensureCreatablePathInCwd, ensureExistingPathInCwd, ensureReadablePath, readTextFile } from "./paths.ts";
 import { registerBlockedFileTool } from "./renderers.ts";
 import { detectLineEnding, normalizeToLf, restoreLineEndings } from "./text.ts";
-import { AUTO_FULL_FILE_LINES, type CreateFileParams, type EditParams, type ReadParams } from "./types.ts";
+import { AUTO_FULL_FILE_LINES, type CreateFileParams, type ReadParams } from "./types.ts";
 
 type ReadRangeDetails = {
   kind: "range";
   path: string;
   absolutePath: string;
+  snapshotId: string;
   startLine: number;
   endLine: number;
   totalLines: number;
@@ -32,15 +40,18 @@ type SegmentOption = {
 type ReadMapDetails = {
   kind: "map";
   path: string;
+  snapshotId: string;
   totalLines: number;
   segment?: string;
   options: SegmentOption[];
 };
 
-function mergeWarnings(parseWarnings: string[], applyWarnings?: string[]): string[] {
-  if (!applyWarnings || applyWarnings.length === 0) return parseWarnings;
-  return [...parseWarnings, ...applyWarnings];
+type HashlineToolResult = { details?: { diff?: string }; content: Array<{ type: string; text?: string }> };
+
+function renderToolDiffResult(result: unknown, theme: Parameters<typeof renderDiffResult>[1], fallback: string): Text {
+  return renderDiffResult(result as HashlineToolResult, theme, fallback);
 }
+
 
 function previewSegmentLine(line: string): string {
   const compact = line.trim().replace(/\s+/g, " ");
@@ -134,6 +145,7 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       const source = await readTextFile(absolutePath);
       if (!source.exists) throw new Error(`File not found: ${args.path}`);
       const normalized = normalizeToLf(source.text);
+      const snapshotId = computeHashlineSnapshotId(normalized);
       const allLines = normalized.split("\n");
       const totalLines = allLines.length;
       const segment = typeof args.segment === "string" && args.segment.trim() ? args.segment.trim().toUpperCase() : undefined;
@@ -141,17 +153,16 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       const targetLineCount = target.endLine - target.startLine + 1;
       if (targetLineCount <= AUTO_FULL_FILE_LINES) {
         const slice = allLines.slice(target.startLine - 1, target.endLine);
-        rememberRange(absolutePath, target.startLine, slice);
-        const body = formatHashLines(slice.join("\n"), target.startLine);
+        const body = [`snapshotId: ${snapshotId}`, formatHashLines(slice.join("\n"), target.startLine)].join("\n");
         return {
           content: [{ type: "text", text: body }],
-          details: { kind: "range", path: args.path, absolutePath, startLine: target.startLine, endLine: target.endLine, totalLines, segment } satisfies ReadRangeDetails,
+          details: { kind: "range", path: args.path, absolutePath, snapshotId, startLine: target.startLine, endLine: target.endLine, totalLines, segment } satisfies ReadRangeDetails,
         };
       }
       const options = buildSegmentOptions(allLines, target.startLine, target.endLine, segment ?? "");
       return {
-        content: [{ type: "text", text: formatSegmentMap(args.path, totalLines, options, segment) }],
-        details: { kind: "map", path: args.path, totalLines, segment, options } satisfies ReadMapDetails,
+        content: [{ type: "text", text: [`snapshotId: ${snapshotId}`, formatSegmentMap(args.path, totalLines, options, segment)].join("\n") }],
+        details: { kind: "map", path: args.path, snapshotId, totalLines, segment, options } satisfies ReadMapDetails,
       };
     },
     renderResult(result, _options, theme) {
@@ -177,73 +188,80 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
         if (await pathExists(absolutePath)) throw new Error(`File already exists: ${args.path}. Use hashline-read then hashline-edit.`);
         await mkdir(dirname(absolutePath), { recursive: true });
         await writeFile(absolutePath, args.content, "utf8");
-        rememberRange(absolutePath, 1, normalizeToLf(args.content).split("\n"));
         const diff = await buildEditDiff(ctx.cwd, [{ path: absolutePath, before: "", after: args.content, changed: true }]);
         return { content: [{ type: "text", text: diff }], details: { path: args.path, diff } };
       });
     },
     renderResult(result, _options, theme) {
-      return renderDiffResult(result as { details?: { diff?: string }; content: Array<{ type: string; text?: string }> }, theme, "No diff available.");
+      return renderToolDiffResult(result, theme, "No diff available.");
     },
   });
 
   pi.registerTool({
     name: "hashline-edit",
     label: "Hashline Edit",
-    description: "Apply hashline patch sections (@@ path + <|+|-|= ops) with strict anchor validation.",
-    promptSnippet: "Apply line-anchored hashline edits with strict mismatch detection.",
+    description: "Apply strict JSON hashline edits to one existing file with snapshot and anchor validation.",
+    promptSnippet: "Apply line-anchored hashline edits using strict JSON ops.",
     promptGuidelines: [
-      "Use op lines as OP SPACE ANCHOR, e.g. = 1gs..1gs, not =1gs|text.",
-      "Use anchors only, e.g. 1gs, not full read lines like 1gs|text.",
-      "Delete and replace require explicit ranges, e.g. - 1gs..1gs or = 1gs..1gs.",
-      "Payload lines start with the edit separator, default ~.",
-      'Use "@@ PATH" only on first line of each file section. If literal content must contain @@, write it as payload like "~@@ text".',
-      "Prefer one file and one contiguous hunk per hashline-edit call. If edits are distant or multi-file, prefer separate calls.",
-      "Re-read target file or target segment before edit when current file shape matters.",
+      "Use hashline-read first and copy the latest snapshotId.",
+      "hashline-edit takes JSON fields: path, snapshotId, edits.",
+      "One file per call. Do not edit multiple files in one hashline-edit call.",
+      "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
+      "Supported ops: replace, delete, insert_before, insert_after.",
+      "replace/delete use start and end anchors. insert_before/insert_after use anchor.",
+      "Replacement or inserted content goes in lines: string[]. Each array item is one output line; no embedded newlines.",
+      "All edits validate before write and apply bottom-up. Overlapping ranges fail with no partial write.",
+      "On snapshot_stale or anchor mismatch, retry with fresh anchors from the error or run hashline-read again.",
       "hashline-edit stays cwd-bound; start pi in target repo before editing another repo.",
     ],
     parameters: Type.Object({
-      input: Type.String({ description: "Hashline patch input. First non-blank line must be @@ PATH." }),
-      path: Type.Optional(Type.String({ description: "Fallback path when input omits @@ PATH." })),
-      autoDropPureInsertDuplicates: Type.Optional(Type.Boolean({ description: "Enable context-echo absorb for pure inserts." })),
+      path: Type.String({ description: "Existing file path. Must be inside cwd." }),
+      snapshotId: Type.String({ description: "snapshotId from the latest hashline-read for this file." }),
+      edits: Type.Array(
+        Type.Object({
+          op: Type.Union([
+            Type.Literal("replace"),
+            Type.Literal("delete"),
+            Type.Literal("insert_before"),
+            Type.Literal("insert_after"),
+          ]),
+          start: Type.Optional(Type.String({ description: "Start anchor for replace/delete." })),
+          end: Type.Optional(Type.String({ description: "End anchor for replace/delete." })),
+          anchor: Type.Optional(Type.String({ description: "Target anchor for insert_before/insert_after." })),
+          lines: Type.Optional(Type.Array(Type.String({ description: "One output line per string; no embedded newlines." }))),
+        }),
+        { description: "Strict JSON edit operations for one file." },
+      ),
     }),
     execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
-      const args = params as EditParams;
-      const sections = splitHashlineInputs(args.input, { cwd: ctx.cwd, path: args.path });
-      const editedFiles: Array<{ path: string; before: string; after: string; changed: boolean }> = [];
-      const details: Array<{ path: string; changed: boolean; warnings: string[] }> = [];
-      for (const section of sections) {
-        const absolutePath = await ensureExistingPathInCwd(ctx.cwd, section.path);
-        const result = await withFileMutationQueue(absolutePath, async () => {
-          const source = await readTextFile(absolutePath);
-          if (!source.exists) throw new Error(`File not found: ${section.path}. Use file-create for new files.`);
-          const ending = detectLineEnding(source.text);
-          const normalized = normalizeToLf(source.text);
-          const { edits, warnings: parseWarnings } = parseHashlineWithWarnings(section.diff);
-          let applied;
-          try {
-            applied = applyHashlineEdits(normalized, edits, { autoDropPureInsertDuplicates: args.autoDropPureInsertDuplicates });
-          } catch (error) {
-            if (error instanceof HashlineMismatchError) throw new Error(error.displayMessage);
-            throw error;
-          }
-          const changed = applied.lines !== normalized;
-          const warnings = mergeWarnings(parseWarnings, applied.warnings);
-          const after = restoreLineEndings(applied.lines, ending);
-          if (changed) {
-            await writeFile(absolutePath, after, "utf8");
-            rememberRange(absolutePath, 1, applied.lines.split("\n"));
-          }
-          return { editedFile: { path: absolutePath, before: source.text, after, changed }, detail: { path: section.path, changed, warnings } };
-        });
-        editedFiles.push(result.editedFile);
-        details.push(result.detail);
-      }
-      const diff = await buildEditDiff(ctx.cwd, editedFiles);
-      return { content: [{ type: "text", text: diff }], details: { files: details, diff } };
+      const args = parseHashlineJsonEditParams(params);
+      const absolutePath = await ensureExistingPathInCwd(ctx.cwd, args.path);
+      const result = await withFileMutationQueue(absolutePath, async () => {
+        const source = await readTextFile(absolutePath);
+        if (!source.exists) throw new Error(`File not found: ${args.path}. Use file-create for new files.`);
+        const ending = detectLineEnding(source.text);
+        const normalized = normalizeToLf(source.text);
+        const currentSnapshotId = computeHashlineSnapshotId(normalized);
+        const currentLines = normalized.split("\n");
+        if (args.snapshotId !== currentSnapshotId) {
+          throw new Error(formatSnapshotStaleError(args.path, args.snapshotId, currentSnapshotId, currentLines, args.edits));
+        }
+        let applied;
+        try {
+          applied = applyHashlineJsonEdits(normalized, args.edits);
+        } catch (error) {
+          if (error instanceof HashlineMismatchError) throw new Error(error.displayMessage);
+          throw error;
+        }
+        const after = restoreLineEndings(applied.lines, ending);
+        if (applied.changed) await writeFile(absolutePath, after, "utf8");
+        return { editedFile: { path: absolutePath, before: source.text, after, changed: applied.changed }, detail: { path: args.path, changed: applied.changed } };
+      });
+      const diff = await buildEditDiff(ctx.cwd, [result.editedFile]);
+      return { content: [{ type: "text", text: diff }], details: { files: [result.detail], diff } };
     },
     renderResult(result, _options, theme) {
-      return renderDiffResult(result as { details?: { diff?: string }; content: Array<{ type: string; text?: string }> }, theme, "No changes.");
+      return renderToolDiffResult(result, theme, "No changes.");
     },
   });
 }

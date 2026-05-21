@@ -1,9 +1,7 @@
 import { realpath, stat, readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
-import type { HashlineSnapshot } from "./hashline/types";
 import { HOME_DIR, MAX_TEXT_FILE_BYTES } from "./types.ts";
 
-const snapshots = new Map<string, HashlineSnapshot>();
 
 function normalizeToolPathInput(candidatePath: string): string {
   const trimmed = candidatePath.trim();
@@ -64,18 +62,6 @@ export async function ensureReadablePath(cwd: string, candidatePath: string): Pr
   throw new Error(`Path outside allowed read roots: ${candidatePath}. hashline-read allows current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
 }
 
-function getSnapshot(path: string): HashlineSnapshot {
-  const existing = snapshots.get(path);
-  if (existing) return existing;
-  const created: HashlineSnapshot = { lines: new Map<number, string>() };
-  snapshots.set(path, created);
-  return created;
-}
-
-export function rememberRange(path: string, startLine: number, lines: string[]): void {
-  const snapshot = getSnapshot(path);
-  for (let i = 0; i < lines.length; i++) snapshot.lines.set(startLine + i, lines[i]);
-}
 
 function looksBinary(buffer: Buffer): boolean {
   const sampleLength = Math.min(buffer.length, 8192);

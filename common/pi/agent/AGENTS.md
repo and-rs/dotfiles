@@ -79,15 +79,11 @@ Respond in english only. Caveman full active always.
 - Use `file-create` for new files. Use `hashline-edit` only for existing files.
 - Do not use `read`, `edit`, or `write`. Do not create, modify, or delete files through `bash`, `python`, `node`, `sed`, `cat`, or heredocs unless user explicitly approves bypass.
 - Use anchor tokens only: `1gs`, not full read lines like `1gs|text`.
-- Op lines require `OP SPACE ANCHOR`; delete/replace require explicit ranges: `= 1gs..1gs`, not `=1gs|text`.
-- Payload lines start with `~`:
-  ```
-  @@ file
-  = 1gs..1gs
-  ~new text
-  ```
-- `@@ PATH` belongs only on first line of each file section. Never emit raw `@@` inside payload; use `~@@ ...` for literal content.
-- Prefer one file and one contiguous hunk per `hashline-edit` call. If edits are distant or multi-file, prefer separate calls.
+- `hashline-read` returns `snapshotId`; pass latest `snapshotId` to `hashline-edit`.
+- `hashline-edit` uses strict JSON: `path`, `snapshotId`, `edits`.
+- One file per `hashline-edit` call. Supported ops: `replace`, `delete`, `insert_before`, `insert_after`.
+- `replace`/`delete` use `start` and `end` anchors. Insert ops use `anchor`. New content uses `lines: string[]`, one output line per string.
+- All edits validate before write and apply bottom-up. On `snapshot_stale` or anchor mismatch, retry with fresh anchors from error or run `hashline-read` again.
 - Re-read after each nontrivial `hashline-edit` before next patch.
 - For cross-repo edits, start pi in target repo. If path is blocked, follow tool error action exactly.
 

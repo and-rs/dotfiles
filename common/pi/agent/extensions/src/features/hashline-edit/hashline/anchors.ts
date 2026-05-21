@@ -1,5 +1,5 @@
 import { MISMATCH_CONTEXT } from "./constants";
-import { computeLineHash, describeAnchorExamples, HL_ANCHOR_RE_RAW, HL_BODY_SEP } from "./hash";
+import { describeAnchorExamples, HL_ANCHOR_RE_RAW } from "./hash";
 import type { HashMismatch } from "./types";
 
 const HL_HASH_HINT_RE = /^[a-z]{2}$/i;
@@ -45,23 +45,14 @@ function getMismatchDisplayLines(mismatches: HashMismatch[], fileLines: string[]
 }
 
 export class HashlineMismatchError extends Error {
-	readonly remaps: ReadonlyMap<string, string>;
 
 	constructor(
 		public readonly mismatches: HashMismatch[],
 		public readonly fileLines: string[],
 	) {
-		super(HashlineMismatchError.formatMessage(mismatches, fileLines));
+		super(HashlineMismatchError.formatDisplayMessage(mismatches, fileLines));
 		this.name = "HashlineMismatchError";
-
-		const remaps = new Map<string, string>();
-		for (const mismatch of mismatches) {
-			const actual = computeLineHash(mismatch.line, fileLines[mismatch.line - 1] ?? "");
-			remaps.set(`${mismatch.line}${mismatch.expected}`, `${mismatch.line}${actual}`);
-		}
-		this.remaps = remaps;
 	}
-
 	get displayMessage(): string {
 		return HashlineMismatchError.formatDisplayMessage(this.mismatches, this.fileLines);
 	}
@@ -90,28 +81,5 @@ export class HashlineMismatchError extends Error {
 		return out.join("\n");
 	}
 
-	static formatMessage(mismatches: HashMismatch[], fileLines: string[]): string {
-		const mismatchSet = new Set<number>(mismatches.map(m => m.line));
-		const lines = HashlineMismatchError.rejectionHeader(mismatches);
-		let previous = -1;
-		for (const lineNum of getMismatchDisplayLines(mismatches, fileLines)) {
-			if (previous !== -1 && lineNum > previous + 1) lines.push("...");
-			previous = lineNum;
-			const text = fileLines[lineNum - 1] ?? "";
-			const hash = computeLineHash(lineNum, text);
-			const marker = mismatchSet.has(lineNum) ? "*" : " ";
-			lines.push(`${marker}${lineNum}${hash}${HL_BODY_SEP}${text}`);
-		}
-		return lines.join("\n");
-	}
 }
 
-export function validateLineRef(ref: { line: number; hash: string }, fileLines: string[]): void {
-	if (ref.line < 1 || ref.line > fileLines.length) {
-		throw new Error(`Line ${ref.line} does not exist (file has ${fileLines.length} lines)`);
-	}
-	const actualHash = computeLineHash(ref.line, fileLines[ref.line - 1] ?? "");
-	if (actualHash !== ref.hash) {
-		throw new HashlineMismatchError([{ line: ref.line, expected: ref.hash, actual: actualHash }], fileLines);
-	}
-}
