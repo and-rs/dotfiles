@@ -1,10 +1,10 @@
 * {
-    base:     #181a27;
-    surface1: #212330;
-    surface2: #2f334d;
-    surface3: #3b4261;
-    surface5: #727aac;
-    fg:       #c8d3f5;
+    base:     #dddde3;
+    surface1: #d0d5e3;
+    surface2: #b7c1e3;
+    surface3: #979fba;
+    surface5: #777c92;
+    fg:       #3760bf;
 
     font: "Hanken Grotesk 12";
     width: 500px;

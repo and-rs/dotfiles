@@ -1,23 +1,15 @@
-export alias "ai" = pi
+export alias "ai" = bunx --bun pi
 
-export def "ai install" [...args: string] {
+export def "ai install" [] {
   if (which bun | is-empty) {
     print "bun not found"
     return
   }
 
-  if ($args | is-empty) {
-    print "ai install > installing pi"
-    bun install --global @earendil-works/pi-coding-agent
-    return
-  }
-
   if (which pi | is-empty) {
     print "ai install > installing pi"
-    bun install --global @earendil-works/pi-coding-agent
+    bun add -g --ignore-scripts @earendil-works/pi-coding-agent
   }
-
-  pi install ...$args
 }
 
 export def "ai bootstrap" [name?: string] {
@@ -50,5 +42,5 @@ export def "ai bootstrap" [name?: string] {
 
 export def aip [prompt: string] {
   let model = (_ai_summarize_model)
-  pi --model $model -p --no-session $prompt
+  ai --model $model -p --no-session $prompt
 }

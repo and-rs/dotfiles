@@ -70,7 +70,7 @@ export def _ai_summarize [
 
   spinner $label {
     let result = (
-      pi -ns -nt -nbt --no-session
+      bunx --bun pi -ns -nt -nbt --no-session
       --system-prompt $sp
       --model $model
       -p $input

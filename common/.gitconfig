@@ -12,7 +12,7 @@
     path = ~/.gitconfig.delta
 
 [delta]
-  features = tokyo-night-dark
+  features = tokyo-night-light
   max-line-length = 0
   line-numbers = true
   navigate = true

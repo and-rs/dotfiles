@@ -117,6 +117,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
   trail = mix(TRAIL_COLOR_ACCENT, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
   trail = mix(TRAIL_COLOR, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
 
-  float coverage_scale = 0.2;
+  float coverage_scale = 0.1;
   fragColor = mix(trail, fragColor, 1. - smoothstep(0., sdfCurrentCursor, (easedProgress * lineLength) * coverage_scale));
 }

@@ -6,7 +6,7 @@ import QtQuick
 Singleton {
   id: root
 
-  property bool darkMode: true
+  property bool darkMode: false
 
   readonly property QtObject _dark: QtObject {
     property string base: "#181a27"
