@@ -81,7 +81,7 @@ export function registerForgeEvents(pi: ExtensionAPI, runtime: ForgeRuntime): vo
     if (event.toolName === "hashline-edit" || event.toolName === "file-create") {
       return {
         block: true,
-        reason: `${state.phase} mode is read-only. Move to /phase exert or /phase refine for edits.`,
+        reason: `${state.phase} mode is read-only. Move to /forge exert or /forge refine for edits.`,
       };
     }
     if (event.toolName !== "bash") return;

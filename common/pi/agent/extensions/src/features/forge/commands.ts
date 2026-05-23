@@ -3,6 +3,9 @@ import { nextPhase, normalizePhase } from "./state.ts";
 import type { ForgeState, Phase } from "./types.ts";
 import { phaseGlyph, updateForgeUi } from "./ui.ts";
 
+const FORGE_PHASES = ["tactic", "exert", "refine", "temper"] as const;
+const FORGE_ACTIONS = [...FORGE_PHASES, "off", "next", "status"] as const;
+
 export type ForgeCommandDeps = {
   getState: () => ForgeState;
   setState: (state: ForgeState) => void;
@@ -25,10 +28,20 @@ async function setPhase(ctx: ExtensionContext, phase: Phase, deps: ForgeCommandD
   ctx.ui.notify(`Forge ${phaseGlyph(phase)} ${phase}.`, "info");
 }
 
-async function handlePhaseCommand(args: string, ctx: ExtensionContext, deps: ForgeCommandDeps): Promise<void> {
+async function handleForgeCommand(args: string, ctx: ExtensionContext, deps: ForgeCommandDeps): Promise<void> {
   const state = deps.getState();
-  const raw = args.trim().toLowerCase();
-  if (!raw || raw === "status") {
+  let action = args.trim().toLowerCase();
+
+  if (!action) {
+    const choice = await ctx.ui.select("Forge", [...FORGE_PHASES]);
+    if (!choice) {
+      ctx.ui.notify("Cancelled", "info");
+      return;
+    }
+    action = choice;
+  }
+
+  if (action === "status") {
     if (state.phase === "off") {
       ctx.ui.notify("Forge off.", "info");
       return;
@@ -37,39 +50,27 @@ async function handlePhaseCommand(args: string, ctx: ExtensionContext, deps: For
     return;
   }
 
-  if (raw === "next") {
+  if (action === "next") {
     await setPhase(ctx, nextPhase(state.phase), deps);
     return;
   }
 
-  const phase = normalizePhase(raw);
+  const phase = normalizePhase(action);
   if (!phase) {
-    ctx.ui.notify("Use /phase tactic|exert|refine|temper|off|next|status", "warning");
+    ctx.ui.notify("Usage: /forge [tactic|exert|refine|temper|off|next|status]", "warning");
     return;
   }
+
   await setPhase(ctx, phase, deps);
 }
 
 export function registerForgeCommands(pi: ExtensionAPI, deps: ForgeCommandDeps): void {
   pi.registerCommand("forge", {
-    description: "Enable forge flow and enter tactic mode",
-    handler: async (_args, ctx) => setPhase(ctx, "tactic", deps),
+    description: "Set forge mode: tactic, exert, refine, temper, off, next, status",
+    getArgumentCompletions: (prefix) => {
+      const value = prefix.trim().toLowerCase();
+      return FORGE_ACTIONS.filter((item) => item.startsWith(value)).map((item) => ({ value: item, label: item }));
+    },
+    handler: async (args, ctx) => handleForgeCommand(args, ctx, deps),
   });
-
-  pi.registerCommand("unforge", {
-    description: "Disable forge flow",
-    handler: async (_args, ctx) => setPhase(ctx, "off", deps),
-  });
-
-  pi.registerCommand("phase", {
-    description: "Set forge phase: tactic, exert, refine, temper, off, next, status",
-    handler: async (args, ctx) => handlePhaseCommand(args, ctx, deps),
-  });
-
-  for (const phase of ["tactic", "exert", "refine", "temper"] as const) {
-    pi.registerCommand(phase, {
-      description: `Set forge phase to ${phase}`,
-      handler: async (_args, ctx) => setPhase(ctx, phase, deps),
-    });
-  }
 }

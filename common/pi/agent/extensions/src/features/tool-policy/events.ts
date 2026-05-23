@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-import { BLOCKED_TOOLS, bashBlockedReason, isBlockedToolName, replacementFor } from "./shared.ts";
+import { bashBlockedReason, isBlockedToolName, replacementFor } from "./shared.ts";
 
 function applyToolPolicy(pi: ExtensionAPI): void {
   const active = pi.getActiveTools();
