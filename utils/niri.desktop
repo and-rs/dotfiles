@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Niri
+Comment=Wayland compositor
+Exec=/usr/local/bin/niri-nixgl
+TryExec=/usr/local/bin/niri-nixgl
+Type=Application
+DesktopNames=niri

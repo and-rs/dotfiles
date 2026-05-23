@@ -1,3 +1,6 @@
+# hide local git identity
+**/.gitconfig-work.local
+
 # hide nu history
 **/nushell/zoxide.nu
 history.sqlite3
@@ -9,6 +12,11 @@ history.txt
 .env
 messages.md
 models-override.yaml
+
+.npm
+node_modules
+**/pi/agent/sessions
+**/pi/agent/auth.json
 
 **/aichat/rags
 **/aichat/sessions
@@ -40,3 +48,5 @@ fzf-tab
 
 .zcompdump
 .zcompdump.zwc
+
+**/pi/agent/settings.json

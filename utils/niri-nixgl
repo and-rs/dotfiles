@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 1. Relaunch in a login shell to inherit full user profile variables
+if [ -n "${SHELL:-}" ] && grep -q "$SHELL" /etc/shells && ! (echo "$SHELL" | grep -q "false") && ! (echo "$SHELL" | grep -q "nologin"); then
+  if [ "${1:-}" != '-l' ]; then
+    exec bash -c "exec -l '$SHELL' -c '$0 -l $*'"
+  else
+    shift
+  fi
+fi
+
+# 2. Prevent nested sessions
+if systemctl --user -q is-active niri.service 2>/dev/null; then
+  echo "A niri session is already running."
+  exit 1
+fi
+
+# 3. Core Environment Setup
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=niri
+export XDG_SESSION_DESKTOP=niri
+
+export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+export XDG_DATA_DIRS="$HOME/.nix-profile/share:/nix/var/nix/profiles/default/share:/usr/local/share:/usr/share:${XDG_DATA_DIRS:-}"
+
+# 4. Sync Environment with Systemd and D-Bus
+systemctl --user reset-failed
+systemctl --user import-environment \
+  XDG_SESSION_TYPE \
+  XDG_CURRENT_DESKTOP \
+  XDG_SESSION_DESKTOP \
+  XDG_DATA_DIRS \
+  PATH
+
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+  dbus-update-activation-environment --systemd \
+    XDG_SESSION_TYPE \
+    XDG_CURRENT_DESKTOP \
+    XDG_SESSION_DESKTOP \
+    XDG_DATA_DIRS \
+    PATH
+fi
+
+# 5. Dynamic Systemd Unit Generation
+UNITDIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/systemd/user"
+mkdir -p "$UNITDIR"
+
+NIXGL_BIN="$(command -v nixGL || echo /nix/var/nix/profiles/default/bin/nixGL)"
+NIRI_BIN="$(command -v niri || echo /nix/var/nix/profiles/default/bin/niri)"
+
+cat >"$UNITDIR/niri.service" <<EOF
+[Unit]
+Description=A scrollable-tiling Wayland compositor
+BindsTo=graphical-session.target
+Before=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target
+Wants=xdg-desktop-autostart.target
+Before=xdg-desktop-autostart.target
+
+[Service]
+Slice=session.slice
+Type=notify
+# Clear conflicting GL vars exclusively for Niri so we don't break WebRTC/EGL for child processes
+ExecStart=/usr/bin/env -u LD_LIBRARY_PATH -u LIBGL_DRIVERS_PATH -u __EGL_VENDOR_LIBRARY_DIRS -u GBM_BACKENDS_PATH -u VK_ICD_FILENAMES -u VK_LAYER_PATH -u MESA_LOADER_DRIVER_OVERRIDE ${NIXGL_BIN} ${NIRI_BIN} --session
+EOF
+
+cat >"$UNITDIR/niri-shutdown.target" <<EOF
+[Unit]
+Description=Shutdown running niri session
+DefaultDependencies=no
+StopWhenUnneeded=true
+Conflicts=graphical-session.target graphical-session-pre.target
+After=graphical-session.target graphical-session-pre.target
+EOF
+
+systemctl --user daemon-reload
+
+# 6. Session Lifecycle Management
+systemctl --user --wait start niri.service
+
+# 7. Clean Teardown upon Exit
+systemctl --user start --job-mode=replace-irreversibly niri-shutdown.target
+systemctl --user unset-environment WAYLAND_DISPLAY DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP NIRI_SOCKET

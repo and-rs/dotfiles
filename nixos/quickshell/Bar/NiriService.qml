@@ -10,24 +10,32 @@ Singleton {
 
   property Niri instance: Niri {
     Component.onCompleted: connect()
-    onConnected: console.log("Connected to niri")
     onErrorOccurred: error => console.error("Error:", error)
+  }
+
+  property int _stableWorkspaceId: -1
+  property int focusedWorkspaceId: instance.focusedWindow ? instance.focusedWindow.workspaceId : _stableWorkspaceId
+
+  Connections {
+    target: instance
+    function onFocusedWindowChanged() {
+      if (instance.focusedWindow)
+        root._stableWorkspaceId = instance.focusedWindow.workspaceId;
+    }
   }
 
   property var windowLayoutData: []
 
   Process {
     id: initialFetch
-    command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout}'"]
+    command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, app_id, title, is_floating}'"]
     running: true
     stdout: StdioCollector {
       onStreamFinished: {
         let lines = this.text.split('\n').filter(l => l.trim());
         let data = [];
         for (let line of lines) {
-          try {
-            data.push(JSON.parse(line));
-          } catch (e) {}
+          try { data.push(JSON.parse(line)); } catch (e) {}
         }
         root.windowLayoutData = data;
       }
@@ -43,89 +51,75 @@ Singleton {
       let current = root.windowLayoutData.slice();
       let changed = false;
 
+      if (event.WindowsChanged) {
+        current = event.WindowsChanged.windows.map(w => ({
+          id: w.id,
+          workspace_id: w.workspace_id,
+          pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+          app_id: w.app_id,
+          title: w.title,
+          is_floating: w.is_floating
+        }));
+        changed = true;
+      }
+
       if (event.WindowOpenedOrChanged) {
         let w = event.WindowOpenedOrChanged.window;
         current = current.filter(x => x.id !== w.id);
         current.push({
           id: w.id,
           workspace_id: w.workspace_id,
-          pos: w.layout.pos_in_scrolling_layout
+          pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+          app_id: w.app_id,
+          title: w.title,
+          is_floating: w.is_floating
         });
         changed = true;
       }
 
       if (event.WindowClosed) {
-        let idToRemove = event.WindowClosed.id;
-        let lenBefore = current.length;
-        current = current.filter(x => x.id !== idToRemove);
-        if (current.length !== lenBefore)
+        let before = current.length;
+        current = current.filter(x => x.id !== event.WindowClosed.id);
+        if (current.length !== before)
           changed = true;
       }
 
       if (event.WindowLayoutsChanged) {
-        let changes = event.WindowLayoutsChanged.changes;
-        for (let item of changes) {
-          let id = item[0];
-          let newLayout = item[1];
-          let index = current.findIndex(x => x.id === id);
-          if (index !== -1) {
-            let entry = current[index];
-            entry.pos = newLayout.pos_in_scrolling_layout;
-            current[index] = entry;
+        for (let item of event.WindowLayoutsChanged.changes) {
+          let idx = current.findIndex(x => x.id === item[0]);
+          if (idx !== -1) {
+            let w = current[idx];
+            current[idx] = { id: w.id, workspace_id: w.workspace_id, app_id: w.app_id, title: w.title, is_floating: w.is_floating, pos: item[1].pos_in_scrolling_layout };
             changed = true;
           }
         }
       }
 
-      if (event.WindowFocusChanged) {
-        changed = true;
-      }
-
-      if (changed) {
+      if (changed)
         root.windowLayoutData = current;
-      }
     }
   }
-
-  property int focusedWorkspaceId: instance.focusedWindow ? instance.focusedWindow.workspaceId : -1
 
   property var currentWorkspaceWindows: {
     let wsId = focusedWorkspaceId;
+    if (wsId < 0)
+      return [];
     let wins = windowLayoutData.filter(w => w.workspace_id === wsId);
-
-    wins.sort((a, b) => {
-      let posA = a.pos ? a.pos[0] : 0;
-      let posB = b.pos ? b.pos[0] : 0;
-      return posA - posB;
-    });
-
+    wins.sort((a, b) => (a.pos ? a.pos[0] : 0) - (b.pos ? b.pos[0] : 0));
     return wins;
   }
 
-  property var focusedWindowPosition: {
-    if (!instance.focusedWindow) {
-      let currentWindows = currentWorkspaceWindows;
-      if (currentWindows.length === 1) {
-        return currentWindows[0].pos;
-      }
-      return null;
-    }
-
-    let currentId = instance.focusedWindow.id;
-    let win = windowLayoutData.find(w => w.id === currentId);
-    return win ? win.pos : null;
-  }
-
   property int focusedWindowIndex: {
-    if (!focusedWindowPosition)
+    if (!instance.focusedWindow)
       return -1;
-
-    let currentWindows = currentWorkspaceWindows;
-    for (let i = 0; i < currentWindows.length; i++) {
-      if (currentWindows[i].pos && currentWindows[i].pos[0] === focusedWindowPosition[0] && currentWindows[i].pos[1] === focusedWindowPosition[1]) {
+    let focusedId = instance.focusedWindow.id;
+    let wins = currentWorkspaceWindows;
+    for (let i = 0; i < wins.length; i++) {
+      if (wins[i].id === focusedId)
         return i;
-      }
     }
     return -1;
   }
+
+  property bool overlayActive: currentWorkspaceWindows.length > 0 && !instance.focusedWindow
 }

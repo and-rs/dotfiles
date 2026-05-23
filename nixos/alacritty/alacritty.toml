@@ -1,5 +1,5 @@
 [general]
-import = [ "~/.config/alacritty/themes/neovim-default.toml" ]
+import = [ "~/.config/alacritty/themes/tokyo-night.toml" ]
 
 [env]
 TERM = "alacritty"
@@ -17,24 +17,25 @@ size = 14
 # italic = { family = "Rec Mono Casual" }
 # bold_italic = { family = "Rec Mono Casual" }
 
-# offset = { y = 8 }
-# glyph_offset = { y = 4 }
-# normal = { family = "CommitMono"}
+# offset = { y = 4 }
+# glyph_offset = { y = 2 }
+# normal = { family = "JetBrainsMono"}
 
-# offset = { y = 8 }
-# glyph_offset = { y = 4 }
-# normal = { family = "Input"}
+offset = { y = 8 }
+glyph_offset = { y = 4 }
+normal = { family = "Input"}
 
-offset = { y = 4 }
-glyph_offset = { y = 2 }
-normal = { family = "Monaspace Neon" }
-bold = { family = "Monaspace Neon" }
-italic = { family = "Monaspace Argon", style = "Italic" }
-bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
+# offset = { y = 4 }
+# glyph_offset = { y = 2 }
+# normal = { family = "Monaspace Neon" }
+# bold = { family = "Monaspace Neon" }
+# italic = { family = "Monaspace Argon", style = "Italic" }
+# bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
 
 [window]
 title = "Terminalino"
 dynamic_padding = true
+#opacity = 0.9
 
 [window.padding]
 x = 8

@@ -1,4 +1,11 @@
-alias nv = ^$env.EDITOR
+def --wrapped nv [...args] {
+  let editor = ($env.config.buffer_editor? | default $env.EDITOR)
+  if ($editor | describe) == "list<string>" {
+    run-external ($editor | first) ...($editor | skip 1) ...$args
+  } else {
+    run-external $editor ...$args
+  }
+}
 alias link-nvim = ln -s ~/Vault/personal/nvim ~/.config
 alias yz = yazi
 alias l = ls -a
@@ -22,6 +29,7 @@ def --env "opam eval" [switch?: string] {
   | update PATH {|r| $r.PATH | split row (char esep) }
   | load-env
 }
+
 
 # Docker + VM Start
 def win-start [] {

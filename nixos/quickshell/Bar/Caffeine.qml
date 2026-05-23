@@ -15,12 +15,12 @@ Rectangle {
   MaterialIcon {
     id: caffeineIcon
     code: isActive ? 0xE220 : 0xE224
-    iconColor: isActive ? Config.colors.fg : Config.colors.bright
+    iconColor: isActive ? Config.colors.fg : Config.colors.surface3
     iconSize: 16
   }
 
   MouseArea {
-    anchors.fill: caffeine
+    anchors.fill: parent
     onClicked: {
       caffeine.isActive = !isActive;
     }
@@ -29,9 +29,18 @@ Rectangle {
   Process {
     id: cmd
     running: caffeine.isActive
-    command: ["sh", "-c", "systemd-inhibit --what=idle:sleep --why=no-sleep sleep infinity"]
-    stdout: StdioCollector {
-      onStreamFinished: console.log(">>> Not inhibiting anymore")
+    command: ["systemd-inhibit", "--what=idle:sleep", "--why=Caffeine", "sleep", "infinity"]
+
+    onExited: (code, status) => {
+      if (caffeine.isActive && code !== 0)
+        caffeine.isActive = false;
+    }
+
+    stderr: StdioCollector {
+      onStreamFinished: {
+        if (this.text.trim())
+          console.warn("[Caffeine] stderr: " + this.text.trim());
+      }
     }
   }
 }

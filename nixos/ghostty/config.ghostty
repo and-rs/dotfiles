@@ -1,6 +1,6 @@
 command = nu
 config-file = fonts.ghostty
-config-file = themes/neovim-default
+config-file = themes/tokyo-night-day
 
 #--- WINDOW ---#
 window-padding-x = 1
@@ -12,10 +12,14 @@ confirm-close-surface = false
 gtk-single-instance = true
 alpha-blending = native
 
+#background-opacity = 0.86
+mouse-scroll-multiplier = 0.4
+
+custom-shader = ./shaders/cursor_smear.glsl
 custom-shader = ./shaders/text.glsl
-custom-shader = ./shaders/blue_crt.glsl
-# Enabling this increases cpu usage by quite a bit
-custom-shader-animation = false
+
+#Enabling this increases cpu usage by quite a bit
+custom-shader-animation = true
 
 #--- KEYBINDS ---#
 keybind = super+ctrl+f=text:\x1bf

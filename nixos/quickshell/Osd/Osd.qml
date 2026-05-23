@@ -112,13 +112,13 @@ Scope {
 
     function adjustBrightness(step: string): void {
       osdScope.mode = "brightness";
-      osdExec.command = ["sh", "-c", "brightnessctl set " + step + " -q && brightnessctl -m | awk -F, '{print substr($4, 1, length($4)-1)}'"];
+      osdExec.command = ["sh", "-c", "brightnessctl set " + step + " -q && brightnessctl -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
       osdExec.running = true;
     }
 
     function adjustKbdBrightness(step: string): void {
       osdScope.mode = "kbd";
-      osdExec.command = ["sh", "-c", "brightnessctl -d asus::kbd_backlight set " + step + " -q && brightnessctl -d asus::kbd_backlight -m | awk -F, '{print substr($4, 1, length($4)-1)}'"];
+      osdExec.command = ["sh", "-c", "brightnessctl -d asus::kbd_backlight set " + step + " -q && brightnessctl -d asus::kbd_backlight -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
       osdExec.running = true;
     }
   }
@@ -159,9 +159,9 @@ Scope {
         anchors.centerIn: parent
         width: 300
         height: 80
-        color: Config.colors.dim
+        color: Config.colors.surface1
         radius: Config.radius.normal
-        border.color: Config.colors.accent
+        border.color: Config.colors.surface4
         border.width: 2
 
         Column {
@@ -180,13 +180,13 @@ Scope {
               MaterialIcon {
                 id: osdIcon
                 code: osdScope.iconCode
-                color: osdScope.isMuted ? Config.colors.muted : Config.colors.fg
+                color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.fg
               }
             }
 
             Text {
               text: osdScope.label + ": " + (osdScope.isMuted ? "Muted" : osdScope.currentValue + "%")
-              color: osdScope.isMuted ? Config.colors.muted : Config.colors.fg
+              color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.fg
               font.pixelSize: Config.sizes.normal
               font.weight: Font.Medium
             }
@@ -195,14 +195,14 @@ Scope {
           Rectangle {
             width: parent.width
             height: Config.spacing.small
-            color: Config.colors.bg
+            color: Config.colors.base
             radius: Config.radius.full
 
             Rectangle {
               height: parent.height
               // Fix: Divide by dynamic maxLimit (100 or 140)
               width: parent.width * Math.min(osdScope.currentValue / osdScope.maxLimit, 1)
-              color: osdScope.isMuted ? Config.colors.muted : Config.colors.primary
+              color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.primary
               radius: Config.radius.full
 
               Behavior on width {

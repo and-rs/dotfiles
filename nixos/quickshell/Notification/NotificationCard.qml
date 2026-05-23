@@ -9,10 +9,10 @@ Rectangle {
 
   width: parent.width - Config.spacing.small
   height: contentCol.implicitHeight + Config.padding.large * 2
-  color: Config.colors.bg
+  color: Config.colors.base
 
   border.width: 2
-  border.color: Config.colors.muted
+  border.color: Config.colors.surface2
   radius: Config.radius.normal
 
   MouseArea {
@@ -81,14 +81,12 @@ Rectangle {
 
         Text {
           width: parent.width
-          text: {
-            let s = root.notification?.summary || "";
-            return s.length > 30 ? s.substring(0, 25) + "..." : s;
-          }
+          text: root.notification?.summary || ""
           font.pixelSize: Config.sizes.normal
           font.weight: Font.Medium
           color: Config.colors.fg
           elide: Text.ElideRight
+          maximumLineCount: 1
         }
       }
     }

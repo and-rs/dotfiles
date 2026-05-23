@@ -16,16 +16,15 @@ blocks:
           style: agnoster_short
       - type: git
         foreground: "white"
-        templates:
-          - "<darkGray> on </><blue>{{ .HEAD }}</>"
-          - "{{- if gt .StashCount 0 }} <darkGray>*{{ .StashCount }}</>{{ end -}}"
-          - "{{- if gt .Behind 0 }} <magenta>↓{{ .Behind }}</>{{ end -}}"
-          - "{{- if gt .Ahead 0 }} <cyan>↑{{ .Ahead }}</>{{ end -}}"
-          - "{{- if .Staging.Changed }} <blue>[{{ .Staging.String }}]</>{{ end -}}"
-          - "{{- if .Working.Modified }} <green>!{{ .Working.Modified }}</>{{ end -}}"
-          - "{{- if .Working.Untracked }} <yellow>?{{ .Working.Untracked }}</>{{ end -}}"
-          - "{{- if .Working.Deleted }} <red>x{{ .Working.Deleted }}</>{{ end -}}"
-          - "{{- if .Working.Unmerged }} <red>?{{ .Working.Unmerged }}</>{{ end -}}"
+        template: "{{- if gt .StashCount 0 }} <darkGray>*{{ .StashCount }}</>{{ end
+          -}}{{- if gt .Behind 0 }} <magenta>↓{{ .Behind }}</>{{ end -}}{{- if
+          gt .Ahead 0 }} <cyan>↑{{ .Ahead }}</>{{ end -}}{{- if .Staging.Changed
+          }} <blue>[{{ .Staging.String }}]</>{{ end -}}{{- if .Working.Modified
+          }} <green>!{{ .Working.Modified }}</>{{ end -}}{{- if
+          .Working.Untracked }} <yellow>?{{ .Working.Untracked }}</>{{ end
+          -}}{{- if .Working.Deleted }} <red>x{{ .Working.Deleted }}</>{{ end
+          -}}{{- if .Working.Unmerged }} <red>?{{ .Working.Unmerged }}</>{{ end
+          -}}"
         options:
           fetch_status: true
           branch_icon: ""
@@ -33,6 +32,25 @@ blocks:
         template: " <darkGray>took</> <blue>{{ .FormattedMs }}</>"
         options:
           threshold: 1000
+  - type: prompt
+    alignment: left
+    newline: true
+    segments:
+      - type: git
+        foreground: "white"
+        templates:
+          - "<darkGray>├─ on </><cyan>{{ .HEAD }}</>"
+          - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email
+            }}</><darkGray>]</>{{ end -}}"
+          - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains
+            \"dev.azure.com\" $origin }}
+            <darkGray>[</><magenta>azure</><darkGray>]</>{{ else if contains
+            \"github.com\" $origin }}
+            <darkGray>[</><magenta>github</><darkGray>]</>{{ end -}}"
+        options:
+          fetch_status: false
+          fetch_user: true
+          branch_icon: ""
   - type: prompt
     alignment: left
     newline: true
