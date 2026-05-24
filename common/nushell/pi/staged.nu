@@ -11,14 +11,42 @@ export def "ai gs" [] {
     return
   }
 
-  let prompt = "Output ONLY the raw commit message text. No backticks. No code fences. No markdown. No surrounding quotes. No preamble. No explanation. Raw text only. Mimic the style and format of recent commits exactly."
-  let msg = (_ai_summarize --label "Summarizing" --context (_ai_git_status) --prompt $prompt)
+  let base_prompt = "Output ONLY the raw commit message text. No backticks. No
+  code fences. No markdown. No surrounding quotes. No preamble. No explanation.
+  Raw text only. Mimic the style and format of recent commits exactly. Do not
+  over-focus on one file or one narrow part of the diff. Prefer breadth across
+  staged files. Keep every line under 60 characters."
 
-  print ""
-  print $msg
+  mut msg = (
+    _ai_summarize
+    --label "Summarizing" --context (_ai_git_status) --prompt $base_prompt
+  )
 
-  let answer = (try { input $"(ansi cyan)commit? (ansi reset)[y/N] " } catch { "n" } | str trim | str downcase)
-  if $answer != "y" { return }
+  loop {
+    print ""
+    print $msg
 
-  git commit -e -m $msg
+    let answer = (try { input $"(ansi cyan)commit? (ansi reset)[y]es / [r]evise / [n]o: " } catch { "n" } | str trim | str downcase)
+    if ($answer in ["" "y" "yes"]) {
+      git commit -e -m $msg
+      return
+    }
+
+    if not ($answer in ["r" "revise"]) { return }
+
+    let revision = (try { input $"(ansi cyan)revise how? (ansi reset)" } catch { "" } | str trim)
+
+    if ($revision | is-empty) { continue }
+
+    let revise_prompt = $"($base_prompt)\n\nRevise this commit message using
+    the requested change. Preserve accurate facts from the staged
+    diff.\n\nCurrent commit message:\n($msg)\n\nRequested change:\n($revision)"
+
+    $msg = (
+      _ai_summarize
+      --label "Revising"
+      --context (_ai_git_status)
+      --prompt $revise_prompt
+    )
+  }
 }
