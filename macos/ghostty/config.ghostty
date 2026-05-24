@@ -30,14 +30,16 @@ adjust-icon-height = 8
 adjust-cell-height = 6
 adjust-font-baseline = 0
 adjust-cursor-height = 0
-adjust-underline-position = 5
+adjust-underline-position = 8
 
 #--- KEYBINDS ---#
 keybind = opt+ctrl+f=text:\x1bf
 keybind = opt+ctrl+b=text:\x1bb
 
-font-size = 18
+font-size = 18.5
 #font-feature = +ss02
 #font-feature = +ss04
 
-font-family = Input
+font-thicken = true
+font-thicken-strength = 80
+font-family = Iosevka Custom

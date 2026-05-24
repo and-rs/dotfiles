@@ -36,13 +36,16 @@ export function registerFocusBorderEvents(pi: ExtensionAPI): void {
     enableFocusReporting();
     unsubscribeTerminalFocus?.();
     unsubscribeTerminalFocus = ctx.ui.onTerminalInput((data) => {
+      let sawFocusReport = false;
       if (data.includes("\u001b[I")) {
         updateTerminalFocus(true);
+        sawFocusReport = true;
       }
       if (data.includes("\u001b[O")) {
         updateTerminalFocus(false);
+        sawFocusReport = true;
       }
-      return {};
+      return sawFocusReport ? { consume: true } : undefined;
     });
 
     ctx.ui.setEditorComponent((tui, editorTheme, keybindings) => {
