@@ -1,5 +1,5 @@
 [general]
-import = [ "~/.config/alacritty/themes/tokyo-night.toml" ]
+import = [ "~/.config/alacritty/themes/tokyo-night-day.toml" ]
 
 [env]
 TERM = "alacritty"
@@ -8,7 +8,7 @@ TERM = "alacritty"
 shell = "nu"
 
 [font]
-size = 14
+size = 13
 
 # offset = { y = 12 }
 # glyph_offset = { y = 6 }
@@ -17,13 +17,13 @@ size = 14
 # italic = { family = "Rec Mono Casual" }
 # bold_italic = { family = "Rec Mono Casual" }
 
-# offset = { y = 4 }
-# glyph_offset = { y = 2 }
-# normal = { family = "JetBrainsMono"}
+offset = { y = 4 }
+glyph_offset = { y = 2 }
+normal = { family = "JetBrainsMono"}
 
-offset = { y = 8 }
-glyph_offset = { y = 4 }
-normal = { family = "Input"}
+# offset = { y = 8 }
+# glyph_offset = { y = 4 }
+# normal = { family = "Input"}
 
 # offset = { y = 4 }
 # glyph_offset = { y = 2 }

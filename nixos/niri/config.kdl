@@ -296,7 +296,7 @@ binds {
         spawn-sh "quickshell ipc call lock lock"
     }
     Mod+Return repeat=false {
-        spawn "ghostty"
+        spawn "kitty"
     }
     Mod+Q {
         close-window

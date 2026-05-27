@@ -9,14 +9,13 @@ window-decoration = none
 window-padding-balance = true
 quit-after-last-window-closed = true
 confirm-close-surface = false
-gtk-single-instance = true
+#gtk-single-instance = true
 alpha-blending = native
 
 #background-opacity = 0.86
-mouse-scroll-multiplier = 0.4
 
 custom-shader = ./shaders/cursor_smear.glsl
-custom-shader = ./shaders/text.glsl
+#custom-shader = ./shaders/text.glsl
 
 #Enabling this increases cpu usage by quite a bit
 custom-shader-animation = true
@@ -40,7 +39,8 @@ keybind = alt+shift+,=reload_config
 adjust-icon-height = 8
 adjust-cursor-thickness = 3
 
-freetype-load-flags = false
+# freetype-load-flags = false
 # freetype-load-flags = force-autohint
 # freetype-load-flags = monochrome
-freetype-load-flags = hinting
+# freetype-load-flags = hinting
+#freetype-load-flags = no-hinting
