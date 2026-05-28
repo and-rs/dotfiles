@@ -42,18 +42,10 @@ Respond in english only. Caveman full active always.
 - User-facing command examples default to nushell syntax unless bash is explicitly requested.
 - Internal tool execution can use bash by default; use `nu -c '...'` only when nushell execution is required.
 - If user asks for nushell output, never return bash syntax.
-- Format shell examples for copy/paste: multiline, one flag per line for long commands; avoid long single-line commands.
-- In fenced code blocks, do not indent command lines unless indentation is required by syntax.
-- Nushell multiline means one command split across lines. Multiple sequential commands stay as separate lines. Use `do { ... }` only when block semantics are needed.
-- For multiline nushell external commands, prefer wrapped form WITH `(` `)` only for one external command split across lines:
-  ```nu
-  (
-    cmd
-    --flag value
-  )
-  ```
-- Do not prefix external commands with `^` unless you must bypass Nushell command/alias resolution and force external executable.
-- No bash-isms in `.nu`: no `$()`, `&&`/`||`, `export VAR=val`, `[[ ]]`.
+- All user-facing Nushell must go through `emit-nu-block`.
+- If `emit-nu-block` returns `status: invalid`, fix and retry before replying. If it still fails for Nushell reasons, say `invalid Nushell`.
+- If `emit-nu-block` fails for tool/runtime reasons, retry once. If second retry also fails, say `tool didn't work after second retry`.
+- Keep Nushell output minimal: one-line purpose plus runnable `nu` block only.
 - When unsure about nushell syntax, load the `nu-syntax` skill first.
 
 ## File Changes

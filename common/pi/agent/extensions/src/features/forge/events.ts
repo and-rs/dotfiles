@@ -12,6 +12,7 @@ const READ_ONLY_TOOLS = [
   "hashline-read",
   "exa-search",
   "web-fetch",
+  "emit-nu-block",
 ];
 
 const FULL_TOOLS = [
@@ -24,10 +25,22 @@ const FULL_TOOLS = [
   "file-create",
   "exa-search",
   "web-fetch",
+  "emit-nu-block",
 ];
 
-const WRITE_LIKE_BASH_RE = /\b(rm|mv|cp|mkdir|touch|chmod|chown|ln|install|dd)\b|\b(sed|perl)\s+-i\b|\btee\b|>>|[^|]>|\bgit\s+(add|commit|reset|checkout|switch|restore|clean|apply|am|rebase|merge|cherry-pick|push|pull)\b|\bstash\s+(apply|pop|drop|clear)\b|\b(npm|pnpm|yarn|bun)\s+(add|install|update|remove|unlink)\b|\bpip\s+install\b|\bcargo\s+(add|install)\b/i;
-
+const WRITE_PATTERNS = [
+  "\\b(rm|mv|cp|mkdir|touch|chmod|chown|ln|install|dd)\\b",
+  "\\b(sed|perl)\\s+-i\\b",
+  "\\btee\\b",
+  ">>",
+  "[^|]>",
+  "\\bgit\\s+(add|commit|reset|checkout|switch|restore|clean|apply|am|rebase|merge|cherry-pick|push|pull)\\b",
+  "\\bstash\\s+(apply|pop|drop|clear)\\b",
+  "\\b(npm|pnpm|yarn|bun)\\s+(add|install|update|remove|unlink)\\b",
+  "\\bpip\\s+install\\b",
+  "\\bcargo\\s+(add|install)\\b",
+];
+const WRITE_LIKE_BASH_RE = new RegExp(WRITE_PATTERNS.join("|"), "i");
 type ForgeRuntime = {
   getState: () => ForgeState;
   setState: (state: ForgeState) => void;

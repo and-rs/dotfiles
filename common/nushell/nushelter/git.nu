@@ -2,8 +2,6 @@ alias g = git
 alias gc = git commit
 alias gl = git log --oneline -n 10
 alias gs = git status
-alias gpl = git pull
-alias gph = git push
 
 # Interactive Repo Delete
 def gh-repo-delete [] {

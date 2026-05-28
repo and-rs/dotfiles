@@ -59,3 +59,11 @@ Update this skill when Pi architecture changes.
 - Prefer direct imports from real owner file
 - Remove inert compatibility shims when safe
 - Keep ownership obvious from import graph
+
+
+## Tool Registration Gotcha
+
+- `forge/events.ts` defines `FULL_TOOLS` and `READ_ONLY_TOOLS` as explicit allowlists.
+- These are passed to `pi.setActiveTools()` on `session_start`, overwriting the active set.
+- Any new tool added to the extension MUST also be added to both lists or it will not appear in the LLM's available tools.
+- File: `src/features/forge/events.ts`

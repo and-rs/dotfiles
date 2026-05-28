@@ -38,7 +38,7 @@ cmd | str trim
 
 No `$()` substitution — use `(expr)` inline or `let result = (cmd)`.
 
-Multiline expressions wrap in `()` — no `\` needed:
+Multiline expressions wrap in `()` — no bash `\` and no PowerShell backticks needed:
 
 ```nu
 let result = (
@@ -204,13 +204,27 @@ rm keep.txt
 zig build run -- files --cwd .
 ```
 
-- Use wrapped `(` `)` form only when one external command is split across lines:
+- Never use PowerShell-style backtick line continuation in Nushell.
+- Use wrapped `(` `)` form when one external command is split across lines. Keep command plus fixed subcommands on first line, then flags or long arguments:
 
 ```nu
 (
-  git
-  status
-  --short
+  az devops invoke
+  --area build
+  --resource artifacts
+  --route-parameters project=b90e608b-ac63-4052-819e-ca677fed3f4c buildId=181039
+) | get value
+```
+
+- If whole pipeline needs grouping, wrap whole pipeline instead of adding backticks:
+
+```nu
+(
+  az devops invoke
+  --area build
+  --resource artifacts
+  --route-parameters project=b90e608b-ac63-4052-819e-ca677fed3f4c buildId=181039
+  | get value
 )
 ```
 
