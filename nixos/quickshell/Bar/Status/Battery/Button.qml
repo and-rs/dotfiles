@@ -60,7 +60,7 @@ Rectangle {
         width: 30
         height: 16
         radius: Config.radius.small
-        color: Config.colors.surface5
+        color: Config.colors.surface4
         anchors.verticalCenter: parent.verticalCenter
 
         Item {
@@ -101,7 +101,7 @@ Rectangle {
       Rectangle {
         width: 2.5
         height: 7.5
-        color: fillLevel < 1 ? Config.colors.surface5 : root.fillColor
+        color: fillLevel < 1 ? Config.colors.surface4 : root.fillColor
         topRightRadius: Config.radius.small
         bottomRightRadius: Config.radius.small
         anchors.verticalCenter: parent.verticalCenter
