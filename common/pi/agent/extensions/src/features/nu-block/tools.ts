@@ -8,14 +8,11 @@ export function registerNuBlockTools(pi: ExtensionAPI): void {
     name: "emit-nu-block",
     label: "Emit Nu Block",
     description: "Validate, lint, format, and render user-facing Nushell output.",
-    promptSnippet: "Validate and format user-facing Nushell blocks before replying.",
+    promptSnippet: "Render user-facing Nushell through emit-nu-block.",
     promptGuidelines: [
-      "Use emit-nu-block for every user-facing Nushell command or script block.",
-      "Pass exact candidate Nushell to emit-nu-block before replying with shell.",
-      "emit-nu-block enforces: multiline external commands wrapped in `( )`, no bare multiline externals, no bash continuation patterns, no backticks, no `&&`/`||`/`$()`/`export`/`[[ ]]`, no stray `^`, copy-paste-safe output.",
-      "If emit-nu-block returns `status: invalid`, fix the Nushell and retry. Do not show rejected shell to the user.",
-      "If emit-nu-block throws a tool/runtime error, retry once. If second retry also fails, answer exactly `tool didn't work after second retry`.",
-      "When giving shell output, return only emit-nu-block output.",
+      "Any Nushell shown to user must come from emit-nu-block.",
+      "Pass exact candidate Nushell to emit-nu-block before replying.",
+      "If emit-nu-block rejects shell, fix Nushell and retry; never show rejected shell.",
     ],
     parameters: Type.Object({
       purpose: Type.String({ description: "One-line purpose shown above the Nushell block." }),
@@ -35,7 +32,7 @@ export function registerNuBlockTools(pi: ExtensionAPI): void {
       const textContent = result.content.find((content) => content.type === "text");
       if (!details || typeof details !== "object" || !("status" in details) || !textContent || textContent.type !== "text") return new Text("", 0, 0);
       if (details.status === "invalid") {
-        if (!expanded) return new Text(theme.fg("error", `invalid · ${details.issues.length} issues`), 0, 0);
+        if (!expanded) return new Text(theme.fg("error", `invalid · ${details.issues.length} ${details.issues.length === 1 ? "issue" : "issues"}`), 0, 0);
         return new Text(`\n${theme.fg("toolOutput", textContent.text)}`, 0, 0);
       }
       if (!expanded) {

@@ -75,6 +75,18 @@ function formatIssue(issue: NuIssue): string {
   return `- ${issue.rule}${location}: ${issue.message}${suggestion}`;
 }
 
+export function buildInvalidText(result: NuValidationInvalid): string {
+  const purpose = result.purpose || DEFAULT_PURPOSE;
+  const header = purpose;
+  const summary = `Validation failed · ${result.issues.length} ${result.issues.length === 1 ? "issue" : "issues"}.`;
+  const bodyLines: string[] = [header, "", summary, ""];
+  for (const issue of result.issues) {
+    bodyLines.push(formatIssue(issue));
+  }
+  bodyLines.push("", "Fix Nushell and retry.");
+  return bodyLines.join("\n");
+}
+
 function uniqueIssues(issues: NuIssue[]): NuIssue[] {
   const seen = new Set<string>();
   const deduped: NuIssue[] = [];
@@ -189,7 +201,7 @@ function lintWrappedMultiline(script: string): NuIssue[] {
           message: "Flag line outside wrapped `( )` form.",
           suggestion: "Wrap multiline external command in `( )` and keep flags inside block.",
         });
-      } else if (trimmed.startsWith("|")) {
+      } else if (trimmed.startsWith("|") && !isClosureParamLine(trimmed)) {
         issues.push({
           rule: "multiline-wrapped",
           line: index + 1,
@@ -202,6 +214,10 @@ function lintWrappedMultiline(script: string): NuIssue[] {
     parenDepth = Math.max(0, parenDepth + parenDelta(line));
   }
   return issues;
+}
+
+function isClosureParamLine(trimmedLine: string): boolean {
+  return /^\|[^|\n]*\|$/.test(trimmedLine);
 }
 
 function parenDelta(line: string): number {
