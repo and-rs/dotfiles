@@ -66,7 +66,6 @@ export-env {
   }
 
   $env.LS_COLORS = "di=34:ln=36:ex=32:fi=0:pi=33:so=35:bd=33;01:cd=33;01:or=31;01:mi=31:*.tar=31:*.gz=31:*.zip=31:*.bz2=31:*.xz=31:*.7z=31:*.rar=31:*.zst=31:*.jpg=35:*.jpeg=35:*.png=35:*.gif=35:*.svg=35:*.mp4=35:*.mkv=35:*.mov=35:*.mp3=33:*.flac=33:*.wav=33"
-  $env.BAT_THEME = "tokyonight-day-nosyntax"
   $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"
   $env.FZF_DEFAULT_OPTS = [
     "--bind=ctrl-y:toggle+down --info=right --reverse"

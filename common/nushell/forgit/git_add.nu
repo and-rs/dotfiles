@@ -6,9 +6,14 @@ export def ga [...files: string] {
     git status -s
     return
   }
-  # TODO: nested entries handling & new files indicator
+
+  let root = (_forgit_repo_root)
   let entries = (
-    ^git status --porcelain -u | lines | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$' | where y != " " | each {|row|
+    git -C $root status --porcelain -u
+    | lines
+    | parse --regex '^(?P<x>.)(?P<y>.) (?P<path>.*)$'
+    | where y != " "
+    | each {|row|
       let clean_path = if ($row.path | str contains ' -> ') {
         $row.path | split row ' -> ' | last
       } else {
@@ -16,14 +21,16 @@ export def ga [...files: string] {
       }
       {
         status: $"(ansi reset)[(ansi yellow)($row.x)(if $row.y == "D" { ansi red })($row.y)(ansi reset)]"
-        path: $"(ansi reset)($clean_path)"
+        path: $clean_path
       }
     }
   )
+
   if ($entries | is-empty) {
     print "Nothing to add."
     return
   }
+
   let fzf_flags = [
     ...$env.FORGIT_NU_DEFAULT_FLAGS
     "--delimiter=\t"
@@ -31,13 +38,21 @@ export def ga [...files: string] {
     "--prompt=Git add > "
     "--preview=_forgit_add_preview '{2}'"
   ]
+
   let selected = (
-    $entries | to tsv | fzf ...$fzf_flags | from tsv --noheaders | get column1
+    $entries
+    | to tsv
+    | fzf ...$fzf_flags
+    | from tsv --noheaders
+    | get column1
+    | each {|path| $path | ansi strip }
   )
+
   if ($selected | is-not-empty) {
-    git add ...$selected
-    git status -s
+    git -C $root add -- ...$selected
+    git -C $root status -s
   } else {
     print "Nothing to add."
   }
 }
+

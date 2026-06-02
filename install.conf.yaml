@@ -13,7 +13,7 @@
     ~/.tmux.conf: common/.tmux.conf
     ~/.gitconfig: common/.gitconfig
     ~/.gitconfig.delta: common/.gitconfig.delta
-    ~/.gitconfig-work: common/.gitconfig-work
+    ~/.gitconfig.work: common/.gitconfig.work
     ~/.config/bat: common/bat
     ~/.config/fish: common/fish
     ~/.config/yazi: common/yazi

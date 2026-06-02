@@ -12,8 +12,9 @@
     path = ~/.gitconfig.delta
 
 [delta]
-  features = tokyo-night-light
+  features = general
   max-line-length = 0
+  diff-so-fancy = true
   line-numbers = true
   navigate = true
 
@@ -35,4 +36,4 @@
 	helper = !/usr/bin/env glab auth git-credential
 
 [includeIf "gitdir:~/Work/"]
-    path = ~/.gitconfig-work
+    path = ~/.gitconfig.work

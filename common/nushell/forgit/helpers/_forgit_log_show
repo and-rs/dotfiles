@@ -8,11 +8,15 @@ export def main [line: string] {
     return
   }
 
+  let root = (git rev-parse --show-toplevel | str trim)
+  let has_delta = (which delta | is-not-empty)
+
   with-env {
     GIT_PAGER_IN_USE: "true"
     LESS: "-R -c -+X -+F"
   } {
-    git show --color=always $sha
-    | if (which delta | is-not-empty) { delta --paging always } else { less -R }
+    git -C $root show --color=always $sha
+    | if $has_delta { delta --paging=always } else { less -R }
   }
 }
+

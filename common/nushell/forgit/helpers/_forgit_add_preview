@@ -1,15 +1,20 @@
 #!/usr/bin/env nu
 
 export def main [file: string] {
-  let status = (git status -s -- $file | str trim)
+  let clean_file = ($file | ansi strip | str trim)
+  if ($clean_file | is-empty) { return }
 
+  let root = (git rev-parse --show-toplevel | str trim)
+  let target = ($root | path join $clean_file)
+  let status = (git -C $root status --porcelain -u -- $clean_file | lines | get 0? | default "")
   let has_delta = (which delta | is-not-empty)
 
   with-env {GIT_PAGER_IN_USE: "true"} {
-    if ($status | str starts-with '??') {
-      ^git diff --no-index -- /dev/null $file | if $has_delta { delta --paging=never } else { cat }
+    if ($status | str starts-with '??') and ($target | path exists) {
+      git -C $root diff --no-index -- /dev/null $target | if $has_delta { delta --paging=never } else { cat }
     } else {
-      ^git diff -- $file | if $has_delta { delta --paging=never } else { cat }
+      git -C $root diff -- $clean_file | if $has_delta { delta --paging=never } else { cat }
     }
   }
 }
+

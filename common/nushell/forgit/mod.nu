@@ -10,6 +10,11 @@ export def _forgit_check_repo [] {
   }
 }
 
+export def _forgit_repo_root [] {
+  _forgit_check_repo
+  git rev-parse --show-toplevel | str trim
+}
+
 export-env {
   $env.FORGIT_NU_DEFAULT_FLAGS = [
     "--padding=1,0,0,1"
@@ -21,3 +26,4 @@ export-env {
     "--bind=ctrl-alt-d:preview-page-down,ctrl-alt-u:preview-page-up"
   ]
 }
+

@@ -7,16 +7,22 @@ export def main [
   let clean_file = ($file | ansi strip | str trim)
   if ($clean_file | is-empty) { return }
 
+  let root = (git rev-parse --show-toplevel | str trim)
+  let target = ($root | path join $clean_file)
+  let status = (git -C $root status --porcelain -u -- $clean_file | lines | get 0? | default "")
   let has_delta = (which delta | is-not-empty)
-  let args = ["--color=always"] ++ (if $staged { ["--staged"] } else { [] })
+  let diff_args = if $staged { ["--staged"] } else { [] }
 
-  # TODO: new files should appear in the preview as totally new, not empty
-  # even when there is nothing else to compare to
   with-env {
     GIT_PAGER_IN_USE: "true"
     LESS: "-R -c -+X -+F"
   } {
-    git diff ...$args --color=always -- $clean_file
-    | if (which delta | is-not-empty) { delta --paging always } else { less -R }
+    if (not $staged) and ($status | str starts-with '??') and ($target | path exists) {
+      git -C $root diff --no-index -- /dev/null $target | if $has_delta { delta --paging=always } else { less -R }
+    } else {
+      git -C $root diff ...$diff_args --color=always -- $clean_file
+      | if $has_delta { delta --paging=always } else { less -R }
+    }
   }
 }
+
