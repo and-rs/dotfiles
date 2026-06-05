@@ -6,6 +6,8 @@ def --wrapped nv [...args] {
     run-external $editor ...$args
   }
 }
+
+def colors [] { 0..15 | each {|c| $"(ansi --escape $'48;5;($c)m')  (ansi reset)" } }
 alias link-nvim = ln -s ~/Vault/personal/nvim ~/.config
 alias yz = yazi
 alias l = ls -a
@@ -29,7 +31,6 @@ def --env "opam eval" [switch?: string] {
   | update PATH {|r| $r.PATH | split row (char esep) }
   | load-env
 }
-
 
 # Docker + VM Start
 def win-start [] {
