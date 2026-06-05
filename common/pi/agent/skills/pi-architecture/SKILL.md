@@ -14,6 +14,7 @@ Update this skill when Pi architecture changes.
 - One extension entrypoint only: `src/app/index.ts`
 - `package.json` should load only that entrypoint
 
+- `common/pi/agent/skills/user-story-factory` — standardized user-story template and authoring rules (SKILL.md only, no executable).
 ## Layout
 
 - `src/app/` — assembly and event wiring

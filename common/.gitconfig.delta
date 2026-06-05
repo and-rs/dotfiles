@@ -5,11 +5,11 @@
     minus-emph-style              = red bold strike
     line-numbers-minus-style      = red bold
 
-    plus-style                    = cyan
-    plus-non-emph-style           = cyan
-    plus-empty-line-marker-style  = cyan
-    plus-emph-style               = cyan bold strike
-    line-numbers-plus-style       = cyan bold
+    plus-style                    = green
+    plus-non-emph-style           = green
+    plus-empty-line-marker-style  = green
+    plus-emph-style               = green bold strike
+    line-numbers-plus-style       = green bold
 
     whitespace-error-style        = reverse
     hunk-header-decoration-style  = blue box
