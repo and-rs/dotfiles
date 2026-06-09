@@ -11,19 +11,19 @@ https://www.nushell.sh/commands/ Cookbook: https://www.nushell.sh/cookbook/
 ## Variables
 
 ```nu
-let x = 5            # immutable
-mut y = 5            # mutable
+let x = 5 # immutable
+mut y = 5 # mutable
 $y += 1
 
-$env.HOME            # env vars, not $HOME
+$env.HOME # env vars, not $HOME
 $env.PATH ++= ["/extra/bin"]
-$env.FOO? | default "fallback"  # safe access with default
+$env.FOO? | default "fallback" # safe access with default
 ```
 
 ## String Interpolation
 
 ```nu
-$"hello ($name)"         # parens, not braces
+$"hello ($name)" # parens, not braces
 $"path: ($env.HOME)/bin"
 ```
 

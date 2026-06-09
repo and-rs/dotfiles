@@ -31,14 +31,6 @@ export function registerNuBlockTools(pi: ExtensionAPI): void {
       const details = result.details as NuValidationResult | undefined;
       const textContent = result.content.find((content) => content.type === "text");
       if (!details || typeof details !== "object" || !("status" in details) || !textContent || textContent.type !== "text") return new Text("", 0, 0);
-      if (details.status === "invalid") {
-        if (!expanded) return new Text(theme.fg("error", `invalid · ${details.issues.length} ${details.issues.length === 1 ? "issue" : "issues"}`), 0, 0);
-        return new Text(`\n${theme.fg("toolOutput", textContent.text)}`, 0, 0);
-      }
-      if (!expanded) {
-        const lineCount = details.formattedScript.split("\n").length;
-        return new Text(theme.fg("success", `ready · ${lineCount} lines`), 0, 0);
-      }
       return new Text(`\n${theme.fg("toolOutput", textContent.text)}`, 0, 0);
     },
   });
