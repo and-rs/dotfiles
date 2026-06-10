@@ -69,6 +69,7 @@ Authoring rules (must follow):
   Action Items, but SHOULD NOT be mentioned in the Acceptance Criteria.
 - Do NOT use markdown at all, only the defined template guidelines in this
   skill.
+- FOR LINKS USE [name|https://example.com]
 
 Example:
 
