@@ -18,13 +18,50 @@ PopupWindow {
 
     default property alias content: contentColumn.data
 
-    readonly property point hostPos: {
-        window.windowTransform;
-        hostItem.x;
-        hostItem.y;
-        hostItem.width;
-        hostItem.height;
-        return hostItem.mapToItem(window.contentItem, 0, 0);
+  readonly property point hostPos: {
+    window.windowTransform;
+    hostItem.x;
+    hostItem.y;
+    hostItem.width;
+    hostItem.height;
+    return hostItem.mapToItem(window.contentItem, 0, 0);
+  }
+  readonly property real batteryPanelXInHost: batteryButton.x - (Config.popup.width / 2) + (batteryButton.width / 2)
+  readonly property real trayPanelXInHost: trayButton.x - (Config.popup.width / 2) + (trayButton.width / 2)
+  readonly property real bluetoothPanelXInHost: bluetoothButton.x - (Config.popup.width / 2) + (bluetoothButton.width / 2)
+  readonly property real networkPanelXInHost: networkButton.x - (Config.popup.width / 2) + (networkButton.width / 2)
+  readonly property real panelXInHost: activeButton.x - (Config.popup.width / 2) + (activeButton.width / 2)
+  readonly property real leftEdge: Math.min(0, batteryPanelXInHost, trayPanelXInHost, bluetoothPanelXInHost, networkPanelXInHost)
+  readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + Config.popup.width, trayPanelXInHost + Config.popup.width, bluetoothPanelXInHost + Config.popup.width, networkPanelXInHost + Config.popup.width)
+  readonly property real stripX: -leftEdge
+  readonly property real panelX: panelXInHost - leftEdge
+  readonly property real panelY: window.height + Config.popup.gap
+
+  property bool keepAlive: false
+  property string lastActive: ""
+
+  grabFocus: true
+  anchor.item: hostItem
+  visible: !LockService.locked && (popupVisible || keepAlive)
+  color: "transparent"
+
+  implicitWidth: rightEdge - leftEdge
+  implicitHeight: panelY + panelFrame.height
+
+  anchor.rect.x: leftEdge
+  anchor.rect.y: 0
+
+  onPopupVisibleChanged: {
+    if (popupVisible) {
+      keepAlive = true;
+      if (controller.activeMenu !== "")
+        lastActive = controller.activeMenu;
+      closeAnim.stop();
+      panelFrame.opacity = 0;
+      openAnim.restart();
+    } else {
+      openAnim.stop();
+      closeAnim.restart();
     }
     readonly property real batteryPanelXInHost: batteryButton.x - (Config.popup.width / 2) + (batteryButton.width / 2)
     readonly property real trayPanelXInHost: trayButton.x - (Config.popup.width / 2) + (trayButton.width / 2)
@@ -47,8 +84,16 @@ PopupWindow {
     implicitWidth: rightEdge - leftEdge
     implicitHeight: panelY + panelFrame.height
 
-    anchor.rect.x: leftEdge
-    anchor.rect.y: 0
+  Connections {
+    target: controller
+
+    function onActiveMenuChanged() {
+      if (controller.activeMenu !== "")
+        lastActive = controller.activeMenu;
+    }
+  }
+  Item {
+    anchors.fill: parent
 
     onPopupVisibleChanged: {
         if (popupVisible) {
@@ -90,6 +135,21 @@ PopupWindow {
     }
 
     Item {
+      id: panelFrame
+      x: popup.panelX
+      y: popup.panelY
+      width: Config.popup.width
+      height: contentColumn.implicitHeight + Config.padding.large * 2
+      opacity: 1
+
+      Behavior on x {
+        NumberAnimation {
+          duration: Config.durations.instant
+          easing.type: Easing.OutQuart
+        }
+      }
+
+      Rectangle {
         anchors.fill: parent
 
         MouseArea {
