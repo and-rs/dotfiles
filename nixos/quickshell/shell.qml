@@ -7,14 +7,14 @@ import qs.Osd
 import qs.Lock
 
 Scope {
-  property int height: 32
+    property int height: 32
 
-  Osd {}
-  Bar {
-    mainHeight: height
-  }
-  Notification {
-    mainHeight: height
-  }
-  Lock {}
+    Osd {}
+    Bar {
+        mainHeight: height
+    }
+    Notification {
+        mainHeight: height
+    }
+    Lock {}
 }
