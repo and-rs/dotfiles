@@ -29,6 +29,9 @@ Respond in english only. Caveman full active always.
 - Follow repo patterns, notify the user when the pattern is bad and follow their
   decision.
 - Tool names must use kebab-case, e.g. `code-search`, never snake_case.
+- NEVER make wrapper files, or wrapper functions, or whatever solution that
+  involves wrapping something into useless shit that can be just called straight
+  with a different set of modifications at the call-site.
 
 ## Shell & Nushell
 
