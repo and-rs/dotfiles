@@ -5,10 +5,11 @@ import registerCwdFeature from "../features/cwd/index.ts";
 import registerFocusBorderFeature from "../features/focus-border/index.ts";
 import registerForgeFeature from "../features/forge/index.ts";
 import registerHashlineEditFeature from "../features/hashline-edit/index.ts";
-import registerNuBlockFeature from "../features/nu-block/index.ts";
+import registerReadImageFeature from "../features/read-image/index.ts";
 import registerSessionNameFeature from "../features/session-name/index.ts";
 import registerToolPolicyFeature from "../features/tool-policy/index.ts";
 import registerWebDocsFeature from "../features/web-docs/index.ts";
+import { registerNuBlockTools } from "../features/nu-block/tools.ts";
 
 type FeatureRegistrar = (pi: ExtensionAPI) => void;
 
@@ -18,8 +19,10 @@ const FEATURES: FeatureRegistrar[] = [
   registerCwdFeature,
   registerFocusBorderFeature,
   registerForgeFeature,
+  registerReadImageFeature,
   registerHashlineEditFeature,
-  registerNuBlockFeature,
+  registerNuBlockTools,
+  registerReadImageFeature,
   registerSessionNameFeature,
   registerToolPolicyFeature,
   registerWebDocsFeature,
