@@ -10,19 +10,19 @@ shell = "nu"
 [font]
 size = 13
 
-# offset = { y = 12 }
-# glyph_offset = { y = 6 }
-# normal = { family = "Rec Mono Linear" }
-# bold = { family = "Rec Mono Linear" }
-# italic = { family = "Rec Mono Casual" }
-# bold_italic = { family = "Rec Mono Casual" }
+offset = { y = 12 }
+glyph_offset = { y = 6 }
+normal = { family = "Rec Mono Linear" }
+bold = { family = "Rec Mono Linear" }
+italic = { family = "Rec Mono Casual" }
+bold_italic = { family = "Rec Mono Casual" }
 
 # offset = { y = 4 }
 # glyph_offset = { y = 2 }
 # normal = { family = "JetBrainsMono"}
 
-offset = { y = 8 }
-glyph_offset = { y = 4 }
+# offset = { y = 8 }
+# glyph_offset = { y = 4 }
 # normal = { family = "Input"}
 
 # offset = { y = 4 }
