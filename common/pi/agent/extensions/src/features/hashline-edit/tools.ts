@@ -20,13 +20,13 @@ type PendingHashlineFlow = {
   mode: "await-segment" | "await-apply";
   segment?: string;
   segmentOptions?: string[];
-  followUpTurns: number;
+  steerCount: number;
   applyFailures: number;
 };
 
-const MAX_FOLLOW_UP_TURNS = 8;
+const MAX_STEER_COUNT = 8;
 const MAX_APPLY_FAILURES = 1;
-const FOLLOW_UP_CUSTOM_TYPE = "hashline-edit-follow-up";
+const STEER_CUSTOM_TYPE = "hashline-edit-steer";
 
 function renderToolDiffResult(result: unknown, theme: Parameters<typeof renderDiffResult>[1], fallback: string): Text {
   return renderDiffResult(result as HashlineToolResult, theme, fallback);
@@ -73,16 +73,16 @@ function clearPending(
   if (ui) setPendingStatus(ui, null);
 }
 
-function queueFollowUpMessage(pi: ExtensionAPI, pending: PendingHashlineFlow): boolean {
-  pending.followUpTurns += 1;
-  if (pending.followUpTurns > MAX_FOLLOW_UP_TURNS) return false;
+function queueSteerMessage(pi: ExtensionAPI, pending: PendingHashlineFlow): boolean {
+  pending.steerCount += 1;
+  if (pending.steerCount > MAX_STEER_COUNT) return false;
   pi.sendMessage(
     {
-      customType: FOLLOW_UP_CUSTOM_TYPE,
-      content: buildFollowUpPrompt(pending),
+      customType: STEER_CUSTOM_TYPE,
+      content: buildSteerPrompt(pending),
       display: false,
     },
-    { deliverAs: "followUp" },
+    { deliverAs: "steer" },
   );
   return true;
 }
@@ -91,7 +91,7 @@ function isRecoverableApplyError(message: string): boolean {
   return message.startsWith("hashline-edit rejected: match_missing") || message.startsWith("hashline-edit rejected: match_ambiguous");
 }
 
-function buildFollowUpPrompt(pending: PendingHashlineFlow): string {
+function buildSteerPrompt(pending: PendingHashlineFlow): string {
   if (pending.mode === "await-segment") {
     const labels = pending.segmentOptions?.join(", ") ?? "(see previous tool result)";
     return [
@@ -118,17 +118,17 @@ function buildFollowUpPrompt(pending: PendingHashlineFlow): string {
 function buildPendingReason(pending: PendingHashlineFlow): string {
   if (pending.mode === "await-segment") {
     const labels = pending.segmentOptions?.join(", ") ?? "one returned label";
-    return `hashline-edit follow-up is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"segment":"LABEL"} using ${labels}.`;
+    return `hashline-edit is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"segment":"LABEL"} using ${labels}.`;
   }
-  return `hashline-edit follow-up is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"edits":[...]}.`;
+  return `hashline-edit is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"edits":[...]}.`;
 }
 
 function stageFromDetails(
   path: string,
   goal: string,
   details: HashlineContextRange | HashlineContextMap,
-  carry?: Pick<PendingHashlineFlow, "followUpTurns" | "applyFailures">,
- ): PendingHashlineFlow {
+  carry?: Pick<PendingHashlineFlow, "steerCount" | "applyFailures">,
+): PendingHashlineFlow {
   if (details.kind === "map") {
     return {
       path,
@@ -136,7 +136,7 @@ function stageFromDetails(
       mode: "await-segment",
       segment: details.segment,
       segmentOptions: details.options.map((option) => option.label),
-      followUpTurns: carry?.followUpTurns ?? 0,
+      steerCount: carry?.steerCount ?? 0,
       applyFailures: carry?.applyFailures ?? 0,
     };
   }
@@ -145,7 +145,7 @@ function stageFromDetails(
     goal,
     mode: "await-apply",
     segment: details.segment,
-    followUpTurns: carry?.followUpTurns ?? 0,
+    steerCount: carry?.steerCount ?? 0,
     applyFailures: carry?.applyFailures ?? 0,
   };
 }
@@ -162,10 +162,6 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
   });
 
   pi.on("session_shutdown", (_event, ctx) => {
-    clearPending(pending, ctx.ui);
-  });
-
-  pi.on("agent_end", (_event, ctx) => {
     clearPending(pending, ctx.ui);
   });
 
@@ -189,7 +185,7 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
     if (args.path !== pending.current.path) {
       return {
         block: true,
-        reason: `hashline-edit follow-up is staged for ${pending.current.path}. Finish or let it expire before editing another file.`,
+        reason: `hashline-edit is staged for ${pending.current.path}. Finish or abandon that edit before starting another file.`,
       };
     }
     if (pending.current.mode === "await-segment") {
@@ -198,7 +194,6 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
     }
     if (!isApplyParams(args)) return { block: true, reason: buildPendingReason(pending.current) };
   });
-
 
   pi.registerTool({
     name: "file-create",
@@ -279,10 +274,10 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
         const details = buildHashlineContext(args.path, normalized);
         pending.current = stageFromDetails(args.path, args.goal, details);
         setPendingStatus(ctx.ui, pending.current);
-        ctx.ui.notify(`hashline-edit staged ${args.path}; auto follow-up queued for ${pending.current.mode === "await-segment" ? "segment choice" : "edits"}.`, "info");
-        if (!queueFollowUpMessage(pi, pending.current)) {
+        ctx.ui.notify(`hashline-edit staged ${args.path}.`, "info");
+        if (!queueSteerMessage(pi, pending.current)) {
           clearPending(pending, ctx.ui);
-          throw new Error(`hashline-edit follow-up limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
+          throw new Error(`hashline-edit steer limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
         }
         return { content: [{ type: "text", text: details.body }], details };
       }
@@ -299,14 +294,14 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
         const normalized = normalizeToLf(source.text);
         const details = buildHashlineContext(args.path, normalized, args.segment);
         pending.current = stageFromDetails(args.path, pending.current.goal, details, {
-          followUpTurns: pending.current.followUpTurns,
+          steerCount: pending.current.steerCount,
           applyFailures: pending.current.applyFailures,
         });
         setPendingStatus(ctx.ui, pending.current);
-        ctx.ui.notify(`hashline-edit staged ${args.path}; auto follow-up queued for ${pending.current.mode === "await-segment" ? "segment choice" : "edits"}.`, "info");
-        if (!queueFollowUpMessage(pi, pending.current)) {
+        ctx.ui.notify(`hashline-edit staged ${args.path}.`, "info");
+        if (!queueSteerMessage(pi, pending.current)) {
           clearPending(pending, ctx.ui);
-          throw new Error(`hashline-edit follow-up limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
+          throw new Error(`hashline-edit steer limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
         }
         return { content: [{ type: "text", text: details.body }], details };
       }
@@ -340,8 +335,8 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
             applyFailures: pending.current.applyFailures + 1,
           };
           setPendingStatus(ctx.ui, pending.current);
-          ctx.ui.notify(`hashline-edit restaged ${args.path}; auto follow-up queued for revised edits.`, "warning");
-          if (!queueFollowUpMessage(pi, pending.current)) {
+          ctx.ui.notify(`hashline-edit apply failed for ${args.path}; revision steer queued.`, "warning");
+          if (!queueSteerMessage(pi, pending.current)) {
             clearPending(pending, ctx.ui);
           }
         } else {

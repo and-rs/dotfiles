@@ -1,6 +1,6 @@
 import { realpath, stat, readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { HOME_DIR, MAX_TEXT_FILE_BYTES } from "./types.ts";
+import { MAX_TEXT_FILE_BYTES } from "./types.ts";
 
 
 function normalizeToolPathInput(candidatePath: string): string {
@@ -53,13 +53,6 @@ export async function ensureCreatablePathInCwd(cwd: string, candidatePath: strin
   const ancestor = await findExistingAncestor(absolute);
   assertPathInCwd(cwd, candidatePath, ancestor);
   return absolute;
-}
-
-export async function ensureReadablePath(cwd: string, candidatePath: string): Promise<string> {
-  const absolute = resolveToolPath(cwd, candidatePath);
-  const resolved = (await realpathIfExists(absolute)) ?? absolute;
-  if (isPathInRoot(cwd, resolved) || isPathInRoot(HOME_DIR, resolved)) return absolute;
-  throw new Error(`Path outside allowed read roots: ${candidatePath}. File reads allow current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
 }
 
 

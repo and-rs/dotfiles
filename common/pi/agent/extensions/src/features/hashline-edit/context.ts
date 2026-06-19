@@ -80,8 +80,8 @@ function formatSegmentMap(path: string, totalLines: number, options: SegmentOpti
     `${title} too large for whole-file context`,
     "choose segment:",
     ...options.map((option) => `- ${option.label}: lines ${option.startLine}-${option.endLine} (${option.lineCount} lines) :: ${option.preview}`),
-    "call hashline-edit again with same path and chosen segment label",
-    "follow staged hashline-edit flow using fresh live segment context",
+    `call hashline-edit with JSON: {"path":${JSON.stringify(path)},"segment":"LABEL"}`,
+    "Do not send goal. Do not send edits. Do not answer with prose.",
   ].join("\n");
 }
 

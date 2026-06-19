@@ -68,8 +68,6 @@ Respond in english only. Caveman full active always.
 - For edits, start `hashline-edit` with `{path, goal}` instead of trusting old
   snippets.
 - Reuse existing patterns and conventions.
-- Fresh live context beats stale cached snippets.
-- For changes that depend on current file shape, do not trust old snippets.
 
 ## Pi setup
 

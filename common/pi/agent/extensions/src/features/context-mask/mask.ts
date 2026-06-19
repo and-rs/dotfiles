@@ -57,7 +57,9 @@ function findRecentTurnStart(
 }
 
 function isContextLog(message: ContextMessage): boolean {
-  return message.role === "custom" && message.customType === CUSTOM_TYPE;
+  if (message.role !== "custom") return false;
+  if (message.customType === CUSTOM_TYPE) return true;
+  return message.display === false;
 }
 
 function preserveToolResultIds(
@@ -181,5 +183,5 @@ export function maskContext(messages: CoreAgentMessage[]): {
       },
     } as CoreAgentMessage;
   });
-  return { messages: nextMessages, stats };
+  return { messages: nextMessages as unknown as CoreAgentMessage[], stats };
 }

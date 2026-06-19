@@ -16,7 +16,7 @@ export type TextContent = { type: "text"; text: string };
 export type ToolCallContent = { type: "toolCall"; id: string; name: string; arguments: Record<string, unknown> };
 export type MessageContent = TextContent | ToolCallContent | { type: string; [key: string]: unknown };
 
-export type ContextMessage = CoreAgentMessage & {
+export type ContextMessage = Omit<CoreAgentMessage, "role" | "content"> & {
   role: string;
   content?: string | MessageContent[];
   customType?: string;
