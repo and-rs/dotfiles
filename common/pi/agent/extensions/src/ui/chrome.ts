@@ -16,15 +16,6 @@ type ThemeColor =
   | "thinkingHigh"
   | "thinkingXhigh";
 
-type ForgePhaseColor = "accent" | "warning" | "error" | "success" | "dim";
-
-type ForgeChromeState = {
-  phase: string;
-  glyph: string;
-  summary: string;
-  color: ForgePhaseColor;
-  lines?: string[];
-};
 
 type FooterStats = {
   input: number;
@@ -37,8 +28,6 @@ type FooterStats = {
 const MODEL_STATUS_ID = "session-model";
 const THINKING_STATUS_ID = "session-thinking";
 const CONTEXT_STATUS_ID = "session-context";
-const FORGE_STATUS_ID = "forge-phase";
-const FORGE_WIDGET_ID = "forge-widget";
 
 const INTERNAL_STATUS_IDS = new Set([
   MODEL_STATUS_ID,
@@ -117,16 +106,6 @@ function joinLeftRight(
   return fitLine(`${left}${gap}${clippedRight}`, width);
 }
 
-function chip(
-  theme: ExtensionContext["ui"]["theme"],
-  fg: ThemeColor,
-  bg: "selectedBg",
-  text: string,
-): string {
-  // Foreground + background together:
-  // theme.bg("selectedBg", theme.fg("accent", " text "))
-  return theme.bg(bg, theme.fg(fg, ` ${text} `));
-}
 
 function getThinkingLevel(ctx: ExtensionContext): string {
   // ExtensionContext does not expose direct ctx.getThinkingLevel().
@@ -246,7 +225,7 @@ function buildExtensionStatusLine(
   width: number,
 ): string | null {
   // Session model/thinking/context already have dedicated layout above.
-  // Keep line for feature-owned statuses like forge and future widgets.
+  // Keep line for feature-owned statuses and future widgets.
   const items = Array.from(statuses.entries())
     .filter(
       ([id, text]) => !INTERNAL_STATUS_IDS.has(id) && text.trim().length > 0,
@@ -338,36 +317,4 @@ export function renderContextStatus(ctx: ExtensionContext): void {
   );
 }
 
-export function clearForgeChrome(ctx: ExtensionContext): void {
-  if (!ctx.hasUI) return;
-  ctx.ui.setStatus(FORGE_STATUS_ID, undefined);
-  ctx.ui.setWidget(FORGE_WIDGET_ID, undefined, { placement: "belowEditor" });
-}
-
-export function renderForgeChrome(
-  ctx: ExtensionContext,
-  state: ForgeChromeState,
-): void {
-  if (!ctx.hasUI) return;
-
-  const themedChip = chip(
-    ctx.ui.theme,
-    state.color,
-    "selectedBg",
-    `${state.glyph} ${state.phase}`,
-  );
-  const suffix = ctx.ui.theme.fg("dim", ` ${state.summary}`);
-  ctx.ui.setStatus(FORGE_STATUS_ID, `${themedChip}${suffix}`);
-
-  // Widgets also use string[]. One element = one visual line.
-  // Want horizontal padding? Add spaces inside each string yourself.
-  if (state.lines && state.lines.length > 0) {
-    ctx.ui.setWidget(FORGE_WIDGET_ID, state.lines, {
-      placement: "belowEditor",
-    });
-    return;
-  }
-
-  ctx.ui.setWidget(FORGE_WIDGET_ID, undefined, { placement: "belowEditor" });
-}
 

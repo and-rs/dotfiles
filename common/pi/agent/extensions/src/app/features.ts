@@ -3,7 +3,6 @@ import registerCodeToolsFeature from "../features/code-tools/index.ts";
 import registerContextMaskFeature from "../features/context-mask/index.ts";
 import registerCwdFeature from "../features/cwd/index.ts";
 import registerFocusBorderFeature from "../features/focus-border/index.ts";
-import registerForgeFeature from "../features/forge/index.ts";
 import registerHashlineEditFeature from "../features/hashline-edit/index.ts";
 import registerNuBlockFeature from "../features/nu-block/index.ts";
 import registerSessionNameFeature from "../features/session-name/index.ts";
@@ -17,7 +16,6 @@ const FEATURES: FeatureRegistrar[] = [
   registerContextMaskFeature,
   registerCwdFeature,
   registerFocusBorderFeature,
-  registerForgeFeature,
   registerHashlineEditFeature,
   registerNuBlockFeature,
   registerSessionNameFeature,

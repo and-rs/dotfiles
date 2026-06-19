@@ -3,9 +3,9 @@ type BlockedToolName = "read" | "edit" | "write" | "grep" | "find" | "ls";
 export const BLOCKED_TOOLS = new Set<BlockedToolName>(["read", "edit", "write", "grep", "find", "ls"]);
 
 const BASH_BLOCKED: Record<string, string> = {
-  cat: "Use hashline-read to read file content.",
-  head: "Use hashline-read with limit parameter for partial reads.",
-  tail: "Use hashline-read with offset parameter for partial reads.",
+  cat: "Use hashline-edit with {path, goal} when you need fresh edit-targeted file context.",
+  head: "Use hashline-edit with {path, goal}; large files return segment labels for staged edit context.",
+  tail: "Use hashline-edit with {path, goal}; large files return segment labels for staged edit context.",
   ls: "Use code-files for directory listing or code-overview for repo structure.",
   find: "Use code-files for file path discovery.",
   grep: "Use code-search for content search.",
@@ -23,9 +23,9 @@ export function bashBlockedReason(command: unknown): string | null {
 export function replacementFor(toolName: string): string {
   switch (toolName) {
     case "read":
-      return "Use hashline-read for exact file ranges.";
+      return "Use hashline-edit with {path, goal} when you need fresh edit-targeted file context.";
     case "edit":
-      return "Use hashline-edit for existing-file edits.";
+      return "Use hashline-edit; first call uses {path, goal}, staged follow-up call uses edits.";
     case "write":
       return "Use file-create for new files, hashline-edit for existing files.";
     case "grep":

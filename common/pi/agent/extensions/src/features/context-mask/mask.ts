@@ -3,7 +3,7 @@ import {
   CUSTOM_TYPE,
   MIN_MASK_CHARACTERS,
   PRESERVED_EDIT_RESULTS,
-  PRESERVED_HASHLINE_READS,
+  PRESERVED_HASHLINE_CONTEXTS,
   RAW_RECENT_USER_TURNS,
   type ContextMessage,
   type MaskStats,
@@ -66,8 +66,8 @@ function preserveToolResultIds(
   rawWindowStart: number,
 ): Set<string> {
   const keep = new Set<string>();
-  const keptReadPaths = new Set<string>();
-  let keptReads = 0;
+  const keptContextPaths = new Set<string>();
+  let keptContexts = 0;
   let keptEdits = 0;
   for (let i = messages.length - 1; i >= 0; i--) {
     if (i >= rawWindowStart) continue;
@@ -78,24 +78,25 @@ function preserveToolResultIds(
     if (!toolCallId) continue;
     const toolCall = toolCalls.get(toolCallId);
     const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
-    if (toolName === "hashline-read") {
+    if (toolName === "hashline-edit" && !Array.isArray(toolCall?.arguments.edits)) {
       const path =
         typeof toolCall?.arguments.path === "string"
           ? toolCall.arguments.path.trim()
           : "";
       if (
         !path ||
-        keptReadPaths.has(path) ||
-        keptReads >= PRESERVED_HASHLINE_READS
+        keptContextPaths.has(path) ||
+        keptContexts >= PRESERVED_HASHLINE_CONTEXTS
       )
         continue;
-      keptReadPaths.add(path);
+      keptContextPaths.add(path);
       keep.add(toolCallId);
-      keptReads += 1;
+      keptContexts += 1;
       continue;
     }
     if (
       (toolName === "hashline-edit" || toolName === "file-create") &&
+      (toolName !== "hashline-edit" || Array.isArray(toolCall?.arguments.edits)) &&
       keptEdits < PRESERVED_EDIT_RESULTS
     ) {
       keep.add(toolCallId);

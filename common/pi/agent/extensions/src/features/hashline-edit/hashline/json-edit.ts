@@ -1,22 +1,39 @@
-import { HashlineMismatchError, parseTag } from "./anchors";
-import { computeLineHash, formatHashLines } from "./hash";
-import type { Anchor } from "./types";
+import { buildHashlineContext, formatAnchoredSnippet } from "../context.ts";
 
-export type HashlineJsonEditParams = {
+export type HashlineStageParams = {
 	path: string;
-	snapshotId: string;
+	goal: string;
+};
+
+export type HashlineSegmentParams = {
+	path: string;
+	segment: string;
+};
+
+export type HashlineApplyParams = {
+	path: string;
 	edits: HashlineJsonEdit[];
 };
 
+export type HashlineToolParams =
+	| HashlineStageParams
+	| HashlineSegmentParams
+	| HashlineApplyParams;
+
 export type HashlineJsonEdit =
-	| { op: "replace"; start: string; end: string; lines: string[] }
-	| { op: "delete"; start: string; end: string }
-	| { op: "insert_before"; anchor: string; lines: string[] }
-	| { op: "insert_after"; anchor: string; lines: string[] };
+	| { op: "replace"; match: string[]; lines: string[] }
+	| { op: "delete"; match: string[] }
+	| { op: "insert_before"; match: string[]; lines: string[] }
+	| { op: "insert_after"; match: string[]; lines: string[] };
 
 export type HashlineJsonApplyResult = {
 	lines: string;
 	changed: boolean;
+};
+
+type MatchRange = {
+	startLine: number;
+	endLine: number;
 };
 
 type ResolvedJsonEdit =
@@ -26,17 +43,19 @@ type ResolvedJsonEdit =
 
 type JsonRecord = Record<string, unknown>;
 
-const PARAM_KEYS = new Set(["path", "snapshotId", "edits"]);
-const REPLACE_KEYS = new Set(["op", "start", "end", "lines"]);
-const DELETE_KEYS = new Set(["op", "start", "end"]);
-const INSERT_KEYS = new Set(["op", "anchor", "lines"]);
+const STAGE_KEYS = new Set(["path", "goal"]);
+const SEGMENT_KEYS = new Set(["path", "segment"]);
+const APPLY_KEYS = new Set(["path", "edits"]);
+const REPLACE_KEYS = new Set(["op", "match", "lines"]);
+const DELETE_KEYS = new Set(["op", "match"]);
+const INSERT_KEYS = new Set(["op", "match", "lines"]);
 
 function isRecord(value: unknown): value is JsonRecord {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function rejectUnknownKeys(value: JsonRecord, allowed: Set<string>, loc: string): void {
-	const unknown = Object.keys(value).filter(key => !allowed.has(key));
+	const unknown = Object.keys(value).filter((key) => !allowed.has(key));
 	if (unknown.length > 0) {
 		throw new Error(`schema_invalid: ${loc} contains unknown field(s): ${unknown.join(", ")}`);
 	}
@@ -48,6 +67,10 @@ function requireString(value: JsonRecord, key: string, loc: string): string {
 		throw new Error(`schema_invalid: ${loc}.${key} must be a non-empty string.`);
 	}
 	return raw;
+}
+
+function requireTrimmedString(value: JsonRecord, key: string, loc: string): string {
+	return requireString(value, key, loc).trim();
 }
 
 function requireLines(value: JsonRecord, key: string, loc: string): string[] {
@@ -70,24 +93,21 @@ function parseJsonEdit(value: unknown, index: number): HashlineJsonEdit {
 	const op = requireString(value, "op", loc);
 	if (op === "replace") {
 		rejectUnknownKeys(value, REPLACE_KEYS, loc);
-		return { op, start: requireString(value, "start", loc), end: requireString(value, "end", loc), lines: requireLines(value, "lines", loc) };
+		return { op, match: requireLines(value, "match", loc), lines: requireLines(value, "lines", loc) };
 	}
 	if (op === "delete") {
 		rejectUnknownKeys(value, DELETE_KEYS, loc);
-		return { op, start: requireString(value, "start", loc), end: requireString(value, "end", loc) };
+		return { op, match: requireLines(value, "match", loc) };
 	}
 	if (op === "insert_before" || op === "insert_after") {
 		rejectUnknownKeys(value, INSERT_KEYS, loc);
-		return { op, anchor: requireString(value, "anchor", loc), lines: requireLines(value, "lines", loc) };
+		return { op, match: requireLines(value, "match", loc), lines: requireLines(value, "lines", loc) };
 	}
 	throw new Error(`schema_invalid: ${loc}.op must be one of replace, delete, insert_before, insert_after.`);
 }
 
-export function parseHashlineJsonEditParams(value: unknown): HashlineJsonEditParams {
-	if (!isRecord(value)) throw new Error("schema_invalid: hashline-edit parameters must be an object.");
-	rejectUnknownKeys(value, PARAM_KEYS, "params");
-	const path = requireString(value, "path", "params");
-	const snapshotId = requireString(value, "snapshotId", "params");
+function parseApplyParams(value: JsonRecord): HashlineApplyParams {
+	rejectUnknownKeys(value, APPLY_KEYS, "params");
 	const rawEdits = value.edits;
 	if (!Array.isArray(rawEdits) || rawEdits.length === 0) {
 		throw new Error("schema_invalid: params.edits must be a non-empty array.");
@@ -95,87 +115,163 @@ export function parseHashlineJsonEditParams(value: unknown): HashlineJsonEditPar
 	if (rawEdits.length > 8) {
 		throw new Error("schema_invalid: params.edits may contain at most 8 edits. Split large edits into separate hashline-edit calls.");
 	}
-	return { path, snapshotId, edits: rawEdits.map(parseJsonEdit) };
+	return {
+		path: requireString(value, "path", "params"),
+		edits: rawEdits.map(parseJsonEdit),
+	};
+}
+
+export function parseHashlineToolParams(value: unknown): HashlineToolParams {
+	if (!isRecord(value)) throw new Error("schema_invalid: hashline-edit parameters must be an object.");
+	if (value.edits !== undefined) return parseApplyParams(value);
+	if (value.segment !== undefined) {
+		rejectUnknownKeys(value, SEGMENT_KEYS, "params");
+		return {
+			path: requireString(value, "path", "params"),
+			segment: requireTrimmedString(value, "segment", "params").toUpperCase(),
+		};
+	}
+	if (value.goal !== undefined) {
+		rejectUnknownKeys(value, STAGE_KEYS, "params");
+		return {
+			path: requireString(value, "path", "params"),
+			goal: requireTrimmedString(value, "goal", "params"),
+		};
+	}
+	throw new Error('schema_invalid: params must include exactly one of goal, segment, or edits.');
 }
 
 function formatFreshContext(fileLines: string[], centerLine: number, radius = 3): string {
 	const start = Math.max(1, centerLine - radius);
 	const end = Math.min(fileLines.length, centerLine + radius);
-	return formatHashLines(fileLines.slice(start - 1, end).join("\n"), start);
+	return formatAnchoredSnippet(fileLines, start, end);
 }
 
-export function formatSnapshotStaleError(
-	path: string,
-	expectedSnapshotId: string,
-	actualSnapshotId: string,
-	fileLines: string[],
-	edits: HashlineJsonEdit[],
-): string {
-	const line = firstReferencedLine(edits) ?? 1;
+function collectRelatedLineNumbers(fileLines: string[], matchLines: string[]): number[] {
+	const wanted = new Set(matchLines.filter((line) => line.trim().length > 0));
+	const found: number[] = [];
+	for (let index = 0; index < fileLines.length; index++) {
+		if (!wanted.has(fileLines[index])) continue;
+		found.push(index + 1);
+		if (found.length >= 4) break;
+	}
+	return found;
+}
+
+function formatLiveFallback(path: string, fileLines: string[], matchLines: string[]): string {
+	const related = collectRelatedLineNumbers(fileLines, matchLines);
+	if (related.length > 0) {
+		return [
+			"Related live snippets:",
+			"",
+			...related.flatMap((line, index) => [
+				`candidate ${index + 1}:`,
+				formatFreshContext(fileLines, line),
+				"",
+			]),
+		].join("\n").trimEnd();
+	}
+	const live = buildHashlineContext(path, fileLines.join("\n"));
+	return [live.kind === "range" ? "Live file context:" : "Live file context map:", "", live.body].join("\n");
+}
+
+function formatMatchMissingError(path: string, fileLines: string[], editIndex: number, matchLines: string[]): string {
 	return [
-		"hashline-edit rejected: snapshot_stale",
+		"hashline-edit rejected: match_missing",
 		"No changes were applied.",
 		`path: ${path}`,
-		`expected snapshotId: ${expectedSnapshotId}`,
-		`current snapshotId: ${actualSnapshotId}`,
-		"Use the fresh anchored context below to retry with the current snapshotId.",
+		`edits[${editIndex}].match: exact block not found in current file.`,
+		"Use exact current file lines in match and retry.",
 		"",
-		formatFreshContext(fileLines, line),
+		formatLiveFallback(path, fileLines, matchLines),
 	].join("\n");
 }
 
-function firstReferencedLine(edits: HashlineJsonEdit[]): number | undefined {
-	for (const edit of edits) {
-		const refs = edit.op === "insert_before" || edit.op === "insert_after" ? [edit.anchor] : [edit.start, edit.end];
-		for (const ref of refs) {
-			try {
-				return parseTag(ref).line;
-			} catch {
-				continue;
+function formatCandidateContext(fileLines: string[], range: MatchRange): string {
+	const start = Math.max(1, range.startLine - 2);
+	const end = Math.min(fileLines.length, range.endLine + 2);
+	return formatAnchoredSnippet(fileLines, start, end);
+}
+
+function formatMatchAmbiguousError(path: string, fileLines: string[], editIndex: number, ranges: MatchRange[]): string {
+	const shown = ranges.slice(0, 4);
+	return [
+		"hashline-edit rejected: match_ambiguous",
+		"No changes were applied.",
+		`path: ${path}`,
+		`edits[${editIndex}].match: exact block resolved to ${ranges.length} locations in current file.`,
+		"Use larger unique live match block and retry.",
+		"",
+		...shown.flatMap((range, index) => [
+			`candidate ${index + 1}: lines ${range.startLine}-${range.endLine}`,
+			formatCandidateContext(fileLines, range),
+			"",
+		]),
+		...(ranges.length > shown.length ? [`... ${ranges.length - shown.length} more candidate(s) omitted`] : []),
+	].join("\n").trimEnd();
+}
+
+function findBlockMatches(fileLines: string[], matchLines: string[]): MatchRange[] {
+	if (matchLines.length > fileLines.length) return [];
+	const matches: MatchRange[] = [];
+	const lastStart = fileLines.length - matchLines.length;
+	for (let start = 0; start <= lastStart; start++) {
+		let equal = true;
+		for (let offset = 0; offset < matchLines.length; offset++) {
+			if (fileLines[start + offset] !== matchLines[offset]) {
+				equal = false;
+				break;
 			}
 		}
+		if (equal) matches.push({ startLine: start + 1, endLine: start + matchLines.length });
 	}
-	return undefined;
+	return matches;
 }
 
-function parseAnchor(ref: string, fileLines: string[], editIndex: number, field: string): Anchor {
-	let anchor: Anchor;
-	try {
-		anchor = parseTag(ref);
-	} catch (error) {
-		throw new Error(`schema_invalid: edits[${editIndex}].${field}: ${(error as Error).message}`);
-	}
-	if (anchor.line < 1 || anchor.line > fileLines.length) {
-		throw new Error(
-			[
-				"hashline-edit rejected: anchor_missing",
-				"No changes were applied.",
-				`edits[${editIndex}].${field}: line ${anchor.line} does not exist; file has ${fileLines.length} lines.`,
-			].join("\n"),
-		);
-	}
-	const actual = computeLineHash(anchor.line, fileLines[anchor.line - 1] ?? "");
-	if (actual !== anchor.hash) {
-		throw new HashlineMismatchError([{ line: anchor.line, expected: anchor.hash, actual }], fileLines);
-	}
-	return anchor;
+function resolveMatch(path: string, fileLines: string[], matchLines: string[], sourceIndex: number): MatchRange {
+	const matches = findBlockMatches(fileLines, matchLines);
+	if (matches.length === 0) throw new Error(formatMatchMissingError(path, fileLines, sourceIndex, matchLines));
+	if (matches.length > 1) throw new Error(formatMatchAmbiguousError(path, fileLines, sourceIndex, matches));
+	return matches[0];
 }
 
-function resolveJsonEdit(edit: HashlineJsonEdit, fileLines: string[], sourceIndex: number): ResolvedJsonEdit {
-	if (edit.op === "replace" || edit.op === "delete") {
-		const start = parseAnchor(edit.start, fileLines, sourceIndex, "start");
-		const end = parseAnchor(edit.end, fileLines, sourceIndex, "end");
-		if (start.line > end.line) {
-			throw new Error(`range_invalid: edits[${sourceIndex}] start anchor must be before or equal to end anchor.`);
-		}
-		return edit.op === "replace"
-			? { op: "replace", index: start.line - 1, startLine: start.line, endLine: end.line, lines: edit.lines, sourceIndex }
-			: { op: "delete", index: start.line - 1, startLine: start.line, endLine: end.line, sourceIndex };
+function resolveJsonEdit(path: string, edit: HashlineJsonEdit, fileLines: string[], sourceIndex: number): ResolvedJsonEdit {
+	const match = resolveMatch(path, fileLines, edit.match, sourceIndex);
+	if (edit.op === "replace") {
+		return {
+			op: "replace",
+			index: match.startLine - 1,
+			startLine: match.startLine,
+			endLine: match.endLine,
+			lines: edit.lines,
+			sourceIndex,
+		};
 	}
-
-	const anchor = parseAnchor(edit.anchor, fileLines, sourceIndex, "anchor");
-	const index = edit.op === "insert_before" ? anchor.line - 1 : anchor.line;
-	return { op: "insert", index, line: anchor.line, lines: edit.lines, sourceIndex };
+	if (edit.op === "delete") {
+		return {
+			op: "delete",
+			index: match.startLine - 1,
+			startLine: match.startLine,
+			endLine: match.endLine,
+			sourceIndex,
+		};
+	}
+	if (edit.op === "insert_before") {
+		return {
+			op: "insert",
+			index: match.startLine - 1,
+			line: match.startLine,
+			lines: edit.lines,
+			sourceIndex,
+		};
+	}
+	return {
+		op: "insert",
+		index: match.endLine,
+		line: match.endLine,
+		lines: edit.lines,
+		sourceIndex,
+	};
 }
 
 function validateNoConflicts(edits: ResolvedJsonEdit[]): void {
@@ -207,9 +303,9 @@ function validateNoConflicts(edits: ResolvedJsonEdit[]): void {
 	}
 }
 
-export function applyHashlineJsonEdits(text: string, edits: HashlineJsonEdit[]): HashlineJsonApplyResult {
+export function applyHashlineJsonEdits(path: string, text: string, edits: HashlineJsonEdit[]): HashlineJsonApplyResult {
 	const fileLines = text.split("\n");
-	const resolved = edits.map((edit, index) => resolveJsonEdit(edit, fileLines, index));
+	const resolved = edits.map((edit, index) => resolveJsonEdit(path, edit, fileLines, index));
 	validateNoConflicts(resolved);
 
 	const nextLines = [...fileLines];

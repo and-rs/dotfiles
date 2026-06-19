@@ -48,13 +48,12 @@ Update this skill when Pi architecture changes.
 - If changing composition or event hooks, start in `src/app/`
 - If changing domain behavior, start in `src/features/<feature>/`
 - If architecture changes, update imports and this skill together
+- `src/features/hashline-edit/` now owns staged edit flow: `{path, goal}` first, then `{path, segment}` if needed, then `{path, edits}`.
 
 ## Current Chrome Shape
 
-- `src/ui/chrome.ts` owns footer renderer, footer statuses, and forge widget/status chrome
+- `src/ui/chrome.ts` owns footer renderer and footer statuses
 - `src/app/ui.ts` wires session/model/thinking events into `src/ui/chrome.ts`
-- `src/features/forge/ui.ts` computes forge state, then delegates rendering to `src/ui/chrome.ts`
-
 ## When Cleaning Up
 
 - Prefer direct imports from real owner file
@@ -64,7 +63,5 @@ Update this skill when Pi architecture changes.
 
 ## Tool Registration Gotcha
 
-- `forge/events.ts` defines `FULL_TOOLS` and `READ_ONLY_TOOLS` as explicit allowlists.
-- These are passed to `pi.setActiveTools()` on `session_start`, overwriting the active set.
-- Any new tool added to the extension MUST also be added to both lists or it will not appear in the LLM's available tools.
-- File: `src/features/forge/events.ts`
+- `src/app/features.ts` assembles feature registration.
+- If feature is removed, remove its app registration and dead files together.

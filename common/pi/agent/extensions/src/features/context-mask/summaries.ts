@@ -11,7 +11,7 @@ import {
   FAILED_BASH_TAIL_LINES,
   MASK_NOTICE_PREFIX,
   PRESERVED_EDIT_RESULTS,
-  PRESERVED_HASHLINE_READS,
+  PRESERVED_HASHLINE_CONTEXTS,
   RAW_RECENT_USER_TURNS,
   SUCCESS_BASH_TAIL_LINES,
 } from "./types.ts";
@@ -86,14 +86,13 @@ export function summarizeToolResult(
       ? FAILED_BASH_TAIL_LINES
       : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
-  } else if (toolName === "hashline-read") {
+  } else if (toolName === "hashline-edit" && !Array.isArray(args.edits)) {
     tailLineCount = 0;
     header.push(`path: ${preview(args.path)}`);
-    if (args.offset !== undefined)
-      header.push(`offset: ${preview(args.offset)}`);
-    if (args.limit !== undefined) header.push(`limit: ${preview(args.limit)}`);
+    if (args.goal !== undefined) header.push(`goal: ${preview(args.goal)}`);
+    if (args.segment !== undefined) header.push(`segment: ${preview(args.segment)}`);
     header.push(
-      "note: body intentionally omitted; re-read for fresh file context and fresh anchors before edit.",
+      "note: body intentionally omitted; re-run hashline-edit with path and goal for fresh staged context.",
     );
   } else if (toolName === "hashline-edit" || toolName === "file-create") {
     tailLineCount = EDIT_TAIL_LINES;
@@ -148,7 +147,7 @@ export function formatStats(stats: MaskStats): string {
     "         ├── policy",
     "         │   ├── current turn kept raw",
     `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turn${RAW_RECENT_USER_TURNS === 1 ? "" : "s"} kept raw`,
-    `         │   ├── preserve ${PRESERVED_HASHLINE_READS} recent hashline read${PRESERVED_HASHLINE_READS === 1 ? "" : "s"}`,
+    `         │   ├── preserve ${PRESERVED_HASHLINE_CONTEXTS} recent hashline context result${PRESERVED_HASHLINE_CONTEXTS === 1 ? "" : "s"}`,
     `         │   └── preserve ${PRESERVED_EDIT_RESULTS} recent edit diff${PRESERVED_EDIT_RESULTS === 1 ? "" : "s"}`,
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),

@@ -59,7 +59,7 @@ export async function ensureReadablePath(cwd: string, candidatePath: string): Pr
   const absolute = resolveToolPath(cwd, candidatePath);
   const resolved = (await realpathIfExists(absolute)) ?? absolute;
   if (isPathInRoot(cwd, resolved) || isPathInRoot(HOME_DIR, resolved)) return absolute;
-  throw new Error(`Path outside allowed read roots: ${candidatePath}. hashline-read allows current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
+  throw new Error(`Path outside allowed read roots: ${candidatePath}. File reads allow current cwd (${cwd}) and $HOME (${HOME_DIR}). Start pi in target repo or read a file under $HOME.`);
 }
 
 

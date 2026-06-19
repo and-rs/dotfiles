@@ -9,7 +9,7 @@ export default function registerHashlineEditFeature(pi: ExtensionAPI): void {
     };
     const active = typeof api.getActiveTools === "function" ? api.getActiveTools() : [];
     const filtered = active.filter((name) => name !== "edit" && name !== "write" && name !== "read");
-    const next = Array.from(new Set([...filtered, "hashline-read", "hashline-edit", "file-create"]));
+    const next = Array.from(new Set([...filtered, "hashline-edit", "file-create"]));
     if (typeof api.setActiveTools === "function") api.setActiveTools(next);
   });
 

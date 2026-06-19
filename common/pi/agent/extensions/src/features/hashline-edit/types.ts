@@ -1,16 +1,6 @@
 import { homedir } from "node:os";
 import { resolve } from "node:path";
 
-export type ReadParams = {
-  path: string;
-  segment?: string;
-};
-
-export type EditParams = {
-  input: string;
-  path?: string;
-  autoDropPureInsertDuplicates?: boolean;
-};
 
 export type CreateFileParams = {
   path: string;

@@ -7,7 +7,8 @@ import type { MaskStats } from "./types.ts";
 export function registerContextMaskRenderer(pi: ExtensionAPI): (stats: MaskStats) => void {
   pi.registerMessageRenderer(CUSTOM_TYPE, (message, _options, theme) => {
     const content = typeof message.content === "string" ? message.content : textFromContent(message.content as MessageContent[]);
-    return new Text(`${theme.fg("thinkingHigh", "context")}\n${theme.fg("muted", content)}`, 0, 0);
+    const firstLine = content.split("\n", 1)[0] ?? "context";
+    return new Text(`${theme.fg("thinkingHigh", "context")}\n${theme.fg("muted", firstLine)}`, 0, 0);
   });
 
   return (stats: MaskStats) => {
