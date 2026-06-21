@@ -80,7 +80,7 @@ Rectangle {
         Rectangle {
           width: 2.5
           height: (batteryShell.height - (batteryShell.border.width / 2)) / 2
-          color: Config.colors.surface2
+          color: fillLevel < 1 ? Config.colors.surface2 : root.fillColor
           topRightRadius: Config.radius.small
           bottomRightRadius: Config.radius.small
           anchors.verticalCenter: parent.verticalCenter

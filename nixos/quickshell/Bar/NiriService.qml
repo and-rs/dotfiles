@@ -21,6 +21,18 @@ Singleton {
         function onFocusedWindowChanged() {
             if (instance.focusedWindow)
                 root._stableWorkspaceId = instance.focusedWindow.workspaceId;
+  Process {
+    id: initialFetch
+    command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, app_id, title, is_floating}'"]
+    running: true
+    stdout: StdioCollector {
+      onStreamFinished: {
+        let lines = this.text.split('\n').filter(l => l.trim());
+        let data = [];
+        for (let line of lines) {
+          try {
+            data.push(JSON.parse(line));
+          } catch (e) {}
         }
     }
 
@@ -41,6 +53,57 @@ Singleton {
                 }
                 root.windowLayoutData = data;
             }
+      let current = root.windowLayoutData.slice();
+      let changed = false;
+
+      if (event.WindowsChanged) {
+        current = event.WindowsChanged.windows.map(w => ({
+              id: w.id,
+              workspace_id: w.workspace_id,
+              pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+              app_id: w.app_id,
+              title: w.title,
+              is_floating: w.is_floating
+            }));
+        changed = true;
+      }
+
+      if (event.WindowOpenedOrChanged) {
+        let w = event.WindowOpenedOrChanged.window;
+        current = current.filter(x => x.id !== w.id);
+        current.push({
+          id: w.id,
+          workspace_id: w.workspace_id,
+          pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+          app_id: w.app_id,
+          title: w.title,
+          is_floating: w.is_floating
+        });
+        changed = true;
+      }
+
+      if (event.WindowClosed) {
+        let before = current.length;
+        current = current.filter(x => x.id !== event.WindowClosed.id);
+        if (current.length !== before)
+          changed = true;
+      }
+
+      if (event.WindowLayoutsChanged) {
+        for (let item of event.WindowLayoutsChanged.changes) {
+          let idx = current.findIndex(x => x.id === item[0]);
+          if (idx !== -1) {
+            let w = current[idx];
+            current[idx] = {
+              id: w.id,
+              workspace_id: w.workspace_id,
+              app_id: w.app_id,
+              title: w.title,
+              is_floating: w.is_floating,
+              pos: item[1].pos_in_scrolling_layout
+            };
+            changed = true;
+          }
         }
     }
 
