@@ -65,6 +65,8 @@ Update this skill when Pi architecture changes.
 
 - `src/app/features.ts` assembles feature registration.
 - If feature is removed, remove its app registration and dead files together.
+- Visual file inspection lives in `src/features/read-image/` and is registered through `src/app/features.ts` like other feature-owned tools.
+- `read-image` sends actual image bytes to image-capable models; do not add OCR or shell/base64 workaround flows unless tool path truly fails.
 
 ## hashline-edit Staged Edit Flow
 

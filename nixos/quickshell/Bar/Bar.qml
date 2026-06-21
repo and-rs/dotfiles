@@ -44,7 +44,6 @@ Scope {
                 spacing: Config.spacing.normal
                 padding: Config.padding.micro
                 Workspaces {}
-                WindowIndicator {}
                 WindowTitle {}
             }
 

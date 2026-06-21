@@ -2,11 +2,12 @@ import Quickshell
 import QtQuick
 
 Row {
-    spacing: Config.spacing.extraSmall - 2
+    spacing: Config.spacing.extraSmall - 3
     anchors.verticalCenter: parent.verticalCenter
 
     // Incremented on windows model changes to trigger binding re-evaluation
     property int windowsRevision: 0
+    readonly property int revealDuration: Math.max(90, Math.floor(Config.durations.normal * 0.55))
 
     Connections {
         target: NiriService.instance.windows
@@ -41,47 +42,81 @@ Row {
         delegate: Rectangle {
             id: rect
 
-            // Reference windowsRevision to re-evaluate when windows change
             readonly property bool empty: {
                 windowsRevision;
                 return isWorkspaceEmpty(model.id);
             }
+            readonly property bool focused: model.isFocused
+            readonly property real collapsedWidth: Config.sizes.extraLarge
+            readonly property real expandedWidth: Math.max(46, miniMap.implicitWidth + Config.padding.extraSmall * 2)
+            readonly property real miniMapRevealProgress: {
+                if (!focused || empty)
+                    return 0;
 
-            gradient: model.isFocused && !empty ? grad : null
-            color: model.isFocused && !empty ? "transparent" : empty ? Config.colors.surface1 : Config.colors.surface2
-            border.color: model.isFocused ? Config.colors.primary : empty ? Config.colors.surface1 : Config.colors.surface2
-            border.width: 2
+                let span = expandedWidth - collapsedWidth;
+                if (span <= 0)
+                    return 1;
+
+                return Math.max(0, Math.min(1, (width - collapsedWidth) / span));
+            }
+            readonly property bool showMiniMap: focused && !empty && miniMapRevealProgress > 0.35
+
+            color: focused
+                ? Qt.alpha(Config.colors.primary, Config.darkMode ? 0.16 : 0.12)
+                : empty ? Config.colors.surface1 : Config.colors.surface2
+            border.color: focused
+                ? Qt.alpha(Config.colors.primary, Config.darkMode ? 0.7 : 0.55)
+                : empty ? Config.colors.surface1 : Config.colors.surface2
+            border.width: focused ? 2 : 1
             height: Config.sizes.extraLarge
             radius: Config.radius.small
-            width: model.isFocused ? 52 : Config.sizes.extraLarge
-
-            Gradient {
-                id: grad
-                orientation: Gradient.Vertical
-                GradientStop {
-                    position: 0
-                    color: Config.colors.base
-                }
-                GradientStop {
-                    position: 4
-                    color: Config.colors.primary
-                }
-            }
+            width: focused && !empty ? expandedWidth : collapsedWidth
 
             Behavior on width {
                 NumberAnimation {
-                    duration: Config.durations.normal
+                    duration: revealDuration
                     easing.type: Config.curves.standard
+                }
+            }
+
+            WindowMiniMap {
+                id: miniMap
+                anchors.centerIn: parent
+                visible: rect.focused && !rect.empty
+                opacity: rect.miniMapRevealProgress
+                scale: 0.92 + rect.miniMapRevealProgress * 0.08
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: revealDuration
+                        easing.type: Config.curves.standard
+                    }
+                }
+
+                Behavior on scale {
+                    NumberAnimation {
+                        duration: revealDuration
+                        easing.type: Config.curves.standard
+                    }
                 }
             }
 
             Text {
                 id: textItem
-                color: rect.empty ? Config.colors.surface4 : Config.colors.fg
+                color: rect.focused ? Config.colors.primary : rect.empty ? Config.colors.surface4 : Config.colors.fg
                 anchors.centerIn: parent
+                visible: !rect.focused || rect.empty || rect.miniMapRevealProgress < 1
+                opacity: rect.focused && !rect.empty ? 1 - rect.miniMapRevealProgress : 1
                 text: model.index
-                font.weight: model.isFocused ? 700 : 500
+                font.weight: rect.focused ? 650 : 500
                 font.pointSize: 10
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: revealDuration
+                        easing.type: Config.curves.standard
+                    }
+                }
             }
 
             MouseArea {

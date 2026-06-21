@@ -28,7 +28,7 @@ Singleton {
 
     Process {
         id: initialFetch
-        command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, app_id, title, is_floating}'"]
+        command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, tile_size: .layout.tile_size, app_id, title, is_floating}'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -58,6 +58,7 @@ Singleton {
                             id: w.id,
                             workspace_id: w.workspace_id,
                             pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+                            tile_size: w.layout ? w.layout.tile_size : null,
                             app_id: w.app_id,
                             title: w.title,
                             is_floating: w.is_floating
@@ -72,6 +73,7 @@ Singleton {
                     id: w.id,
                     workspace_id: w.workspace_id,
                     pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
+                    tile_size: w.layout ? w.layout.tile_size : null,
                     app_id: w.app_id,
                     title: w.title,
                     is_floating: w.is_floating
@@ -97,7 +99,8 @@ Singleton {
                             app_id: w.app_id,
                             title: w.title,
                             is_floating: w.is_floating,
-                            pos: item[1].pos_in_scrolling_layout
+                            pos: item[1].pos_in_scrolling_layout,
+                            tile_size: item[1].tile_size ? item[1].tile_size : w.tile_size
                         };
                         changed = true;
                     }
@@ -116,6 +119,31 @@ Singleton {
         let wins = windowLayoutData.filter(w => w.workspace_id === wsId);
         wins.sort((a, b) => (a.pos ? a.pos[0] : 0) - (b.pos ? b.pos[0] : 0));
         return wins;
+    }
+
+    property var currentWorkspaceColumns: {
+        let columns = {};
+        let ordered = [];
+
+        for (let win of currentWorkspaceWindows) {
+            if (win.is_floating || !win.pos || win.pos.length < 2)
+                continue;
+
+            let columnIndex = win.pos[0];
+            if (!columns[columnIndex])
+                columns[columnIndex] = [];
+
+            columns[columnIndex].push(win);
+        }
+
+        let keys = Object.keys(columns).map(Number).sort((a, b) => a - b);
+        for (let key of keys) {
+            let wins = columns[key].slice();
+            wins.sort((a, b) => a.pos[1] - b.pos[1]);
+            ordered.push(wins);
+        }
+
+        return ordered;
     }
 
     property int focusedWindowIndex: {
