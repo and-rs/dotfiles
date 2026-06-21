@@ -24,15 +24,12 @@
 
 [credential "https://github.com"]
 	useHttpPath = true
-	helper = 
 	helper = !/usr/bin/env gh auth git-credential
 
 [credential "https://gist.github.com"]
-	helper = 
 	helper = !/usr/bin/env gh auth git-credential
 
 [credential "https://gitlab.com"]
-	helper =
 	helper = !/usr/bin/env glab auth git-credential
 
 [includeIf "gitdir:~/Work/"]

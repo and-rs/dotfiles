@@ -6,18 +6,16 @@ import Quickshell.Services.UPower
 import qs.Bar
 
 Rectangle {
-    id: root
-    required property Item controller
+  id: root
+  required property Item controller
 
-    readonly property real horizontalPadding: controller.buttonHorizontalPadding
-    readonly property var device: UPower.displayDevice
-    readonly property bool hasBattery: {
-        const devices = UPower.devices.values ?? [];
-        for (let i = 0; i < devices.length; i++) {
-            if (devices[i] && devices[i].isLaptopBattery)
-                return true;
-        }
-        return false;
+  readonly property real horizontalPadding: controller.buttonHorizontalPadding
+  readonly property var device: UPower.displayDevice
+  readonly property bool hasBattery: {
+    const devices = UPower.devices.values ?? [];
+    for (let i = 0; i < devices.length; i++) {
+      if (devices[i] && devices[i].isLaptopBattery)
+        return true;
     }
     return false;
   }
@@ -25,7 +23,7 @@ Rectangle {
   readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
   readonly property string label: Math.round(fillLevel * 100)
   readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
-  readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.success : Config.colors.base
+  readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.success : Config.colors.fg
 
   visible: hasBattery
   width: contentRow.implicitWidth + horizontalPadding * 2
@@ -102,10 +100,11 @@ Rectangle {
         }
       }
     }
+  }
 
-    MouseArea {
-        anchors.fill: parent
-        enabled: root.hasBattery
-        onClicked: controller.switchMenu("battery")
-    }
+  MouseArea {
+    anchors.fill: parent
+    enabled: root.hasBattery
+    onClicked: controller.switchMenu("battery")
+  }
 }

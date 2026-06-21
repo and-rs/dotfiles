@@ -8,42 +8,74 @@ import qs.Bar.Status.Network as NetworkStatus
 import qs.Bar.Status.Tray as TrayStatus
 
 Item {
-    id: root
-    required property PanelWindow window
+  id: root
+  required property PanelWindow window
 
-    readonly property bool menusBlocked: LockService.locked
-    readonly property real buttonHorizontalPadding: Config.spacing.small / 3
-    property string activeMenu: ""
+  readonly property bool menusBlocked: LockService.locked
+  readonly property real buttonHorizontalPadding: Config.spacing.small / 3
+  property string activeMenu: ""
 
-    readonly property Item activeButton: {
-        if (activeMenu === "battery")
-            return batteryButton;
-        if (activeMenu === "bluetooth")
-            return bluetoothButton;
-        if (activeMenu === "network")
-            return networkButton;
-        if (activeMenu === "tray")
-            return trayButton;
-        return batteryButton;
+  readonly property Item activeButton: {
+    if (activeMenu === "battery")
+      return batteryButton;
+    if (activeMenu === "bluetooth")
+      return bluetoothButton;
+    if (activeMenu === "network")
+      return networkButton;
+    if (activeMenu === "tray")
+      return trayButton;
+    return batteryButton;
+  }
+
+  implicitWidth: buttons.implicitWidth
+  implicitHeight: buttons.implicitHeight
+
+  function closeMenus() {
+    activeMenu = "";
+  }
+
+  function switchMenu(id) {
+    if (menusBlocked) {
+      closeMenus();
+      return;
+    }
+    activeMenu = activeMenu === id ? "" : id;
+  }
+
+  Connections {
+    target: LockService
+
+    function onLockedChanged() {
+      if (LockService.locked)
+        root.closeMenus();
+    }
+  }
+
+  Row {
+    id: buttons
+    spacing: 0
+    anchors.verticalCenter: parent.verticalCenter
+
+    TrayStatus.Button {
+      id: trayButton
+      controller: root
     }
 
-    implicitWidth: buttons.implicitWidth
-    implicitHeight: buttons.implicitHeight
-
-    function closeMenus() {
-        activeMenu = "";
+    BluetoothStatus.Button {
+      id: bluetoothButton
+      controller: root
     }
 
-    function switchMenu(id) {
-        if (menusBlocked) {
-            closeMenus();
-            return;
-        }
-        activeMenu = activeMenu === id ? "" : id;
+    NetworkStatus.Button {
+      id: networkButton
+      controller: root
     }
 
-    Connections {
-        target: LockService
+    BatteryStatus.Button {
+      id: batteryButton
+      controller: root
+    }
+  }
 
   PopupHost {
     id: popupHost
@@ -64,6 +96,7 @@ Item {
 
     TrayStatus.Menu {
       width: parent.width
+      controller: root
       visible: root.activeMenu === "tray" || (popupHost.keepAlive && popupHost.lastActive === "tray")
     }
 
@@ -76,4 +109,5 @@ Item {
       width: parent.width
       visible: root.activeMenu === "network" || (popupHost.keepAlive && popupHost.lastActive === "network")
     }
+  }
 }

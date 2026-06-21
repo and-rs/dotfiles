@@ -15,6 +15,7 @@ Update this skill when Pi architecture changes.
 - `package.json` should load only that entrypoint
 
 - `common/pi/agent/skills/user-story-factory` — standardized user-story template and authoring rules (SKILL.md only, no executable).
+
 ## Layout
 
 - `src/app/` — assembly and event wiring
@@ -51,9 +52,8 @@ Update this skill when Pi architecture changes.
 
 ## Current Chrome Shape
 
-- `src/ui/chrome.ts` owns footer renderer, footer statuses, and forge widget/status chrome
+- `src/ui/chrome.ts` owns footer renderer and footer statuses
 - `src/app/ui.ts` wires session/model/thinking events into `src/ui/chrome.ts`
-- `src/features/forge/ui.ts` computes forge state, then delegates rendering to `src/ui/chrome.ts`
 
 ## When Cleaning Up
 
@@ -61,10 +61,32 @@ Update this skill when Pi architecture changes.
 - Remove inert compatibility shims when safe
 - Keep ownership obvious from import graph
 
-
 ## Tool Registration Gotcha
 
-- `forge/events.ts` defines `FULL_TOOLS` and `READ_ONLY_TOOLS` as explicit allowlists.
-- These are passed to `pi.setActiveTools()` on `session_start`, overwriting the active set.
-- Any new tool added to the extension MUST also be added to both lists or it will not appear in the LLM's available tools.
-- File: `src/features/forge/events.ts`
+- `src/app/features.ts` assembles feature registration.
+- If feature is removed, remove its app registration and dead files together.
+
+## hashline-edit Staged Edit Flow
+
+`src/features/hashline-edit/` owns all staged-edit logic. Public tool is `hashline-edit` only.
+
+Flow:
+1. First call: `{"path":"...","goal":"..."}` — reads file, stages fresh context, queues `steer` message with `deliverAs: "steer"` so model applies in the same agentic run.
+2. Large file: steer prompts `{"path":"...","segment":"LABEL"}` — narrows to a smaller range, queues another steer.
+3. Apply: `{"path":"...","edits":[...]}` — writes file, clears pending state explicitly.
+
+Key implementation facts:
+- `steer` fires before the LLM's next decision within the same agentic run. Stage and apply happen in one turn. No cross-turn state dependency.
+- `agent_end` does NOT clear pending. Pending is cleared only on: explicit apply success, non-recoverable apply failure, `session_start`, `session_shutdown`.
+- `tool_call` guard blocks wrong call shapes while pending (wrong path, wrong mode).
+- Steer messages use `customType: "hashline-edit-steer"` with `display: false`.
+- `context-mask` filters ALL `display: false` custom messages from LLM context so steer payloads do not accumulate.
+- `MAX_STEER_COUNT = 8` prevents infinite segment-bisection loops.
+- `MAX_APPLY_FAILURES = 1` allows one recoverable retry (match_missing / match_ambiguous) before giving up.
+- `hashline-read` does NOT exist. `hashline-edit` is the only existing-file entrypoint.
+
+Dead code removed:
+- `hashline/constants.ts` deleted (only had unused `MISMATCH_CONTEXT`).
+- `paths.ts` no longer exports `ensureReadablePath` (was only used by deleted hashline-read).
+- `types.ts` no longer exports `HOME_DIR` (was only used by ensureReadablePath).
+- `index.ts` no longer has a `session_start` active-tool manipulation block (redundant with tool-policy).

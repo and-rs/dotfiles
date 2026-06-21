@@ -5,6 +5,7 @@ import qs.Bar
 Column {
     id: root
     width: parent ? parent.width : Config.popup.width
+    required property Item controller
     spacing: Config.spacing.small
 
     onVisibleChanged: {
@@ -28,5 +29,6 @@ Column {
     ItemList {
         id: itemList
         width: parent.width
+        controller: root.controller
     }
 }

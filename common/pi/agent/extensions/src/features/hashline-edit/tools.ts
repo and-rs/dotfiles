@@ -4,118 +4,150 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
-import {
-  HashlineMismatchError,
-  applyHashlineJsonEdits,
-  computeHashlineSnapshotId,
-  formatHashLines,
-  formatSnapshotStaleError,
-  parseHashlineJsonEditParams,
-} from "./hashline/index";
+import { applyHashlineJsonEdits, parseHashlineToolParams, type HashlineApplyParams, type HashlineSegmentParams, type HashlineStageParams, type HashlineToolParams } from "./hashline/index.ts";
+import { buildHashlineContext, type HashlineContextMap, type HashlineContextRange } from "./context.ts";
 import { buildEditDiff, pathExists, renderDiffResult } from "./diff.ts";
-import { ensureCreatablePathInCwd, ensureExistingPathInCwd, ensureReadablePath, readTextFile } from "./paths.ts";
+import { ensureCreatablePathInCwd, ensureExistingPathInCwd, readTextFile } from "./paths.ts";
 import { registerBlockedFileTool } from "./renderers.ts";
 import { detectLineEnding, normalizeToLf, restoreLineEndings } from "./text.ts";
-import { AUTO_FULL_FILE_LINES, type CreateFileParams, type ReadParams } from "./types.ts";
+import { type CreateFileParams } from "./types.ts";
 
-type ReadRangeDetails = {
-  kind: "range";
+type HashlineToolResult = { details?: { diff?: string; kind?: string }; content: Array<{ type: string; text?: string }> };
+
+type PendingHashlineFlow = {
   path: string;
-  absolutePath: string;
-  snapshotId: string;
-  startLine: number;
-  endLine: number;
-  totalLines: number;
+  goal: string;
+  mode: "await-segment" | "await-apply";
   segment?: string;
+  segmentOptions?: string[];
+  steerCount: number;
+  applyFailures: number;
 };
 
-type SegmentOption = {
-  label: string;
-  startLine: number;
-  endLine: number;
-  lineCount: number;
-  preview: string;
-};
-
-type ReadMapDetails = {
-  kind: "map";
-  path: string;
-  snapshotId: string;
-  totalLines: number;
-  segment?: string;
-  options: SegmentOption[];
-};
-
-type HashlineToolResult = { details?: { diff?: string }; content: Array<{ type: string; text?: string }> };
+const MAX_STEER_COUNT = 8;
+const MAX_APPLY_FAILURES = 1;
+const STEER_CUSTOM_TYPE = "hashline-edit-steer";
 
 function renderToolDiffResult(result: unknown, theme: Parameters<typeof renderDiffResult>[1], fallback: string): Text {
   return renderDiffResult(result as HashlineToolResult, theme, fallback);
 }
 
-
-function previewSegmentLine(line: string): string {
-  const compact = line.trim().replace(/\s+/g, " ");
-  if (!compact) return "(blank)";
-  return compact.length <= 80 ? compact : `${compact.slice(0, 79)}…`;
+function renderContextRange(details: HashlineContextRange, theme: Parameters<typeof renderDiffResult>[1]): Text {
+  const range = `${details.startLine}-${details.endLine}`;
+  const segment = details.segment ? ` segment ${details.segment}` : "";
+  return new Text(theme.fg("dim", `${details.path}: staged edit context${segment} lines ${range}/${details.totalLines}`), 0, 0);
 }
 
-function midpoint(startLine: number, endLine: number): number {
-  return Math.floor((startLine + endLine) / 2);
+function renderContextMap(details: HashlineContextMap, theme: Parameters<typeof renderDiffResult>[1]): Text {
+  const segment = details.segment ? ` segment ${details.segment}` : "";
+  const labels = details.options.map((option) => option.label).join(", ");
+  return new Text(theme.fg("dim", `${details.path}:${segment} staged edit choose segment ${labels} (${details.totalLines} total lines)`), 0, 0);
 }
 
-function splitSegment(label: string, startLine: number, endLine: number): SegmentOption[] {
-  if (startLine >= endLine) return [{ label, startLine, endLine, lineCount: endLine - startLine + 1, preview: "single line" }];
-  const mid = midpoint(startLine, endLine);
-  return [
-    { label: `${label}A`, startLine, endLine: mid, lineCount: mid - startLine + 1, preview: "" },
-    { label: `${label}B`, startLine: mid + 1, endLine, lineCount: endLine - mid, preview: "" },
-  ];
+function isStageParams(args: HashlineToolParams): args is HashlineStageParams {
+  return "goal" in args;
 }
 
-function resolveSegment(totalLines: number, segment: string): { startLine: number; endLine: number } {
-  let startLine = 1;
-  let endLine = totalLines;
-  for (const step of segment) {
-    if (step !== "A" && step !== "B") throw new Error(`Invalid segment: ${segment}. Use labels like A, B, AA, or AB.`);
-    if (startLine >= endLine) break;
-    const mid = midpoint(startLine, endLine);
-    if (step === "A") endLine = mid;
-    else startLine = mid + 1;
+function isSegmentParams(args: HashlineToolParams): args is HashlineSegmentParams {
+  return "segment" in args && !("goal" in args) && !("edits" in args);
+}
+
+function isApplyParams(args: HashlineToolParams): args is HashlineApplyParams {
+  return "edits" in args;
+}
+
+function setPendingStatus(ui: { setStatus: (key: string, text: string | undefined) => void }, pending: PendingHashlineFlow | null): void {
+  if (!pending) {
+    ui.setStatus("hashline-edit-flow", undefined);
+    return;
   }
-  return { startLine, endLine };
+  const step = pending.mode === "await-segment" ? "awaiting segment choice" : "awaiting edits";
+  ui.setStatus("hashline-edit-flow", `hashline-edit staged ${pending.path} — ${step}`);
 }
 
-function buildSegmentOptions(lines: string[], startLine: number, endLine: number, baseLabel = ""): SegmentOption[] {
-  return splitSegment(baseLabel, startLine, endLine).map((option) => {
-    const first = previewSegmentLine(lines[option.startLine - 1] ?? "");
-    const last = previewSegmentLine(lines[option.endLine - 1] ?? "");
-    const preview = option.startLine === option.endLine ? first : `${first} … ${last}`;
-    return { ...option, preview };
-  });
+function clearPending(
+  state: { current: PendingHashlineFlow | null },
+  ui?: { setStatus: (key: string, text: string | undefined) => void },
+): void {
+  state.current = null;
+  if (ui) setPendingStatus(ui, null);
 }
 
-function formatSegmentMap(path: string, totalLines: number, options: SegmentOption[], segment?: string): string {
-  const title = segment ? `segment ${segment}` : "file";
+function queueSteerMessage(pi: ExtensionAPI, pending: PendingHashlineFlow): boolean {
+  pending.steerCount += 1;
+  if (pending.steerCount > MAX_STEER_COUNT) return false;
+  pi.sendMessage(
+    {
+      customType: STEER_CUSTOM_TYPE,
+      content: buildSteerPrompt(pending),
+      display: false,
+    },
+    { deliverAs: "steer" },
+  );
+  return true;
+}
+
+function isRecoverableApplyError(message: string): boolean {
+  return message.startsWith("hashline-edit rejected: match_missing") || message.startsWith("hashline-edit rejected: match_ambiguous");
+}
+
+function buildSteerPrompt(pending: PendingHashlineFlow): string {
+  if (pending.mode === "await-segment") {
+    const labels = pending.segmentOptions?.join(", ") ?? "(see previous tool result)";
+    return [
+      `hashline-edit staged for path ${pending.path}.`,
+      `Original goal: ${pending.goal}`,
+      "Previous hashline-edit result returned segment choices.",
+      `Call hashline-edit now with JSON: {"path":${JSON.stringify(pending.path)},"segment":"LABEL"}.`,
+      `Allowed segment labels: ${labels}.`,
+      "Use one label from immediately previous hashline-edit result.",
+      "Do not send goal. Do not send edits. Do not answer with prose.",
+    ].join("\n");
+  }
   return [
-    `${path}: ${totalLines} lines`,
-    `${title} too large for whole-file read`,
-    "choose segment:",
-    ...options.map((option) => `- ${option.label}: lines ${option.startLine}-${option.endLine} (${option.lineCount} lines) :: ${option.preview}`),
-    "call hashline-read again with same path and chosen segment label",
-    "re-read chosen segment before edit for fresh anchors",
+    `hashline-edit staged for path ${pending.path}.`,
+    `Original goal: ${pending.goal}`,
+    pending.applyFailures > 0
+      ? "Previous apply attempt failed. Use only fresh live context from immediately previous hashline-edit result."
+      : "Fresh live context came from immediately previous hashline-edit result.",
+    `Call hashline-edit now with JSON: {"path":${JSON.stringify(pending.path)},"edits":[...]}.`,
+    "Do not send goal. Do not send segment. Do not answer with prose.",
   ].join("\n");
 }
 
-function renderReadRange(details: ReadRangeDetails, theme: Parameters<typeof renderDiffResult>[1]): Text {
-  const range = `${details.startLine}-${details.endLine}`;
-  const segment = details.segment ? ` segment ${details.segment}` : "";
-  return new Text(theme.fg("dim", `${details.path}: read${segment} lines ${range}/${details.totalLines}`), 0, 0);
+function buildPendingReason(pending: PendingHashlineFlow): string {
+  if (pending.mode === "await-segment") {
+    const labels = pending.segmentOptions?.join(", ") ?? "one returned label";
+    return `hashline-edit is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"segment":"LABEL"} using ${labels}.`;
+  }
+  return `hashline-edit is staged for ${pending.path}. Next call must be {"path":${JSON.stringify(pending.path)},"edits":[...]}.`;
 }
 
-function renderReadMap(details: ReadMapDetails, theme: Parameters<typeof renderDiffResult>[1]): Text {
-  const segment = details.segment ? ` segment ${details.segment}` : "";
-  const labels = details.options.map((option) => option.label).join(", ");
-  return new Text(theme.fg("dim", `${details.path}:${segment} choose segment ${labels} (${details.totalLines} total lines)`), 0, 0);
+function stageFromDetails(
+  path: string,
+  goal: string,
+  details: HashlineContextRange | HashlineContextMap,
+  carry?: Pick<PendingHashlineFlow, "steerCount" | "applyFailures">,
+): PendingHashlineFlow {
+  if (details.kind === "map") {
+    return {
+      path,
+      goal,
+      mode: "await-segment",
+      segment: details.segment,
+      segmentOptions: details.options.map((option) => option.label),
+      steerCount: carry?.steerCount ?? 0,
+      applyFailures: carry?.applyFailures ?? 0,
+    };
+  }
+  return {
+    path,
+    goal,
+    mode: "await-apply",
+    segment: details.segment,
+    steerCount: carry?.steerCount ?? 0,
+    applyFailures: carry?.applyFailures ?? 0,
+  };
 }
 
 export function registerHashlineEditTools(pi: ExtensionAPI): void {
@@ -123,60 +155,51 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
   registerBlockedFileTool(pi, "edit");
   registerBlockedFileTool(pi, "write");
 
-  pi.registerTool({
-    name: "hashline-read",
-    label: "Hashline Read",
-    description: "Read a text file with hashline anchors in each line. Small files return whole body; huge files return simple binary segment choices.",
-    promptSnippet: "Read file content with line+hash anchors before hashline edits.",
-    promptGuidelines: [
-      "Use hashline-read before hashline-edit.",
-      "Small files return whole body. Huge files return segment labels like A or B so you avoid line math.",
-      "Re-read chosen file or chosen segment right before edit for fresh anchors.",
-      "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
-      "hashline-read may inspect text files under cwd or $HOME; hashline-edit and file-create stay cwd-bound.",
-    ],
-    parameters: Type.Object({
-      path: Type.String({ description: "Path to the file to read" }),
-      segment: Type.Optional(Type.String({ description: "Binary segment label like A, B, AA, or AB for huge files" })),
-    }),
-    execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
-      const args = params as ReadParams;
-      const absolutePath = await ensureReadablePath(ctx.cwd, args.path);
-      const source = await readTextFile(absolutePath);
-      if (!source.exists) throw new Error(`File not found: ${args.path}`);
-      const normalized = normalizeToLf(source.text);
-      const snapshotId = computeHashlineSnapshotId(normalized);
-      const allLines = normalized.split("\n");
-      const totalLines = allLines.length;
-      const segment = typeof args.segment === "string" && args.segment.trim() ? args.segment.trim().toUpperCase() : undefined;
-      const target = segment ? resolveSegment(totalLines, segment) : { startLine: 1, endLine: totalLines };
-      const targetLineCount = target.endLine - target.startLine + 1;
-      if (targetLineCount <= AUTO_FULL_FILE_LINES) {
-        const slice = allLines.slice(target.startLine - 1, target.endLine);
-        const body = [`snapshotId: ${snapshotId}`, formatHashLines(slice.join("\n"), target.startLine)].join("\n");
+  const pending = { current: null as PendingHashlineFlow | null };
+
+  pi.on("session_start", (_event, ctx) => {
+    clearPending(pending, ctx.ui);
+  });
+
+  pi.on("session_shutdown", (_event, ctx) => {
+    clearPending(pending, ctx.ui);
+  });
+
+  pi.on("tool_call", (event) => {
+    if (event.toolName !== "hashline-edit") return;
+    let args: HashlineToolParams;
+    try {
+      args = parseHashlineToolParams(event.input);
+    } catch {
+      return;
+    }
+    if (!pending.current) {
+      if (!isStageParams(args)) {
         return {
-          content: [{ type: "text", text: body }],
-          details: { kind: "range", path: args.path, absolutePath, snapshotId, startLine: target.startLine, endLine: target.endLine, totalLines, segment } satisfies ReadRangeDetails,
+          block: true,
+          reason: 'hashline-edit always starts with fresh live context. First call must be {"path":"...","goal":"..."}.',
         };
       }
-      const options = buildSegmentOptions(allLines, target.startLine, target.endLine, segment ?? "");
+      return;
+    }
+    if (args.path !== pending.current.path) {
       return {
-        content: [{ type: "text", text: [`snapshotId: ${snapshotId}`, formatSegmentMap(args.path, totalLines, options, segment)].join("\n") }],
-        details: { kind: "map", path: args.path, snapshotId, totalLines, segment, options } satisfies ReadMapDetails,
+        block: true,
+        reason: `hashline-edit is staged for ${pending.current.path}. Finish or abandon that edit before starting another file.`,
       };
-    },
-    renderResult(result, _options, theme) {
-      const details = result.details as ReadRangeDetails | ReadMapDetails | undefined;
-      if (!details) return new Text(theme.fg("dim", "hashline-read"), 0, 0);
-      return details.kind === "range" ? renderReadRange(details, theme) : renderReadMap(details, theme);
-    },
+    }
+    if (pending.current.mode === "await-segment") {
+      if (!isSegmentParams(args)) return { block: true, reason: buildPendingReason(pending.current) };
+      return;
+    }
+    if (!isApplyParams(args)) return { block: true, reason: buildPendingReason(pending.current) };
   });
 
   pi.registerTool({
     name: "file-create",
     label: "File Create",
     description: "Create a new text file. Refuses to overwrite existing files. Returns only a diff.",
-    promptSnippet: "Create new files with file-create. Use hashline-edit only for existing-file edits.",
+    promptSnippet: "Create new files with file-create. Use hashline-edit for existing files.",
     parameters: Type.Object({
       path: Type.String({ description: "Path to new file. Must be inside cwd." }),
       content: Type.String({ description: "Complete UTF-8 file content." }),
@@ -185,7 +208,7 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
       const args = params as CreateFileParams;
       const absolutePath = await ensureCreatablePathInCwd(ctx.cwd, args.path);
       return withFileMutationQueue(absolutePath, async () => {
-        if (await pathExists(absolutePath)) throw new Error(`File already exists: ${args.path}. Use hashline-read then hashline-edit.`);
+        if (await pathExists(absolutePath)) throw new Error(`File already exists: ${args.path}. Use hashline-edit for existing files.`);
         await mkdir(dirname(absolutePath), { recursive: true });
         await writeFile(absolutePath, args.content, "utf8");
         const diff = await buildEditDiff(ctx.cwd, [{ path: absolutePath, before: "", after: args.content, changed: true }]);
@@ -197,70 +220,135 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
     },
   });
 
+  const lineArray = Type.Array(Type.String({ description: "One output line per string; no embedded newlines." }), { minItems: 1 });
+  const matchArray = Type.Array(Type.String({ description: "Exact current file lines that identify target block." }), { minItems: 1 });
+
   pi.registerTool({
     name: "hashline-edit",
     label: "Hashline Edit",
-    description: "Apply strict JSON hashline edits to one existing file with snapshot and anchor validation.",
-    promptSnippet: "Apply line-anchored hashline edits using strict JSON ops.",
+    description: "Stage fresh live file context, then apply strict JSON edits to one existing file using same staged flow.",
+    promptSnippet: "Start every edit with hashline-edit {path, goal}. Tool stages fresh live context, then follow staged instructions with same tool.",
     promptGuidelines: [
-      "Use hashline-read first and copy the latest snapshotId.",
-      "hashline-edit takes JSON fields: path, snapshotId, edits.",
-      "One file per call. Do not edit multiple files in one hashline-edit call.",
-      "Use anchor tokens only, e.g. 1gs, not full read lines like 1gs|text.",
-      "Supported ops: replace, delete, insert_before, insert_after.",
-      "replace/delete use start and end anchors. insert_before/insert_after use anchor.",
-      "Replacement or inserted content goes in lines: string[]. Each array item is one output line; no embedded newlines.",
-      "All edits validate before write and apply bottom-up. Overlapping ranges fail with no partial write.",
-      "On snapshot_stale or anchor mismatch, retry with fresh anchors from the error or run hashline-read again.",
-      "hashline-edit stays cwd-bound; start pi in target repo before editing another repo.",
+      'Every edit starts with {"path":"...","goal":"..."}. Do not send edits on first call.',
+      'hashline-edit always fetches fresh live context before edit planning.',
+      'If hashline-edit returns segment choices, next call uses {"path":"...","segment":"A"}.',
+      'After hashline-edit returns anchored context, next call uses {"path":"...","edits":[...]}.',
+      'One file per call. Do not edit multiple files in one hashline-edit call.',
+      'replace/delete use match: string[] with exact current file lines from fresh staged context.',
+      'insert_before/insert_after use match: string[] to locate anchor block. insert_before inserts before first matched line. insert_after inserts after last matched line.',
+      'Replacement or inserted content goes in lines: string[]. Each array item is one output line; no embedded newlines.',
+      'All edits validate before write and apply bottom-up. Overlapping ranges fail with no partial write.',
+      'Never rely on old non-hashline reads for edit targeting. Fresh staged hashline context wins.',
+      'hashline-edit stays cwd-bound; start pi in target repo before editing another repo.',
     ],
-    parameters: Type.Object({
-      path: Type.String({ description: "Existing file path. Must be inside cwd." }),
-      snapshotId: Type.String({ description: "snapshotId from the latest hashline-read for this file." }),
-      edits: Type.Array(
-        Type.Object({
-          op: Type.Union([
-            Type.Literal("replace"),
-            Type.Literal("delete"),
-            Type.Literal("insert_before"),
-            Type.Literal("insert_after"),
+    parameters: Type.Union([
+      Type.Object({
+        path: Type.String({ description: "Existing file path. Must be inside cwd." }),
+        goal: Type.String({ description: "What change you want in this file. First hashline-edit call always uses goal." }),
+      }),
+      Type.Object({
+        path: Type.String({ description: "Existing file path. Must be inside cwd." }),
+        segment: Type.String({ description: "Segment label previously returned by hashline-edit, like A, B, AA, or AB." }),
+      }),
+      Type.Object({
+        path: Type.String({ description: "Existing file path. Must be inside cwd." }),
+        edits: Type.Array(
+          Type.Union([
+            Type.Object({ op: Type.Literal("replace"), match: matchArray, lines: lineArray }),
+            Type.Object({ op: Type.Literal("delete"), match: matchArray }),
+            Type.Object({ op: Type.Literal("insert_before"), match: matchArray, lines: lineArray }),
+            Type.Object({ op: Type.Literal("insert_after"), match: matchArray, lines: lineArray }),
           ]),
-          start: Type.Optional(Type.String({ description: "Start anchor for replace/delete." })),
-          end: Type.Optional(Type.String({ description: "End anchor for replace/delete." })),
-          anchor: Type.Optional(Type.String({ description: "Target anchor for insert_before/insert_after." })),
-          lines: Type.Optional(Type.Array(Type.String({ description: "One output line per string; no embedded newlines." }))),
-        }),
-        { description: "Strict JSON edit operations for one file." },
-      ),
-    }),
+          { description: "Strict JSON edit operations for one file after staged fresh context." },
+        ),
+      }),
+    ]),
     execute: async (_toolCallId, params, _signal, _onUpdate, ctx) => {
-      const args = parseHashlineJsonEditParams(params);
+      const args = parseHashlineToolParams(params);
       const absolutePath = await ensureExistingPathInCwd(ctx.cwd, args.path);
-      const result = await withFileMutationQueue(absolutePath, async () => {
+
+      if (isStageParams(args)) {
         const source = await readTextFile(absolutePath);
         if (!source.exists) throw new Error(`File not found: ${args.path}. Use file-create for new files.`);
-        const ending = detectLineEnding(source.text);
         const normalized = normalizeToLf(source.text);
-        const currentSnapshotId = computeHashlineSnapshotId(normalized);
-        const currentLines = normalized.split("\n");
-        if (args.snapshotId !== currentSnapshotId) {
-          throw new Error(formatSnapshotStaleError(args.path, args.snapshotId, currentSnapshotId, currentLines, args.edits));
+        const details = buildHashlineContext(args.path, normalized);
+        pending.current = stageFromDetails(args.path, args.goal, details);
+        setPendingStatus(ctx.ui, pending.current);
+        ctx.ui.notify(`hashline-edit staged ${args.path}.`, "info");
+        if (!queueSteerMessage(pi, pending.current)) {
+          clearPending(pending, ctx.ui);
+          throw new Error(`hashline-edit steer limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
         }
-        let applied;
-        try {
-          applied = applyHashlineJsonEdits(normalized, args.edits);
-        } catch (error) {
-          if (error instanceof HashlineMismatchError) throw new Error(error.displayMessage);
-          throw error;
+        return { content: [{ type: "text", text: details.body }], details };
+      }
+
+      if (isSegmentParams(args)) {
+        if (!pending.current || pending.current.path !== args.path) {
+          throw new Error('hashline-edit is not staged for this file. Start with {"path":"...","goal":"..."}.');
         }
-        const after = restoreLineEndings(applied.lines, ending);
-        if (applied.changed) await writeFile(absolutePath, after, "utf8");
-        return { editedFile: { path: absolutePath, before: source.text, after, changed: applied.changed }, detail: { path: args.path, changed: applied.changed } };
-      });
-      const diff = await buildEditDiff(ctx.cwd, [result.editedFile]);
-      return { content: [{ type: "text", text: diff }], details: { files: [result.detail], diff } };
+        if (pending.current.mode !== "await-segment") {
+          throw new Error(buildPendingReason(pending.current));
+        }
+        const source = await readTextFile(absolutePath);
+        if (!source.exists) throw new Error(`File not found: ${args.path}. Use file-create for new files.`);
+        const normalized = normalizeToLf(source.text);
+        const details = buildHashlineContext(args.path, normalized, args.segment);
+        pending.current = stageFromDetails(args.path, pending.current.goal, details, {
+          steerCount: pending.current.steerCount,
+          applyFailures: pending.current.applyFailures,
+        });
+        setPendingStatus(ctx.ui, pending.current);
+        ctx.ui.notify(`hashline-edit staged ${args.path}.`, "info");
+        if (!queueSteerMessage(pi, pending.current)) {
+          clearPending(pending, ctx.ui);
+          throw new Error(`hashline-edit steer limit reached for ${args.path}. Start a new staged edit with a tighter goal.`);
+        }
+        return { content: [{ type: "text", text: details.body }], details };
+      }
+
+      if (!pending.current || pending.current.path !== args.path) {
+        throw new Error('hashline-edit is not staged for this file. Start with {"path":"...","goal":"..."}.');
+      }
+      if (pending.current.mode !== "await-apply") {
+        throw new Error(buildPendingReason(pending.current));
+      }
+
+      try {
+        const result = await withFileMutationQueue(absolutePath, async () => {
+          const source = await readTextFile(absolutePath);
+          if (!source.exists) throw new Error(`File not found: ${args.path}. Use file-create for new files.`);
+          const ending = detectLineEnding(source.text);
+          const normalized = normalizeToLf(source.text);
+          const applied = applyHashlineJsonEdits(args.path, normalized, args.edits);
+          const after = restoreLineEndings(applied.lines, ending);
+          if (applied.changed) await writeFile(absolutePath, after, "utf8");
+          return { editedFile: { path: absolutePath, before: source.text, after, changed: applied.changed }, detail: { path: args.path, changed: applied.changed } };
+        });
+        clearPending(pending, ctx.ui);
+        const diff = await buildEditDiff(ctx.cwd, [result.editedFile]);
+        return { content: [{ type: "text", text: diff }], details: { files: [result.detail], diff } };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (pending.current && isRecoverableApplyError(message) && pending.current.applyFailures < MAX_APPLY_FAILURES) {
+          pending.current = {
+            ...pending.current,
+            applyFailures: pending.current.applyFailures + 1,
+          };
+          setPendingStatus(ctx.ui, pending.current);
+          ctx.ui.notify(`hashline-edit apply failed for ${args.path}; revision steer queued.`, "warning");
+          if (!queueSteerMessage(pi, pending.current)) {
+            clearPending(pending, ctx.ui);
+          }
+        } else {
+          clearPending(pending, ctx.ui);
+        }
+        throw error;
+      }
     },
     renderResult(result, _options, theme) {
+      const details = result.details as HashlineContextRange | HashlineContextMap | undefined;
+      if (details?.kind === "range") return renderContextRange(details, theme);
+      if (details?.kind === "map") return renderContextMap(details, theme);
       return renderToolDiffResult(result, theme, "No changes.");
     },
   });

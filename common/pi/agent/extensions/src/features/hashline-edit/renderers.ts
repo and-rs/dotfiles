@@ -3,7 +3,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 
 export function blockedToolMessage(toolName: string): string {
-  return `Tool "${toolName}" is disabled. Use hashline-read for file reads, hashline-edit for file edits, and file-create for new files.`;
+  return `Tool "${toolName}" is disabled. Use hashline-edit with {path, goal} for existing-file edits, and file-create for new files.`;
 }
 
 export function registerBlockedFileTool(pi: ExtensionAPI, name: "read" | "edit" | "write"): void {

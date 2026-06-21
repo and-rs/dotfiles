@@ -1,5 +1,5 @@
 # hide local git identity
-**/.gitconfig-work.local
+**/.gitconfig.local
 
 # hide nu history
 **/nushell/zoxide.nu

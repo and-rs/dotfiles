@@ -6,16 +6,37 @@ import qs.Bar
 Column {
     id: root
     width: parent ? parent.width : Config.popup.width
+    required property Item controller
     spacing: 2
 
     readonly property int itemCount: trayRepeater.count
     property int expandedIndex: -1
+    property var pendingAction: null
 
     function resolveIcon(icon) {
         if (!icon || !icon.includes("?path="))
             return icon ?? "";
         const [name, path] = icon.split("?path=");
         return Qt.resolvedUrl(`${path}/${name.slice(name.lastIndexOf("/") + 1)}`);
+    }
+
+    function triggerDeferredAction(action) {
+        root.controller.closeMenus();
+        root.pendingAction = action;
+        actionTimer.restart();
+    }
+
+    Timer {
+        id: actionTimer
+        interval: Config.durations.instant
+        repeat: false
+        onTriggered: {
+            if (!root.pendingAction)
+                return;
+            const action = root.pendingAction;
+            root.pendingAction = null;
+            action();
+        }
     }
 
     Repeater {
@@ -141,7 +162,7 @@ Column {
                         if (itemDelegate.hasMenuEntries) {
                             root.expandedIndex = itemDelegate.isExpanded ? -1 : itemDelegate.index;
                         } else {
-                            itemDelegate.modelData.activate();
+                            root.triggerDeferredAction(() => itemDelegate.modelData.activate());
                         }
                     }
                 }
@@ -251,7 +272,9 @@ Column {
                             anchors.fill: parent
                             cursorShape: modelData.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                             enabled: modelData.enabled
-                            onClicked: modelData.triggered()
+                            onClicked: {
+                                root.triggerDeferredAction(() => modelData.triggered());
+                            }
                         }
                     }
                 }
