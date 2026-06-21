@@ -8,23 +8,28 @@ Rectangle {
     required property Item controller
 
     readonly property real horizontalPadding: controller.buttonHorizontalPadding
-    readonly property var wifiDevice: {
-        let devs = Networking.devices.values ?? [];
-        for (let i = 0; i < devs.length; i++) {
-            if (devs[i] && devs[i].type === DeviceType.Wifi)
-                return devs[i];
+    readonly property var networkDevices: Networking.devices.values ?? []
+    readonly property var nmWifiDevice: {
+        for (let i = 0; i < networkDevices.length; i++) {
+            if (networkDevices[i] && networkDevices[i].type === DeviceType.Wifi)
+                return networkDevices[i];
         }
         return null;
     }
-    readonly property var wiredDevice: {
-        let devs = Networking.devices.values ?? [];
-        for (let i = 0; i < devs.length; i++) {
-            if (devs[i] && devs[i].type === DeviceType.Wired)
-                return devs[i];
+    readonly property var nmWiredDevice: {
+        for (let i = 0; i < networkDevices.length; i++) {
+            if (networkDevices[i] && networkDevices[i].type === DeviceType.Wired)
+                return networkDevices[i];
         }
         return null;
     }
+    readonly property bool useIwd: !nmWifiDevice && !nmWiredDevice && IwdService.available
+    readonly property bool wifiEnabled: useIwd ? IwdService.wifiEnabled : Networking.wifiEnabled
+    readonly property var wifiDevice: useIwd ? IwdService.wifiDevice : nmWifiDevice
+    readonly property var wiredDevice: useIwd ? null : nmWiredDevice
     readonly property var connectedNetwork: {
+        if (useIwd)
+            return IwdService.connectedNetwork;
         if (!wifiDevice)
             return null;
         let nets = wifiDevice.networks;
@@ -39,7 +44,7 @@ Rectangle {
     }
     readonly property var connectedWiredNetwork: wiredDevice && wiredDevice.hasLink ? wiredDevice.network : null
     readonly property real signalStrength: connectedNetwork ? connectedNetwork.signalStrength : 0
-    readonly property bool hasInternet: Networking.connectivity === NetworkConnectivity.Full
+    readonly property bool hasInternet: useIwd ? IwdService.connectivity === "Full" : Networking.connectivity === NetworkConnectivity.Full
     readonly property int iconCode: {
         if (connectedWiredNetwork)
             return hasInternet ? 0xEDDE : 0xEDDA;
@@ -58,7 +63,7 @@ Rectangle {
     readonly property color iconColor: {
         if (connectedWiredNetwork)
             return hasInternet ? Config.colors.fg : Config.colors.destructive;
-        if (!Networking.wifiEnabled || !connectedNetwork)
+        if (!wifiEnabled || !connectedNetwork)
             return Config.colors.surface3;
         if (!hasInternet)
             return Config.colors.destructive;

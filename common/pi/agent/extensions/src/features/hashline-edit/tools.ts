@@ -151,7 +151,6 @@ function stageFromDetails(
 }
 
 export function registerHashlineEditTools(pi: ExtensionAPI): void {
-  registerBlockedFileTool(pi, "read");
   registerBlockedFileTool(pi, "edit");
   registerBlockedFileTool(pi, "write");
 
@@ -226,11 +225,12 @@ export function registerHashlineEditTools(pi: ExtensionAPI): void {
   pi.registerTool({
     name: "hashline-edit",
     label: "Hashline Edit",
-    description: "Stage fresh live file context, then apply strict JSON edits to one existing file using same staged flow.",
-    promptSnippet: "Start every edit with hashline-edit {path, goal}. Tool stages fresh live context, then follow staged instructions with same tool.",
+    description: "Edit one existing text file through staged fresh context, then strict JSON edits. Not for read-only file inspection.",
+    promptSnippet: "Use hashline-edit only when editing an existing file. Start with {path, goal}, then follow staged instructions with same tool.",
     promptGuidelines: [
+      'Do not use hashline-edit for read-only file inspection. Use read, code-search, or code-files instead.',
       'Every edit starts with {"path":"...","goal":"..."}. Do not send edits on first call.',
-      'hashline-edit always fetches fresh live context before edit planning.',
+      'hashline-edit fetches fresh live context only to plan and apply edits.',
       'If hashline-edit returns segment choices, next call uses {"path":"...","segment":"A"}.',
       'After hashline-edit returns anchored context, next call uses {"path":"...","edits":[...]}.',
       'One file per call. Do not edit multiple files in one hashline-edit call.',

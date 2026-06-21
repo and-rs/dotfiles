@@ -7,8 +7,8 @@ def --wrapped nv [...args] {
   }
 }
 
-alias dark-mode-gnome = gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-alias light-mode-gnome = gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
+alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 
 def colors [] { 0..15 | each {|c| $"(ansi --escape $'48;5;($c)m')  (ansi reset)" } }
 alias link-nvim = ln -s ~/Vault/personal/nvim ~/.config

@@ -6,7 +6,7 @@ export function blockedToolMessage(toolName: string): string {
   return `Tool "${toolName}" is disabled. Use hashline-edit with {path, goal} for existing-file edits, and file-create for new files.`;
 }
 
-export function registerBlockedFileTool(pi: ExtensionAPI, name: "read" | "edit" | "write"): void {
+export function registerBlockedFileTool(pi: ExtensionAPI, name: "edit" | "write"): void {
   pi.registerTool({
     name,
     label: `${name} disabled`,

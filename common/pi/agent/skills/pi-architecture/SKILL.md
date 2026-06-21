@@ -70,7 +70,7 @@ Update this skill when Pi architecture changes.
 
 ## hashline-edit Staged Edit Flow
 
-`src/features/hashline-edit/` owns all staged-edit logic. Public tool is `hashline-edit` only.
+`src/features/hashline-edit/` owns all staged-edit logic. Public edit tool is `hashline-edit` only; real `read` remains available for read-only inspection.
 
 Flow:
 1. First call: `{"path":"...","goal":"..."}` — reads file, stages fresh context, queues `steer` message with `deliverAs: "steer"` so model applies in the same agentic run.
@@ -81,11 +81,12 @@ Key implementation facts:
 - `steer` fires before the LLM's next decision within the same agentic run. Stage and apply happen in one turn. No cross-turn state dependency.
 - `agent_end` does NOT clear pending. Pending is cleared only on: explicit apply success, non-recoverable apply failure, `session_start`, `session_shutdown`.
 - `tool_call` guard blocks wrong call shapes while pending (wrong path, wrong mode).
+- Tool policy does not block `read`; only `edit`, `write`, `grep`, `find`, and `ls` are removed from active tools.
 - Steer messages use `customType: "hashline-edit-steer"` with `display: false`.
 - `context-mask` filters ALL `display: false` custom messages from LLM context so steer payloads do not accumulate.
 - `MAX_STEER_COUNT = 8` prevents infinite segment-bisection loops.
 - `MAX_APPLY_FAILURES = 1` allows one recoverable retry (match_missing / match_ambiguous) before giving up.
-- `hashline-read` does NOT exist. `hashline-edit` is the only existing-file entrypoint.
+- `hashline-edit` is edit-only. Do not use it for read-only file inspection; use `read`, `code-search`, or `code-files` for read-only context.
 
 Dead code removed:
 - `hashline/constants.ts` deleted (only had unused `MISMATCH_CONTEXT`).

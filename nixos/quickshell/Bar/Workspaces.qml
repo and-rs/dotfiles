@@ -110,7 +110,7 @@ Row {
 
         Behavior on scale {
           NumberAnimation {
-            duration: revealDuration
+            duration: Config.durations.fast
             easing.type: Config.curves.standard
           }
         }

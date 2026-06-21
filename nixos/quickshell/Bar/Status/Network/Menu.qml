@@ -8,23 +8,28 @@ Column {
     width: parent ? parent.width : 0
     spacing: Config.spacing.small
 
-    readonly property var wifiDevice: {
-        let devs = Networking.devices.values ?? [];
-        for (let i = 0; i < devs.length; i++) {
-            if (devs[i] && devs[i].type === DeviceType.Wifi)
-                return devs[i];
+    readonly property var networkDevices: Networking.devices.values ?? []
+    readonly property var nmWifiDevice: {
+        for (let i = 0; i < networkDevices.length; i++) {
+            if (networkDevices[i] && networkDevices[i].type === DeviceType.Wifi)
+                return networkDevices[i];
         }
         return null;
     }
-    readonly property var wiredDevice: {
-        let devs = Networking.devices.values ?? [];
-        for (let i = 0; i < devs.length; i++) {
-            if (devs[i] && devs[i].type === DeviceType.Wired)
-                return devs[i];
+    readonly property var nmWiredDevice: {
+        for (let i = 0; i < networkDevices.length; i++) {
+            if (networkDevices[i] && networkDevices[i].type === DeviceType.Wired)
+                return networkDevices[i];
         }
         return null;
     }
+    readonly property bool useIwd: !nmWifiDevice && !nmWiredDevice && IwdService.available
+    readonly property bool wifiEnabled: useIwd ? IwdService.wifiEnabled : Networking.wifiEnabled
+    readonly property var wifiDevice: useIwd ? IwdService.wifiDevice : nmWifiDevice
+    readonly property var wiredDevice: useIwd ? null : nmWiredDevice
     readonly property var connectedNetwork: {
+        if (useIwd)
+            return IwdService.connectedNetwork;
         if (!wifiDevice)
             return null;
         let nets = wifiDevice.networks;
@@ -39,11 +44,12 @@ Column {
     }
     readonly property var connectedWiredNetwork: wiredDevice && wiredDevice.hasLink ? wiredDevice.network : null
     readonly property real signalStrength: connectedNetwork ? connectedNetwork.signalStrength : 0
-    readonly property bool hasInternet: Networking.connectivity === NetworkConnectivity.Full
+    readonly property bool hasInternet: useIwd ? IwdService.connectivity === "Full" : Networking.connectivity === NetworkConnectivity.Full
+    readonly property string statusText: useIwd ? IwdService.connectivity : Networking.canCheckConnectivity ? NetworkConnectivity.toString(Networking.connectivity) : "Unknown"
     readonly property color statusColor: {
         if (connectedWiredNetwork)
             return hasInternet ? Config.colors.fg : Config.colors.destructive;
-        if (!Networking.wifiEnabled || !connectedNetwork)
+        if (!wifiEnabled || !connectedNetwork)
             return Config.colors.surface3;
         if (!hasInternet)
             return Config.colors.destructive;
@@ -73,7 +79,7 @@ Column {
         }
 
         Text {
-            text: Networking.canCheckConnectivity ? NetworkConnectivity.toString(Networking.connectivity) : "Unknown"
+            text: root.statusText
             color: root.statusColor
             font.pointSize: 9
             font.weight: 600
@@ -90,8 +96,8 @@ Column {
         }
 
         Text {
-            text: Networking.wifiEnabled ? "Enabled" : "Disabled"
-            color: Networking.wifiEnabled ? Config.colors.success : Config.colors.surface3
+            text: root.wifiEnabled ? "Enabled" : "Disabled"
+            color: root.wifiEnabled ? Config.colors.success : Config.colors.surface3
             font.pointSize: 9
             font.weight: 600
         }
@@ -152,7 +158,7 @@ Column {
             }
 
             Text {
-                text: root.connectedNetwork ? WifiSecurityType.toString(root.connectedNetwork.security) : ""
+                text: root.connectedNetwork ? root.useIwd ? root.connectedNetwork.security : WifiSecurityType.toString(root.connectedNetwork.security) : ""
                 color: Config.colors.fg
                 font.pointSize: 9
                 font.weight: 600
@@ -215,7 +221,7 @@ Column {
             }
 
             Text {
-                text: root.wifiDevice ? ConnectionState.toString(root.wifiDevice.state) : ""
+                text: root.wifiDevice ? root.useIwd ? root.wifiDevice.state : ConnectionState.toString(root.wifiDevice.state) : ""
                 color: Config.colors.fg
                 font.pointSize: 9
                 font.weight: 600
@@ -306,14 +312,14 @@ Column {
     }
 
     Text {
-        visible: !root.connectedWiredNetwork && !root.connectedNetwork && Networking.wifiEnabled
+        visible: !root.connectedWiredNetwork && !root.connectedNetwork && root.wifiEnabled
         text: "Not connected"
         color: Config.colors.surface3
         font.pointSize: 9
     }
 
     Text {
-        visible: !root.connectedWiredNetwork && !Networking.wifiEnabled
+        visible: !root.connectedWiredNetwork && !root.wifiEnabled
         text: "WiFi is disabled"
         color: Config.colors.surface3
         font.pointSize: 9

@@ -1,11 +1,11 @@
-type BlockedToolName = "read" | "edit" | "write" | "grep" | "find" | "ls";
+type BlockedToolName = "edit" | "write" | "grep" | "find" | "ls";
 
-export const BLOCKED_TOOLS = new Set<BlockedToolName>(["read", "edit", "write", "grep", "find", "ls"]);
+export const BLOCKED_TOOLS = new Set<BlockedToolName>(["edit", "write", "grep", "find", "ls"]);
 
 const BASH_BLOCKED: Record<string, string> = {
-  cat: "Use hashline-edit with {path, goal} when you need fresh edit-targeted file context.",
-  head: "Use hashline-edit with {path, goal}; large files return segment labels for staged edit context.",
-  tail: "Use hashline-edit with {path, goal}; large files return segment labels for staged edit context.",
+  cat: "Use read for direct file reading; use hashline-edit only when editing that file.",
+  head: "Use read for direct file reading; use hashline-edit only when editing that file.",
+  tail: "Use read for direct file reading; use hashline-edit only when editing that file.",
   ls: "Use code-files for directory listing or code-overview for repo structure.",
   find: "Use code-files for file path discovery.",
   grep: "Use code-search for content search.",
@@ -22,8 +22,6 @@ export function bashBlockedReason(command: unknown): string | null {
 
 export function replacementFor(toolName: string): string {
   switch (toolName) {
-    case "read":
-      return "Use hashline-edit with {path, goal} when you need fresh edit-targeted file context.";
     case "edit":
       return "Use hashline-edit; first call uses {path, goal}, staged follow-up call uses edits.";
     case "write":
@@ -32,7 +30,7 @@ export function replacementFor(toolName: string): string {
       return "Use code-search for code search.";
     case "find":
     case "ls":
-      return "Use code-overview or code-search for repo exploration.";
+      return "Use code-overview or code-files for repo exploration.";
     default:
       return "Use the configured replacement tools.";
   }
