@@ -28,7 +28,7 @@ Singleton {
 
     Process {
         id: initialFetch
-        command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, tile_size: .layout.tile_size, app_id, title, is_floating}'"]
+        command: ["sh", "-c", "niri msg --json windows | jq -c '.[] | {id, workspace_id, pos: .layout.pos_in_scrolling_layout, tile_size: .layout.tile_size, window_size: .layout.window_size, window_offset: .layout.window_offset_in_tile, app_id, title, is_floating}'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -59,6 +59,8 @@ Singleton {
                             workspace_id: w.workspace_id,
                             pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
                             tile_size: w.layout ? w.layout.tile_size : null,
+                            window_size: w.layout ? w.layout.window_size : null,
+                            window_offset: w.layout ? w.layout.window_offset_in_tile : null,
                             app_id: w.app_id,
                             title: w.title,
                             is_floating: w.is_floating
@@ -74,6 +76,8 @@ Singleton {
                     workspace_id: w.workspace_id,
                     pos: w.layout ? w.layout.pos_in_scrolling_layout : null,
                     tile_size: w.layout ? w.layout.tile_size : null,
+                    window_size: w.layout ? w.layout.window_size : null,
+                    window_offset: w.layout ? w.layout.window_offset_in_tile : null,
                     app_id: w.app_id,
                     title: w.title,
                     is_floating: w.is_floating
@@ -100,7 +104,9 @@ Singleton {
                             title: w.title,
                             is_floating: w.is_floating,
                             pos: item[1].pos_in_scrolling_layout,
-                            tile_size: item[1].tile_size ? item[1].tile_size : w.tile_size
+                            tile_size: item[1].tile_size ? item[1].tile_size : w.tile_size,
+                            window_size: item[1].window_size ? item[1].window_size : w.window_size,
+                            window_offset: item[1].window_offset_in_tile ? item[1].window_offset_in_tile : w.window_offset
                         };
                         changed = true;
                     }
@@ -156,6 +162,32 @@ Singleton {
                 return i;
         }
         return -1;
+    }
+
+    property var focusedWindowLayoutData: {
+        if (!instance.focusedWindow)
+            return null;
+
+        let focusedId = instance.focusedWindow.id;
+        for (let win of windowLayoutData) {
+            if (win.id === focusedId)
+                return win;
+        }
+
+        return null;
+    }
+
+    property bool focusedWindowFullscreen: {
+        let win = focusedWindowLayoutData;
+        if (!win || !win.tile_size || !win.window_size || !win.window_offset)
+            return false;
+
+        let widthMatches = Math.abs(win.window_size[0] - win.tile_size[0]) < 1;
+        let heightMatches = Math.abs(win.window_size[1] - win.tile_size[1]) < 1;
+        let offsetXZero = Math.abs(win.window_offset[0]) < 0.5;
+        let offsetYZero = Math.abs(win.window_offset[1]) < 0.5;
+
+        return widthMatches && heightMatches && offsetXZero && offsetYZero;
     }
 
     property bool overlayActive: currentWorkspaceWindows.length > 0 && !instance.focusedWindow
