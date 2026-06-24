@@ -57,6 +57,20 @@ Singleton {
     property bool debug: false
   }
 
+  readonly property QtObject sidebar: QtObject {
+    property int width: 420
+    property int maxHeight: 560
+    property int gap: 8
+    property int rightMargin: 12
+    property int borderWidth: 2
+  }
+
+  readonly property QtObject notifications: QtObject {
+    property int historyLimit: 100
+    property int popupWidth: 360
+    property int popupDuration: 5000
+  }
+
   readonly property QtObject curves: QtObject {
     property var standard: Easing.OutQuint
     property var bounce: Easing.OutBack

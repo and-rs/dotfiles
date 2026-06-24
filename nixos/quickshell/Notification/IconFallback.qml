@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import qs.Bar
 
 Rectangle {
@@ -9,12 +10,15 @@ Rectangle {
 
     width: size
     height: size
-    clip: true
-    radius: Config.radius.small
+    radius: Config.radius.normal
     color: Config.colors.surface1
+    border.width: 1
+    border.color: Config.colors.surface2
+    antialiasing: true
 
     Text {
         anchors.centerIn: parent
+        visible: !maskedImage.visible
         text: root.fallbackText
         font.pixelSize: Config.sizes.extraLarge
         font.weight: Font.Bold
@@ -22,8 +26,34 @@ Rectangle {
     }
 
     Image {
+        id: sourceImage
         anchors.fill: parent
+        visible: false
         source: root.image
-        visible: status === Image.Ready
+        fillMode: Image.PreserveAspectCrop
+        smooth: true
+        mipmap: true
+        cache: true
+        layer.enabled: true
+    }
+
+    Rectangle {
+        id: imageMask
+        width: root.width
+        height: root.height
+        radius: root.radius
+        color: "white"
+        visible: false
+        layer.enabled: true
+        antialiasing: true
+    }
+
+    MultiEffect {
+        id: maskedImage
+        anchors.fill: parent
+        visible: sourceImage.status === Image.Ready
+        source: sourceImage
+        maskEnabled: true
+        maskSource: imageMask
     }
 }

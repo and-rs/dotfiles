@@ -15,7 +15,7 @@ overview {
     }
 }
 output "eDP-1" {
-    scale 1.666
+    scale 1.5
     backdrop-color "#212330"
 }
 hotkey-overlay {
@@ -227,8 +227,7 @@ layer-rule {
     }
 }
 layer-rule {
-    match namespace="notifications"
-    match namespace="quickshell-hidden"
+    match namespace="quickshell-notification-popup"
     block-out-from "screencast"
 }
 // Put swww inside the overview backdrop.
