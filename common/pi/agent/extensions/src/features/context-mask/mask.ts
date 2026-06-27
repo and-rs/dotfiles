@@ -2,8 +2,7 @@ import type { AgentMessage as CoreAgentMessage } from "@earendil-works/pi-agent-
 import {
   CUSTOM_TYPE,
   MIN_MASK_CHARACTERS,
-  PRESERVED_EDIT_RESULTS,
-  PRESERVED_HASHLINE_CONTEXTS,
+  PRESERVED_FILE_CREATE_RESULTS,
   RAW_RECENT_USER_TURNS,
   type ContextMessage,
   type MaskStats,
@@ -68,9 +67,7 @@ function preserveToolResultIds(
   rawWindowStart: number,
 ): Set<string> {
   const keep = new Set<string>();
-  const keptContextPaths = new Set<string>();
-  let keptContexts = 0;
-  let keptEdits = 0;
+  let keptFileCreates = 0;
   for (let i = messages.length - 1; i >= 0; i--) {
     if (i >= rawWindowStart) continue;
     const message = messages[i];
@@ -80,30 +77,10 @@ function preserveToolResultIds(
     if (!toolCallId) continue;
     const toolCall = toolCalls.get(toolCallId);
     const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
-    if (toolName === "hashline-edit" && !Array.isArray(toolCall?.arguments.edits)) {
-      const path =
-        typeof toolCall?.arguments.path === "string"
-          ? toolCall.arguments.path.trim()
-          : "";
-      if (
-        !path ||
-        keptContextPaths.has(path) ||
-        keptContexts >= PRESERVED_HASHLINE_CONTEXTS
-      )
-        continue;
-      keptContextPaths.add(path);
-      keep.add(toolCallId);
-      keptContexts += 1;
-      continue;
-    }
-    if (
-      (toolName === "hashline-edit" || toolName === "file-create") &&
-      (toolName !== "hashline-edit" || Array.isArray(toolCall?.arguments.edits)) &&
-      keptEdits < PRESERVED_EDIT_RESULTS
-    ) {
-      keep.add(toolCallId);
-      keptEdits += 1;
-    }
+    if (toolName !== "file-create") continue;
+    if (keptFileCreates >= PRESERVED_FILE_CREATE_RESULTS) continue;
+    keep.add(toolCallId);
+    keptFileCreates += 1;
   }
   return keep;
 }
@@ -125,6 +102,12 @@ function shouldMask(
   return (
     !text.startsWith("[context masked:") && text.length >= MIN_MASK_CHARACTERS
   );
+}
+
+function anchorlineStateFromDetails(details: unknown): string | null {
+  if (typeof details !== "object" || details === null) return null;
+  const state = (details as { state?: unknown }).state;
+  return typeof state === "string" ? state : null;
 }
 
 export function maskContext(messages: CoreAgentMessage[]): {
@@ -153,14 +136,14 @@ export function maskContext(messages: CoreAgentMessage[]): {
     samples: [],
   };
   const nextMessages = sourceMessages.map((message, index) => {
-    if (!shouldMask(message, index, rawWindowStart, preservedIds))
-      return message;
-    const toolCallId =
-      typeof message.toolCallId === "string" ? message.toolCallId : "unknown";
+    const toolCallId = typeof message.toolCallId === "string" ? message.toolCallId : "unknown";
     const toolCall = toolCalls.get(toolCallId);
     const toolName = normalizeToolName(message.toolName ?? toolCall?.name);
-    const beforeText = textFromContent(message.content);
-    const afterText = summarizeToolResult(message, toolCall);
+    const state = toolName === "anchorline-edit" ? anchorlineStateFromDetails(message.details) : null;
+    const modelMessage = state === null ? message : { ...message, content: [{ type: "text", text: state }], details: { ...(typeof message.details === "object" && message.details !== null ? message.details : {}), anchorlineDeltaHidden: true } } as ContextMessage;
+    if (!shouldMask(modelMessage, index, rawWindowStart, preservedIds)) return modelMessage;
+    const beforeText = textFromContent(modelMessage.content);
+    const afterText = summarizeToolResult(modelMessage, toolCall);
     stats.maskedCount += 1;
     stats.beforeCharacters += beforeText.length;
     stats.afterCharacters += afterText.length;
@@ -171,7 +154,7 @@ export function maskContext(messages: CoreAgentMessage[]): {
         `${toolName} ${beforeText.length} → ${afterText.length}`,
       );
     return {
-      ...message,
+      ...modelMessage,
       content: [{ type: "text", text: afterText }],
       details: {
         ...(typeof message.details === "object" && message.details !== null

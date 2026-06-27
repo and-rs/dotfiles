@@ -10,8 +10,7 @@ import {
   EDIT_TAIL_LINES,
   FAILED_BASH_TAIL_LINES,
   MASK_NOTICE_PREFIX,
-  PRESERVED_EDIT_RESULTS,
-  PRESERVED_HASHLINE_CONTEXTS,
+  PRESERVED_FILE_CREATE_RESULTS,
   RAW_RECENT_USER_TURNS,
   SUCCESS_BASH_TAIL_LINES,
 } from "./types.ts";
@@ -47,7 +46,7 @@ export function preview(value: unknown, maxLength = 160): string {
 }
 
 export function extractUrls(value: string, limit = 12): string[] {
-  const matches = value.match(/https?:\/\/[^\s)\]}>\"]+/g) ?? [];
+  const matches = value.match(/https?:\/\/[^\s)\]}>"]+/g) ?? [];
   return Array.from(new Set(matches)).slice(0, limit);
 }
 
@@ -86,19 +85,12 @@ export function summarizeToolResult(
       ? FAILED_BASH_TAIL_LINES
       : SUCCESS_BASH_TAIL_LINES;
     header.push(`command: ${preview(args.command)}`);
-  } else if (toolName === "hashline-edit" && !Array.isArray(args.edits)) {
-    tailLineCount = 0;
-    header.push(`path: ${preview(args.path)}`);
-    if (args.goal !== undefined) header.push(`goal: ${preview(args.goal)}`);
-    if (args.segment !== undefined) header.push(`segment: ${preview(args.segment)}`);
-    header.push(
-      "note: body intentionally omitted; re-run hashline-edit with path and goal for fresh staged context.",
-    );
-  } else if (toolName === "hashline-edit" || toolName === "file-create") {
+  } else if (toolName === "file-create") {
     tailLineCount = EDIT_TAIL_LINES;
-    header.push(
-      "note: old diff trimmed; inspect git diff for current worktree state.",
-    );
+    header.push("note: old diff trimmed; inspect git diff for current worktree state.");
+  } else if (toolName === "anchorline-show" || toolName === "anchorline-edit") {
+    tailLineCount = EDIT_TAIL_LINES;
+    header.push("note: anchorline output trimmed; use fresh show for new anchors.");
   } else if (toolName === "code-files") {
     tailLineCount = CODE_FILES_TAIL_LINES;
     header.push(`path: ${preview(args.path ?? ".")}`);
@@ -147,8 +139,7 @@ export function formatStats(stats: MaskStats): string {
     "         ├── policy",
     "         │   ├── current turn kept raw",
     `         │   ├── latest ${RAW_RECENT_USER_TURNS} user turn${RAW_RECENT_USER_TURNS === 1 ? "" : "s"} kept raw`,
-    `         │   ├── preserve ${PRESERVED_HASHLINE_CONTEXTS} recent hashline context result${PRESERVED_HASHLINE_CONTEXTS === 1 ? "" : "s"}`,
-    `         │   └── preserve ${PRESERVED_EDIT_RESULTS} recent edit diff${PRESERVED_EDIT_RESULTS === 1 ? "" : "s"}`,
+    `         │   └── preserve ${PRESERVED_FILE_CREATE_RESULTS} recent file-create result${PRESERVED_FILE_CREATE_RESULTS === 1 ? "" : "s"}`,
     "         ├── tools",
     ...formatTreeItems(toolItems, "         │   "),
     "         └── samples",

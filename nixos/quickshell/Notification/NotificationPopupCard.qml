@@ -109,7 +109,7 @@ Rectangle {
 
         MaterialIcon {
           anchors.centerIn: parent
-          code: 0xE042
+          code: 0xE092
           iconColor: activateArea.containsMouse ? Config.colors.base : Config.colors.primary
           iconSize: 11
         }

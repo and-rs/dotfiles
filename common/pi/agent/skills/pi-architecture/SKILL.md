@@ -68,28 +68,19 @@ Update this skill when Pi architecture changes.
 - Visual file inspection lives in `src/features/read-image/` and is registered through `src/app/features.ts` like other feature-owned tools.
 - `read-image` sends actual image bytes to image-capable models; do not add OCR or shell/base64 workaround flows unless tool path truly fails.
 
-## hashline-edit Staged Edit Flow
+## anchorline Edit Flow
 
-`src/features/hashline-edit/` owns all staged-edit logic. Public edit tool is `hashline-edit` only; real `read` remains available for read-only inspection.
+`src/features/anchorline/` owns edit flow. Public tools are `anchorline-show` and `anchorline-edit`; `file-create` stays separate for new files.
 
 Flow:
-1. First call: `{"path":"...","goal":"..."}` — reads file, stages fresh context, queues `steer` message with `deliverAs: "steer"` so model applies in the same agentic run.
-2. Large file: steer prompts `{"path":"...","segment":"LABEL"}` — narrows to a smaller range, queues another steer.
-3. Apply: `{"path":"...","edits":[...]}` — writes file, clears pending state explicitly.
+1. First call: `{"path":"..."}` to `anchorline-show` — reads text file and returns current anchored lines to model.
+2. Apply: `{"path":"...","patch":"..."}` to `anchorline-edit` — writes patch using fresh `anchorline-show` output.
+3. After edit, tool returns fresh anchored state to model and only delta summary to user.
 
 Key implementation facts:
-- `steer` fires before the LLM's next decision within the same agentic run. Stage and apply happen in one turn. No cross-turn state dependency.
-- `agent_end` does NOT clear pending. Pending is cleared only on: explicit apply success, non-recoverable apply failure, `session_start`, `session_shutdown`.
-- `tool_call` guard blocks wrong call shapes while pending (wrong path, wrong mode).
-- Tool policy does not block `read`; only `edit`, `write`, `grep`, `find`, and `ls` are removed from active tools.
-- Steer messages use `customType: "hashline-edit-steer"` with `display: false`.
-- `context-mask` filters ALL `display: false` custom messages from LLM context so steer payloads do not accumulate.
-- `MAX_STEER_COUNT = 8` prevents infinite segment-bisection loops.
-- `MAX_APPLY_FAILURES = 1` allows one recoverable retry (match_missing / match_ambiguous) before giving up.
-- `hashline-edit` is edit-only. Do not use it for read-only file inspection; use `read`, `code-search`, or `code-files` for read-only context.
+- `anchorline-show` runs before `anchorline-edit` so anchors stay current.
+- `anchorline-show` replaces regular text `read`; use `read-image` for images and `code-search` or `code-files` for repo discovery.
+- `file-create` stays for new files and must not overwrite existing files.
+- Tool policy blocks shell rewrites like `sed`, inline `python`, `python3`, `perl`, and similar escape hatches.
+- `anchorline-show` render output is hidden from user; `anchorline-edit` renders delta summary while keeping anchored state in model context.
 
-Dead code removed:
-- `hashline/constants.ts` deleted (only had unused `MISMATCH_CONTEXT`).
-- `paths.ts` no longer exports `ensureReadablePath` (was only used by deleted hashline-read).
-- `types.ts` no longer exports `HOME_DIR` (was only used by ensureReadablePath).
-- `index.ts` no longer has a `session_start` active-tool manipulation block (redundant with tool-policy).

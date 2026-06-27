@@ -55,21 +55,21 @@ Respond in english only. Caveman full active always.
 - `code-files` for file path listing. Never `bash ls` or `bash find` —
   hard-blocked.
 - `code-search` for content search. Never `bash grep` — hard-blocked.
-- Use `read` for read-only file inspection and `code-search` for content
-  search. Do not use `hashline-edit` unless you intend to edit that existing
-  file.
-- For existing-file edits, start `hashline-edit` with `{path, goal}`. Tool
-  stages fresh live context, then follow staged result with same tool. Never
-  `bash cat`, `bash head`, or `bash tail` — hard-blocked.
+- Use `anchorline-show` for existing text-file inspection and before edits.
+- Use `file-create` for new files and `anchorline-edit` for existing-file edits.
+- Use `read-image` for image files.
 - `bash` for execution only: run commands, validate, install. Not file reading
   or directory listing.
 - `exa-search` then `web-fetch` for external docs. Always exa-search first to
   get URL.
 
+
+
+
 ## File Changes
 
-- For existing-file edits, start `hashline-edit` with `{path, goal}` instead
-  of trusting old snippets.
+- Use `file-create` for new files.
+- Use `anchorline-show` before `anchorline-edit` for existing-file edits.
 - Reuse existing patterns and conventions.
 
 ## Pi setup

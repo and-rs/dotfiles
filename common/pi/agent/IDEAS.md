@@ -40,7 +40,7 @@ The act of typing is the review. There is no approve-all button.
 
 ### How It Works
 
-1. Agent calls `hashline-edit` or `file-create` as normal
+1. Agent calls `anchorline-show`, `anchorline-edit`, or `file-create` as normal
 2. Tool call is intercepted and blocked — Pi shows a pending change notification in the TUI
 3. User triggers a keybind (same muscle memory as opening the Pi input editor)
 4. Pi serializes the diff and sends it to Neovim via msgpack-rpc (`$NVIM` socket)

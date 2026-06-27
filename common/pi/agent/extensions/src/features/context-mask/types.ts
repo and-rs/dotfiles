@@ -9,8 +9,7 @@ export const EDIT_TAIL_LINES = 30;
 export const CODE_FILES_TAIL_LINES = 100;
 export const RAW_RECENT_USER_TURNS = 1;
 export const MIN_MASK_CHARACTERS = 600;
-export const PRESERVED_HASHLINE_CONTEXTS = 1;
-export const PRESERVED_EDIT_RESULTS = 1;
+export const PRESERVED_FILE_CREATE_RESULTS = 1;
 
 export type TextContent = { type: "text"; text: string };
 export type ToolCallContent = { type: "toolCall"; id: string; name: string; arguments: Record<string, unknown> };
