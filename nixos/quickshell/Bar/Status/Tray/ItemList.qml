@@ -74,7 +74,7 @@ Column {
                 enabled: itemDelegate.animationsReady
                 NumberAnimation {
                     duration: 75
-                    easing.type: Config.curves.snap
+                    easing.type: Config.curve
                 }
             }
 
@@ -82,7 +82,7 @@ Column {
                 enabled: itemDelegate.animationsReady
                 NumberAnimation {
                     duration: 75
-                    easing.type: Config.curves.snap
+                    easing.type: Config.curve
                 }
             }
 

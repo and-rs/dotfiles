@@ -11,9 +11,32 @@ Rectangle {
   readonly property string body: entry ? entry.body : ""
   readonly property string image: entry ? entry.image : ""
   readonly property string appIcon: entry ? entry.appIcon : ""
-  readonly property real popupDurationMs: Math.max(1, NotificationStore.popupExpiresAtMs - NotificationStore.popupStartedAtMs)
-  readonly property real popupRemainingMs: Math.max(0, NotificationStore.popupExpiresAtMs - NotificationStore.nowMs)
-  readonly property real popupProgress: entry ? Math.max(0, Math.min(1, popupRemainingMs / popupDurationMs)) : 0
+  function startProgress() {
+    progressAnimation.stop();
+    timeoutFill.width = root.entry ? timeoutTrack.width : 0;
+    if (!root.entry)
+      return;
+    progressAnimation.from = timeoutTrack.width;
+    progressAnimation.to = 0;
+    progressAnimation.duration = Math.max(1, root.entry.popupDurationMs);
+    progressAnimation.start();
+  }
+
+  onEntryChanged: startProgress()
+  Component.onCompleted: startProgress()
+
+  NumberAnimation {
+    id: progressAnimation
+    target: timeoutFill
+    property: "width"
+    from: timeoutTrack.width
+    to: 0
+    easing.type: Config.curve
+    onFinished: {
+      if (root.entry)
+        NotificationStore.hideActivePopup();
+    }
+  }
 
   implicitHeight: contentColumn.implicitHeight + Config.padding.large * 2 + timeoutTrack.height + border.width
   color: Config.colors.base
@@ -95,7 +118,8 @@ Rectangle {
     clip: true
 
     Rectangle {
-      width: parent.width * root.popupProgress
+      id: timeoutFill
+      width: 0
       height: parent.height
       radius: parent.radius
       color: Config.colors.primary

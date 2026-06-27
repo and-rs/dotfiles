@@ -91,7 +91,7 @@ PopupWindow {
       Behavior on x {
         NumberAnimation {
           duration: Config.durations.normal
-          easing.type: Config.curves.standard
+          easing.type: Config.curve
           onRunningChanged: {
             if (!running && !root.open && root.panelOffset >= root.panelWidth)
               root.visible = false;

@@ -78,50 +78,13 @@ Item {
     spacing: 0
     anchors.verticalCenter: parent.verticalCenter
 
-    Rectangle {
-      id: notificationsButton
-      readonly property bool active: root.activePanel === "notifications"
-      readonly property bool hasNotifications: Notifications.NotificationStore.count > 0
-      width: root.window.implicitHeight + root.buttonHorizontalPadding * 2
-      height: root.window.implicitHeight
-      color: "transparent"
-
-      MaterialIcon {
-        anchors.centerIn: parent
-        code: notificationsButton.hasNotifications ? 0xE5E8 : 0xE0CE
-        iconColor: notificationsButton.active ? Config.colors.primary : notificationsButton.hasNotifications ? Config.colors.fg : Config.colors.surface3
-      }
-
-      Rectangle {
-        visible: Notifications.NotificationStore.count > 0
-        width: Math.max(10, badgeText.implicitWidth + Config.padding.micro * 2)
-        height: 14
-        radius: 2
-        color: Config.colors.destructive
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.topMargin: Config.padding.micro
-        anchors.rightMargin: Config.padding.micro
-
-        Text {
-          id: badgeText
-          anchors.centerIn: parent
-          text: Notifications.NotificationStore.count > 99 ? "99+" : String(Notifications.NotificationStore.count)
-          color: Config.colors.base
-          font.pixelSize: Config.sizes.small
-          font.weight: Font.Bold
-          textFormat: Text.PlainText
-        }
-      }
-
-      MouseArea {
-        anchors.fill: parent
-        onClicked: root.switchPanel("notifications")
-      }
-    }
-
     TrayStatus.Button {
       id: trayButton
+      controller: root
+    }
+
+    Notifications.Button {
+      id: notificationsButton
       controller: root
     }
 

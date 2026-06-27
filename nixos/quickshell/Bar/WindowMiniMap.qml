@@ -174,7 +174,7 @@ Item {
     from: 1
     to: 0
     duration: Config.durations.instant
-    easing.type: Easing.OutQuad
+    easing.type: Config.curve
   }
 
   onColumnsChanged: canvas.requestPaint()

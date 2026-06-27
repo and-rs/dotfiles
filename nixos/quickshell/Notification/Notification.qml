@@ -16,9 +16,9 @@ Scope {
     property real popupOpacity: 0
 
     function setEnterState() {
-        popupOffsetX = 56;
-        popupOffsetY = -16;
-        popupScale = 0.94;
+        popupOffsetX = 72;
+        popupOffsetY = -10;
+        popupScale = 0.92;
         popupOpacity = 0;
     }
 
@@ -46,18 +46,20 @@ Scope {
     }
 
     function syncPopupState() {
+        enterAnimation.stop();
+        exitAnimation.stop();
         if (NotificationStore.popupEntry) {
             displayedPopupEntry = NotificationStore.popupEntry;
             popupStage = "entering";
-            clearDisplayedPopupTimer.stop();
             setEnterState();
-            enterPopupTimer.restart();
+            enterAnimation.restart();
         } else if (displayedPopupEntry) {
             popupStage = "exiting";
-            setExitState();
-            clearDisplayedPopupTimer.restart();
+            exitAnimation.restart();
         }
     }
+
+    Component.onCompleted: syncPopupState()
 
     Connections {
         target: NotificationStore
@@ -66,23 +68,30 @@ Scope {
         }
     }
 
-    Timer {
-        id: clearDisplayedPopupTimer
-        interval: Config.durations.normal
-        repeat: false
-        onTriggered: {
-            notifScope.displayedPopupEntry = null;
-            notifScope.popupStage = "hidden";
+    SequentialAnimation {
+        id: enterAnimation
+        ParallelAnimation {
+            NumberAnimation { target: notifScope; property: "popupOffsetX"; to: -6; duration: 160; easing.type: Config.curve }
+            NumberAnimation { target: notifScope; property: "popupOffsetY"; to: 0; duration: 160; easing.type: Config.curve }
+            NumberAnimation { target: notifScope; property: "popupScale"; to: 1.015; duration: 160; easing.type: Config.curve }
+            NumberAnimation { target: notifScope; property: "popupOpacity"; to: 1; duration: 110; easing.type: Config.curve }
         }
+        ParallelAnimation {
+            NumberAnimation { target: notifScope; property: "popupOffsetX"; to: 0; duration: 90; easing.type: Config.curve }
+            NumberAnimation { target: notifScope; property: "popupScale"; to: 1; duration: 90; easing.type: Config.curve }
+        }
+        onFinished: notifScope.popupStage = "shown"
     }
 
-    Timer {
-        id: enterPopupTimer
-        interval: 16
-        repeat: false
-        onTriggered: {
-            notifScope.popupStage = "shown";
-            notifScope.setShownState();
+    ParallelAnimation {
+        id: exitAnimation
+        NumberAnimation { target: notifScope; property: "popupOffsetX"; to: 52; duration: 210; easing.type: Config.curve }
+        NumberAnimation { target: notifScope; property: "popupOffsetY"; to: -12; duration: 210; easing.type: Config.curve }
+        NumberAnimation { target: notifScope; property: "popupScale"; to: 0.90; duration: 210; easing.type: Config.curve }
+        NumberAnimation { target: notifScope; property: "popupOpacity"; to: 0; duration: 180; easing.type: Config.curve }
+        onFinished: {
+            notifScope.displayedPopupEntry = null;
+            notifScope.popupStage = "hidden";
         }
     }
 
@@ -115,34 +124,6 @@ Scope {
             y: notifScope.popupOffsetY
             scale: notifScope.popupScale
             opacity: notifScope.popupOpacity
-
-            Behavior on x {
-                NumberAnimation {
-                    duration: Config.durations.normal
-                    easing.type: Config.curves.smooth
-                }
-            }
-
-            Behavior on y {
-                NumberAnimation {
-                    duration: Config.durations.normal
-                    easing.type: Config.curves.smooth
-                }
-            }
-
-            Behavior on scale {
-                NumberAnimation {
-                    duration: Config.durations.normal
-                    easing.type: Config.curves.smooth
-                }
-            }
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: Config.durations.normal
-                    easing.type: Config.curves.smooth
-                }
-            }
 
             NotificationPopupCard {
                 id: popupCard

@@ -1,6 +1,7 @@
 pragma Singleton
 
 import Quickshell
+import Quickshell.Io
 import QtQuick
 import qs.Bar
 
@@ -8,7 +9,6 @@ Singleton {
     id: root
 
     readonly property ListModel items: ListModel {}
-    property int nowMs: Date.now()
     property var removingIds: ({})
     property var liveNotifications: ({})
     property var notificationLocks: ({})
@@ -18,29 +18,68 @@ Singleton {
     readonly property bool hasNotifications: count > 0
     property var popupEntry: null
     property int popupId: -1
-    property int popupStartedAtMs: 0
-    property int popupExpiresAtMs: 0
-    property int lastNowMs: nowMs
-    property int popupTimeoutId: -1
+    property real popupStartedAtMs: 0
+    property real popupExpiresAtMs: 0
+    function localImagePath(image) {
+        if (!image)
+            return "";
+        const value = String(image);
+        if (value.startsWith("file://"))
+            return decodeURIComponent(value.slice(7));
+        if (value.startsWith("/"))
+            return value;
+        return "";
+    }
 
-    Timer {
-        id: popupTimeoutTimer
-        repeat: false
-        onTriggered: root.timeoutActivePopup()
+    function imageExtension(path) {
+        const cleanPath = path.split("?")[0].split("#")[0];
+        const match = cleanPath.match(/\.([A-Za-z0-9]{1,8})$/);
+        return match ? match[1].toLowerCase() : "image";
+    }
+
+    function cacheImage(image, id) {
+        const sourcePath = localImagePath(image);
+        if (!sourcePath)
+            return image || "";
+
+        const reader = Qt.createQmlObject('import Quickshell.Io; FileView { blockAllReads: true; printErrors: false; path: "" }', root);
+        const writer = Qt.createQmlObject('import Quickshell.Io; FileView { blockWrites: true; printErrors: false; path: "" }', root);
+        try {
+            reader.path = sourcePath;
+            const data = reader.data();
+            if (!data || data.byteLength === 0)
+                return image;
+
+            const targetPath = Quickshell.cachePath("notification-" + id + "-" + Date.now() + "." + imageExtension(sourcePath));
+            writer.path = targetPath;
+            writer.setData(data);
+            return "file://" + targetPath;
+        } catch (error) {
+            return image || "";
+        } finally {
+            reader.destroy();
+            writer.destroy();
+        }
+    }
+
+    function popupDurationFromTimeout(expireTimeout) {
+        if (expireTimeout <= 0)
+            return Config.notifications.popupDuration;
+        const timeout = Number(expireTimeout);
+        const timeoutMs = timeout > 60 ? timeout : timeout * 1000;
+        return Math.max(3000, Math.round(timeoutMs));
     }
 
     function buildEntry(notification) {
         const now = Date.now();
-        const popupDurationMs = notification.expireTimeout > 0
-            ? Math.max(3000, Math.round(notification.expireTimeout * 1000))
-            : Config.notifications.popupDuration;
+        const popupDurationMs = popupDurationFromTimeout(notification.expireTimeout);
         return {
             id: notification.id,
             appName: notification.appName,
-            appIcon: notification.appIcon,
+            appIcon: cacheImage(notification.appIcon, notification.id + "-icon"),
             summary: notification.summary,
             body: notification.body,
-            image: notification.image,
+            image: cacheImage(notification.image, notification.id),
             urgency: notification.urgency,
             createdAtMs: now,
             popupDurationMs: popupDurationMs,
@@ -90,13 +129,6 @@ Singleton {
         popupId = entry ? entry.id : -1;
         popupStartedAtMs = entry ? startedAtMs : 0;
         popupExpiresAtMs = entry ? expiresAtMs : 0;
-        popupTimeoutId = entry ? entry.id : -1;
-
-        popupTimeoutTimer.stop();
-        if (entry)
-            popupTimeoutTimer.interval = Math.max(1, popupExpiresAtMs - nowMs);
-        if (entry)
-            popupTimeoutTimer.start();
     }
 
     function activateNextPopup() {
@@ -292,14 +324,6 @@ Singleton {
         clearPopup(popupId);
     }
 
-    function timeoutActivePopup() {
-        if (popupId === -1 || popupTimeoutId !== popupId)
-            return;
-        if (popupExpiresAtMs > 0 && nowMs < popupExpiresAtMs)
-            return;
-        hideActivePopup();
-    }
-
     function expirePopup(id) {
         clearPopup(id);
         const notification = liveNotifications[id];
@@ -318,7 +342,7 @@ Singleton {
         removeQueuedPopupId(id);
         removeById(id);
 
-        if (notification)
+        if (notification && !entry.closed)
             notification.dismiss();
         else
             delete removingIds[id];
@@ -328,38 +352,22 @@ Singleton {
     }
 
     function clearAll() {
-        const currentIds = [];
+        const currentEntries = [];
         for (let index = 0; index < items.count; index++)
-            currentIds.push(items.get(index).id);
+            currentEntries.push({ id: items.get(index).id, closed: items.get(index).closed });
         items.clear();
         popupQueueIds = [];
         setPopupEntry(null);
-        for (let index = 0; index < currentIds.length; index++) {
-            const id = currentIds[index];
-            const notification = liveNotifications[id];
-            removingIds[id] = true;
-            if (notification)
+        for (let index = 0; index < currentEntries.length; index++) {
+            const entry = currentEntries[index];
+            const notification = liveNotifications[entry.id];
+            removingIds[entry.id] = true;
+            if (notification && !entry.closed)
                 notification.dismiss();
             else
-                delete removingIds[id];
-            releaseNotification(id);
+                delete removingIds[entry.id];
+            releaseNotification(entry.id);
         }
     }
 
-
-    function reconcilePopupState() {
-        if (popupId !== -1 && popupExpiresAtMs > 0 && nowMs >= popupExpiresAtMs)
-            hideActivePopup();
-        activateNextPopup();
-    }
-    Timer {
-        interval: 50
-        repeat: true
-        running: true
-        onTriggered: {
-            root.lastNowMs = root.nowMs;
-            root.nowMs = Date.now();
-            root.reconcilePopupState();
-        }
-    }
 }

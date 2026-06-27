@@ -177,18 +177,5 @@ Singleton {
         return null;
     }
 
-    property bool focusedWindowFullscreen: {
-        let win = focusedWindowLayoutData;
-        if (!win || !win.tile_size || !win.window_size || !win.window_offset)
-            return false;
-
-        let widthMatches = Math.abs(win.window_size[0] - win.tile_size[0]) < 1;
-        let heightMatches = Math.abs(win.window_size[1] - win.tile_size[1]) < 1;
-        let offsetXZero = Math.abs(win.window_offset[0]) < 0.5;
-        let offsetYZero = Math.abs(win.window_offset[1]) < 0.5;
-
-        return widthMatches && heightMatches && offsetXZero && offsetYZero;
-    }
-
     property bool overlayActive: currentWorkspaceWindows.length > 0 && !instance.focusedWindow
 }

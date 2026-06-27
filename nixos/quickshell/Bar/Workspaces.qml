@@ -70,7 +70,7 @@ Row {
       Behavior on width {
         NumberAnimation {
           duration: Config.durations.fast
-          easing.type: Config.curves.standard
+          easing.type: Config.curve
         }
       }
 
@@ -104,14 +104,14 @@ Row {
         Behavior on opacity {
           NumberAnimation {
             duration: Config.durations.fast
-            easing.type: Config.curves.standard
+            easing.type: Config.curve
           }
         }
 
         Behavior on scale {
           NumberAnimation {
             duration: Config.durations.fast
-            easing.type: Config.curves.standard
+            easing.type: Config.curve
           }
         }
       }

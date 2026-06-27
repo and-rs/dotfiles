@@ -84,7 +84,7 @@ PopupWindow {
     property: "opacity"
     to: 1
     duration: Config.durations.instant
-    easing.type: Config.curves.snap
+    easing.type: Config.curve
   }
 
   NumberAnimation {
@@ -93,7 +93,7 @@ PopupWindow {
     property: "opacity"
     to: 0
     duration: Config.durations.instant
-    easing.type: Config.curves.snap
+    easing.type: Config.curve
     onFinished: {
       if (!popupVisible)
         keepAlive = false;
@@ -178,7 +178,7 @@ PopupWindow {
       Behavior on x {
         NumberAnimation {
           duration: Config.durations.instant
-          easing.type: Easing.OutQuart
+          easing.type: Config.curve
         }
       }
 

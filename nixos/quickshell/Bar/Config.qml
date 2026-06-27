@@ -71,16 +71,7 @@ Singleton {
     property int popupDuration: 5000
   }
 
-  readonly property QtObject curves: QtObject {
-    property var standard: Easing.OutQuint
-    property var bounce: Easing.OutBack
-    property var smooth: Easing.InOutQuad
-    property var snap: Easing.OutQuad
-    property var enter: Easing.InCubic
-    property var sharp: Easing.OutQuint
-    property var linear: Easing.Linear
-    property var springy: Easing.InOutCubic
-  }
+  readonly property var curve: Easing.OutQuint
 
   readonly property QtObject radius: QtObject {
     property real scale: 1

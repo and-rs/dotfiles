@@ -208,7 +208,7 @@ Scope {
                             Behavior on width {
                                 NumberAnimation {
                                     duration: Config.durations.extraFast
-                                    easing.type: Config.curves.standard
+                                    easing.type: Config.curve
                                 }
                             }
                             Behavior on color {

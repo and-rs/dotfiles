@@ -95,7 +95,7 @@ Row {
             Behavior on width {
                 NumberAnimation {
                     duration: Config.durations.normal
-                    easing.type: Config.curves.standard
+                    easing.type: Config.curve
                 }
             }
 

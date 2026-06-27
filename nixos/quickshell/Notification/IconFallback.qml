@@ -7,6 +7,9 @@ Rectangle {
     required property string image
     required property string fallbackText
     property int size: 48
+    readonly property bool imageLooksLoadable: image !== "" && (image.startsWith("file:") || image.startsWith("/") || image.startsWith("qrc:") || image.startsWith("http:") || image.startsWith("https:") || image.startsWith("data:") || image.startsWith("image://"))
+    readonly property bool imageHasContent: sourceImage.sourceSize.width > 2 && sourceImage.sourceSize.height > 2
+    readonly property bool imageReady: imageLooksLoadable && sourceImage.status === Image.Ready && imageHasContent
 
     width: size
     height: size
@@ -29,7 +32,7 @@ Rectangle {
         id: sourceImage
         anchors.fill: parent
         visible: false
-        source: root.image
+        source: root.imageLooksLoadable ? root.image : ""
         fillMode: Image.PreserveAspectCrop
         smooth: true
         mipmap: true
@@ -51,7 +54,7 @@ Rectangle {
     MultiEffect {
         id: maskedImage
         anchors.fill: parent
-        visible: sourceImage.status === Image.Ready
+        visible: root.imageReady
         source: sourceImage
         maskEnabled: true
         maskSource: imageMask

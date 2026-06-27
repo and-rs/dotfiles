@@ -132,19 +132,19 @@ Item {
               property: "opacity"
               to: 0
               duration: Config.durations.fast
-              easing.type: Config.curves.smooth
+              easing.type: Config.curve
             }
             NumberAnimation {
               property: "scale"
               to: 0.96
               duration: Config.durations.fast
-              easing.type: Config.curves.smooth
+              easing.type: Config.curve
             }
             NumberAnimation {
               property: "x"
               to: 20
               duration: Config.durations.fast
-              easing.type: Config.curves.smooth
+              easing.type: Config.curve
             }
           }
         }
@@ -153,7 +153,7 @@ Item {
           NumberAnimation {
             property: "y"
             duration: Config.durations.fast
-            easing.type: Config.curves.smooth
+            easing.type: Config.curve
           }
         }
 

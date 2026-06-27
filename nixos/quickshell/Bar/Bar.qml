@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Wayland
 import QtQuick
 import qs.Bar.Recording
 import qs.Bar.Status
@@ -16,8 +17,6 @@ Scope {
 
       screen: modelData
       aboveWindows: true
-      property bool hidden: NiriService.focusedWindowFullscreen
-
       implicitHeight: barScope.mainHeight
       color: "transparent"
 
@@ -29,22 +28,39 @@ Scope {
 
       Item {
         id: barContent
+        readonly property bool hidden: {
+          let win = ToplevelManager.activeToplevel;
+          if (!win || !win.fullscreen)
+            return false;
+
+          let screens = win.screens;
+          if (!screens || screens.length === 0)
+            return true;
+
+          for (let screen of screens) {
+            if (screen === main.screen)
+              return true;
+          }
+
+          return false;
+        }
+
         width: parent.width
         height: barScope.mainHeight
-        y: main.hidden ? -barScope.mainHeight : 0
-        opacity: main.hidden ? 0 : 1
+        y: hidden ? -barScope.mainHeight - 6 : 0
+        opacity: hidden ? 0 : 1
 
         Behavior on y {
           NumberAnimation {
-            duration: 70
-            easing.type: Easing.OutCubic
+            duration: 180
+            easing.type: Config.curve
           }
         }
 
         Behavior on opacity {
           NumberAnimation {
-            duration: 70
-            easing.type: Easing.OutCubic
+            duration: 180
+            easing.type: Config.curve
           }
         }
 
@@ -73,7 +89,7 @@ Scope {
         Row {
           id: rightRect
           spacing: Config.spacing.large
-          rightPadding: Config.spacing.large
+          rightPadding: Config.padding.large
           anchors.verticalCenter: parent.verticalCenter
           anchors.right: parent.right
 
