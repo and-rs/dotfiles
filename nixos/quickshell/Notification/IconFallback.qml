@@ -7,11 +7,13 @@ Rectangle {
     required property string image
     required property string fallbackText
     property int size: 48
+    property bool expandToAspect: false
     readonly property bool imageLooksLoadable: image !== "" && (image.startsWith("file:") || image.startsWith("/") || image.startsWith("qrc:") || image.startsWith("http:") || image.startsWith("https:") || image.startsWith("data:") || image.startsWith("image://"))
     readonly property bool imageHasContent: sourceImage.sourceSize.width > 2 && sourceImage.sourceSize.height > 2
     readonly property bool imageReady: imageLooksLoadable && sourceImage.status === Image.Ready && imageHasContent
+    readonly property real imageAspect: imageHasContent ? sourceImage.sourceSize.width / sourceImage.sourceSize.height : 1
 
-    width: size
+    width: expandToAspect && imageReady ? Math.max(size, Math.round(size * imageAspect)) : size
     height: size
     radius: Config.radius.normal
     color: Config.colors.surface1
@@ -33,7 +35,7 @@ Rectangle {
         anchors.fill: parent
         visible: false
         source: root.imageLooksLoadable ? root.image : ""
-        fillMode: Image.PreserveAspectCrop
+        fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true
         cache: true

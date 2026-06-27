@@ -39,8 +39,14 @@ Scope {
     NotificationServer {
         id: server
         bodySupported: true
-        actionsSupported: false
+        bodyImagesSupported: true
+        bodyMarkupSupported: true
+        bodyHyperlinksSupported: true
+        actionsSupported: true
+        actionIconsSupported: true
+        inlineReplySupported: true
         imageSupported: true
+        persistenceSupported: true
 
         onNotification: notification => NotificationStore.add(notification)
     }

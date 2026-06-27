@@ -11,6 +11,7 @@ Singleton {
     readonly property ListModel items: ListModel {}
     property var removingIds: ({})
     property var liveNotifications: ({})
+    property var actionMetaById: ({})
     property var notificationLocks: ({})
     property var popupQueueIds: []
 
@@ -70,6 +71,138 @@ Singleton {
         return Math.max(3000, Math.round(timeoutMs));
     }
 
+    function actionEntries(notification) {
+        const result = [];
+        if (!notification || !notification.actions)
+            return result;
+        for (let index = 0; index < notification.actions.length; index++) {
+            const action = notification.actions[index];
+            result.push({
+                index: index,
+                text: action.text,
+                identifier: action.identifier || ""
+            });
+        }
+        return result;
+    }
+
+    function setActionMeta(id, notification) {
+        const next = Object.assign({}, actionMetaById);
+        next[id] = actionEntries(notification);
+        actionMetaById = next;
+    }
+
+    function removeActionMeta(id) {
+        const next = Object.assign({}, actionMetaById);
+        delete next[id];
+        actionMetaById = next;
+    }
+
+    function actionMeta(id) {
+        const meta = actionMetaById[id];
+        return meta || [];
+    }
+
+    function actionIdentifier(action) {
+        if (!action)
+            return "";
+        return String(action.identifier || "").toLowerCase();
+    }
+
+    function isDefaultAction(action) {
+        const identifier = actionIdentifier(action);
+        return identifier === "default" || identifier === "activate";
+    }
+
+    function actionListForId(id) {
+        const notification = liveNotifications[id];
+        if (notification && notification.actions)
+            return notification.actions;
+        return actionMeta(id);
+    }
+
+    function defaultActionIndex(id) {
+        const actions = actionListForId(id);
+        for (let index = 0; index < actions.length; index++) {
+            if (isDefaultAction(actions[index]))
+                return index;
+        }
+        return -1;
+    }
+
+    function hasDefaultAction(id) {
+        return defaultActionIndex(id) !== -1;
+    }
+
+    function nonDefaultActionIndices(id) {
+        const actions = actionMeta(id);
+        const result = [];
+        for (let index = 0; index < actions.length; index++) {
+            if (!isDefaultAction(actions[index]))
+                result.push(index);
+        }
+        return result;
+    }
+
+    function actionCount(id) {
+        return nonDefaultActionIndices(id).length;
+    }
+
+    function actionMetaAt(id, visibleIndex) {
+        const indices = nonDefaultActionIndices(id);
+        if (visibleIndex < 0 || visibleIndex >= indices.length)
+            return null;
+        return actionMeta(id)[indices[visibleIndex]] || null;
+    }
+
+    function actionText(id, visibleIndex) {
+        const action = actionMetaAt(id, visibleIndex);
+        return action && action.text ? action.text : "Action";
+    }
+
+    function invokeActionByVisibleIndex(id, visibleIndex) {
+        const action = actionMetaAt(id, visibleIndex);
+        if (action)
+            invokeAction(id, action.index);
+    }
+
+    function hasInlineReplyForId(id) {
+        const notification = liveNotifications[id];
+        if (notification)
+            return notification.hasInlineReply;
+        const entry = getById(id);
+        return entry ? entry.hasInlineReply : false;
+    }
+
+    function inlineReplyPlaceholderForId(id) {
+        const notification = liveNotifications[id];
+        if (notification && notification.inlineReplyPlaceholder)
+            return notification.inlineReplyPlaceholder;
+        const entry = getById(id);
+        return entry && entry.inlineReplyPlaceholder ? entry.inlineReplyPlaceholder : "Reply";
+    }
+
+    function entryFromCurrent(current, overrides) {
+        return Object.assign({
+            id: current.id,
+            appName: current.appName,
+            appIcon: current.appIcon,
+            summary: current.summary,
+            body: current.body,
+            image: current.image,
+            urgency: current.urgency,
+            createdAtMs: current.createdAtMs,
+            popupDurationMs: current.popupDurationMs,
+            popupUntilMs: current.popupUntilMs,
+            resident: current.resident,
+            transient: current.transient,
+            hasInlineReply: current.hasInlineReply || false,
+            inlineReplyPlaceholder: current.inlineReplyPlaceholder || "Reply",
+            closed: current.closed,
+            closeReason: current.closeReason
+        }, overrides || {});
+    }
+
     function buildEntry(notification) {
         const now = Date.now();
         const popupDurationMs = popupDurationFromTimeout(notification.expireTimeout);
@@ -86,6 +219,8 @@ Singleton {
             popupUntilMs: 0,
             resident: notification.resident,
             transient: notification.transient,
+            hasInlineReply: notification.hasInlineReply,
+            inlineReplyPlaceholder: notification.inlineReplyPlaceholder || "Reply",
             closed: false,
             closeReason: ""
         };
@@ -148,22 +283,7 @@ Singleton {
 
             const startedAtMs = Date.now();
             const expiresAtMs = startedAtMs + current.popupDurationMs;
-            const nextEntry = {
-                id: current.id,
-                appName: current.appName,
-                appIcon: current.appIcon,
-                summary: current.summary,
-                body: current.body,
-                image: current.image,
-                urgency: current.urgency,
-                createdAtMs: current.createdAtMs,
-                popupDurationMs: current.popupDurationMs,
-                popupUntilMs: expiresAtMs,
-                resident: current.resident,
-                transient: current.transient,
-                closed: current.closed,
-                closeReason: current.closeReason
-            };
+            const nextEntry = entryFromCurrent(current, { popupUntilMs: expiresAtMs });
             items.set(index, nextEntry);
             setPopupEntry(nextEntry, startedAtMs, expiresAtMs);
             return;
@@ -205,6 +325,7 @@ Singleton {
             delete notificationLocks[id];
         }
         delete liveNotifications[id];
+        removeActionMeta(id);
     }
 
     function trimToLimit() {
@@ -229,9 +350,11 @@ Singleton {
             return;
 
         notification.tracked = true;
-        notification.closed.connect(reason => root.markClosed(notification.id, reason));
+        if (liveNotifications[notification.id] !== notification)
+            notification.closed.connect(reason => root.markClosed(notification.id, reason));
         delete removingIds[notification.id];
         retainNotification(notification.id, notification);
+        setActionMeta(notification.id, notification);
 
         const existingIndex = indexOfId(notification.id);
         const nextEntry = buildEntry(notification);
@@ -265,22 +388,11 @@ Singleton {
         const wasActive = popupId === id;
         removeQueuedPopupId(id);
         const current = items.get(index);
-        const nextEntry = {
-            id: current.id,
-            appName: current.appName,
-            appIcon: current.appIcon,
-            summary: current.summary,
-            body: current.body,
-            image: current.image,
-            urgency: current.urgency,
-            createdAtMs: current.createdAtMs,
-            popupDurationMs: current.popupDurationMs,
+        const nextEntry = entryFromCurrent(current, {
             popupUntilMs: 0,
-            resident: current.resident,
-            transient: current.transient,
             closed: true,
             closeReason: String(reason)
-        };
+        });
         setEntry(index, nextEntry);
         if (wasActive) {
             setPopupEntry(null);
@@ -295,22 +407,7 @@ Singleton {
 
         const wasActive = popupId === id;
         const current = items.get(index);
-        const nextEntry = {
-            id: current.id,
-            appName: current.appName,
-            appIcon: current.appIcon,
-            summary: current.summary,
-            body: current.body,
-            image: current.image,
-            urgency: current.urgency,
-            createdAtMs: current.createdAtMs,
-            popupDurationMs: current.popupDurationMs,
-            popupUntilMs: 0,
-            resident: current.resident,
-            transient: current.transient,
-            closed: current.closed,
-            closeReason: current.closeReason
-        };
+        const nextEntry = entryFromCurrent(current, { popupUntilMs: 0 });
         setEntry(index, nextEntry);
         if (wasActive) {
             setPopupEntry(null);
@@ -329,6 +426,33 @@ Singleton {
         const notification = liveNotifications[id];
         if (notification)
             notification.expire();
+    }
+
+    function invokeAction(id, actionIndex) {
+        const notification = liveNotifications[id];
+        if (!notification || !notification.actions || actionIndex < 0 || actionIndex >= notification.actions.length)
+            return;
+
+        if (popupId === id)
+            clearPopup(id);
+        notification.actions[actionIndex].invoke();
+    }
+
+    function invokeDefaultAction(id) {
+        const index = defaultActionIndex(id);
+        if (index !== -1)
+            invokeAction(id, index);
+    }
+
+    function sendInlineReply(id, text) {
+        const reply = String(text || "").trim();
+        const notification = liveNotifications[id];
+        if (!reply || !notification || !notification.hasInlineReply)
+            return;
+
+        if (popupId === id)
+            clearPopup(id);
+        notification.sendInlineReply(reply);
     }
 
     function dismiss(id) {

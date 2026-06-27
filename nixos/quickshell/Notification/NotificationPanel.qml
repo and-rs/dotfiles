@@ -22,9 +22,10 @@ Item {
     required property string label
     required property var onPress
     property bool enabled: true
+    property bool prominent: false
 
-    implicitWidth: labelText.implicitWidth + Config.padding.normal * 2
-    implicitHeight: labelText.implicitHeight + Config.padding.small * 2
+    implicitWidth: labelText.implicitWidth + (prominent ? Config.padding.large : Config.padding.normal) * 2
+    implicitHeight: labelText.implicitHeight + (prominent ? Config.padding.normal : Config.padding.small) * 2
     radius: Config.radius.normal
     color: enabled ? Config.colors.surface1 : Config.colors.surface2
     opacity: enabled ? 1 : 0.6
@@ -34,7 +35,7 @@ Item {
       anchors.centerIn: parent
       text: buttonRoot.label
       color: Config.colors.fg
-      font.pixelSize: Config.sizes.small
+      font.pixelSize: buttonRoot.prominent ? Config.sizes.normal : Config.sizes.small
       font.weight: Font.Medium
       textFormat: Text.PlainText
     }
@@ -50,32 +51,9 @@ Item {
     anchors.fill: parent
     spacing: Config.spacing.normal
 
-    Row {
-      width: parent.width
-      spacing: Config.spacing.small
-
-      Text {
-        width: parent.width - clearAllButton.implicitWidth - parent.spacing
-        text: NotificationStore.count === 1 ? "1 saved notification" : NotificationStore.count + " saved notifications"
-        color: Config.colors.fg
-        font.pixelSize: Config.sizes.normal
-        font.weight: Font.Medium
-        elide: Text.ElideRight
-        textFormat: Text.PlainText
-        verticalAlignment: Text.AlignVCenter
-      }
-
-      PanelButton {
-        id: clearAllButton
-        label: "Clear all"
-        enabled: NotificationStore.count > 0
-        onPress: () => NotificationStore.clearAll()
-      }
-    }
-
     Item {
       width: parent.width
-      height: parent.height - y
+      height: parent.height - y - clearAllButton.implicitHeight - Config.spacing.normal
 
       Timer {
         id: restoreScrollTimer
@@ -242,6 +220,44 @@ Item {
             color: Config.colors.base
           }
         }
+      }
+    }
+
+    Row {
+      width: parent.width
+      spacing: Config.spacing.normal
+
+      Column {
+        width: parent.width - clearAllButton.implicitWidth - parent.spacing
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: Config.spacing.extraSmall
+
+        Text {
+          width: parent.width
+          text: NotificationStore.count === 1 ? "1 saved notification" : NotificationStore.count + " saved notifications"
+          color: Config.colors.fg
+          font.pixelSize: Config.sizes.normal
+          font.weight: Font.Medium
+          elide: Text.ElideRight
+          textFormat: Text.PlainText
+        }
+
+        Text {
+          width: parent.width
+          text: NotificationStore.count > 0 ? "Click cards to review or clear them all" : "All clear"
+          color: Config.colors.surface4
+          font.pixelSize: Config.sizes.small
+          elide: Text.ElideRight
+          textFormat: Text.PlainText
+        }
+      }
+
+      PanelButton {
+        id: clearAllButton
+        label: "Clear all"
+        prominent: true
+        enabled: NotificationStore.count > 0
+        onPress: () => NotificationStore.clearAll()
       }
     }
   }

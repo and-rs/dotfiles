@@ -1,32 +1,42 @@
 import Quickshell
+import Quickshell.Wayland
 import QtQuick
 import qs.Bar
 
-PopupWindow {
+PanelWindow {
   id: root
 
   required property PanelWindow window
   required property bool open
   property string title: ""
   property int panelWidth: Config.sidebar.width
-  property int panelHeight: Math.max(1, (window.screen ? window.screen.height : Config.sidebar.maxHeight) - window.height)
-  property int hostWidth: window.screen ? window.screen.width : panelWidth
   property real panelOffset: panelWidth
 
   signal closeRequested
 
   default property alias content: panelBody.data
 
-  anchor.window: window
-  anchor.rect.x: 0
-  anchor.rect.y: window.height
-
+  screen: window.screen
   visible: false
-  grabFocus: false
   color: "transparent"
 
-  implicitWidth: hostWidth
-  implicitHeight: panelHeight
+  anchors {
+    top: true
+    bottom: true
+    left: true
+    right: true
+  }
+
+  margins {
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+  }
+
+  exclusiveZone: -1
+  WlrLayershell.layer: WlrLayer.Overlay
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
   Component.onCompleted: {
     if (open) {
@@ -67,9 +77,9 @@ PopupWindow {
     Rectangle {
       id: panelFrame
       x: parent.width - width + root.panelOffset
-      y: 0
+      y: root.window.height
       width: root.panelWidth
-      height: parent.height
+      height: parent.height - root.window.height
       color: Config.colors.base
       border.width: 0
       radius: 0
@@ -79,13 +89,14 @@ PopupWindow {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         width: 2
-        color: Config.colors.surface1
+        color: Config.colors.primary
       }
 
       MouseArea {
+        z: -1
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        onClicked: mouse => mouse.accepted = true
+        propagateComposedEvents: true
       }
 
       Behavior on x {

@@ -23,6 +23,23 @@ def send [
   }
 }
 
+def dbus-notify [
+  app: string
+  summary: string
+  body: string
+  actions: list<string>
+  hints: list<string>
+  timeout: int
+] {
+  let hint_count = (($hints | length) / 3 | into int)
+  ^busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications Notify susssasa{sv}i $app 0 "" $summary $body ($actions | length) ...$actions $hint_count ...$hints $timeout | ignore
+}
+
+def print-capabilities [] {
+  print "→ server capabilities"
+  ^busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications GetCapabilities
+}
+
 def main [--delay: int = 300] {
   let img = ($env.FILE_PWD | path join "../wallpapers/stars.png" | path expand)
 
@@ -99,5 +116,28 @@ def main [--delay: int = 300] {
     sleep ($delay * 1ms)
   }
 
+
+  print-capabilities
+  sleep ($delay * 1ms)
+
+  print "→ actions (tests actionsSupported + action buttons)"
+  dbus-notify test-actions "Action buttons" "Click Open, Snooze, or Dismiss in popup or notification menu." [default Open snooze Snooze dismiss Dismiss] [] 10000
+  sleep ($delay * 1ms)
+
+  print "→ inline reply (tests inlineReplySupported + input box)"
+  dbus-notify test-reply "Inline reply" "Reply box should appear. Type text, press Enter or Send." [inline-reply "Type reply..."] [] 12000
+  sleep ($delay * 1ms)
+
+  print "→ markup + hyperlinks (tests advertised body markup/hyperlinks)"
+  dbus-notify test-markup "Markup body" "<b>Bold</b> <i>italic</i> <a href='https://example.com'>link</a>" [] [] 7000
+  sleep ($delay * 1ms)
+
+  print "→ image hint (tests image-path hint)"
+  dbus-notify test-image-hint "Image hint" "Image comes from image-path hint, not icon." [] [image-path s $img] 7000
+  sleep ($delay * 1ms)
+
+  print "→ resident + transient hints"
+  dbus-notify test-hints "Resident transient hints" "Tests boolean hint parsing and capability tolerance." [] [resident b "true" transient b "true"] 7000
+  sleep ($delay * 1ms)
   print "done — all notifications sent"
 }

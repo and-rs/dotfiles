@@ -1,12 +1,12 @@
 import QtQuick
 import qs.Bar
+import qs.Notification
 
 Rectangle {
   id: root
 
   required property var entry
   property bool compact: false
-  readonly property var notification: entry ? entry.notification : null
   readonly property string appName: entry ? entry.appName : ""
   readonly property string summary: entry ? entry.summary : ""
   readonly property string body: entry ? entry.body : ""
@@ -14,6 +14,7 @@ Rectangle {
   readonly property string appIcon: entry ? entry.appIcon : ""
   readonly property bool isClosed: entry ? entry.closed : false
   readonly property int notificationId: entry ? entry.id : -1
+  readonly property bool hasDefaultAction: NotificationStore.hasDefaultAction(notificationId)
   readonly property int bodyLineLimit: compact ? 4 : 10
 
   signal closeRequested(notificationId: int)
@@ -36,13 +37,14 @@ Rectangle {
 
       IconFallback {
         id: previewIcon
-        size: compact ? 40 : 48
+        size: compact ? 48 : 56
+        expandToAspect: true
         image: root.image || root.appIcon
         fallbackText: root.appName ? root.appName.charAt(0).toUpperCase() : ""
       }
 
       Column {
-        width: parent.width - previewIcon.width - closeButton.width - parent.spacing * 2
+        width: parent.width - previewIcon.width - closeButton.width - (activateButton.visible ? activateButton.width : 0) - parent.spacing * (activateButton.visible ? 3 : 2)
         spacing: Config.spacing.extraSmall
 
         Text {
@@ -66,6 +68,29 @@ Rectangle {
           elide: Text.ElideRight
           maximumLineCount: compact ? 2 : 3
           textFormat: Text.PlainText
+        }
+      }
+
+      Rectangle {
+        id: activateButton
+        width: 20
+        height: 20
+        visible: root.hasDefaultAction && !root.isClosed
+        radius: Config.radius.full
+        color: activateArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
+
+        MaterialIcon {
+          anchors.centerIn: parent
+          code: 0xE5C8
+          iconColor: activateArea.containsMouse ? Config.colors.base : Config.colors.primary
+          iconSize: 11
+        }
+
+        MouseArea {
+          id: activateArea
+          anchors.fill: parent
+          hoverEnabled: true
+          onClicked: NotificationStore.invokeDefaultAction(root.notificationId)
         }
       }
 
@@ -100,7 +125,13 @@ Rectangle {
       font.pixelSize: Config.sizes.normal
       wrapMode: Text.Wrap
       maximumLineCount: root.bodyLineLimit
-      textFormat: Text.PlainText
+      textFormat: Text.RichText
+    }
+
+    NotificationActions {
+      width: parent.width
+      entry: root.entry
+      compact: root.compact
     }
 
     Text {
