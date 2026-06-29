@@ -6,219 +6,218 @@ import QtQuick
 import QtQuick.Layouts
 
 Scope {
-    id: lockScope
+  id: lockScope
 
-    property bool authenticating: false
-    property string errorMessage: ""
-    property string pendingPassword: ""
+  property bool authenticating: false
+  property string errorMessage: ""
+  property string pendingPassword: ""
 
-    Connections {
-        target: LockService
-        function onLockedChanged() {
-            sessionLock.locked = LockService.locked;
-        }
+  function tryAuth(password: string) {
+    if (lockScope.authenticating)
+      return;
+    lockScope.authenticating = true;
+    lockScope.errorMessage = "";
+    lockScope.pendingPassword = password;
+    pam.start();
+  }
+
+  Connections {
+    function onLockedChanged() {
+      sessionLock.locked = LockService.locked;
     }
 
-    IpcHandler {
-        target: "lock"
-        function lock(): void {
-            LockService.locked = true;
-        }
+    target: LockService
+  }
+  IpcHandler {
+    function lock(): void {
+      LockService.locked = true;
     }
 
-    PamContext {
-        id: pam
-        config: "quickshell"
+    target: "lock"
+  }
+  PamContext {
+    id: pam
 
-        onPamMessage: {
-            if (pam.responseRequired) {
-                pam.respond(lockScope.pendingPassword);
-                lockScope.pendingPassword = "";
-            }
-        }
+    config: "quickshell"
 
-        onCompleted: result => {
-            lockScope.authenticating = false;
+    onCompleted: result => {
+      lockScope.authenticating = false;
 
-            if (result === PamResult.Success) {
-                lockScope.errorMessage = "";
-                LockService.locked = false;
-            } else {
-                lockScope.errorMessage = "Authentication failed";
-                errorTimer.restart();
-            }
-        }
-
-        onError: error => {
-            console.warn("[Lock] PAM error:", PamError.toString(error));
-            lockScope.authenticating = false;
-            lockScope.errorMessage = "Auth error";
-            errorTimer.restart();
-        }
-    }
-
-    Timer {
-        id: errorTimer
-        interval: 3000
-        onTriggered: lockScope.errorMessage = ""
-    }
-
-    function tryAuth(password: string) {
-        if (lockScope.authenticating)
-            return;
-        lockScope.authenticating = true;
+      if (result === PamResult.Success) {
         lockScope.errorMessage = "";
-        lockScope.pendingPassword = password;
-        pam.start();
+        LockService.locked = false;
+      } else {
+        lockScope.errorMessage = "Authentication failed";
+        errorTimer.restart();
+      }
     }
+    onError: error => {
+      console.warn("[Lock] PAM error:", PamError.toString(error));
+      lockScope.authenticating = false;
+      lockScope.errorMessage = "Auth error";
+      errorTimer.restart();
+    }
+    onPamMessage: {
+      if (pam.responseRequired) {
+        pam.respond(lockScope.pendingPassword);
+        lockScope.pendingPassword = "";
+      }
+    }
+  }
+  Timer {
+    id: errorTimer
 
-    WlSessionLock {
-        id: sessionLock
+    interval: 3000
 
-        onLockStateChanged: {
-            if (!locked) {
-                LockService.locked = false;
-            }
+    onTriggered: lockScope.errorMessage = ""
+  }
+  WlSessionLock {
+    id: sessionLock
+
+    surface: Component {
+      WlSessionLockSurface {
+        id: lockSurface
+
+        function requestPasswordFocus() {
+          focusRetryTimer.restart();
+          Qt.callLater(() => passwordField.forceActiveFocus());
         }
 
-        surface: Component {
-            WlSessionLockSurface {
-                id: lockSurface
-                color: "#141414"
+        color: "#141414"
 
-                function requestPasswordFocus() {
-                    focusRetryTimer.restart();
-                    Qt.callLater(() => passwordField.forceActiveFocus());
-                }
-
-                // Click anywhere to recover focus
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: lockSurface.requestPasswordFocus()
-                }
-
-                Component.onCompleted: {
-                    lockSurface.requestPasswordFocus();
-                }
-
-                Connections {
-                    target: LockService
-
-                    function onLockedChanged() {
-                        if (LockService.locked)
-                            lockSurface.requestPasswordFocus();
-                    }
-                }
-
-                Timer {
-                    id: focusRetryTimer
-                    interval: 75
-                    repeat: false
-                    onTriggered: passwordField.forceActiveFocus()
-                }
-
-                Timer {
-                    id: clockTimer
-                    interval: 1000
-                    running: true
-                    repeat: true
-                    onTriggered: {
-                        timeLabel.text = Qt.formatTime(new Date(), "hh:mm");
-                        dateLabel.text = Qt.formatDate(new Date(), "dddd, MMMM d");
-                    }
-                }
-
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    spacing: 8
-
-                    Text {
-                        id: timeLabel
-                        text: Qt.formatTime(new Date(), "hh:mm")
-                        color: "#ffffff"
-                        font.pixelSize: 96
-                        font.weight: Font.Thin
-                        font.letterSpacing: 2
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    Text {
-                        id: dateLabel
-                        text: Qt.formatDate(new Date(), "dddd, MMMM d")
-                        color: "#aaaaaa"
-                        font.pixelSize: 22
-                        font.weight: Font.Normal
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 40
-                    }
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        width: 260
-                        height: 40
-                        radius: 20
-                        color: "#2a2a2a"
-                        border.color: lockScope.errorMessage ? "#ff453a" : passwordField.activeFocus ? "#5ac8fa" : "#3a3a3a"
-                        border.width: 1
-
-                        Behavior on border.color {
-                            ColorAnimation {
-                                duration: 150
-                            }
-                        }
-
-                        TextInput {
-                            id: passwordField
-                            anchors.fill: parent
-                            anchors.leftMargin: 16
-                            anchors.rightMargin: 16
-                            verticalAlignment: Text.AlignVCenter
-                            color: "#ffffff"
-                            font.pixelSize: 15
-                            echoMode: TextInput.Password
-                            clip: true
-                            focus: true
-                            enabled: !lockScope.authenticating
-
-                            // Re-grab focus when re-enabled after auth attempt
-                            onEnabledChanged: {
-                                if (enabled)
-                                    lockSurface.requestPasswordFocus();
-                            }
-
-                            Keys.onReturnPressed: {
-                                if (passwordField.text && !lockScope.authenticating) {
-                                    lockScope.tryAuth(passwordField.text);
-                                    passwordField.text = "";
-                                }
-                            }
-
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: lockScope.authenticating ? "Authenticating..." : "Enter Password"
-                                color: "#666666"
-                                font.pixelSize: 15
-                                visible: !passwordField.text
-                            }
-                        }
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: lockScope.errorMessage
-                        color: "#ff453a"
-                        font.pixelSize: 13
-                        visible: lockScope.errorMessage !== ""
-                    }
-
-                    Item {
-                        Layout.preferredHeight: 16
-                    }
-                }
-            }
+        Component.onCompleted: {
+          lockSurface.requestPasswordFocus();
         }
+
+        // Click anywhere to recover focus
+        MouseArea {
+          anchors.fill: parent
+
+          onClicked: lockSurface.requestPasswordFocus()
+        }
+        Connections {
+          function onLockedChanged() {
+            if (LockService.locked)
+              lockSurface.requestPasswordFocus();
+          }
+
+          target: LockService
+        }
+        Timer {
+          id: focusRetryTimer
+
+          interval: 75
+          repeat: false
+
+          onTriggered: passwordField.forceActiveFocus()
+        }
+        Timer {
+          id: clockTimer
+
+          interval: 1000
+          repeat: true
+          running: true
+
+          onTriggered: {
+            timeLabel.text = Qt.formatTime(new Date(), "hh:mm");
+            dateLabel.text = Qt.formatDate(new Date(), "dddd, MMMM d");
+          }
+        }
+        ColumnLayout {
+          anchors.centerIn: parent
+          spacing: 8
+
+          Text {
+            id: timeLabel
+
+            Layout.alignment: Qt.AlignHCenter
+            color: "#ffffff"
+            font.letterSpacing: 2
+            font.pixelSize: 96
+            font.weight: Font.Thin
+            text: Qt.formatTime(new Date(), "hh:mm")
+          }
+          Text {
+            id: dateLabel
+
+            Layout.alignment: Qt.AlignHCenter
+            color: "#aaaaaa"
+            font.pixelSize: 22
+            font.weight: Font.Normal
+            text: Qt.formatDate(new Date(), "dddd, MMMM d")
+          }
+          Item {
+            Layout.preferredHeight: 40
+          }
+          Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            border.color: lockScope.errorMessage ? "#ff453a" : passwordField.activeFocus ? "#5ac8fa" : "#3a3a3a"
+            border.width: 1
+            color: "#2a2a2a"
+            height: 40
+            radius: 20
+            width: 260
+
+            Behavior on border.color {
+              ColorAnimation {
+                duration: 150
+              }
+            }
+
+            TextInput {
+              id: passwordField
+
+              anchors.fill: parent
+              anchors.leftMargin: 16
+              anchors.rightMargin: 16
+              clip: true
+              color: "#ffffff"
+              echoMode: TextInput.Password
+              enabled: !lockScope.authenticating
+              focus: true
+              font.pixelSize: 15
+              verticalAlignment: Text.AlignVCenter
+
+              Keys.onReturnPressed: {
+                if (passwordField.text && !lockScope.authenticating) {
+                  lockScope.tryAuth(passwordField.text);
+                  passwordField.text = "";
+                }
+              }
+
+              // Re-grab focus when re-enabled after auth attempt
+              onEnabledChanged: {
+                if (enabled)
+                  lockSurface.requestPasswordFocus();
+              }
+
+              Text {
+                anchors.verticalCenter: parent.verticalCenter
+                color: "#666666"
+                font.pixelSize: 15
+                text: lockScope.authenticating ? "Authenticating..." : "Enter Password"
+                visible: !passwordField.text
+              }
+            }
+          }
+          Text {
+            Layout.alignment: Qt.AlignHCenter
+            color: "#ff453a"
+            font.pixelSize: 13
+            text: lockScope.errorMessage
+            visible: lockScope.errorMessage !== ""
+          }
+          Item {
+            Layout.preferredHeight: 16
+          }
+        }
+      }
     }
+
+    onLockStateChanged: {
+      if (!locked) {
+        LockService.locked = false;
+      }
+    }
+  }
 }

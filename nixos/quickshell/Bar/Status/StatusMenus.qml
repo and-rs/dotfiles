@@ -3,7 +3,7 @@ import Quickshell
 import qs.Bar
 import qs.Lock
 import qs.Sidebar
-import qs.Notification as Notifications
+import qs.NotificationV2 as NotificationsV2
 import qs.Bar.Status.Battery as BatteryStatus
 import qs.Bar.Status.Bluetooth as BluetoothStatus
 import qs.Bar.Status.Network as NetworkStatus
@@ -11,12 +11,6 @@ import qs.Bar.Status.Tray as TrayStatus
 
 Item {
   id: root
-  required property PanelWindow window
-
-  readonly property bool menusBlocked: LockService.locked
-  readonly property real buttonHorizontalPadding: Config.spacing.small / 3
-  property string activeMenu: ""
-  property string activePanel: ""
 
   readonly property Item activeButton: {
     if (activeMenu === "battery")
@@ -29,23 +23,22 @@ Item {
       return trayButton;
     return batteryButton;
   }
-
-  implicitWidth: buttons.implicitWidth
-  implicitHeight: buttons.implicitHeight
-
-  function closeMenus() {
-    activeMenu = "";
-  }
-
-  function closePanels() {
-    activePanel = "";
-  }
+  property string activeMenu: ""
+  property string activePanel: ""
+  readonly property real buttonHorizontalPadding: Config.spacing.small / 3
+  readonly property bool menusBlocked: LockService.locked
+  required property PanelWindow window
 
   function closeAll() {
     closeMenus();
     closePanels();
   }
-
+  function closeMenus() {
+    activeMenu = "";
+  }
+  function closePanels() {
+    activePanel = "";
+  }
   function switchMenu(id) {
     if (menusBlocked) {
       closeAll();
@@ -54,7 +47,6 @@ Item {
     closePanels();
     activeMenu = activeMenu === id ? "" : id;
   }
-
   function switchPanel(id) {
     if (menusBlocked) {
       closeAll();
@@ -64,89 +56,93 @@ Item {
     activePanel = activePanel === id ? "" : id;
   }
 
-  Connections {
-    target: LockService
+  implicitHeight: buttons.implicitHeight
+  implicitWidth: buttons.implicitWidth
 
+  Connections {
     function onLockedChanged() {
       if (LockService.locked)
         root.closeAll();
     }
-  }
 
+    target: LockService
+  }
   Row {
     id: buttons
-    spacing: 0
+
     anchors.verticalCenter: parent.verticalCenter
+    spacing: 0
 
     TrayStatus.Button {
       id: trayButton
+
       controller: root
     }
-
-    Notifications.Button {
+    NotificationsV2.NotificationButton {
       id: notificationsButton
-      controller: root
-    }
 
+      controller: root
+      count: NotificationsV2.NotificationStore.count
+    }
     BluetoothStatus.Button {
       id: bluetoothButton
+
       controller: root
     }
-
     NetworkStatus.Button {
       id: networkButton
+
       controller: root
     }
-
     BatteryStatus.Button {
       id: batteryButton
+
       controller: root
     }
   }
-
   PopupHost {
     id: popupHost
-    window: root.window
+
+    activeButton: root.activeButton
+    batteryButton: batteryButton
+    bluetoothButton: bluetoothButton
     controller: root
     hostItem: buttons
-    activeButton: root.activeButton
-    popupVisible: root.activeMenu !== ""
-    batteryButton: batteryButton
-    trayButton: trayButton
-    bluetoothButton: bluetoothButton
     networkButton: networkButton
+    popupVisible: root.activeMenu !== ""
+    trayButton: trayButton
+    window: root.window
 
     BatteryStatus.Menu {
-      width: parent.width
       visible: root.activeMenu === "battery" || (popupHost.keepAlive && popupHost.lastActive === "battery")
-    }
-
-    TrayStatus.Menu {
       width: parent.width
+    }
+    TrayStatus.Menu {
       controller: root
       visible: root.activeMenu === "tray" || (popupHost.keepAlive && popupHost.lastActive === "tray")
+      width: parent.width
     }
-
     BluetoothStatus.Menu {
-      width: parent.width
       visible: root.activeMenu === "bluetooth" || (popupHost.keepAlive && popupHost.lastActive === "bluetooth")
-    }
-
-    NetworkStatus.Menu {
       width: parent.width
+    }
+    NetworkStatus.Menu {
       visible: root.activeMenu === "network" || (popupHost.keepAlive && popupHost.lastActive === "network")
+      width: parent.width
     }
   }
-
   SidebarHost {
     id: sidebarHost
+
+    open: root.activePanel === "notifications"
+    title: "Notifications"
     window: root.window
-    open: root.activePanel !== ""
-    title: root.activePanel === "notifications" ? "Notifications" : "Sidebar"
+
     onCloseRequested: root.closePanels()
 
-    Notifications.NotificationPanel {
-      visible: root.activePanel === "notifications"
+    NotificationsV2.NotificationSidebarActions {
+      onClearAllRequested: NotificationsV2.NotificationStore.clear()
+      onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
     }
   }
 }

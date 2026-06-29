@@ -3,15 +3,10 @@ import QtQuick
 Item {
   id: root
 
-  readonly property var columns: NiriService.currentWorkspaceColumns
-  readonly property var focusedWindow: NiriService.instance.focusedWindow
-  property real focusFlash: 0
-
-  readonly property int mapHeight: Config.sizes.small + 2
   readonly property int columnGap: 2
-  readonly property int tileGap: 1
-  readonly property int minColumnWidth: 8
-  readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
+  readonly property var columns: NiriService.currentWorkspaceColumns
+  property real focusFlash: 0
+  readonly property var focusedWindow: NiriService.instance.focusedWindow
   readonly property real layoutHeight: {
     let maxHeight = 1;
 
@@ -20,36 +15,17 @@ Item {
 
     return maxHeight;
   }
-
-  anchors.verticalCenter: parent.verticalCenter
-  implicitWidth: mapWidth()
-  implicitHeight: mapHeight
-  width: implicitWidth
-  height: implicitHeight
-  visible: columns.length > 0
-
-  function sourceColumnHeight(column) {
-    let total = 0;
-    for (let win of column)
-      total += win.tile_size && win.tile_size.length > 1 ? win.tile_size[1] : 1;
-    return Math.max(1, total);
-  }
-
-  function sourceColumnWidth(column) {
-    let width = 1;
-    for (let win of column)
-      width = Math.max(width, win.tile_size && win.tile_size.length > 0 ? win.tile_size[0] : 1);
-    return width;
-  }
-
-  function scaleFactor() {
-    return mapHeight / layoutHeight;
-  }
+  readonly property int mapHeight: Config.sizes.small + 2
+  readonly property int minColumnWidth: 8
+  readonly property int tileGap: 1
+  readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
 
   function columnWidth(column) {
     return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
   }
-
+  function isFocused(win) {
+    return focusedWindow && win.id === focusedWindow.id;
+  }
   function mapWidth() {
     let total = 0;
     for (let i = 0; i < columns.length; i++) {
@@ -59,7 +35,21 @@ Item {
     }
     return total;
   }
-
+  function scaleFactor() {
+    return mapHeight / layoutHeight;
+  }
+  function sourceColumnHeight(column) {
+    let total = 0;
+    for (let win of column)
+      total += win.tile_size && win.tile_size.length > 1 ? win.tile_size[1] : 1;
+    return Math.max(1, total);
+  }
+  function sourceColumnWidth(column) {
+    let width = 1;
+    for (let win of column)
+      width = Math.max(width, win.tile_size && win.tile_size.length > 0 ? win.tile_size[0] : 1);
+    return width;
+  }
   function tileHeights(column) {
     let count = column.length;
     if (count === 0)
@@ -107,12 +97,25 @@ Item {
     return heights;
   }
 
-  function isFocused(win) {
-    return focusedWindow && win.id === focusedWindow.id;
+  anchors.verticalCenter: parent.verticalCenter
+  height: implicitHeight
+  implicitHeight: mapHeight
+  implicitWidth: mapWidth()
+  visible: columns.length > 0
+  width: implicitWidth
+
+  onColumnsChanged: canvas.requestPaint()
+  onFocusFlashChanged: canvas.requestPaint()
+  onFocusedWindowChanged: {
+    focusFlashAnimation.restart();
+    canvas.requestPaint();
   }
+  onHeightChanged: canvas.requestPaint()
+  onWidthChanged: canvas.requestPaint()
 
   Canvas {
     id: canvas
+
     anchors.fill: parent
     antialiasing: true
 
@@ -166,23 +169,14 @@ Item {
       ctx.globalAlpha = 1;
     }
   }
-
   NumberAnimation {
     id: focusFlashAnimation
-    target: root
-    property: "focusFlash"
-    from: 1
-    to: 0
+
     duration: Config.durations.instant
     easing.type: Config.curve
+    from: 1
+    property: "focusFlash"
+    target: root
+    to: 0
   }
-
-  onColumnsChanged: canvas.requestPaint()
-  onFocusFlashChanged: canvas.requestPaint()
-  onFocusedWindowChanged: {
-    focusFlashAnimation.restart();
-    canvas.requestPaint();
-  }
-  onWidthChanged: canvas.requestPaint()
-  onHeightChanged: canvas.requestPaint()
 }

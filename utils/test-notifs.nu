@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 # Fires a batch of test notifications to exercise the notification stack.
-# Usage: nu test-notifs.nu [--delay <ms>]
+# Usage: nu test-notifs.nu [--delay <ms>] [--img]
 
 def send [
   summary: string
@@ -40,8 +40,32 @@ def print-capabilities [] {
   ^busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications GetCapabilities
 }
 
-def main [--delay: int = 300] {
-  let img = ($env.FILE_PWD | path join "../wallpapers/stars.png" | path expand)
+def send-image-cases [img: string, delay: int] {
+  print $"→ image icon path: ($img)"
+  send "Image icon path" --body "Image comes from notify-send icon path." --app "test-image-icon" --icon $img --urgency normal
+  sleep ($delay * 1ms)
+
+  print $"→ image-path hint: ($img)"
+  dbus-notify test-image-hint "Image path hint" "Image comes from image-path hint." [] [image-path s $img] 7000
+  sleep ($delay * 1ms)
+
+  let tmp = (mktemp --suffix .png)
+  cp $img $tmp
+  print $"→ temp image-path hint deleted after send: ($tmp)"
+  dbus-notify test-image-temp "Temp image hint" "Source file gets deleted after notification send. Cache must keep image alive." [] [image-path s $tmp] 7000
+  sleep 100ms
+  rm -f $tmp
+  sleep ($delay * 1ms)
+}
+
+def main [--delay: int = 300, --img] {
+  let image_path = ($env.FILE_PWD | path join "../wallpapers/stars.png" | path expand)
+
+  if $img {
+    send-image-cases $image_path $delay
+    print "done — image notifications sent"
+    return
+  }
 
   let cases: list<record> = [
     {
@@ -105,7 +129,7 @@ def main [--delay: int = 300] {
       summary: "Photo uploaded"
       body: "stars.png was uploaded successfully."
       app: "gallery"
-      icon: $img
+      icon: $image_path
       urgency: "normal"
     }
   ]
@@ -115,7 +139,6 @@ def main [--delay: int = 300] {
     send $c.summary --body $c.body --app $c.app --icon $c.icon --urgency $c.urgency
     sleep ($delay * 1ms)
   }
-
 
   print-capabilities
   sleep ($delay * 1ms)
@@ -133,7 +156,7 @@ def main [--delay: int = 300] {
   sleep ($delay * 1ms)
 
   print "→ image hint (tests image-path hint)"
-  dbus-notify test-image-hint "Image hint" "Image comes from image-path hint, not icon." [] [image-path s $img] 7000
+  dbus-notify test-image-hint "Image hint" "Image comes from image-path hint, not icon." [] [image-path s $image_path] 7000
   sleep ($delay * 1ms)
 
   print "→ resident + transient hints"

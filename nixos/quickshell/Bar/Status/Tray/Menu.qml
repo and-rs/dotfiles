@@ -3,32 +3,33 @@ import QtQuick
 import qs.Bar
 
 Column {
-    id: root
-    width: parent ? parent.width : Config.popup.width
-    required property Item controller
-    spacing: Config.spacing.small
+  id: root
 
-    onVisibleChanged: {
-        if (!visible)
-            itemList.expandedIndex = -1;
-    }
+  required property Item controller
 
-    Text {
-        text: "System Tray"
-        color: Config.colors.fg
-        font.pointSize: 10
-        font.weight: 700
-    }
+  spacing: Config.spacing.small
+  width: parent ? parent.width : Config.popup.width
 
-    Rectangle {
-        width: parent.width
-        height: 1
-        color: Config.colors.surface2
-    }
+  onVisibleChanged: {
+    if (!visible)
+      itemList.expandedIndex = -1;
+  }
 
-    ItemList {
-        id: itemList
-        width: parent.width
-        controller: root.controller
-    }
+  Text {
+    color: Config.colors.fg
+    font.pointSize: 10
+    font.weight: 700
+    text: "System Tray"
+  }
+  Rectangle {
+    color: Config.colors.surface2
+    height: 1
+    width: parent.width
+  }
+  ItemList {
+    id: itemList
+
+    controller: root.controller
+    width: parent.width
+  }
 }

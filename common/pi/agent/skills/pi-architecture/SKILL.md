@@ -70,17 +70,17 @@ Update this skill when Pi architecture changes.
 
 ## anchorline Edit Flow
 
-`src/features/anchorline/` owns edit flow. Public tools are `anchorline-show` and `anchorline-edit`; `file-create` stays separate for new files.
+`src/features/anchorline/` owns edit flow. Public tools are `anchorline-help`, `anchorline-show`, and `anchorline-edit`; `file-create` stays separate for new files.
 
 Flow:
-1. First call: `{"path":"..."}` to `anchorline-show` — reads text file and returns current anchored lines to model.
-2. Apply: `{"path":"...","patch":"..."}` to `anchorline-edit` — writes patch using fresh `anchorline-show` output.
-3. After edit, tool returns fresh anchored state to model and only delta summary to user.
+1. First call: `{"path":"..."}` to `anchorline-show` — reads text file and returns current anchored lines to model. Use `start`/`end` for large files or trimmed output.
+2. Apply once: `{"path":"...","patch":"..."}` to `anchorline-edit` — writes one packed patch using fresh `anchorline-show` output.
+3. After edit, tool returns fresh anchored state to model and only delta summary to user. Run `anchorline-show` again before another same-file edit.
 
 Key implementation facts:
-- `anchorline-show` runs before `anchorline-edit` so anchors stay current.
+- `anchorline-help` returns grammar/workflow when syntax is unclear; do not shell `anchorline --help`.
 - `anchorline-show` replaces regular text `read`; use `read-image` for images and `code-search` or `code-files` for repo discovery.
+- `anchorline-show` supports `start`/`end` range. If output would trim, wrapper returns no tail/file lines and asks for a range.
+- `anchorline-edit` patches existing files only, appends grammar to failures, and rejects concurrent same-path edits.
 - `file-create` stays for new files and must not overwrite existing files.
 - Tool policy blocks shell rewrites like `sed`, inline `python`, `python3`, `perl`, and similar escape hatches.
-- `anchorline-show` render output is hidden from user; `anchorline-edit` renders delta summary while keeping anchored state in model context.
-

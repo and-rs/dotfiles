@@ -3,21 +3,22 @@ import QtQuick
 import qs.Lock
 
 Rectangle {
-    id: lockButton
-    width: window.implicitHeight
-    height: window.implicitHeight
-    anchors.verticalCenter: parent.verticalCenter
-    color: "transparent"
+  id: lockButton
 
-    required property PanelWindow window
+  required property PanelWindow window
 
-    MaterialIcon {
-        code: 0xE308
-        iconColor: Config.colors.surface3
-    }
+  anchors.verticalCenter: parent.verticalCenter
+  color: "transparent"
+  height: window.implicitHeight
+  width: window.implicitHeight
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: LockService.locked = true
-    }
+  MaterialIcon {
+    code: 0xE308
+    iconColor: Config.colors.surface3
+  }
+  MouseArea {
+    anchors.fill: parent
+
+    onClicked: LockService.locked = true
+  }
 }

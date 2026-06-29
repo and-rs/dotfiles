@@ -6,136 +6,124 @@ import qs.Bar
 PanelWindow {
   id: root
 
-  required property PanelWindow window
+  readonly property real closedPanelX: screen.width
+  default property alias content: panelBody.data
   required property bool open
-  property string title: ""
+  readonly property real openPanelX: screen.width - panelWidth
   property int panelWidth: Config.sidebar.width
-  property real panelOffset: panelWidth
+  property string title: ""
+  required property PanelWindow window
 
   signal closeRequested
 
-  default property alias content: panelBody.data
-
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+  WlrLayershell.layer: WlrLayer.Overlay
+  color: "transparent"
+  exclusiveZone: -1
   screen: window.screen
   visible: false
-  color: "transparent"
+
+  Component.onCompleted: {
+    if (open)
+      visible = true;
+  }
+  onOpenChanged: {
+    if (open)
+      visible = true;
+  }
 
   anchors {
-    top: true
     bottom: true
     left: true
     right: true
+    top: true
   }
-
   margins {
-    top: 0
     bottom: 0
     left: 0
     right: 0
+    top: root.window.height
   }
-
-  exclusiveZone: -1
-  WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-
-  Component.onCompleted: {
-    if (open) {
-      visible = true;
-      panelOffset = panelWidth;
-      openTimer.restart();
-    }
-  }
-
-  onOpenChanged: {
-    if (open) {
-      visible = true;
-      panelOffset = panelWidth;
-      openTimer.restart();
-    } else if (visible) {
-      panelOffset = panelWidth;
-    }
-  }
-
-  Timer {
-    id: openTimer
-    interval: 1
-    repeat: false
-    onTriggered: root.panelOffset = 0
-  }
-
   Item {
     anchors.fill: parent
 
     MouseArea {
-      anchors.left: parent.left
-      anchors.top: parent.top
       anchors.bottom: parent.bottom
+      anchors.left: parent.left
       anchors.right: panelFrame.left
+      anchors.top: parent.top
+
       onClicked: root.closeRequested()
     }
-
     Rectangle {
       id: panelFrame
-      x: parent.width - width + root.panelOffset
-      y: root.window.height
-      width: root.panelWidth
-      height: parent.height - root.window.height
-      color: Config.colors.base
+
       border.width: 0
+      color: Config.colors.base
+      height: parent.height
+      opacity: root.open ? 1 : 0
       radius: 0
+      width: root.panelWidth
+      x: root.open ? root.openPanelX : root.closedPanelX
+      y: 0
 
-      Rectangle {
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        width: 2
-        color: Config.colors.primary
+      Behavior on opacity {
+        NumberAnimation {
+          duration: Config.durations.normal
+          easing.type: Config.curve
+        }
       }
-
-      MouseArea {
-        z: -1
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        propagateComposedEvents: true
-      }
-
       Behavior on x {
         NumberAnimation {
           duration: Config.durations.normal
           easing.type: Config.curve
+
           onRunningChanged: {
-            if (!running && !root.open && root.panelOffset >= root.panelWidth)
+            if (!running && !root.open)
               root.visible = false;
           }
         }
       }
 
+      Rectangle {
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.top: parent.top
+        color: Config.colors.primary
+        width: 2
+      }
+      MouseArea {
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+        anchors.fill: parent
+        propagateComposedEvents: true
+        z: -1
+      }
       Column {
         anchors.fill: parent
         anchors.margins: Config.padding.large
         spacing: Config.spacing.normal
 
         Row {
-          width: parent.width
           spacing: Config.spacing.small
+          width: parent.width
 
           Text {
-            width: parent.width - closeButton.width - parent.spacing
-            text: root.title
             color: Config.colors.fg
+            elide: Text.ElideRight
             font.pixelSize: Config.sizes.large
             font.weight: Font.Medium
-            elide: Text.ElideRight
+            text: root.title
             textFormat: Text.PlainText
             verticalAlignment: Text.AlignVCenter
+            width: parent.width - closeButton.width - parent.spacing
           }
-
           Rectangle {
             id: closeButton
-            width: 24
+
+            color: closeArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
             height: 24
             radius: Config.radius.full
-            color: closeArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
+            width: 24
 
             MaterialIcon {
               anchors.centerIn: parent
@@ -143,20 +131,21 @@ PanelWindow {
               iconColor: closeArea.containsMouse ? Config.colors.base : Config.colors.primary
               iconSize: 12
             }
-
             MouseArea {
               id: closeArea
+
               anchors.fill: parent
               hoverEnabled: true
+
               onClicked: root.closeRequested()
             }
           }
         }
-
         Item {
           id: panelBody
-          width: parent.width
+
           height: parent.height - y
+          width: parent.width
         }
       }
     }

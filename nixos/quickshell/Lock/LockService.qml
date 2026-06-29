@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 
 Singleton {
-    id: root
-    property bool locked: false
+  id: root
+
+  property bool locked: false
 }

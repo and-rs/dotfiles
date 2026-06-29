@@ -6,6 +6,7 @@ import qs.Bar.Status
 
 Scope {
   id: barScope
+
   required property var mainHeight
 
   Variants {
@@ -13,21 +14,22 @@ Scope {
 
     PanelWindow {
       id: main
+
       required property var modelData
 
-      screen: modelData
       aboveWindows: true
-      implicitHeight: barScope.mainHeight
       color: "transparent"
+      implicitHeight: barScope.mainHeight
+      screen: modelData
 
       anchors {
-        top: true
         left: true
         right: true
+        top: true
       }
-
       Item {
         id: barContent
+
         readonly property bool hidden: {
           let win = ToplevelManager.activeToplevel;
           if (!win || !win.fullscreen)
@@ -45,19 +47,18 @@ Scope {
           return false;
         }
 
-        width: parent.width
         height: barScope.mainHeight
-        y: hidden ? -barScope.mainHeight - 6 : 0
         opacity: hidden ? 0 : 1
+        width: parent.width
+        y: hidden ? -barScope.mainHeight - 6 : 0
 
-        Behavior on y {
+        Behavior on opacity {
           NumberAnimation {
             duration: 180
             easing.type: Config.curve
           }
         }
-
-        Behavior on opacity {
+        Behavior on y {
           NumberAnimation {
             duration: 180
             easing.type: Config.curve
@@ -66,69 +67,73 @@ Scope {
 
         Rectangle {
           id: background
+
           anchors.fill: parent
           color: Config.colors.base
 
           Rectangle {
             id: bottomBorder
+
+            anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: 2
             color: Config.colors.surface1
+            height: 2
           }
         }
-
         Row {
-          spacing: Config.spacing.normal
           padding: Config.padding.micro
-          Workspaces {}
-          WindowTitle {}
-        }
+          spacing: Config.spacing.normal
 
+          Workspaces {
+          }
+          WindowTitle {
+          }
+        }
         Row {
           id: rightRect
-          spacing: Config.spacing.large
-          rightPadding: Config.padding.large
-          anchors.verticalCenter: parent.verticalCenter
+
           anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          rightPadding: Config.padding.large
+          spacing: Config.spacing.large
 
           Row {
             id: buttons
-            spacing: Config.spacing.small
+
             anchors.verticalCenter: parent.verticalCenter
+            spacing: Config.spacing.small
 
-            Recording {}
-
+            Recording {
+            }
             Caffeine {
               id: caffeine
+
               window: main
             }
-
             LockButton {
               id: lockButton
+
               window: main
             }
-
             Rectangle {
-              width: 2
-              height: Config.sizes.small
-              color: Config.colors.surface2
               anchors.verticalCenter: parent.verticalCenter
+              color: Config.colors.surface2
+              height: Config.sizes.small
+              width: 2
             }
-
             StatusMenus {
               id: statusMenus
+
               window: main
             }
           }
-
           Text {
             anchors.verticalCenter: parent.verticalCenter
             color: Config.colors.fg
-            text: Time.format("ddd d MMM hh:mm")
-            font.weight: 500
             font.pointSize: 10
+            font.weight: 500
+            text: Time.format("ddd d MMM hh:mm")
           }
         }
       }

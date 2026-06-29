@@ -3,6 +3,11 @@ on   = "<Esc>"
 run  = "close"
 desc = "Cancel input"
 
+[[mgr.append_keymap]]
+on   = "<C-a>"
+run  = "bulk_create"
+desc = "Create files in bulk"
+
 [[mgr.prepend_keymap]]
 on   = "<C-c>"
 run  = [ "escape --all", "unyank" ]

@@ -5,8 +5,8 @@ hash = "88e56a64b7ce7c4314427452343fef17"
 
 [[plugin.deps]]
 use = "and-rs/bookmarks"
-rev = "04c5ad6"
-hash = "787cada8ca749b9319c9f63f365453bd"
+rev = "0e53325"
+hash = "fe241d74229e74e49294842e9528d03a"
 
 [flavor]
 deps = []

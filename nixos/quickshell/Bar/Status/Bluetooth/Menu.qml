@@ -5,307 +5,292 @@ import Quickshell.Io
 import qs.Bar
 
 Column {
-    id: root
-    width: parent ? parent.width : 0
-    spacing: Config.spacing.small
+  id: root
 
-    readonly property var adapter: {
-        let adapters = Bluetooth.adapters.values ?? [];
-        return adapters.length > 0 ? adapters[0] : null;
+  readonly property var adapter: {
+    let adapters = Bluetooth.adapters.values ?? [];
+    return adapters.length > 0 ? adapters[0] : null;
+  }
+  readonly property bool hasConnectedDevice: {
+    let devs = Bluetooth.devices.values ?? [];
+    for (let i = 0; i < devs.length; i++) {
+      if (devs[i] && devs[i].connected)
+        return true;
     }
-    readonly property bool isEnabled: adapter && adapter.enabled
-    readonly property bool hasConnectedDevice: {
-        let devs = Bluetooth.devices.values ?? [];
-        for (let i = 0; i < devs.length; i++) {
-            if (devs[i] && devs[i].connected)
-                return true;
-        }
-        return false;
-    }
+    return false;
+  }
+  readonly property bool isEnabled: adapter && adapter.enabled
 
+  spacing: Config.spacing.small
+  width: parent ? parent.width : 0
+
+  Text {
+    color: Config.colors.fg
+    font.pointSize: 10
+    font.weight: 700
+    text: "Bluetooth"
+  }
+  Rectangle {
+    color: Config.colors.surface2
+    height: 1
+    width: parent.width
+  }
+  Rectangle {
+    color: btToggleHover.hovered ? Config.colors.surface2 : Config.colors.surface1
+    height: 28
+    radius: Config.radius.small
+    width: parent.width
+
+    HoverHandler {
+      id: btToggleHover
+    }
     Text {
-        text: "Bluetooth"
+      anchors.left: parent.left
+      anchors.leftMargin: Config.padding.small
+      anchors.verticalCenter: parent.verticalCenter
+      color: Config.colors.fg
+      font.pointSize: 9
+      font.weight: 500
+      text: "Power"
+    }
+    Text {
+      anchors.right: parent.right
+      anchors.rightMargin: Config.padding.small
+      anchors.verticalCenter: parent.verticalCenter
+      color: root.isEnabled ? Config.colors.success : Config.colors.surface3
+      font.pointSize: 9
+      font.weight: 500
+      text: root.isEnabled ? "On" : "Off"
+    }
+    MouseArea {
+      anchors.fill: parent
+      cursorShape: Qt.PointingHandCursor
+
+      onClicked: {
+        btToggleProc.command = root.isEnabled ? ["sh", "-c", "bluetoothctl power off && rfkill block bluetooth"] : ["sh", "-c", "rfkill unblock bluetooth && bluetoothctl power on"];
+        btToggleProc.running = true;
+      }
+    }
+  }
+  Rectangle {
+    color: btScanHover.hovered ? Config.colors.surface2 : Config.colors.surface1
+    height: 28
+    radius: Config.radius.small
+    visible: root.isEnabled
+    width: parent.width
+
+    HoverHandler {
+      id: btScanHover
+    }
+    Text {
+      anchors.left: parent.left
+      anchors.leftMargin: Config.padding.small
+      anchors.verticalCenter: parent.verticalCenter
+      color: Config.colors.fg
+      font.pointSize: 9
+      font.weight: 500
+      text: "Scanning"
+    }
+    Text {
+      anchors.right: parent.right
+      anchors.rightMargin: Config.padding.small
+      anchors.verticalCenter: parent.verticalCenter
+      color: root.adapter && root.adapter.discovering ? Config.colors.primary : Config.colors.surface3
+      font.pointSize: 9
+      font.weight: 500
+      text: root.adapter && root.adapter.discovering ? "On" : "Off"
+    }
+    MouseArea {
+      anchors.fill: parent
+      cursorShape: Qt.PointingHandCursor
+
+      onClicked: {
+        if (root.adapter)
+          root.adapter.discovering = !root.adapter.discovering;
+      }
+    }
+  }
+  Column {
+    spacing: Config.spacing.small
+    visible: root.adapter !== null && root.isEnabled
+    width: parent.width
+
+    Rectangle {
+      color: Config.colors.surface2
+      height: 1
+      width: parent.width
+    }
+    Row {
+      spacing: Config.spacing.small
+
+      Text {
+        color: Config.colors.surface4
+        font.pointSize: 9
+        text: "Adapter"
+      }
+      Text {
         color: Config.colors.fg
-        font.pointSize: 10
-        font.weight: 700
+        font.pointSize: 9
+        font.weight: 600
+        text: root.adapter ? root.adapter.name : ""
+      }
     }
+    Row {
+      spacing: Config.spacing.small
 
-    Rectangle {
-        width: parent.width
-        height: 1
-        color: Config.colors.surface2
+      Text {
+        color: Config.colors.surface4
+        font.pointSize: 9
+        text: "State"
+      }
+      Text {
+        color: Config.colors.fg
+        font.pointSize: 9
+        font.weight: 600
+        text: root.adapter ? BluetoothAdapterState.toString(root.adapter.state) : ""
+      }
     }
-
-    Rectangle {
-        width: parent.width
-        height: 28
-        radius: Config.radius.small
-        color: btToggleHover.hovered ? Config.colors.surface2 : Config.colors.surface1
-
-        HoverHandler {
-            id: btToggleHover
-        }
-
-        Text {
-            text: "Power"
-            color: Config.colors.fg
-            font.pointSize: 9
-            font.weight: 500
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: Config.padding.small
-        }
-
-        Text {
-            text: root.isEnabled ? "On" : "Off"
-            color: root.isEnabled ? Config.colors.success : Config.colors.surface3
-            font.pointSize: 9
-            font.weight: 500
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: Config.padding.small
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                btToggleProc.command = root.isEnabled ? ["sh", "-c", "bluetoothctl power off && rfkill block bluetooth"] : ["sh", "-c", "rfkill unblock bluetooth && bluetoothctl power on"];
-                btToggleProc.running = true;
-            }
-        }
-    }
-
-    Rectangle {
-        width: parent.width
-        height: 28
-        radius: Config.radius.small
-        color: btScanHover.hovered ? Config.colors.surface2 : Config.colors.surface1
-        visible: root.isEnabled
-
-        HoverHandler {
-            id: btScanHover
-        }
-
-        Text {
-            text: "Scanning"
-            color: Config.colors.fg
-            font.pointSize: 9
-            font.weight: 500
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: Config.padding.small
-        }
-
-        Text {
-            text: root.adapter && root.adapter.discovering ? "On" : "Off"
-            color: root.adapter && root.adapter.discovering ? Config.colors.primary : Config.colors.surface3
-            font.pointSize: 9
-            font.weight: 500
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: Config.padding.small
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                if (root.adapter)
-                    root.adapter.discovering = !root.adapter.discovering;
-            }
-        }
-    }
+  }
+  Rectangle {
+    color: Config.colors.surface2
+    height: 1
+    visible: root.isEnabled
+    width: parent.width
+  }
+  Text {
+    color: Config.colors.fg
+    font.pointSize: 9
+    font.weight: 700
+    text: "Connected"
+    visible: root.isEnabled && root.hasConnectedDevice
+  }
+  Flickable {
+    clip: true
+    contentHeight: connectedCol.implicitHeight
+    height: Math.min(connectedCol.implicitHeight, 100)
+    visible: root.isEnabled && root.hasConnectedDevice
+    width: parent.width
 
     Column {
-        width: parent.width
-        spacing: Config.spacing.small
-        visible: root.adapter !== null && root.isEnabled
+      id: connectedCol
 
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Config.colors.surface2
+      spacing: Config.spacing.extraSmall
+      width: parent.width
+
+      Repeater {
+        model: Bluetooth.devices
+
+        delegate: Rectangle {
+          required property var modelData
+
+          color: Config.colors.surface2
+          height: modelData.connected ? 36 : 0
+          radius: Config.radius.small
+          visible: modelData.connected
+          width: connectedCol.width
+
+          Text {
+            anchors.left: parent.left
+            anchors.leftMargin: Config.padding.small
+            anchors.verticalCenter: parent.verticalCenter
+            color: Config.colors.primary
+            font.pointSize: 9
+            font.weight: 700
+            text: modelData.name || "Unknown"
+          }
+          Text {
+            anchors.right: parent.right
+            anchors.rightMargin: Config.padding.small
+            anchors.verticalCenter: parent.verticalCenter
+            color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? Config.colors.destructive : Config.colors.fg) : Config.colors.success
+            font.pointSize: 8
+            text: modelData.batteryAvailable ? Math.round(modelData.battery * 100) + "%" : "Connected"
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+
+            onClicked: modelData.disconnect()
+          }
         }
+      }
+    }
+  }
+  Text {
+    color: Config.colors.fg
+    font.pointSize: 9
+    font.weight: 700
+    text: "Available"
+    visible: root.isEnabled
+  }
+  Flickable {
+    clip: true
+    contentHeight: availableCol.implicitHeight
+    height: Math.min(availableCol.implicitHeight, 150)
+    visible: root.isEnabled
+    width: parent.width
 
-        Row {
-            spacing: Config.spacing.small
+    Column {
+      id: availableCol
 
-            Text {
-                text: "Adapter"
-                color: Config.colors.surface4
-                font.pointSize: 9
-            }
+      spacing: Config.spacing.extraSmall
+      width: parent.width
 
-            Text {
-                text: root.adapter ? root.adapter.name : ""
-                color: Config.colors.fg
-                font.pointSize: 9
-                font.weight: 600
-            }
+      Repeater {
+        model: Bluetooth.devices
+
+        delegate: Rectangle {
+          required property var modelData
+
+          color: Config.colors.surface1
+          height: !modelData.connected ? 36 : 0
+          radius: Config.radius.small
+          visible: !modelData.connected
+          width: availableCol.width
+
+          Text {
+            anchors.left: parent.left
+            anchors.leftMargin: Config.padding.small
+            anchors.verticalCenter: parent.verticalCenter
+            color: Config.colors.fg
+            font.pointSize: 9
+            font.weight: 500
+            text: modelData.name || "Unknown"
+          }
+          Text {
+            anchors.right: parent.right
+            anchors.rightMargin: Config.padding.small
+            anchors.verticalCenter: parent.verticalCenter
+            color: modelData.paired ? Config.colors.surface4 : Config.colors.surface3
+            font.pointSize: 8
+            text: modelData.paired ? "Paired" : "New"
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+
+            onClicked: modelData.connect()
+          }
         }
-
-        Row {
-            spacing: Config.spacing.small
-
-            Text {
-                text: "State"
-                color: Config.colors.surface4
-                font.pointSize: 9
-            }
-
-            Text {
-                text: root.adapter ? BluetoothAdapterState.toString(root.adapter.state) : ""
-                color: Config.colors.fg
-                font.pointSize: 9
-                font.weight: 600
-            }
-        }
+      }
     }
+  }
+  Text {
+    color: Config.colors.surface3
+    font.pointSize: 9
+    text: "Bluetooth is off"
+    visible: !root.isEnabled
+  }
+  Text {
+    color: Config.colors.surface3
+    font.pointSize: 9
+    text: "No devices found"
+    visible: root.isEnabled && (Bluetooth.devices.values ?? []).length === 0
+  }
+  Process {
+    id: btToggleProc
 
-    Rectangle {
-        width: parent.width
-        height: 1
-        color: Config.colors.surface2
-        visible: root.isEnabled
+    stdout: StdioCollector {
     }
-
-    Text {
-        text: "Connected"
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 700
-        visible: root.isEnabled && root.hasConnectedDevice
-    }
-
-    Flickable {
-        width: parent.width
-        height: Math.min(connectedCol.implicitHeight, 100)
-        contentHeight: connectedCol.implicitHeight
-        clip: true
-        visible: root.isEnabled && root.hasConnectedDevice
-
-        Column {
-            id: connectedCol
-            width: parent.width
-            spacing: Config.spacing.extraSmall
-
-            Repeater {
-                model: Bluetooth.devices
-
-                delegate: Rectangle {
-                    required property var modelData
-                    width: connectedCol.width
-                    height: modelData.connected ? 36 : 0
-                    radius: Config.radius.small
-                    color: Config.colors.surface2
-                    visible: modelData.connected
-
-                    Text {
-                        text: modelData.name || "Unknown"
-                        color: Config.colors.primary
-                        font.pointSize: 9
-                        font.weight: 700
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: Config.padding.small
-                    }
-
-                    Text {
-                        text: modelData.batteryAvailable ? Math.round(modelData.battery * 100) + "%" : "Connected"
-                        color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? Config.colors.destructive : Config.colors.fg) : Config.colors.success
-                        font.pointSize: 8
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                        anchors.rightMargin: Config.padding.small
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: modelData.disconnect()
-                    }
-                }
-            }
-        }
-    }
-
-    Text {
-        text: "Available"
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 700
-        visible: root.isEnabled
-    }
-
-    Flickable {
-        width: parent.width
-        height: Math.min(availableCol.implicitHeight, 150)
-        contentHeight: availableCol.implicitHeight
-        clip: true
-        visible: root.isEnabled
-
-        Column {
-            id: availableCol
-            width: parent.width
-            spacing: Config.spacing.extraSmall
-
-            Repeater {
-                model: Bluetooth.devices
-
-                delegate: Rectangle {
-                    required property var modelData
-                    width: availableCol.width
-                    height: !modelData.connected ? 36 : 0
-                    radius: Config.radius.small
-                    color: Config.colors.surface1
-                    visible: !modelData.connected
-
-                    Text {
-                        text: modelData.name || "Unknown"
-                        color: Config.colors.fg
-                        font.pointSize: 9
-                        font.weight: 500
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: Config.padding.small
-                    }
-
-                    Text {
-                        text: modelData.paired ? "Paired" : "New"
-                        color: modelData.paired ? Config.colors.surface4 : Config.colors.surface3
-                        font.pointSize: 8
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                        anchors.rightMargin: Config.padding.small
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: modelData.connect()
-                    }
-                }
-            }
-        }
-    }
-
-    Text {
-        visible: !root.isEnabled
-        text: "Bluetooth is off"
-        color: Config.colors.surface3
-        font.pointSize: 9
-    }
-
-    Text {
-        visible: root.isEnabled && (Bluetooth.devices.values ?? []).length === 0
-        text: "No devices found"
-        color: Config.colors.surface3
-        font.pointSize: 9
-    }
-
-    Process {
-        id: btToggleProc
-        stdout: StdioCollector {}
-    }
+  }
 }

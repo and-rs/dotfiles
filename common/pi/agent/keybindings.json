@@ -1,10 +1,10 @@
 {
   "tui.editor.cursorUp": ["up", "ctrl+p"],
   "tui.editor.cursorDown": ["down", "ctrl+n"],
-  "tui.editor.deleteCharForward": ["delete"],
+  "tui.editor.deleteCharForward": ["delete", "ctrl+d"],
   "tui.select.up": ["up", "ctrl+p"],
   "tui.select.down": ["down", "ctrl+n"],
-  "app.interrupt": ["ctrl+d"],
+  "app.interrupt": ["ctrl+s"],
   "app.editor.external": ["ctrl+o"],
   "app.exit": [],
   "app.tools.expand": ["ctrl+g"],
