@@ -8,6 +8,7 @@ Item {
   property real preservedContentY: 0
   readonly property int seamHeight: 28
   property real wheelScrollMultiplier: 7.0
+  property bool clearingAll: false
 
   signal clearAllRequested
   signal closeRequested(notificationId: int)
@@ -15,6 +16,16 @@ Item {
   function restoreContentY(): void {
     const maxContentY = Math.max(0, listView.contentHeight - listView.height);
     listView.contentY = Math.max(0, Math.min(maxContentY, preservedContentY));
+  }
+
+  function beginClearAll(): void {
+    if (root.clearingAll || NotificationStore.count === 0)
+      return;
+
+    root.preservedContentY = listView.contentY;
+    root.pendingScrollRestore = false;
+    root.clearingAll = true;
+    clearAllTimer.restart();
   }
 
   anchors.fill: parent
@@ -38,6 +49,17 @@ Item {
             return;
           root.restoreContentY();
           root.pendingScrollRestore = false;
+        }
+      }
+      Timer {
+        id: clearAllTimer
+
+        interval: Config.durations.fast
+        repeat: false
+
+        onTriggered: {
+          root.clearAllRequested();
+          root.clearingAll = false;
         }
       }
       MouseArea {
@@ -68,12 +90,51 @@ Item {
 
         delegate: Item {
           required property var modelData
+          property bool closingSelf: false
+          property bool closing: root.clearingAll || closingSelf
 
-          height: card.implicitHeight
-          opacity: 1
-          scale: 1
+          height: closing ? 0 : card.implicitHeight
+          opacity: closing ? 0 : 1
+          scale: closing ? 0.96 : 1
+          x: closing ? 20 : 0
           width: listView.width
 
+          Behavior on height {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+            }
+          }
+          Behavior on opacity {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+            }
+          }
+          Behavior on scale {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+            }
+          }
+          Behavior on x {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+            }
+          }
+
+          Timer {
+            id: closeTimer
+
+            interval: Config.durations.fast
+            repeat: false
+
+            onTriggered: {
+              root.closeRequested(modelData.id);
+              restoreScrollTimer.restart();
+            }
+          }
           NotificationCard {
             id: card
 
@@ -85,10 +146,12 @@ Item {
             onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeVisibleAction(notificationId, actionIndex)
             onActivateRequested: notificationId => NotificationStore.invokeDefaultAction(notificationId)
             onCloseRequested: notificationId => {
+              if (root.clearingAll || closingSelf)
+                return;
               root.preservedContentY = listView.contentY;
               root.pendingScrollRestore = true;
-              root.closeRequested(notificationId);
-              restoreScrollTimer.restart();
+              closingSelf = true;
+              closeTimer.restart();
             }
             onInlineReplyRequested: (notificationId, text) => NotificationStore.sendInlineReply(notificationId, text)
           }
@@ -224,11 +287,11 @@ Item {
       PanelButton {
         id: clearAllButton
 
-        enabled: NotificationStore.count > 0
+        enabled: NotificationStore.count > 0 && !root.clearingAll
         label: "Clear all"
         prominent: true
 
-        onPress: () => root.clearAllRequested()
+        onPress: () => root.beginClearAll()
       }
     }
   }
