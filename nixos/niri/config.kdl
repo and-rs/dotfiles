@@ -288,6 +288,9 @@ binds {
     Mod+Shift+U allow-inhibiting=false {
         screenshot-window
     }
+    Mod+Shift+F11 repeat=false {
+        spawn-sh "nu -n -c 'source ~/.config/nushell/nushelter/screen.nu; display back'"
+    }
     Mod+Space repeat=false {
         spawn-sh "rofi -modes drun,calc -show"
     }

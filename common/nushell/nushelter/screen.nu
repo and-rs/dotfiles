@@ -99,6 +99,55 @@ def _display-solo [target: string] {
     }
   }
 }
+def _display-state-path [] {
+  let cache = ($env.XDG_CACHE_HOME? | default ($"($env.HOME)/.cache"))
+  $cache | path join "nushell" "display-state.json"
+}
+
+def _save-display-state [] {
+  let enabled = (_outputs | where enabled == true | each {|o| $o.name })
+  if ($enabled | is-empty) {
+    return
+  }
+  let path = (_display-state-path)
+  mkdir ($path | path dirname)
+  { enabled: $enabled } | to json | save -f $path
+}
+
+def _load-display-state [] {
+  let path = (_display-state-path)
+  if not ($path | path exists) {
+    return []
+  }
+  try {
+    open $path | get enabled? | default []
+  } catch {
+    []
+  }
+}
+
+def _apply-display-state [enabled_names] {
+  let outs = (_outputs)
+  if ($outs | is-empty) {
+    return
+  }
+  for o in $outs {
+    if ($enabled_names | any {|name| $name == $o.name }) {
+      niri msg output $o.name on
+    } else {
+      niri msg output $o.name off
+    }
+  }
+}
+
+def _restore-display-state [] {
+  let saved = (_load-display-state)
+  if ($saved | is-empty) {
+    return false
+  }
+  _apply-display-state $saved
+  true
+}
 
 def display [--help (-h)] {
   if not $help {
@@ -140,11 +189,16 @@ def --env "display solo" [] {
   if ($target | is-empty) {
     return
   }
+  _save-display-state
   _display-solo $target
   $env.DISPLAY_LAST_SOLO = $target
 }
 
 def "display back" [] {
+  let restored = (_restore-display-state)
+  if $restored {
+    return
+  }
   let outs = (_outputs)
   if ($outs | is-empty) {
     return
@@ -179,6 +233,7 @@ def "display external" [] {
       $active_external | first | get name
     }
   )
+  _save-display-state
   _display-solo $target
 }
 
