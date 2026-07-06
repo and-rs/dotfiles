@@ -1,0 +1,5 @@
+{
+  "copilot/gpt-5.4": "medium",
+  "copilot/gpt-5.4-mini": "compaction",
+  "copilot/gpt-5.5": "strong"
+}

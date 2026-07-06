@@ -10,6 +10,7 @@
       create: true
 - link:
     ~/.pi: common/pi
+    ~/.maki: common/maki
     ~/.tmux.conf: common/.tmux.conf
     ~/.gitconfig: common/.gitconfig
     ~/.gitconfig.delta: common/.gitconfig.delta
