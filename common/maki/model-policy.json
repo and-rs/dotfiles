@@ -1,0 +1,5 @@
+{
+  "weak": "copilot/gpt-5.6-luna",
+  "medium": "copilot/gpt-5.6-terra",
+  "strong": "copilot/gpt-5.6-sol"
+}

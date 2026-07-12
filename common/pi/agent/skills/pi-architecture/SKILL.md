@@ -61,26 +61,16 @@ Update this skill when Pi architecture changes.
 - Remove inert compatibility shims when safe
 - Keep ownership obvious from import graph
 
-## Tool Registration Gotcha
+## Tool Registration
 
-- `src/app/features.ts` assembles feature registration.
-- If feature is removed, remove its app registration and dead files together.
-- Visual file inspection lives in `src/features/read-image/` and is registered through `src/app/features.ts` like other feature-owned tools.
-- `read-image` sends actual image bytes to image-capable models; do not add OCR or shell/base64 workaround flows unless tool path truly fails.
+`src/app/features.ts` assembles feature registration.
+Read-only discovery registers model tools for code, source viewing, Neovim handoff, images, and web documents; focus border remains a separate UI feature.
+Never expose mutation, session-transfer, terminal, or editor features as model tools.
+User-only web commands and `/qf` may manage credentials or copy navigation; model-facing web tools remain read-only.
 
-## anchorline Edit Flow
+## Read-only Boundary
 
-`src/features/anchorline/` owns edit flow. Public tools are `anchorline-help`, `anchorline-show`, and `anchorline-edit`; `file-create` stays separate for new files.
+`src/app/read-only-profile.ts` is the sole owner of the model tool allowlist.
 
-Flow:
-1. First call: `{"path":"..."}` to `anchorline-show` — reads text file and returns current anchored lines to model. Use `start`/`end` for large files or trimmed output.
-2. Apply once: `{"path":"...","patch":"..."}` to `anchorline-edit` — writes one packed patch using fresh `anchorline-show` output.
-3. After edit, tool returns fresh anchored state to model and only delta summary to user. Run `anchorline-show` again before another same-file edit.
-
-Key implementation facts:
-- `anchorline-help` returns grammar/workflow when syntax is unclear; do not shell `anchorline --help`.
-- `anchorline-show` replaces regular text `read`; use `read-image` for images and `code-search` or `code-files` for repo discovery.
-- `anchorline-show` supports `start`/`end` range. If output would trim, wrapper returns no tail/file lines and asks for a range.
-- `anchorline-edit` patches existing files only, appends grammar to failures, and rejects concurrent same-path edits.
-- `file-create` stays for new files and must not overwrite existing files.
-- Tool policy blocks shell rewrites like `sed`, inline `python`, `python3`, `perl`, and similar escape hatches.
+It applies that fixed allowlist on session start and restoration; do not add per-tool event guards or runtime modes.
+Its drift test must keep registered model tools equal to the allowlist. `code-view` owns plain numbered source ranges; `quickfix-handoff` renders user-run Neovim navigation from verified locations and `/qf` copies its latest command.

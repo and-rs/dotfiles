@@ -51,7 +51,7 @@ maki.setup({
 		splash_tip = white,
 		splash_tip_label = cyan,
 
-		background = black,
+		background = "#DDDDE3",
 		foreground = bright_white,
 
 		user = bright_cyan,

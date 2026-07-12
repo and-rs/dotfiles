@@ -13,6 +13,17 @@ history.txt
 messages.md
 models-override.yaml
 
+# hide maki stuff
+auth
+plans
+sessions
+projects
+input_history.json
+maki.log
+model
+model-blocked
+model-tiers
+
 .npm
 node_modules
 **/pi/agent/sessions

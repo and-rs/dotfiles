@@ -14,7 +14,8 @@
     ]
   },
   "scripts": {
-    "check": "tsc -p tsconfig.json --noEmit"
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "^0.74.0",
@@ -24,8 +25,7 @@
     "jsdom": "^26.1.0",
     "turndown": "^7.2.0",
     "turndown-plugin-gfm": "^1.0.2",
-    "typebox": "^1.0.55",
-    "xxhashjs": "^0.2.2"
+    "typebox": "^1.0.55"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
