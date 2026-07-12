@@ -43,15 +43,15 @@ export-env {
     $env.NODE_EXTRA_CA_CERTS = $node_extra_ca
   }
 
-  let bob_version = "0.12.2"
-  if not (which bob | is-empty) {
-    let bob_cmd = ["bob" "run" $bob_version]
-    let bob_run = $"((which bob | get path | first)) run ($bob_version)"
-    $env.config.buffer_editor = $bob_cmd
-    $env.EDITOR = $bob_run
-    $env.VISUAL = $bob_run
-    $env.SUDO_EDITOR = $bob_run
-    $env.MANPAGER = $"($bob_run) +Man!"
+  # Bob owns the active Neovim version through `bob use`.
+  let bob_nvim = ($env.HOME | path join ".local" "share" "bob" "nvim-bin" "nvim")
+
+  if not (which bob | is-empty) and ($bob_nvim | path exists) {
+    $env.config.buffer_editor = [$bob_nvim]
+    $env.EDITOR = $bob_nvim
+    $env.VISUAL = $bob_nvim
+    $env.SUDO_EDITOR = $bob_nvim
+    $env.MANPAGER = $"($bob_nvim) +Man!"
   } else if not (which nvim | is-empty) {
     $env.config.buffer_editor = "nvim"
     $env.EDITOR = "nvim"

@@ -1,4 +1,4 @@
-def --wrapped nv [...args] {
+def --wrapped nvim [...args] {
   let editor = ($env.config.buffer_editor? | default $env.EDITOR)
   if ($editor | describe) == "list<string>" {
     run-external ($editor | first) ...($editor | skip 1) ...$args
@@ -6,6 +6,8 @@ def --wrapped nv [...args] {
     run-external $editor ...$args
   }
 }
+
+alias nv = nvim
 
 alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
 alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'

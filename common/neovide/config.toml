@@ -1,5 +1,5 @@
 fork = true
-neovim-bin = "/home/and-rs/.local/share/bob/v0.12.2/bin/nv"
+neovim-bin = "/home/and-rs/.local/share/bob/nvim-bin/nvim"
 
 [font]
 size = 14
