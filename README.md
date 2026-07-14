@@ -4,10 +4,7 @@
 <img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/25f5b4ad-aa8c-4a95-9b67-d965fc502849" />
 <img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/bb92d0dd-922b-48fa-8cc1-88ff1ad8f3a6" />
 
-
-My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
-keyboard-driven workflow, custom shell tooling, and consistent theming across
-terminals, editors, and desktop components.
+My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled, keyboard-driven workflow, custom shell tooling, and consistent theming across terminals, editors, and desktop components.
 
 ## What this repo configures
 
@@ -40,16 +37,14 @@ It handles macOS and Linux specific configs.
 
 ### Linux desktop
 
-- Niri window manager configuration with workspace rules, keybindings, and layer
-  rules
+- Niri window manager configuration with workspace rules, keybindings, and layer rules
 - Quickshell bar, notifications, OSD, tray, battery, and recording widgets
 - Idle / lock handling through Hypridle and Hyprlock
 - Rofi launcher and power menu integration
 
 ### Shell workflow
 
-- Nushell configuration with custom prompt, keybinds, history tooling, git
-  helpers, and file utilities
+- Nushell configuration with custom prompt, keybinds, history tooling, git helpers, and file utilities
 - Pi and shell LLM helpers
 - Zoxide, direnv, and completion setup
 
@@ -73,8 +68,6 @@ These are all the places that need to change for a full theme swap:
 
 ## Notes
 
-- The repo is intentionally opinionated; it is optimized for a specific
-  workflow, not for generic portability.
-- Several configs assume availability of external tools, review my
-  [nix setup](https://github.com/and-rs/nixed)
+- The repo is intentionally opinionated; it is optimized for a specific workflow, not for generic portability.
+- Several configs assume availability of external tools, review my [nix setup](https://github.com/and-rs/nixed)
 - Also check my [nvim setup](https://github.com/and-rs/nvim)
