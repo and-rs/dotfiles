@@ -21,14 +21,19 @@ export interface QuickfixHandoff {
   script: string;
 }
 
-
 function quoteNushell(value: string): string {
-  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  return `'${value.replace(/'/g, "''")}'`;
 }
 
 function validateLocation(input: QuickfixLocationInput): void {
-  if (!input.reason.trim()) throw new Error(`Quickfix reason is required for ${input.path}:${input.line}.`);
-  if (/\r|\n/.test(input.reason)) throw new Error(`Quickfix reason must be one line: ${input.path}:${input.line}.`);
+  if (!input.reason.trim())
+    throw new Error(
+      `Quickfix reason is required for ${input.path}:${input.line}.`,
+    );
+  if (/\r|\n/.test(input.reason))
+    throw new Error(
+      `Quickfix reason must be one line: ${input.path}:${input.line}.`,
+    );
 }
 
 async function getCodeFile(
@@ -48,8 +53,12 @@ export async function createQuickfixHandoff(
   cwd: string,
   inputs: QuickfixLocationInput[],
 ): Promise<QuickfixHandoff> {
-  if (!inputs.length) throw new Error("At least one quickfix location is required.");
-  if (inputs.length > MAX_LOCATIONS) throw new Error(`Quickfix handoff supports at most ${MAX_LOCATIONS} locations.`);
+  if (!inputs.length)
+    throw new Error("At least one quickfix location is required.");
+  if (inputs.length > MAX_LOCATIONS)
+    throw new Error(
+      `Quickfix handoff supports at most ${MAX_LOCATIONS} locations.`,
+    );
 
   const cache = new Map<string, Promise<CodeFile>>();
   const locations: VerifiedQuickfixLocation[] = [];
@@ -57,23 +66,35 @@ export async function createQuickfixHandoff(
     validateLocation(input);
     const file = await getCodeFile(cwd, input.path, cache);
     if (input.line > file.totalLines) {
-      throw new Error(`Line ${input.line} exceeds file length ${file.totalLines}: ${input.path}`);
+      throw new Error(
+        `Line ${input.line} exceeds file length ${file.totalLines}: ${input.path}`,
+      );
     }
     locations.push({
-      path: file.absolutePath,
+      path: file.path,
       line: input.line,
       column: input.column ?? 1,
       reason: input.reason.trim(),
     });
   }
 
-  const entries = locations.map((location) =>
-    quoteNushell(`${location.path}:${location.line}:${location.column}:${location.reason}`),
+  const quickfixList = JSON.stringify(
+    locations.map((location) => ({
+      filename: location.path,
+      lnum: location.line,
+      col: location.column,
+      text: location.reason,
+    })),
   );
+
   const script = [
-    "[",
-    ...entries.map((entry, index) => `  ${entry}${index === entries.length - 1 ? "" : ","}`),
-    "] | str join (char nl) | nvim -q -",
+    "(",
+    "  nvim",
+    `  -c ${quoteNushell(`call setqflist(${quickfixList})`)}`,
+    "  -c 'cfirst'",
+    "  -c 'copen'",
+    "  -c 'wincmd p'",
+    ")",
   ].join("\n");
 
   return { locations, script };

@@ -16,14 +16,16 @@ test("quickfix handoff renders verified locations as Nushell", async () => {
       { path: "src/main.rs", line: 3, column: 4, reason: "remove auth helper" },
     ]);
 
-    const source = path.join(root, "src", "main.rs");
     assert.equal(
       handoff.script,
       [
-        "[",
-        `  "${source}:2:1:remove auth dispatch",`,
-        `  "${source}:3:4:remove auth helper"`,
-        "] | str join (char nl) | nvim -q -",
+        "(",
+        "  nvim",
+        "  -c 'call setqflist([{\"filename\":\"src/main.rs\",\"lnum\":2,\"col\":1,\"text\":\"remove auth dispatch\"},{\"filename\":\"src/main.rs\",\"lnum\":3,\"col\":4,\"text\":\"remove auth helper\"}])'",
+        "  -c 'cfirst'",
+        "  -c 'copen'",
+        "  -c 'wincmd p'",
+        ")",
       ].join("\n"),
     );
   } finally {
