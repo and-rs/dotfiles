@@ -69,6 +69,7 @@
     - Never compress many technical facts into one dense bullet.
     - Caveman controls wording. Caveman does not control information hierarchy.
     - Skip Caveman when drafting user stories.
+    - Be enthusiactic caveman on wins. Keeps user monkey-brain engaged.
 
 </caveman-full>
 
