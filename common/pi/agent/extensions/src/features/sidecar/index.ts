@@ -1,69 +1,89 @@
 import {
   createAgentSession,
+  getMarkdownTheme,
+  ModelRuntime,
+  SessionManager,
   type ExtensionAPI,
+  type CreateAgentSessionResult,
 } from "@earendil-works/pi-coding-agent";
-import { complete, Context, UserMessage } from "@earendil-works/pi-ai/compat";
+import { Box, Markdown, Component } from "@earendil-works/pi-tui";
+import { returnRawWebTools } from "../web-docs/tools";
 
 export default function registerSidecarCommand(pi: ExtensionAPI): void {
+  pi.registerEntryRenderer("sidecar", (entry, _, theme) => {
+    const data = entry.data as string;
+    const mdTheme = getMarkdownTheme();
+    mdTheme.hr = (lines) => {
+      return theme.fg("dim", lines);
+    };
+    mdTheme.codeBlockIndent = "";
+    const container = new Box(0, 0, (text) => {
+      return theme.bg("userMessageBg", text);
+    });
+    const border: Component = {
+      render: (w) => {
+        let i = 0;
+        let store = "";
+        while (i < w) {
+          store += "─";
+          i++;
+        }
+        return [theme.fg("success", store)];
+      },
+      invalidate: () => {},
+    };
+    const mdContent = new Markdown(
+      `${theme.fg("success", "Sidecar:")} ${data}`,
+      1,
+      0,
+      mdTheme,
+    );
+    container.addChild(border);
+    container.addChild(mdContent);
+    container.addChild(border);
+    return container;
+  });
+
   pi.registerCommand("side", {
     description:
       "Make a question to the sidecar without getting into the context.",
+
     handler: async (args, ctx) => {
+      let result: CreateAgentSessionResult;
       try {
         const question = args.trim();
         if (question.length < 1) {
-          ctx.ui.notify("Sidecar question empty, type your message", "error");
-          return;
+          throw Error("Type your message");
         }
-
-        const model = ctx.model;
-        if (!model) {
-          ctx.ui.notify("No model available for Sidecar question.", "error");
-          return;
-        }
-
-        const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-        if (!auth || !auth.ok) {
-          ctx.ui.notify(
-            "No auth headers available for Sidecar question.",
-            "error",
-          );
-          return;
-        }
-        const options = { apiKey: auth.apiKey, headers: auth.headers };
-
-        const systemPrompt =
-          "Answer side question briefly. Search online if required to answer. Be brief:\n";
-
-        const userMessage: UserMessage = {
-          role: "user",
-          content: question,
-          timestamp: Date.now(),
-        };
-
-        const context: Context = { systemPrompt, messages: [userMessage] };
-
-        const { session } = await createAgentSession({
+        ctx.ui.setWidget("sidecar-loader", ["Sidecar thinking..."]);
+        const modelRuntime = await ModelRuntime.create();
+        const customTools = returnRawWebTools();
+        result = await createAgentSession({
           cwd: ctx.cwd,
+          modelRuntime,
+          model: ctx.model,
           agentDir: ctx.cwd,
-          model,
           thinkingLevel: "medium",
-          tools: ["exa-search", "web-fetch"],
+          sessionManager: SessionManager.inMemory(ctx.cwd),
+          tools: ["web-fetch", "exa-search"],
+          customTools,
         });
-
-        const response = await session.prompt(question);
-
-        if (!response.content) {
-          ctx.ui.notify("No answer received from Sidecar model.", "error");
-          return;
+        if (!result.session) {
+          throw Error("Could not create session");
         }
-
-        const answer = response.content.join("\n");
-        ctx.ui.notify(answer, "info");
+        await result.session.prompt(question);
+        const answer = result.session.getLastAssistantText();
+        if (!answer) {
+          throw Error("No answer received");
+        }
+        pi.appendEntry("sidecar", answer);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "unknown error";
         ctx.ui.notify(`Sidecar question failed: ${message}`, "error");
+      } finally {
+        ctx.ui.setWidget("sidecar-loader", undefined);
+        result?.session.dispose();
       }
     },
   });
