@@ -28,6 +28,7 @@ model-tiers
 node_modules
 **/pi/agent/sessions
 **/pi/agent/auth.json
+**/pi/agent/models-store.json
 
 **/aichat/rags
 **/aichat/sessions
