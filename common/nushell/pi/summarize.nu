@@ -34,7 +34,7 @@ export def _ai_summarize_model [] {
 }
 
 def _ai_summarize_input [context: string prompt: string] {
-  let max_chars = 12000
+  let max_chars = 62000
   let body = $"($context)\n\n($prompt)"
   if (($body | str length) <= $max_chars) {
     return $body
@@ -60,7 +60,7 @@ export def _ai_summarize [
   }
 
   let sp = "You follow instructions to the letter with no failure. you don't
-  have acknowledge that you understood the instructions. and your commit
+  have to acknowledge that you understood the instructions. and your commit
   message output is always less than 60 characters long per line, you
   prioritize adding details to the commit message while staying true to the
   commit style seen previously."

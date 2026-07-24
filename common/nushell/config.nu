@@ -125,6 +125,7 @@ if not ($autoload_dir | path exists) {
 }
 carapace _carapace nushell | save -f $"($autoload_dir)/carapace.nu"
 
+source nushelter/nvim.nu
 # only enable when debugging
 # export-env {
 #   $env.is_startup = false

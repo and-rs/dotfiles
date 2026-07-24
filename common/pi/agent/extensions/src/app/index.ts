@@ -1,7 +1,7 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerAppFeatures } from "./features.ts";
 import { registerReadOnlyProfile } from "./read-only-profile.ts";
-import { registerAppUi } from "./ui.ts";
+import { registerAppUi } from "../ui/osd.ts";
 
 export default function registerApp(pi: ExtensionAPI): void {
   registerAppUi(pi);

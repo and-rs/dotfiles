@@ -5,7 +5,7 @@ export def "ai gs" [] {
     return
   }
 
-  let staged = (git diff --staged --stat | str trim)
+  let staged = (git diff --staged | str trim)
   if ($staged | is-empty) {
     print $"(ansi yellow)nothing staged(ansi reset)"
     return
@@ -15,11 +15,11 @@ export def "ai gs" [] {
   code fences. No markdown. No surrounding quotes. No preamble. No explanation.
   Raw text only. Mimic the style and format of recent commits exactly. Do not
   over-focus on one file or one narrow part of the diff. Prefer breadth across
-  staged files. Keep every line under 60 characters."
+  staged files. Keep every line under 60 characters. Do not go deep into text
+  changes like READMEs, only a quick content description"
 
   mut msg = (
-    _ai_summarize
-    --label "Summarizing" --context (_ai_git_status) --prompt $base_prompt
+    _ai_summarize --label "Summarizing" --context (_ai_git_status) --prompt $base_prompt
   )
 
   loop {
