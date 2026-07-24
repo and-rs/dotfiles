@@ -6,37 +6,35 @@ import {
   truncateToWidth,
   visibleWidth,
 } from "@earendil-works/pi-tui";
-
-interface LayoutLine {
-  text: string;
-  hasCursor: boolean;
-  cursorPos?: number;
-}
-
-interface EditorRenderInternals {
-  paddingX: number;
-  lastWidth: number;
-  scrollOffset: number;
-  autocompleteState: unknown;
-  autocompleteList?: {
-    render(width: number): string[];
-    handleInput(data: string): void;
-  };
-  layoutText(width: number): LayoutLine[];
-  segment(text: string, mode: "word" | "grapheme"): Iterable<Intl.SegmentData>;
-}
+import {
+  EditorRenderInternals,
+  validateEditorRenderInternals,
+  validateLayoutLines,
+} from "./validate-styled-editor";
 
 export default class StyledEditor extends CustomEditor {
+  private hasValidatedInternals: boolean = false;
+
   override render(width: number): string[] {
-    const editor = this as unknown as EditorRenderInternals;
+    const horizontal = this.borderColor("─");
+
+    // This will fail fast. If internal api changes, please fix accordingly, no graceful fail UI.
+    const editor = !this.hasValidatedInternals
+      ? validateEditorRenderInternals(this)
+      : (this as unknown as EditorRenderInternals);
+
     const maxPadding = Math.max(0, Math.floor((width - 1) / 2));
     const paddingX = Math.min(editor.paddingX, maxPadding);
     const contentWidth = Math.max(1, width - paddingX * 2);
     const layoutWidth = Math.max(1, contentWidth - (paddingX ? 0 : 1));
     editor.lastWidth = layoutWidth;
-
-    const horizontal = this.borderColor("─");
     const layoutLines = editor.layoutText(layoutWidth);
+
+    if (!this.hasValidatedInternals) {
+      validateLayoutLines(layoutLines);
+      this.hasValidatedInternals = true;
+    }
+
     const maxVisibleLines = Math.max(
       5,
       Math.floor(this.tui.terminal.rows * 0.3),
