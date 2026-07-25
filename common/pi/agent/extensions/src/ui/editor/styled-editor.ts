@@ -14,10 +14,38 @@ import {
 
 export default class StyledEditor extends CustomEditor {
   private hasValidatedInternals: boolean = false;
+  private borderChars = {
+    tl: "┏",
+    th: "━",
+    tr: "┓",
+    rh: "┃",
+    br: "┛",
+    bh: "━",
+    bl: "┗",
+    lh: "┃",
+  };
+  private renderTopBorder(width: number, scrollOffset: number): string {
+    let topBorder = this.borderChars.tl;
+    for (let i = 0; i === width - 2; i++) {
+      if (i === width - 3) {
+        topBorder += this.borderChars.tr;
+        break;
+      }
+      topBorder += this.borderChars.th;
+    }
+    if (scrollOffset === 0) {
+      return topBorder;
+    }
+    return topBorder;
+  }
+  private renderBottomBorder(width: number, linesBelow: number): string {
+    return "";
+  }
+  private renderContentLine(width: number): string {
+    return "";
+  }
 
   override render(width: number): string[] {
-    const horizontal = this.borderColor("─");
-
     // This will fail fast. If internal api changes, please fix accordingly, no graceful fail UI.
     const editor = !this.hasValidatedInternals
       ? validateEditorRenderInternals(this)
@@ -63,19 +91,21 @@ export default class StyledEditor extends CustomEditor {
     const leftPadding = " ".repeat(paddingX);
     const rightPadding = leftPadding;
 
-    if (editor.scrollOffset > 0) {
-      const indicator = `─── ↑ ${editor.scrollOffset} more `;
-      const remaining = width - visibleWidth(indicator);
-      result.push(
-        this.borderColor(
-          remaining >= 0
-            ? indicator + "─".repeat(remaining)
-            : truncateToWidth(indicator, width),
-        ),
-      );
-    } else {
-      result.push(horizontal.repeat(width));
-    }
+    result.push(this.renderTopBorder(width));
+
+    // if (editor.scrollOffset > 0) {
+    //   const indicator = `─── ↑ ${editor.scrollOffset} more `;
+    //   const remaining = width - visibleWidth(indicator);
+    //   result.push(
+    //     this.borderColor(
+    //       remaining >= 0
+    //         ? indicator + "─".repeat(remaining)
+    //         : truncateToWidth(indicator, width),
+    //     ),
+    //   );
+    // } else {
+    //   result.push(horizontal.repeat(width));
+    // }
 
     for (const layoutLine of visibleLines) {
       let displayText = layoutLine.text;
@@ -106,17 +136,17 @@ export default class StyledEditor extends CustomEditor {
       result.push(`${leftPadding}${displayText}${padding}${lineRightPadding}`);
     }
 
-    const linesBelow =
-      layoutLines.length - (editor.scrollOffset + visibleLines.length);
-    if (linesBelow > 0) {
-      const indicator = `─── ↓ ${linesBelow} more `;
-      const remaining = width - visibleWidth(indicator);
-      result.push(
-        this.borderColor(indicator + "─".repeat(Math.max(0, remaining))),
-      );
-    } else {
-      result.push(horizontal.repeat(width));
-    }
+    // const linesBelow =
+    //   layoutLines.length - (editor.scrollOffset + visibleLines.length);
+    // if (linesBelow > 0) {
+    //   const indicator = `─── ↓ ${linesBelow} more `;
+    //   const remaining = width - visibleWidth(indicator);
+    //   result.push(
+    //     this.borderColor(indicator + "─".repeat(Math.max(0, remaining))),
+    //   );
+    // } else {
+    //   result.push(horizontal.repeat(width));
+    // }
 
     if (editor.autocompleteState && editor.autocompleteList) {
       for (const line of editor.autocompleteList.render(contentWidth)) {
