@@ -24,25 +24,59 @@ export default class StyledEditor extends CustomEditor {
     bl: "┗",
     lh: "┃",
   };
+
+  private renderBorder(
+    width: number,
+    left: string,
+    horizontal: string,
+    right: string,
+    indicator?: string,
+  ): string {
+    if (width <= 0) return "";
+    if (width === 1) return this.borderColor(left);
+
+    const innerWidth = width - 2;
+    const content = indicator
+      ? truncateToWidth(indicator, innerWidth) +
+        horizontal.repeat(
+          Math.max(0, innerWidth - visibleWidth(indicator)),
+        )
+      : horizontal.repeat(innerWidth);
+    return this.borderColor(`${left}${content}${right}`);
+  }
+
   private renderTopBorder(width: number, scrollOffset: number): string {
-    let topBorder = this.borderChars.tl;
-    for (let i = 0; i === width - 2; i++) {
-      if (i === width - 3) {
-        topBorder += this.borderChars.tr;
-        break;
-      }
-      topBorder += this.borderChars.th;
-    }
-    if (scrollOffset === 0) {
-      return topBorder;
-    }
-    return topBorder;
+    return this.renderBorder(
+      width,
+      this.borderChars.tl,
+      this.borderChars.th,
+      this.borderChars.tr,
+      scrollOffset > 0 ? ` ↑ ${scrollOffset} more ` : undefined,
+    );
   }
+
   private renderBottomBorder(width: number, linesBelow: number): string {
-    return "";
+    return this.renderBorder(
+      width,
+      this.borderChars.bl,
+      this.borderChars.bh,
+      this.borderChars.br,
+      linesBelow > 0 ? ` ↓ ${linesBelow} more ` : undefined,
+    );
   }
-  private renderContentLine(width: number): string {
-    return "";
+
+  private renderContentLine(
+    width: number,
+    content: string,
+    contentWidth: number,
+  ): string {
+    if (width <= 0) return "";
+    if (width === 1) return this.borderColor(this.borderChars.lh);
+
+    const innerWidth = Math.max(0, width - 2);
+    const text = truncateToWidth(content, Math.min(contentWidth, innerWidth));
+    const padding = " ".repeat(Math.max(0, innerWidth - visibleWidth(text)));
+    return `${this.borderColor(this.borderChars.lh)}${text}${padding}${this.borderColor(this.borderChars.rh)}`;
   }
 
   override render(width: number): string[] {
@@ -51,9 +85,10 @@ export default class StyledEditor extends CustomEditor {
       ? validateEditorRenderInternals(this)
       : (this as unknown as EditorRenderInternals);
 
-    const maxPadding = Math.max(0, Math.floor((width - 1) / 2));
+    const frameWidth = Math.max(0, width - 2);
+    const maxPadding = Math.max(0, Math.floor((frameWidth - 1) / 2));
     const paddingX = Math.min(editor.paddingX, maxPadding);
-    const contentWidth = Math.max(1, width - paddingX * 2);
+    const contentWidth = Math.max(1, frameWidth - paddingX * 2);
     const layoutWidth = Math.max(1, contentWidth - (paddingX ? 0 : 1));
     editor.lastWidth = layoutWidth;
     const layoutLines = editor.layoutText(layoutWidth);
@@ -91,32 +126,16 @@ export default class StyledEditor extends CustomEditor {
     const leftPadding = " ".repeat(paddingX);
     const rightPadding = leftPadding;
 
-    result.push(this.renderTopBorder(width));
-
-    // if (editor.scrollOffset > 0) {
-    //   const indicator = `─── ↑ ${editor.scrollOffset} more `;
-    //   const remaining = width - visibleWidth(indicator);
-    //   result.push(
-    //     this.borderColor(
-    //       remaining >= 0
-    //         ? indicator + "─".repeat(remaining)
-    //         : truncateToWidth(indicator, width),
-    //     ),
-    //   );
-    // } else {
-    //   result.push(horizontal.repeat(width));
-    // }
+    result.push(this.renderTopBorder(width, editor.scrollOffset));
 
     for (const layoutLine of visibleLines) {
       let displayText = layoutLine.text;
       let lineVisibleWidth = visibleWidth(layoutLine.text);
       let cursorInPadding = false;
-
       if (layoutLine.hasCursor && layoutLine.cursorPos !== undefined) {
         const before = displayText.slice(0, layoutLine.cursorPos);
         const after = displayText.slice(layoutLine.cursorPos);
         const marker = this.focused ? CURSOR_MARKER : "";
-
         if (after.length > 0) {
           const firstGrapheme =
             [...editor.segment(after, "grapheme")][0]?.segment ?? "";
@@ -133,27 +152,31 @@ export default class StyledEditor extends CustomEditor {
       const lineRightPadding = cursorInPadding
         ? rightPadding.slice(1)
         : rightPadding;
-      result.push(`${leftPadding}${displayText}${padding}${lineRightPadding}`);
+      result.push(
+        this.renderContentLine(
+          width,
+          `${leftPadding}${displayText}${padding}${lineRightPadding}`,
+            frameWidth,
+        ),
+      );
     }
 
-    // const linesBelow =
-    //   layoutLines.length - (editor.scrollOffset + visibleLines.length);
-    // if (linesBelow > 0) {
-    //   const indicator = `─── ↓ ${linesBelow} more `;
-    //   const remaining = width - visibleWidth(indicator);
-    //   result.push(
-    //     this.borderColor(indicator + "─".repeat(Math.max(0, remaining))),
-    //   );
-    // } else {
-    //   result.push(horizontal.repeat(width));
-    // }
+    const linesBelow =
+      layoutLines.length - (editor.scrollOffset + visibleLines.length);
+    result.push(this.renderBottomBorder(width, linesBelow));
 
     if (editor.autocompleteState && editor.autocompleteList) {
       for (const line of editor.autocompleteList.render(contentWidth)) {
         const linePadding = " ".repeat(
           Math.max(0, contentWidth - visibleWidth(line)),
         );
-        result.push(`${leftPadding}${line}${linePadding}${rightPadding}`);
+        result.push(
+          this.renderContentLine(
+            width,
+            `${leftPadding}${line}${linePadding}${rightPadding}`,
+          frameWidth,
+          ),
+        );
       }
     }
 
