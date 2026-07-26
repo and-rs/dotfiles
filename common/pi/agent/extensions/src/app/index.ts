@@ -4,7 +4,7 @@ import { registerReadOnlyProfile } from "./read-only-profile.ts";
 import { registerAppUi } from "../ui/osd.ts";
 
 export default function registerApp(pi: ExtensionAPI): void {
-  registerAppUi(pi);
+  // registerAppUi(pi);
   registerAppFeatures(pi);
   registerReadOnlyProfile(pi);
 }

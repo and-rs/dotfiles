@@ -13,14 +13,14 @@ function installChromeFooter(ctx: ExtensionContext): void {
       },
       invalidate() {},
       render() {
-        return [""];
+        return ["hello"];
       },
     };
   });
 }
 
-export function registerAppUi(pi: ExtensionAPI): void {
-  pi.on("session_start", async (_event, ctx) => {
-    installChromeFooter(ctx);
-  });
-}
+// export function registerAppUi(pi: ExtensionAPI): void {
+//   pi.on("session_start", async (_event, ctx) => {
+//     installChromeFooter(ctx);
+//   });
+// }

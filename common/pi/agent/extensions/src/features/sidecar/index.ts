@@ -10,8 +10,8 @@ import { Box, Markdown, Component } from "@earendil-works/pi-tui";
 import { returnRawWebTools } from "../web-docs/tools";
 
 export default function registerSidecarCommand(pi: ExtensionAPI): void {
-  pi.registerEntryRenderer("sidecar", (entry, _, theme) => {
-    const data = entry.data as string;
+  pi.registerEntryRenderer("sidecar", (entry, { expanded }, theme) => {
+    const data = entry.data as { question: string; answer: string };
     const mdTheme = getMarkdownTheme();
     mdTheme.hr = (lines) => {
       return theme.fg("dim", lines);
@@ -33,14 +33,25 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
       invalidate: () => {},
     };
     const mdContent = new Markdown(
-      `${theme.fg("success", "Sidecar:")} ${data}`,
+      `${theme.fg("success", "Asked Sidecar: ")}${data.question}\n${data.answer}`,
       1,
       0,
       mdTheme,
     );
-    container.addChild(border);
-    container.addChild(mdContent);
-    container.addChild(border);
+    if (expanded) {
+      container.addChild(border);
+      container.addChild(mdContent);
+      container.addChild(border);
+    } else {
+      container.addChild(
+        new Markdown(
+          `${theme.fg("success", "Asked Sidecar: ")}${data.question}`,
+          1,
+          0,
+          mdTheme,
+        ),
+      );
+    }
     return container;
   });
 
@@ -76,7 +87,7 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
         if (!answer) {
           throw Error("No answer received");
         }
-        pi.appendEntry("sidecar", answer);
+        pi.appendEntry("sidecar", { question, answer });
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "unknown error";

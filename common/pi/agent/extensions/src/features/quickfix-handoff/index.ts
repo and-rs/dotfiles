@@ -110,7 +110,7 @@ export default function registerQuickfixHandoffFeature(pi: ExtensionAPI): void {
         return new Text(theme.fg("warning", "No quickfix handoff"), 0, 0);
 
       return new Text(
-        `${theme.bg("userMessageBg", theme.bold(theme.fg("mdCode", " handoff ready ··· run /qf to copy it ")))}`,
+        `${theme.bold(theme.fg("mdCode", "handoff ready, run /qf to copy it"))}`,
         0,
         0,
       );
