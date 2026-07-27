@@ -1,6 +1,7 @@
 [git]
-unknown_sign = "?"
-unknown = { fg = "3", bold = true }
+unknown_sign = ""
+# unknown = { fg = "3", bold = true }
+
 modified_sign = "~"
 modified = { fg = "2", bold = true }
 added_sign = "+"
