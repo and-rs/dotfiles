@@ -1,3 +1,6 @@
+alias nd = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
+alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
+
 def nrg [pattern: string] {
   let rgcmd = rg --json --vimgrep $pattern | from json --objects | where type == 'match' | get data | each {|l|
       return {

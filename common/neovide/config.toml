@@ -1,11 +1,11 @@
 fork = true
-neovim-bin = "/home/and-rs/.local/share/bob/nvim-bin/nvim"
+no-multigrid = false
 
 [font]
-size = 14
+size = 13
 
 [font.normal]
-family = "Input"
+family = "Rec Mono Duotone"
 
 [box-drawing]
 mode = "native"
