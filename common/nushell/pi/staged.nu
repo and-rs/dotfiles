@@ -26,7 +26,7 @@ export def "ai gs" [] {
     print ""
     print $msg
 
-    let answer = (try { input $"(ansi cyan)commit? (ansi reset)[y]es / [r]evise / [n]o: " } catch { "n" } | str trim | str downcase)
+    let answer = (try { input $"(ansi cyan)commit? (ansi reset)[y]es / [r]evise / [n]o: " } catch { "n" } | str trim | str lowercase)
     if ($answer in ["" "y" "yes"]) {
       git commit -e -m $msg
       return

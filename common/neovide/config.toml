@@ -1,5 +1,4 @@
 fork = true
-no-multigrid = false
 
 [font]
 size = 13
