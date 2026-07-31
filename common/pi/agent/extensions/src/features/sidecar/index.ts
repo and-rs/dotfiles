@@ -45,7 +45,7 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
     } else {
       container.addChild(
         new Markdown(
-          `${theme.fg("success", "Asked Sidecar: ")}${data.question}`,
+          `${theme.fg("success", "Asked Sidecar: ")}${data.question.split("\n")[0]}`,
           1,
           0,
           mdTheme,
