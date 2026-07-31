@@ -4,9 +4,7 @@ spawn-sh-at-startup "globalprotect launch-ui"
 spawn-sh-at-startup "sudo ~/.local/bin/xremap-niri"
 spawn-sh-at-startup "~/.config/quickshell/launch.sh"
 screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
-// no decorations
 prefer-no-csd
-// ---
 overview {
     zoom 0.7
     backdrop-color "#212330"
@@ -42,7 +40,6 @@ input {
     // Switch the mod keys around: use Alt normally, and Super inside a nested window.
     mod-key "Alt"
     mod-key-nested "Super"
-    // ---
     warp-mouse-to-focus
     keyboard {
         repeat-delay 200
@@ -141,7 +138,6 @@ window-rule {
     open-floating true
     open-focused true
 }
-// ---
 // These are smaller windows startup
 window-rule {
     match app-id="spotify"
@@ -159,7 +155,6 @@ window-rule {
         proportion 0.5
     }
 }
-// ---
 window-rule {
     match app-id="GTK Application"
     border {
@@ -173,8 +168,12 @@ window-rule {
     match app-id="^Alacritty$"
     match app-id="^kitty$"
     match app-id="^com.mitchellh.ghostty$"
+    open-maximized false
+    default-column-width {
+        proportion 0.8
+    }
     background-effect {
-        blur true
+        blur false
     }
 }
 window-rule {
@@ -233,12 +232,10 @@ layer-rule {
     match namespace="quickshell-notification-popup"
     block-out-from "screencast"
 }
-// Put swww inside the overview backdrop.
 layer-rule {
     match namespace="awww-daemon"
     place-within-backdrop true
 }
-//---
 binds {
     XF86AudioPlay allow-when-locked=true {
         spawn "playerctl" "play-pause"
@@ -419,14 +416,11 @@ binds {
     }
 }
 animations {
-    slowdown 0.6
+    slowdown 0.25
     workspace-switch {
-        // off
-        spring damping-ratio=1.0 stiffness=1000 epsilon=1e-5
+        spring damping-ratio=1.0 stiffness=200 epsilon=1e-5
     }
     horizontal-view-movement {
-        // off
-        spring damping-ratio=1.0 stiffness=1500 epsilon=1e-5
+        spring damping-ratio=1.0 stiffness=200 epsilon=1e-5
     }
 }
-
