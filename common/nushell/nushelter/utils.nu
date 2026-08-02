@@ -1,25 +1,5 @@
 use clip.nu
 
-# Select files at a specific depth and copy their absolute paths.
-def filepath [
-  --depth (-d): int = 1 # The exact depth to search (default: 1)
-] {
-  if (which fd | is-empty) { error make {msg: "'fd' is required"} }
-  if (which fzf | is-empty) { error make {msg: "'fzf' is required"} }
-  let selection = (
-    fd --exact-depth $depth --absolute-path
-    | fzf --multi --padding=1,0,0,1 --prompt="Select file(s) > " --layout=reverse
-  )
-  if ($selection | is-empty) {
-    print "No file selected."
-    return
-  }
-  let paths = $selection | lines
-  let count = $paths | length
-  $selection | clip-copy
-  print $"Copied ($count) file path\(s\) to clipboard."
-}
-
 # Copy directory tree structure to clipboard
 def dirtree [] {
   if (which eza | is-empty) { error make {msg: "'eza' is required"} }

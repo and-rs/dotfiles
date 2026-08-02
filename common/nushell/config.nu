@@ -30,9 +30,9 @@ export-env {
     file_format: "sqlite"
   }
   $env.config.show_banner = false
-  $env.config.table.mode = "markdown"
   $env.config.completions.quick = false
   $env.config.completions.partial = false
+  # $env.config.table.mode = "markdown"
 
   $env.XDG_CONFIG_HOME = $"($env.HOME)/.config"
   $env.TOPIARY_CONFIG_FILE = ($env.XDG_CONFIG_HOME | path join topiary languages.ncl)
@@ -77,12 +77,17 @@ export-env {
     "--gutter=' '"
   ] | str join " "
 
-  $env._ZO_FZF_OPTS = [
+  let zoxide_opts = [
     $env.FZF_DEFAULT_OPTS
-    "--padding=1,0,0,1"
-    "--prompt='Zoxide Interactive > '"
+    "--prompt='ZI > '"
     "--layout=reverse --height=100% --multi --cycle"
+    "--border=none"
+    "--preview=''"
   ] | str join " "
+
+  $env.YAZI_ZOXIDE_OPTS = [$zoxide_opts "--padding=0,0,0,1"] | str join " "
+  $env._ZO_FZF_OPTS = [$zoxide_opts "--padding=1,0,0,1"] | str join " "
+
   $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []
   $env.config.hooks.env_change.PWD ++= [
     {||

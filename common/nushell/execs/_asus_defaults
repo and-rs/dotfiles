@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+asusctl profile set Quiet
+asusctl armoury set nv_temp_target 75
+asusctl armoury set ppt_pl2_sppt 25
+asusctl armoury set ppt_pl1_spl 25

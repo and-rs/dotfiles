@@ -3,32 +3,45 @@ alias gc = git commit
 alias gl = git log --oneline -n 10
 alias gs = git status
 
-# Interactive Repo Delete
+# Interactive github repo delete with clean ass fuck tables
 def gh-repo-delete [] {
-  let repos = (^gh repo list --json owner,name,visibility | from json)
+  let repos = (gh repo list --json owner,name,visibility)
   if ($repos | is-empty) {
     print "No repos found."
     return
   }
   let selection = (
-    $repos | each {|r| $"($r.name)\t($r.owner.login)\t($r.visibility)" } | str join (char newline) | ^fzf --multi --reverse --header="Name\tOwner\tVisibility"
+    $repos | from json | each {|r|
+      {
+        NAME: $r.name
+        OWNER: $r.owner.login
+        VISIBILITY: $r.visibility
+      }
+    } | table --theme light -i false
+    | fzf --ansi --multi --reverse --header-lines=2 --prompt="Delete repo > " --padding="1,0,0,1"
   )
   if ($selection | is-empty) {
     print "No repos selected."
     return
   }
-  let to_delete = $selection | lines | split column "\t" name owner visibility
+  let to_delete = $selection | lines | each {
+      $in | str trim | split row " " | where { $in | str trim | is-not-empty } | {
+        NAME: $in.0
+        OWNER: $in.1
+        VISIBILITY: $in.2
+      }
+    }
   let count = $to_delete | length
   print $"(char newline)About to delete ($count) repositories:"
-  print ($to_delete | table)
-  print $"(char newline)(ansi red)WARNING: This action is permanent.(ansi reset)"
+  print $to_delete
+  print $"(ansi red)WARNING: This action is permanent.(ansi reset)"
   let confirmation = (input "Type DELETE to confirm: ")
   if $confirmation != "DELETE" {
     print "Aborted."
     return
   }
   $to_delete | each {|repo|
-    print $"Deleting ($repo.owner)/($repo.name)..."
-    ^gh repo delete --yes $"($repo.owner)/($repo.name)"
+    print $"Deleting ($repo.OWNER)/($repo.NAME)..."
+    gh repo delete --yes $"($repo.OWNER)/($repo.NAME)"
   }
 }

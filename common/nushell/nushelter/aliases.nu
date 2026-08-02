@@ -7,8 +7,27 @@ def --wrapped nvim [...args] {
   }
 }
 
-def wipe-font-cache [] { rm -rf ~/.cache/fontconfig; fc-cache -r -v }
+def asus [--quiet (-q) --performance (-p)] {
+  if not $quiet and not $performance {
+    print "Add -q or -p"
+    return 1
+  }
+  if $quiet {
+    asusctl profile set Quiet
+    asusctl armoury set nv_temp_target 75
+    asusctl armoury set ppt_pl2_sppt 25
+    asusctl armoury set ppt_pl1_spl 25
+  } else if $performance {
+    asusctl profile set Performance
+    asusctl armoury set nv_temp_target 87
+    asusctl armoury set ppt_pl2_sppt 40
+    asusctl armoury set ppt_pl1_spl 40
+  }
+  asusctl armoury list
+  asusctl profile get
+}
 
+def wipe-font-cache [] { rm -rf ~/.cache/fontconfig; fc-cache -r -v }
 alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
 alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 

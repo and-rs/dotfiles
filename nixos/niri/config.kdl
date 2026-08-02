@@ -2,6 +2,7 @@ spawn-at-startup "awww-daemon"
 spawn-at-startup "hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"
 spawn-sh-at-startup "sudo ~/.local/bin/xremap-niri"
+spawn-sh-at-startup "~/.config/nushell/execs/_asus_defaults"
 spawn-sh-at-startup "~/.config/quickshell/launch.sh"
 screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 prefer-no-csd
@@ -62,6 +63,7 @@ input {
     }
 }
 layout {
+    always-center-single-column true
     gaps 10
     background-color "transparent"
     tab-indicator {
@@ -416,11 +418,19 @@ binds {
     }
 }
 animations {
-    slowdown 0.25
+    slowdown 1
+    window-close {
+        duration-ms 350
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
+    window-open {
+        duration-ms 350
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
     workspace-switch {
-        spring damping-ratio=1.0 stiffness=200 epsilon=1e-5
+        curve "cubic-bezier" 0.05 0.7 0.1 1
     }
     horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=200 epsilon=1e-5
+        curve "cubic-bezier" 0.05 0.7 0.1 1
     }
 }
