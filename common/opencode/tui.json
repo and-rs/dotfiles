@@ -1,0 +1,8 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "tokyonight-day",
+  "keybinds": {
+    "app_exit": "none",
+    "terminal_suspend": "none"
+  }
+}

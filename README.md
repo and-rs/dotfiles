@@ -14,7 +14,7 @@ My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
   - Linux: Niri, Quickshell, Hypridle, Hyprlock, Rofi
   - macOS: Aerospace
 - File management: Yazi
-- CLI tooling: direnv, zoxide, pi, fastfetch, topiary
+- CLI tooling: direnv, zoxide, pi, opencode, fastfetch, topiary
 - Themes and palettes: Neovim, Ghostty, Kitty, Alacritty, fastfetch, rofi, bat
 
 ## Structure
