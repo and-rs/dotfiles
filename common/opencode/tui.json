@@ -3,6 +3,8 @@
   "theme": "tokyonight-day",
   "keybinds": {
     "app_exit": "none",
-    "terminal_suspend": "none"
+    "terminal_suspend": "none",
+    "messages_half_page_up": "ctrl+alt+u",
+    "messages_half_page_down": "ctrl+alt+d"
   }
 }
