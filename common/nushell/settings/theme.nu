@@ -83,12 +83,6 @@ export def main [] {
 # Update the Nushell configuration
 export def --env "set color_config" [] { $env.config.color_config = (main) }
 
-# Update terminal colors
-export def "update terminal" [] {
-  let theme = (main)
-}
-
 export-env {
   set color_config
-  update terminal
 }

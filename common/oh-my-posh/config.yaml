@@ -1,14 +1,10 @@
-final_space: true
-secondary_prompt:
-  foreground: "darkGray"
-  template: "   & "
 blocks:
   - type: prompt
     alignment: left
     segments:
       - type: shell
         foreground: "darkGray"
-        template: "╭─ <cyan>{{ .Name }}</> "
+        template: "<cyan>▶ {{ .Name }}</> "
       - type: path
         foreground: "blue"
         template: "{{ .Path }}"
@@ -39,7 +35,7 @@ blocks:
       - type: git
         foreground: "white"
         templates:
-          - "<darkGray>├─ on </><cyan>{{ .HEAD }}</>"
+          - "<cyan>▶</> <darkGray>on</> <cyan>{{ .HEAD }}</>"
           - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email }}</><darkGray>]</>{{ end -}}"
           - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>azure</><darkGray>]</>{{ else if contains \"github.com\" $origin }} <darkGray>[</><magenta>github</><darkGray>]</>{{ end -}}"
         options:
@@ -63,7 +59,7 @@ blocks:
     segments:
       - type: text
         foreground: "darkGray"
-        template: "╰─ "
+        template: " "
       - type: direnv
         foreground: "darkGray"
         template: "direnv "
@@ -78,6 +74,10 @@ blocks:
         foreground: "blue"
         foreground_templates:
           - "{{ if gt .Code 0 }}red{{ end }}"
-        template: "$"
+        template: "<cyan>▶</>"
         options:
           always_enabled: true
+final_space: true
+secondary_prompt:
+  foreground: "darkGray"
+  template: "▎ "
