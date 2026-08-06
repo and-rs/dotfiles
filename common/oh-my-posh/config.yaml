@@ -4,9 +4,11 @@ blocks:
     segments:
       - type: shell
         foreground: "darkGray"
-        template: "<cyan>▶ {{ .Name }}</> "
+        background: "black"
+        template: "<cyan>{{ .Name }}</> "
       - type: path
         foreground: "blue"
+        background: "black"
         template: "{{ .Path }}"
         options:
           style: agnoster_short
@@ -35,7 +37,7 @@ blocks:
       - type: git
         foreground: "white"
         templates:
-          - "<cyan>▶</> <darkGray>on</> <cyan>{{ .HEAD }}</>"
+          - "<darkGray>on</> <cyan>{{ .HEAD }}</>"
           - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email }}</><darkGray>]</>{{ end -}}"
           - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>azure</><darkGray>]</>{{ else if contains \"github.com\" $origin }} <darkGray>[</><magenta>github</><darkGray>]</>{{ end -}}"
         options:
