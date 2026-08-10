@@ -19,6 +19,23 @@ These instructions apply to `nixos/quickshell/`.
   `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
   `Config.radius`.
 
+## Performance
+
+- Keep the UI thread non-blocking: do not use blocking `FileView` reads/writes
+  after shell startup; prefer asynchronous, event-driven work.
+- Lazy-load and unload inactive panels with `Loader`; `visible: false` still
+  leaves bindings, timers, and models active.
+- Keep list delegates small. Use `reuseItems` only when delegate state lives in
+  the model/service, and pause timers/animations while delegates are pooled.
+- Load local images asynchronously and bound decode memory with `sourceSize`.
+  Avoid mipmaps, clipping, layers, and effects in delegates unless benchmarked.
+- Batch model/state updates and keep hot bindings simple. Avoid per-frame JS
+  and large whole-model replacements during bursts.
+- Prefer opaque, non-overlapping primitives. Use `visible: false` or unload
+  content that is not meant to render.
+- Measure before optimizing: use the notification bench, QML Profiler, and
+  temporary `QSG_RENDER_TIMING=1` / `QSG_RENDERER_DEBUG=render` diagnostics.
+
 ## NotificationV2 Rules
 
 - `NotificationStore.qml` owns notification state and image cache ownership.

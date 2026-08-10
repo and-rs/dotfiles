@@ -4,7 +4,6 @@ import QtQuick
 import qs.Bar
 import qs.NotificationV2
 import qs.Osd
-import qs.Lock
 
 Scope {
   property int height: 32
@@ -16,7 +15,5 @@ Scope {
   }
   NotificationPopupHost {
     mainHeight: height
-  }
-  Lock {
   }
 }

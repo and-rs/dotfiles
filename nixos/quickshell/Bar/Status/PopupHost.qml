@@ -1,7 +1,6 @@
 import Quickshell
 import QtQuick
 import qs.Bar
-import qs.Lock
 
 PopupWindow {
   id: popup
@@ -44,7 +43,7 @@ PopupWindow {
   grabFocus: true
   implicitHeight: panelY + panelFrame.height
   implicitWidth: rightEdge - leftEdge
-  visible: !LockService.locked && (popupVisible || keepAlive)
+  visible: popupVisible || keepAlive
 
   onPopupVisibleChanged: {
     if (popupVisible) {

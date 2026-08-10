@@ -1,6 +1,6 @@
 import Quickshell
 import QtQuick
-import qs.Lock
+import Quickshell.Io
 
 Rectangle {
   id: lockButton
@@ -19,6 +19,8 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
 
-    onClicked: LockService.locked = true
+    onClicked: Quickshell.execDetached({
+      command: ["sh", "-c", "~/.config/hypr/hyprlock-launch"]
+    })
   }
 }

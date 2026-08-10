@@ -297,7 +297,7 @@ binds {
         spawn-sh "rofi -modes drun,calc -show"
     }
     Mod+Super+L repeat=false {
-        spawn-sh "quickshell ipc call lock lock"
+        spawn-sh "~/.config/hypr/hyprlock-launch"
     }
     Mod+Return repeat=false {
         spawn "kitty"

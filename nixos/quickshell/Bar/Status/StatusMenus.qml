@@ -1,7 +1,6 @@
 import QtQuick
 import Quickshell
 import qs.Bar
-import qs.Lock
 import qs.Sidebar
 import qs.NotificationV2 as NotificationsV2
 import qs.Bar.Status.Battery as BatteryStatus
@@ -26,7 +25,6 @@ Item {
   property string activeMenu: ""
   property string activePanel: ""
   readonly property real buttonHorizontalPadding: Config.spacing.small / 3
-  readonly property bool menusBlocked: LockService.locked
   required property PanelWindow window
 
   function closeAll() {
@@ -41,18 +39,10 @@ Item {
     activePanel = "";
   }
   function switchMenu(id) {
-    if (menusBlocked) {
-      closeAll();
-      return;
-    }
     closePanels();
     activeMenu = activeMenu === id ? "" : id;
   }
   function switchPanel(id) {
-    if (menusBlocked) {
-      closeAll();
-      return;
-    }
     closeMenus();
     if (activePanel === id) {
       closePanels();
@@ -64,14 +54,6 @@ Item {
   implicitHeight: buttons.implicitHeight
   implicitWidth: buttons.implicitWidth
 
-  Connections {
-    function onLockedChanged() {
-      if (LockService.locked)
-        root.closeAll();
-    }
-
-    target: LockService
-  }
   Row {
     id: buttons
 

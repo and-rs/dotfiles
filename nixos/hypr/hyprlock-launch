@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+runtime_dir="${XDG_RUNTIME_DIR:-}"
+config_home="${XDG_CONFIG_HOME:-${HOME:?HOME must be set}/.config}"
+template_config="$config_home/hypr/hyprlock.conf"
+
+if [[ -z "$runtime_dir" || ! -d "$runtime_dir" ]]; then
+    printf '%s\n' 'hyprlock-launch: XDG_RUNTIME_DIR is unavailable' >&2
+    exit 1
+fi
+
+if [[ ! -r "$template_config" ]]; then
+    printf 'hyprlock-launch: config not found: %s\n' "$template_config" >&2
+    exit 1
+fi
+
+if ! command -v hyprlock >/dev/null; then
+    printf '%s\n' 'hyprlock-launch: hyprlock is not in PATH' >&2
+    exit 1
+fi
+
+umask 077
+exec 9>"$runtime_dir/hyprlock-launch.lock"
+
+if ! flock -n 9; then
+    exit 0
+fi
+
+if pgrep -x hyprlock >/dev/null; then
+    exit 0
+fi
+
+main_monitor="$(niri msg --json focused-output 2>/dev/null | jq -er '.name | strings | select(length > 0)' 2>/dev/null || true)"
+
+if [[ -z "$main_monitor" ]]; then
+    main_monitor="$(niri msg --json outputs 2>/dev/null | jq -er '
+    to_entries
+    | map(select(.value.logical != null))
+    | sort_by(.value.logical.x, .value.logical.y)
+    | .[0].key
+  ' 2>/dev/null || true)"
+fi
+
+# Output names are inserted into Hyprlang without quoting. Fall back to all
+# outputs rather than risk producing an invalid lock configuration.
+if [[ ! "$main_monitor" =~ ^[[:alnum:]_.-]+$ ]]; then
+    main_monitor=""
+fi
+
+runtime_config="$(mktemp "$runtime_dir/hyprlock.XXXXXX.conf")"
+cleanup() {
+    rm -f "$runtime_config"
+}
+trap cleanup EXIT HUP INT TERM
+
+printf '$main_monitor = %s\nsource = %s\n' "$main_monitor" "$template_config" >"$runtime_config"
+
+hyprlock --config "$runtime_config"
