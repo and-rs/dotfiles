@@ -42,14 +42,18 @@ These instructions apply to `nixos/quickshell/`.
 
 ## NotificationV2 Rules
 
-- `NotificationStore.qml` owns notification state and image cache ownership.
+- `NotificationStore.qml` owns archive state, the `ScriptModel` timeline, popup
+  scheduling, and image cache ownership. Live notification objects stay owned by
+  Quickshell while their records are open.
 - `NotificationData.qml` stays pure data shaping helper.
-- `NotificationLifecycle.qml` owns notification object
-  retain/release/dismiss/expire/action/reply operations.
+- `NotificationLifecycle.qml` owns notification dismiss/expire/action/reply
+  operations.
 - `NotificationPopupQueue.qml` owns popup queue selection helpers.
 - Do not move image cache ownership into lifecycle/data helpers.
 - Keep action model roles type-stable; avoid nested QML object/list roles in
   `ListModel` entries.
+- Use `ScriptModel` for timeline projections; records need stable unique `id`
+  values and all model changes must replace the records array.
 - Keep popup enter/leave and popup-change animations using `Config.curve`.
 - Timeout bar should follow popup content animation through shared parent, not
   own separate swap animation.

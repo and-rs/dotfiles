@@ -7,30 +7,19 @@ Column {
   readonly property int actionCount: visibleActions ? visibleActions.length : 0
   property bool allowInlineReply: true
   property bool compact: false
-  required property var entry
+  required property var notification
   readonly property bool hasInlineReply: allowInlineReply && inlineReplyAvailable
-  readonly property bool inlineReplyAvailable: entry ? Boolean(entry.hasInlineReply) : false
-  readonly property string inlineReplyPlaceholder: entry ? String(entry.inlineReplyPlaceholder || "Reply") : "Reply"
+  readonly property bool inlineReplyAvailable: notification ? Boolean(notification.hasInlineReply) : false
+  readonly property string inlineReplyPlaceholder: notification ? String(notification.inlineReplyPlaceholder || "Reply") : "Reply"
   readonly property bool showInlineReplyIndicator: !allowInlineReply && inlineReplyAvailable
-  readonly property bool usable: entry ? !entry.closed : false
-  readonly property var visibleActions: parseVisibleActions(entry)
+  readonly property bool usable: notification !== null
+  readonly property var visibleActions: NotificationData.visibleActions(notification?.actions)
 
-  signal actionRequested(index: int)
+  signal actionRequested(actionIndex: int)
   signal inlineReplyRequested(text: string)
 
   function resetTransientState(): void {
     inlineReply.reset();
-  }
-
-  function parseVisibleActions(value: var): var {
-    if (!value || !value.visibleActionsJson)
-      return [];
-    try {
-      const parsed = JSON.parse(String(value.visibleActionsJson));
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (_) {
-      return [];
-    }
   }
 
   height: visible ? implicitHeight : 0
@@ -70,7 +59,7 @@ Column {
           anchors.fill: parent
           hoverEnabled: true
 
-          onClicked: root.actionRequested(index)
+          onClicked: root.actionRequested(root.visibleActions[index].index)
         }
       }
     }

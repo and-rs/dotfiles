@@ -7,88 +7,97 @@ import qs.Bar
 Singleton {
   id: root
 
-  readonly property int count: entries.count
-  readonly property ListModel entries: ListModel {
-  }
+  readonly property int count: records.length
+  readonly property var entries: entriesModel
   readonly property bool hasNotifications: count > 0
   readonly property string imageCacheDir: imageCachePrefix
   readonly property string imageCachePrefix: Quickshell.cachePath("notification-v2-")
-  property var liveNotifications: ({})
-  property var notificationLocks: ({})
-  property var popupEntry: null
-  property real popupExpiresAtMs: 0
+  property var records: []
+  readonly property int popupDurationMs: popupNotification ? NotificationData.popupDurationFromTimeout(popupNotification.expireTimeout) : 0
+  readonly property var popupEntry: popupId === -1 ? null : getById(popupId)
   property int popupId: -1
+  readonly property var popupNotification: popupEntry ? popupEntry.notification : null
   property var popupQueueIds: []
-  property real popupStartedAtMs: 0
+  readonly property bool popupVisible: popupEntry !== null
+  property var connectedNotifications: ({})
   property var removingIds: ({})
 
   function activateNextPopup(): void {
     if (popupId !== -1)
       return;
 
-    const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, entries);
+    const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, records);
     popupQueueIds = nextPopup.queue;
-    if (nextPopup.index === -1) {
-      setPopupEntry(null);
-      return;
-    }
-    const current = entries.get(nextPopup.index);
-    const expiresAtMs = Date.now() + current.popupDurationMs;
-    const nextEntry = NotificationData.withPopupUntil(current, expiresAtMs);
-    setEntry(nextPopup.index, nextEntry);
-    setPopupEntry(nextEntry);
-    return;
+    popupId = nextPopup.id;
   }
   function addNotification(notification: var): var {
     if (!notification)
       return null;
 
     notification.tracked = true;
-    if (liveNotifications[notification.id] !== notification)
-      notification.closed.connect(reason => markClosed(notification.id, reason));
-
-    delete removingIds[notification.id];
-    retainNotification(notification.id, notification);
-
+    connectNotification(notification);
     const current = getById(notification.id);
-    const nextEntry = current ? NotificationData.mergeNotification(current, notification) : NotificationData.fromNotification(notification);
-    const cachedEntry = cacheEntryImages(nextEntry);
-    const savedEntry = upsertEntry(cachedEntry);
+
+    const nextEntry = NotificationData.entryForNotification(notification, current);
+    upsertEntry(nextEntry);
 
     enqueuePopupId(notification.id);
     activateNextPopup();
-    return savedEntry;
-  }
-  function cacheEntryImages(entry: var): var {
-    const previous = getById(entry.id);
-    console.log("[NotificationV2] image intake", "id=" + entry.id, "appIcon=" + String(entry.appIcon || ""), "image=" + String(entry.image || ""));
-    const cachedAppIcon = previous && previous.sourceAppIcon === entry.appIcon ? previous.cachedAppIcon : cacheImage(entry.appIcon, String(entry.id) + "-icon");
-    const cachedImage = previous && previous.sourceImage === entry.image ? previous.cachedImage : cacheImage(entry.image, String(entry.id));
-    const nextEntry = cloneObject(entry);
-    nextEntry.sourceAppIcon = entry.appIcon;
-    nextEntry.sourceImage = entry.image;
-    nextEntry.appIcon = cachedAppIcon;
-    nextEntry.image = cachedImage;
-    nextEntry.cachedAppIcon = cachedAppIcon;
-    nextEntry.cachedImage = cachedImage;
     return nextEntry;
+  }
+  function cleanupEntryAssets(entry: var): void {
+    if (!entry || !entry.closed)
+      return;
+
+    cleanupCachedFile(entry.cachedImage);
+    cleanupCachedFile(entry.cachedAppIcon);
+  }
+  function cleanupReplacedAssets(previousEntry: var, nextEntry: var): void {
+    if (previousEntry?.cachedImage && previousEntry.cachedImage !== nextEntry.cachedImage)
+      cleanupCachedFile(previousEntry.cachedImage);
+    if (previousEntry?.cachedAppIcon && previousEntry.cachedAppIcon !== nextEntry.cachedAppIcon)
+      cleanupCachedFile(previousEntry.cachedAppIcon);
+  }
+  function clear(): void {
+    const currentEntries = records;
+    records = [];
+    popupQueueIds = [];
+    popupId = -1;
+
+    for (let index = 0; index < currentEntries.length; index++) {
+      const entry = currentEntries[index];
+      const notification = entry.notification;
+      removingIds[entry.id] = true;
+      if (notification)
+        NotificationLifecycle.dismiss(notification);
+      else
+        delete removingIds[entry.id];
+      delete connectedNotifications[entry.id];
+    }
+
+    cleanupImageCacheDirectory();
+  }
+  function clearPopup(id: int): void {
+    if (popupId !== id)
+      return;
+
+    const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, records);
+    popupQueueIds = nextPopup.queue;
+    popupId = nextPopup.id;
   }
   function cacheImage(image: var, cacheKey: string): string {
     const sourcePath = localImagePath(image);
-    if (!sourcePath) {
-      console.log("[NotificationV2] image cache passthrough", "key=" + cacheKey, "value=" + String(image || ""));
+    if (!sourcePath)
       return image ? String(image) : "";
-    }
+
     const reader = Qt.createQmlObject('import Quickshell.Io; FileView { blockAllReads: true; printErrors: false; path: "" }', root);
     const writer = Qt.createQmlObject('import Quickshell.Io; FileView { blockWrites: true; printErrors: false; path: "" }', root);
 
     try {
       reader.path = sourcePath;
       const data = reader.data();
-      if (!data || data.byteLength === 0) {
-        console.log("[NotificationV2] image cache read-empty", "key=" + cacheKey, "source=" + sourcePath);
+      if (!data || data.byteLength === 0)
         return "";
-      }
 
       const targetPath = imageCachePrefix + cacheKey + "-" + Date.now() + "." + imageExtension(sourcePath);
       writer.path = targetPath;
@@ -114,67 +123,10 @@ Singleton {
       command: ["rm", "-f", localPath]
     });
   }
-  function cleanupEntryAssets(entry: var): void {
-    cleanupCachedFile(entry?.cachedImage ?? "");
-    cleanupCachedFile(entry?.cachedAppIcon ?? "");
-  }
   function cleanupImageCacheDirectory(): void {
     Quickshell.execDetached({
       command: ["sh", "-c", "rm -f \"$1\"*", "sh", imageCachePrefix]
     });
-  }
-  function cleanupReplacedAssets(previousEntry: var, nextEntry: var): void {
-    if (previousEntry?.cachedImage && previousEntry.cachedImage !== nextEntry.cachedImage)
-      cleanupCachedFile(previousEntry.cachedImage);
-    if (previousEntry?.cachedAppIcon && previousEntry.cachedAppIcon !== nextEntry.cachedAppIcon)
-      cleanupCachedFile(previousEntry.cachedAppIcon);
-  }
-  function clear(): void {
-    const currentEntries = [];
-    for (let index = 0; index < entries.count; index++)
-      currentEntries.push({
-        id: entries.get(index).id,
-        closed: entries.get(index).closed
-      });
-
-    entries.clear();
-    popupQueueIds = [];
-    setPopupEntry(null);
-
-    for (let index = 0; index < currentEntries.length; index++) {
-      const entry = currentEntries[index];
-      const notification = liveNotifications[entry.id];
-      removingIds[entry.id] = true;
-      if (notification && !entry.closed)
-        NotificationLifecycle.dismiss(notification);
-      else
-        delete removingIds[entry.id];
-      releaseNotification(entry.id);
-    }
-
-    cleanupImageCacheDirectory();
-  }
-  function clearPopup(id: int): void {
-    const index = indexOfId(id);
-    if (index !== -1) {
-      const nextEntry = NotificationData.withPopupUntil(entries.get(index), 0);
-      setEntry(index, nextEntry);
-    }
-
-    if (popupId === id) {
-      const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, entries);
-      popupQueueIds = nextPopup.queue;
-      if (nextPopup.index === -1) {
-        setPopupEntry(null);
-        return;
-      }
-
-      const current = entries.get(nextPopup.index);
-      const expiresAtMs = Date.now() + current.popupDurationMs;
-      const nextEntry = NotificationData.withPopupUntil(current, expiresAtMs);
-      setEntry(nextPopup.index, nextEntry);
-      setPopupEntry(nextEntry);
-    }
   }
   function cloneObject(value: var): var {
     const clone = {};
@@ -184,53 +136,162 @@ Singleton {
       clone[key] = value[key];
     return clone;
   }
+  function connectNotification(notification: var): void {
+    if (connectedNotifications[notification.id] === notification)
+      return;
+
+    connectedNotifications[notification.id] = notification;
+    notification.closed.connect(reason => markClosed(notification.id, reason));
+    notification.appIconChanged.connect(() => refreshNotification(notification));
+    notification.appNameChanged.connect(() => refreshNotification(notification));
+    notification.bodyChanged.connect(() => refreshNotification(notification));
+    notification.imageChanged.connect(() => refreshNotification(notification));
+    notification.summaryChanged.connect(() => refreshNotification(notification));
+    notification.urgencyChanged.connect(() => refreshNotification(notification));
+    notification.actionsChanged.connect(() => refreshNotification(notification));
+    notification.hasInlineReplyChanged.connect(() => refreshNotification(notification));
+    notification.inlineReplyPlaceholderChanged.connect(() => refreshNotification(notification));
+  }
   function enqueuePopupId(id: int): void {
     popupQueueIds = NotificationPopupQueue.enqueue(popupQueueIds, id);
   }
   function expirePopup(id: int): void {
     clearPopup(id);
-    const notification = liveNotifications[id];
+    const notification = getById(id)?.notification;
     if (notification)
       NotificationLifecycle.expire(notification);
   }
   function getById(id: int): var {
     const index = indexOfId(id);
-    return index === -1 ? null : entries.get(index);
+    return index === -1 ? null : records[index];
   }
   function hideActivePopup(): void {
     if (popupId !== -1)
       clearPopup(popupId);
+  }
+  function indexOfId(id: int): int {
+    for (let index = 0; index < records.length; index++) {
+      if (records[index].id === id)
+        return index;
+    }
+    return -1;
   }
   function imageExtension(path: string): string {
     const cleanPath = path.split("?")[0].split("#")[0];
     const match = cleanPath.match(/\.([A-Za-z0-9]{1,8})$/);
     return match ? match[1].toLowerCase() : "image";
   }
-  function indexOfId(id: int): int {
-    for (let index = 0; index < entries.count; index++) {
-      if (entries.get(index).id === id)
-        return index;
-    }
-    return -1;
-  }
   function invokeAction(id: int, actionIndex: int): void {
-    const notification = liveNotifications[id];
+    const notification = getById(id)?.notification;
     if (popupId === id)
       clearPopup(id);
     NotificationLifecycle.invoke(notification, actionIndex);
   }
   function invokeDefaultAction(id: int): void {
-    const entry = getById(id);
-    if (!entry || entry.defaultActionIndex === -1)
+    const notification = getById(id)?.notification;
+    if (!notification)
       return;
-    invokeAction(id, entry.defaultActionIndex);
+
+    const actionIndex = NotificationData.defaultActionIndex(notification.actions);
+    if (actionIndex !== -1)
+      invokeAction(id, actionIndex);
   }
-  function invokeVisibleAction(id: int, visibleActionIndex: int): void {
-    const entry = getById(id);
-    const visibleActions = JSON.parse(String(entry?.visibleActionsJson || "[]"));
-    if (!entry || visibleActionIndex < 0 || visibleActionIndex >= visibleActions.length)
+  function markClosed(id: int, reason: var): void {
+    if (removingIds[id]) {
+      delete removingIds[id];
+      delete connectedNotifications[id];
       return;
-    invokeAction(id, visibleActions[visibleActionIndex].index);
+    }
+
+    const index = indexOfId(id);
+    if (index === -1)
+      return;
+
+    const nextEntries = records.slice();
+    const entry = cloneObject(records[index]);
+    const notification = entry.notification;
+    const nextEntry = NotificationData.entryForClosedNotification(entry, notification, String(reason));
+    nextEntries[index] = nextEntry;
+    records = nextEntries;
+    const wasActive = popupId === id;
+    if (wasActive)
+      popupId = -1;
+    removeQueuedPopupId(id);
+    delete connectedNotifications[id];
+    cleanupReplacedAssets(entry, nextEntry);
+    if (wasActive)
+      activateNextPopup();
+  }
+  function removeEntryOnly(id: int): void {
+    const index = indexOfId(id);
+    if (index === -1)
+      return;
+
+    const entry = records[index];
+    const nextEntries = records.slice();
+    nextEntries.splice(index, 1);
+    records = nextEntries;
+    cleanupEntryAssets(entry);
+    if (popupId === id)
+      popupId = -1;
+  }
+  function removeNotification(id: int): void {
+    const entry = getById(id);
+    if (!entry)
+      return;
+
+    const notification = entry.notification;
+    const wasActive = popupId === id;
+    removingIds[id] = true;
+    removeQueuedPopupId(id);
+    removeEntryOnly(id);
+
+    if (notification)
+      NotificationLifecycle.dismiss(notification);
+    else
+      delete removingIds[id];
+    delete connectedNotifications[id];
+
+    if (wasActive)
+      activateNextPopup();
+  }
+  function removeQueuedPopupId(id: int): void {
+    popupQueueIds = NotificationPopupQueue.remove(popupQueueIds, id);
+  }
+  function refreshNotification(notification: var): void {
+    if (!notification || !notification.tracked)
+      return;
+
+    const current = getById(notification.id);
+    if (!current || current.closed)
+      return;
+
+    upsertEntry(NotificationData.entryForNotification(notification, current));
+  }
+  function sendInlineReply(id: int, text: string): void {
+    const notification = getById(id)?.notification;
+    if (popupId === id)
+      clearPopup(id);
+    NotificationLifecycle.sendInlineReply(notification, text);
+  }
+  function trimToLimit(nextEntries: var): var {
+    while (nextEntries.length > Config.notifications.historyLimit) {
+      const entry = nextEntries[nextEntries.length - 1];
+      removeQueuedPopupId(entry.id);
+      nextEntries.pop();
+      cleanupEntryAssets(entry);
+      if (entry.notification) {
+        removingIds[entry.id] = true;
+        NotificationLifecycle.dismiss(entry.notification);
+      }
+      delete connectedNotifications[entry.id];
+      if (popupId === entry.id)
+        popupId = -1;
+    }
+    return nextEntries;
+  }
+  function updateNotification(notification: var): var {
+    return addNotification(notification);
   }
   function localImagePath(image: var): string {
     if (!image)
@@ -245,116 +306,26 @@ Singleton {
       return value;
     return "";
   }
-  function markClosed(id: int, reason: var): void {
-    if (removingIds[id]) {
-      delete removingIds[id];
-      return;
+  function upsertEntry(nextEntry: var): var {
+    const index = indexOfId(nextEntry.id);
+    const nextEntries = records.slice();
+    if (index === -1) {
+      nextEntries.unshift(nextEntry);
+    } else {
+      const previousEntry = records[index];
+      cleanupReplacedAssets(previousEntry, nextEntry);
+      nextEntries[index] = nextEntry;
     }
 
-    const index = indexOfId(id);
-    if (index === -1)
-      return;
+    records = trimToLimit(nextEntries);
+    return nextEntry;
+  }
 
-    const wasActive = popupId === id;
-    removeQueuedPopupId(id);
-    const nextEntry = NotificationData.withClosedState(entries.get(index), String(reason));
-    setEntry(index, nextEntry);
-    releaseNotification(id);
+  ScriptModel {
+    id: entriesModel
 
-    if (wasActive) {
-      setPopupEntry(null);
-      activateNextPopup();
-    }
-  }
-  function queueIndexOfId(id: int): int {
-    return NotificationPopupQueue.indexOf(popupQueueIds, id);
-  }
-  function releaseNotification(id: int): void {
-    const released = NotificationLifecycle.release(notificationLocks, liveNotifications, id);
-    notificationLocks = released.locks;
-    liveNotifications = released.live;
-  }
-  function removeEntryOnly(id: int): void {
-    const index = indexOfId(id);
-    if (index === -1)
-      return;
-
-    const entry = entries.get(index);
-    entries.remove(index, 1);
-    cleanupEntryAssets(entry);
-  }
-  function removeNotification(id: int): void {
-    const entry = getById(id);
-    if (!entry)
-      return;
-
-    const wasActive = popupId === id;
-    const notification = liveNotifications[id];
-    removingIds[id] = true;
-    removeQueuedPopupId(id);
-    removeEntryOnly(id);
-
-    if (notification && !entry.closed)
-      NotificationLifecycle.dismiss(notification);
-    else
-      delete removingIds[id];
-
-    releaseNotification(id);
-    if (wasActive) {
-      setPopupEntry(null);
-      activateNextPopup();
-    }
-  }
-  function removeQueuedPopupId(id: int): void {
-    popupQueueIds = NotificationPopupQueue.remove(popupQueueIds, id);
-  }
-  function retainNotification(id: int, notification: var): void {
-    const retained = NotificationLifecycle.retain(root, notificationLocks, liveNotifications, id, notification);
-    notificationLocks = retained.locks;
-    liveNotifications = retained.live;
-  }
-  function sendInlineReply(id: int, text: string): void {
-    const notification = liveNotifications[id];
-    if (popupId === id)
-      clearPopup(id);
-    NotificationLifecycle.sendInlineReply(notification, text);
-  }
-  function setEntry(index: int, entry: var): void {
-    entries.set(index, entry);
-    if (popupId === entry.id)
-      popupEntry = entry;
-  }
-  function setPopupEntry(entry: var): void {
-    popupEntry = entry;
-    popupId = entry ? entry.id : -1;
-    popupStartedAtMs = entry ? Date.now() : 0;
-    popupExpiresAtMs = entry ? popupStartedAtMs + entry.popupDurationMs : 0;
-  }
-  function trimToLimit(): void {
-    while (entries.count > Config.notifications.historyLimit) {
-      const entry = entries.get(entries.count - 1);
-      removeQueuedPopupId(entry.id);
-      entries.remove(entries.count - 1, 1);
-      cleanupEntryAssets(entry);
-      releaseNotification(entry.id);
-      if (popupId === entry.id)
-        setPopupEntry(null);
-    }
-  }
-  function updateNotification(notification: var): var {
-    return addNotification(notification);
-  }
-  function upsertEntry(entry: var): var {
-    const index = indexOfId(entry.id);
-    if (index === -1)
-      entries.insert(0, entry);
-    else {
-      cleanupReplacedAssets(entries.get(index), entry);
-      setEntry(index, entry);
-    }
-
-    trimToLimit();
-    return entry;
+    objectProp: "id"
+    values: root.records
   }
 
   Component.onCompleted: cleanupImageCacheDirectory()

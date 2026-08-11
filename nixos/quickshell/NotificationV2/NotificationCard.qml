@@ -15,9 +15,10 @@ Rectangle {
   required property var entry
   readonly property string image: entry ? entry.image : ""
   readonly property bool isClosed: entry ? entry.closed : false
+  readonly property var notification: entry ? entry.notification : null
   readonly property int notificationId: entry ? entry.id : -1
   property int previewIconSize: 56
-  property bool showActivateButton: entry ? entry.hasDefaultAction && !entry.closed : false
+  property bool showActivateButton: entry ? NotificationData.defaultActionIndex(entry.notification?.actions) !== -1 && !entry.closed : false
   property bool showCloseButton: false
   property bool showClosedLabel: false
   property bool showInlineReply: true
@@ -28,6 +29,7 @@ Rectangle {
   signal activateRequested(notificationId: int)
   signal closeRequested(notificationId: int)
   signal inlineReplyRequested(notificationId: int, text: string)
+  signal linkActivated(link: string)
 
   function resetTransientState(): void {
     notificationActions.resetTransientState();
@@ -149,13 +151,15 @@ Rectangle {
       visible: text !== ""
       width: parent.width
       wrapMode: Text.Wrap
+
+      onLinkActivated: link => root.linkActivated(link)
     }
     NotificationActions {
       id: notificationActions
 
       allowInlineReply: root.showInlineReply
       compact: root.compact
-      entry: root.entry
+      notification: root.notification
       width: parent.width
 
       onActionRequested: actionIndex => root.actionRequested(root.notificationId, actionIndex)

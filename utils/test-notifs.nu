@@ -85,7 +85,7 @@ def main [--delay: int = 300, --img] {
       urgency: "normal"
     }
     {
-      label: "long body (tests 5-line wrap)"
+      label: "long body (tests popup/sidebar wrap limits)"
       summary: "System update available"
       body: "The following packages have updates: linux-firmware, mesa, pipewire, niri, quickshell. Review the changelog before upgrading. Some packages may require a reboot to take effect. Run `sudo nixos-rebuild switch` to apply."
       app: "packagekit"

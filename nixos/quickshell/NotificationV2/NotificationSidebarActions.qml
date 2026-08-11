@@ -26,15 +26,15 @@ Item {
       return;
 
     root.removalAnchorOffset = firstItem.y - listView.contentY;
-    for (let index = firstIndex; index < NotificationStore.entries.count; index++) {
-      const id = NotificationStore.entries.get(index).id;
+    for (let index = firstIndex; index < NotificationStore.count; index++) {
+      const id = NotificationStore.records[index].id;
       if (!removingIds[id]) {
         root.removalAnchorId = id;
         return;
       }
     }
     for (let index = firstIndex - 1; index >= 0; index--) {
-      const id = NotificationStore.entries.get(index).id;
+      const id = NotificationStore.records[index].id;
       if (!removingIds[id]) {
         root.removalAnchorId = id;
         return;
@@ -43,8 +43,8 @@ Item {
     root.removalFallbackId = firstItem.notificationId;
   }
   function indexOfEntry(id: int): int {
-    for (let index = 0; index < NotificationStore.entries.count; index++) {
-      if (NotificationStore.entries.get(index).id === id)
+    for (let index = 0; index < NotificationStore.count; index++) {
+      if (NotificationStore.records[index].id === id)
         return index;
     }
     return -1;
@@ -68,7 +68,6 @@ Item {
       deadline: Date.now() + Config.notifications.popupDuration
     };
     root.pendingRemovals = nextRemovals;
-    root.captureViewportAnchor(nextRemovals);
     root.scheduleNextRemoval();
   }
   function finalizeDueRemovals(): void {
@@ -89,7 +88,7 @@ Item {
     for (let index = 0; index < dueIds.length; index++)
       root.closeRequested(dueIds[index]);
     if (dueIds.length > 0)
-      Qt.callLater(root.restoreViewport);
+      restoreViewportTimer.restart();
   }
   function finalizePendingRemovals(): void {
     const ids = Object.keys(root.pendingRemovals);
@@ -101,7 +100,7 @@ Item {
     removalTimer.stop();
     for (let index = 0; index < ids.length; index++)
       root.closeRequested(Number(ids[index]));
-    Qt.callLater(root.restoreViewport);
+    restoreViewportTimer.restart();
   }
   function resetViewportAnchor(): void {
     root.removalAnchorId = -1;
@@ -149,8 +148,6 @@ Item {
     delete nextRemovals[id];
     root.pendingRemovals = nextRemovals;
     root.scheduleNextRemoval();
-    if (Object.keys(nextRemovals).length === 0)
-      root.resetViewportAnchor();
   }
 
   anchors.fill: parent
@@ -219,6 +216,14 @@ Item {
 
         onTriggered: root.finalizeDueRemovals()
       }
+      Timer {
+        id: restoreViewportTimer
+
+        interval: 0
+        repeat: false
+
+        onTriggered: root.restoreViewport()
+      }
       MouseArea {
         acceptedButtons: Qt.NoButton
         anchors.fill: parent
@@ -263,17 +268,31 @@ Item {
             to: 1
           }
         }
+        remove: Transition {
+          ParallelAnimation {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+              property: "opacity"
+              to: 0
+            }
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+              property: "scale"
+              to: 0.96
+            }
+          }
+        }
 
         delegate: Item {
           required property var modelData
           readonly property bool pendingRemoval: Boolean(root.pendingRemovals[modelData.id])
           readonly property int notificationId: modelData.id
 
+          ListView.delayRemove: false
           height: card.implicitHeight
-          opacity: 1
-          scale: 1
           width: listView.width
-          x: 0
 
           ListView.onPooled: card.resetTransientState()
           ListView.onReused: card.resetTransientState()
@@ -288,9 +307,10 @@ Item {
             visible: !pendingRemoval
             width: parent.width
 
-            onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeVisibleAction(notificationId, actionIndex)
+            onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeAction(notificationId, actionIndex)
             onActivateRequested: notificationId => NotificationStore.invokeDefaultAction(notificationId)
             onInlineReplyRequested: (notificationId, text) => NotificationStore.sendInlineReply(notificationId, text)
+            onLinkActivated: link => Qt.openUrlExternally(link)
 
             MouseArea {
               acceptedButtons: Qt.RightButton

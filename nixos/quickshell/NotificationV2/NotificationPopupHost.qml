@@ -9,29 +9,30 @@ Scope {
 
   property real contentOffset: 0
   property real contentOpacity: 1
-  property var displayedEntry: NotificationStore.popupEntry
+  property var displayedNotification: null
+  readonly property int displayedNotificationId: displayedNotification ? displayedNotification.id : -1
   required property int mainHeight
-  property var pendingEntry: null
+  property var pendingNotification: null
   property bool popupShown: popupVisible
-  readonly property bool popupVisible: NotificationStore.popupEntry !== null
+  readonly property bool popupVisible: NotificationStore.popupVisible
   property bool popupWindowVisible: popupVisible
 
-  function handlePopupEntryChanged(): void {
-    const nextEntry = NotificationStore.popupEntry;
-    if (!nextEntry)
+  function handlePopupNotificationChanged(): void {
+    const nextNotification = NotificationStore.popupNotification;
+    if (!nextNotification)
       return;
-    if (!popupWindowVisible || !displayedEntry || displayedEntry.id === nextEntry.id) {
-      displayedEntry = nextEntry;
+    if (!popupWindowVisible || !displayedNotification || displayedNotification.id === nextNotification.id) {
+      displayedNotification = nextNotification;
       return;
     }
-    pendingEntry = nextEntry;
+    pendingNotification = nextNotification;
     popupSwapAnimation.restart();
   }
 
   onPopupVisibleChanged: {
     if (popupVisible) {
-      displayedEntry = NotificationStore.popupEntry;
-      pendingEntry = null;
+      displayedNotification = NotificationStore.popupNotification;
+      pendingNotification = null;
       contentOpacity = 1;
       contentOffset = 0;
       popupWindowVisible = true;
@@ -42,8 +43,8 @@ Scope {
   }
 
   Connections {
-    function onPopupEntryChanged(): void {
-      root.handlePopupEntryChanged();
+    function onPopupNotificationChanged(): void {
+      root.handlePopupNotificationChanged();
     }
 
     target: NotificationStore
@@ -78,7 +79,7 @@ Scope {
 
     Component.onCompleted: {
       if (WlrLayershell != null) {
-        WlrLayershell.namespace = "quickshell-notification-v2-popup";
+        WlrLayershell.namespace = "quickshell-notification-popup";
         WlrLayershell.layer = WlrLayer.Overlay;
       }
     }
@@ -106,7 +107,7 @@ Scope {
           onRunningChanged: {
             if (!running && !root.popupShown) {
               root.popupWindowVisible = false;
-              root.displayedEntry = null;
+              root.displayedNotification = null;
             }
           }
         }
@@ -131,8 +132,8 @@ Scope {
         }
         ScriptAction {
           script: {
-            root.displayedEntry = root.pendingEntry;
-            root.pendingEntry = null;
+            root.displayedNotification = root.pendingNotification;
+            root.pendingNotification = null;
             root.contentOffset = Config.spacing.normal;
           }
         }
@@ -167,15 +168,15 @@ Scope {
           bodyLineLimit: 4
           bottomInset: timeoutBar.height + Config.spacing.small
           compact: true
-          entry: root.displayedEntry
-          showActivateButton: root.displayedEntry ? root.displayedEntry.hasDefaultAction : false
+          entry: NotificationStore.getById(root.displayedNotificationId)
           showInlineReply: false
           summaryLineLimit: 2
           width: parent.width
 
-          onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeVisibleAction(notificationId, actionIndex)
+          onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeAction(notificationId, actionIndex)
           onActivateRequested: notificationId => NotificationStore.invokeDefaultAction(notificationId)
           onInlineReplyRequested: (notificationId, text) => NotificationStore.sendInlineReply(notificationId, text)
+          onLinkActivated: link => Qt.openUrlExternally(link)
         }
         MouseArea {
           acceptedButtons: Qt.LeftButton
@@ -196,8 +197,8 @@ Scope {
           anchors.leftMargin: popupCard.border.width + Config.padding.small
           anchors.right: parent.right
           anchors.rightMargin: popupCard.border.width + Config.padding.small
-          durationMs: root.displayedEntry ? root.displayedEntry.popupDurationMs : 0
-          notificationId: root.displayedEntry ? root.displayedEntry.id : -1
+          durationMs: NotificationStore.popupDurationMs
+          notificationId: root.displayedNotificationId
           running: root.popupShown
 
           onExpired: notificationId => NotificationStore.expirePopup(notificationId)

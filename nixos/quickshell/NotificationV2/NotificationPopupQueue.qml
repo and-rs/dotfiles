@@ -21,12 +21,12 @@ Singleton {
     nextQueue.splice(index, 1);
     return nextQueue;
   }
-  function takeNext(queue: var, entries: var): var {
+  function takeNext(queue: var, records: var): var {
     const nextQueue = queue.slice();
     while (nextQueue.length > 0) {
       const nextId = nextQueue.shift();
-      for (let index = 0; index < entries.count; index++) {
-        const entry = entries.get(index);
+      for (let index = 0; index < records.length; index++) {
+        const entry = records[index];
         if (entry.id === nextId && !entry.closed)
           return {
             id: nextId,
