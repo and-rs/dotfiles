@@ -80,7 +80,7 @@ layout {
     border {
         on
         width 2
-        active-gradient from="#2e7de9" to="#d0d5e3" angle=180
+        active-gradient from="#2e7de9" to="#d0d5e3" angle=360
         inactive-color "#d0d5e3"
     }
     focus-ring {
@@ -90,10 +90,10 @@ layout {
     shadow {
         on
         spread 0
-        softness 14
+        softness 6
         offset x=0 y=2
         draw-behind-window true
-        color "#21233070"
+        color "#2e7de990"
         inactive-color "#21233070"
     }
 }
@@ -135,7 +135,7 @@ window-rule {
         proportion 0.5
     }
     default-window-height {
-        fixed 400
+        fixed 500
     }
     open-floating true
     open-focused true
@@ -144,7 +144,12 @@ window-rule {
 window-rule {
     match app-id="spotify"
     match app-id="zathura"
+    match app-id="org.prismlauncher.PrismLauncher"
     open-maximized false
+    open-floating false
+    default-window-height {
+        proportion 1.0
+    }
     default-column-width {
         proportion 0.6
     }

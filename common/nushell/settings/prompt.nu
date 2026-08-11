@@ -1,14 +1,3 @@
-let omp_init = ($nu.vendor-autoload-dirs | last | path join "oh-my-posh.nu")
-let omp_path = (which oh-my-posh | get path.0 | path expand)
-let omp_config = ("~/.config/oh-my-posh/config.yaml" | path expand --no-symlink)
-let omp_current = if ($omp_init | path exists) {
-  let init = (open --raw $omp_init)
-  ($init | str contains $omp_path) and ($init | str contains $omp_config)
-} else { false }
-if not $omp_current {
-  oh-my-posh init nu --config ~/.config/oh-my-posh/config.yaml
-}
-
 # Insert one visual gap after commands, except commands that clear the screen.
 $env.PROMPT_GAP = (($env.PROMPT_GAP? | default false | into string) == "true")
 

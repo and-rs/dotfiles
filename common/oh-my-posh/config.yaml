@@ -5,11 +5,11 @@ blocks:
       - type: shell
         background: "black"
         foreground: "darkGray"
-        template: "<cyan>{{ .Name }}</> "
+        template: "<cyan> {{ .Name }}</> "
       - type: path
         foreground: "blue"
         background: "black"
-        template: "{{ .Path }}"
+        template: "{{ .Path }} "
         options:
           style: agnoster_short
       - type: git
