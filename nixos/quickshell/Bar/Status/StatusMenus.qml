@@ -37,6 +37,7 @@ Item {
     activeMenu = "";
   }
   function closePanels() {
+    notificationsSidebar.finalizePendingRemovals();
     activePanel = "";
   }
   function switchMenu(id) {
@@ -53,7 +54,11 @@ Item {
       return;
     }
     closeMenus();
-    activePanel = activePanel === id ? "" : id;
+    if (activePanel === id) {
+      closePanels();
+      return;
+    }
+    activePanel = id;
   }
 
   implicitHeight: buttons.implicitHeight
@@ -141,6 +146,8 @@ Item {
     onCloseRequested: root.closePanels()
 
     NotificationsV2.NotificationSidebarActions {
+      id: notificationsSidebar
+
       onClearAllRequested: NotificationsV2.NotificationStore.clear()
       onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
     }

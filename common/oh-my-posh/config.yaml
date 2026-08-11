@@ -3,8 +3,8 @@ blocks:
     alignment: left
     segments:
       - type: shell
-        foreground: "darkGray"
         background: "black"
+        foreground: "darkGray"
         template: "<cyan>{{ .Name }}</> "
       - type: path
         foreground: "blue"

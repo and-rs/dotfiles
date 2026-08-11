@@ -52,7 +52,7 @@ input {
         accel-speed 0.1
         accel-profile "flat"
         scroll-factor 0.08
-        // natural-scroll
+        natural-scroll
         middle-emulation
         click-method "clickfinger"
     }

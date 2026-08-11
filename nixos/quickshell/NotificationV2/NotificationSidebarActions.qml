@@ -4,28 +4,99 @@ import qs.Bar
 Item {
   id: root
 
+  property bool clearingAll: false
+  property var pendingRemovals: ({})
   property bool pendingScrollRestore: false
   property real preservedContentY: 0
   readonly property int seamHeight: 28
   property real wheelScrollMultiplier: 7.0
-  property bool clearingAll: false
 
   signal clearAllRequested
   signal closeRequested(notificationId: int)
-
-  function restoreContentY(): void {
-    const maxContentY = Math.max(0, listView.contentHeight - listView.height);
-    listView.contentY = Math.max(0, Math.min(maxContentY, preservedContentY));
-  }
 
   function beginClearAll(): void {
     if (root.clearingAll || NotificationStore.count === 0)
       return;
 
+    root.pendingRemovals = ({});
+    removalTimer.stop();
     root.preservedContentY = listView.contentY;
     root.pendingScrollRestore = false;
     root.clearingAll = true;
     clearAllTimer.restart();
+  }
+  function beginRemoval(id: int): void {
+    if (root.clearingAll || root.pendingRemovals[id])
+      return;
+
+    root.preservedContentY = listView.contentY;
+    root.pendingScrollRestore = true;
+    const nextRemovals = Object.assign({}, root.pendingRemovals);
+    nextRemovals[id] = {
+      deadline: Date.now() + Config.notifications.popupDuration
+    };
+    root.pendingRemovals = nextRemovals;
+    root.scheduleNextRemoval();
+  }
+  function finalizeDueRemovals(): void {
+    const now = Date.now();
+    const dueIds = [];
+    const nextRemovals = {};
+    const ids = Object.keys(root.pendingRemovals);
+    for (let index = 0; index < ids.length; index++) {
+      const id = ids[index];
+      if (root.pendingRemovals[id].deadline <= now)
+        dueIds.push(Number(id));
+      else
+        nextRemovals[id] = root.pendingRemovals[id];
+    }
+    root.pendingRemovals = nextRemovals;
+    root.scheduleNextRemoval();
+    for (let index = 0; index < dueIds.length; index++)
+      root.closeRequested(dueIds[index]);
+    if (dueIds.length > 0)
+      restoreScrollTimer.restart();
+  }
+  function finalizePendingRemovals(): void {
+    const ids = Object.keys(root.pendingRemovals);
+    if (ids.length === 0)
+      return;
+
+    root.pendingRemovals = ({});
+    removalTimer.stop();
+    for (let index = 0; index < ids.length; index++)
+      root.closeRequested(Number(ids[index]));
+    restoreScrollTimer.restart();
+  }
+  function restoreContentY(): void {
+    const maxContentY = Math.max(0, listView.contentHeight - listView.height);
+    listView.contentY = Math.max(0, Math.min(maxContentY, preservedContentY));
+  }
+  function scheduleNextRemoval(): void {
+    let nextDeadline = 0;
+    const ids = Object.keys(root.pendingRemovals);
+    for (let index = 0; index < ids.length; index++) {
+      const deadline = root.pendingRemovals[ids[index]].deadline;
+      if (nextDeadline === 0 || deadline < nextDeadline)
+        nextDeadline = deadline;
+    }
+    if (nextDeadline === 0) {
+      removalTimer.stop();
+      return;
+    }
+
+    removalTimer.interval = Math.max(1, nextDeadline - Date.now());
+    removalTimer.restart();
+  }
+  function undoRemoval(id: int): void {
+    if (!root.pendingRemovals[id])
+      return;
+
+    const nextRemovals = Object.assign({}, root.pendingRemovals);
+    delete nextRemovals[id];
+    root.pendingRemovals = nextRemovals;
+    root.scheduleNextRemoval();
+    restoreScrollTimer.restart();
   }
 
   anchors.fill: parent
@@ -34,8 +105,45 @@ Item {
     anchors.fill: parent
     spacing: Config.spacing.normal
 
+    Row {
+      spacing: Config.spacing.normal
+      width: parent.width
+
+      Column {
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: Config.spacing.extraSmall
+        width: parent.width - clearAllButton.implicitWidth - parent.spacing
+
+        Text {
+          color: Config.colors.fg
+          elide: Text.ElideRight
+          font.pixelSize: Config.sizes.normal
+          font.weight: Font.Medium
+          text: NotificationStore.count === 1 ? "1 saved notification" : NotificationStore.count + " saved notifications"
+          textFormat: Text.PlainText
+          width: parent.width
+        }
+        Text {
+          color: Config.colors.surface4
+          elide: Text.ElideRight
+          font.pixelSize: Config.sizes.small
+          text: NotificationStore.count > 0 ? "Saved in NotificationV2" : "All clear"
+          textFormat: Text.PlainText
+          width: parent.width
+        }
+      }
+      PanelButton {
+        id: clearAllButton
+
+        enabled: NotificationStore.count > 0 && !root.clearingAll
+        label: "Clear all"
+        prominent: true
+
+        onPress: () => root.beginClearAll()
+      }
+    }
     Item {
-      height: parent.height - y - clearAllButton.implicitHeight - Config.spacing.normal
+      height: parent.height - y
       width: parent.width
 
       Timer {
@@ -61,6 +169,14 @@ Item {
           root.clearAllRequested();
           root.clearingAll = false;
         }
+      }
+      Timer {
+        id: removalTimer
+
+        interval: 1
+        repeat: false
+
+        onTriggered: root.finalizeDueRemovals()
       }
       MouseArea {
         acceptedButtons: Qt.NoButton
@@ -89,15 +205,15 @@ Item {
         visible: NotificationStore.count > 0
 
         delegate: Item {
+          property bool closing: root.clearingAll
           required property var modelData
-          property bool closingSelf: false
-          property bool closing: root.clearingAll || closingSelf
+          readonly property bool pendingRemoval: Boolean(root.pendingRemovals[modelData.id])
 
-          height: closing ? 0 : card.implicitHeight
+          height: closing ? 0 : pendingRemoval ? undoRow.implicitHeight : card.implicitHeight
           opacity: closing ? 0 : 1
           scale: closing ? 0.96 : 1
-          x: closing ? 20 : 0
           width: listView.width
+          x: closing ? 20 : 0
 
           Behavior on height {
             NumberAnimation {
@@ -124,36 +240,115 @@ Item {
             }
           }
 
-          Timer {
-            id: closeTimer
-
-            interval: Config.durations.fast
-            repeat: false
-
-            onTriggered: {
-              root.closeRequested(modelData.id);
-              restoreScrollTimer.restart();
-            }
-          }
           NotificationCard {
             id: card
 
+            anchors.fill: parent
             compact: false
             entry: modelData
-            showCloseButton: true
+            showCloseButton: false
+            visible: !pendingRemoval
             width: parent.width
 
             onActionRequested: (notificationId, actionIndex) => NotificationStore.invokeVisibleAction(notificationId, actionIndex)
             onActivateRequested: notificationId => NotificationStore.invokeDefaultAction(notificationId)
-            onCloseRequested: notificationId => {
-              if (root.clearingAll || closingSelf)
-                return;
-              root.preservedContentY = listView.contentY;
-              root.pendingScrollRestore = true;
-              closingSelf = true;
-              closeTimer.restart();
-            }
             onInlineReplyRequested: (notificationId, text) => NotificationStore.sendInlineReply(notificationId, text)
+
+            MouseArea {
+              acceptedButtons: Qt.RightButton
+              anchors.fill: parent
+
+              onClicked: mouse => {
+                mouse.accepted = true;
+                root.beginRemoval(modelData.id);
+              }
+            }
+          }
+          Loader {
+            id: undoRow
+
+            active: pendingRemoval
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: implicitHeight
+
+            sourceComponent: Rectangle {
+              color: Config.colors.surface1
+              height: implicitHeight
+              implicitHeight: undoContent.implicitHeight + Config.padding.normal * 2
+              radius: Config.radius.normal
+              width: parent.width
+
+              Column {
+                id: undoContent
+
+                anchors.centerIn: parent
+                spacing: Config.spacing.small
+                width: parent.width - Config.padding.large * 2
+
+                Row {
+                  spacing: Config.spacing.small
+                  width: parent.width
+
+                  Text {
+                    color: Config.colors.fg
+                    font.pixelSize: Config.sizes.small
+                    text: "Notification removed"
+                    textFormat: Text.PlainText
+                    verticalAlignment: Text.AlignVCenter
+                    width: parent.width - undoButton.width - parent.spacing
+                  }
+                  Rectangle {
+                    id: undoButton
+
+                    color: undoArea.containsMouse ? Config.colors.primary : Config.colors.surface2
+                    height: undoLabel.implicitHeight + Config.padding.extraSmall * 2
+                    radius: Config.radius.small
+                    width: undoLabel.implicitWidth + Config.padding.normal * 2
+
+                    Text {
+                      id: undoLabel
+
+                      anchors.centerIn: parent
+                      color: undoArea.containsMouse ? Config.colors.base : Config.colors.primary
+                      font.pixelSize: Config.sizes.small
+                      font.weight: Font.Medium
+                      text: "Undo"
+                      textFormat: Text.PlainText
+                    }
+                    MouseArea {
+                      id: undoArea
+
+                      anchors.fill: parent
+                      hoverEnabled: true
+
+                      onClicked: root.undoRemoval(modelData.id)
+                    }
+                  }
+                }
+                Rectangle {
+                  color: Config.colors.surface3
+                  height: 2
+                  width: parent.width
+
+                  Rectangle {
+                    anchors.right: parent.right
+                    color: Config.colors.primary
+                    height: parent.height
+                    width: parent.width
+
+                    NumberAnimation on width {
+                      duration: Math.max(1, root.pendingRemovals[modelData.id].deadline - Date.now())
+                      easing.type: Easing.Linear
+                      from: parent.width
+                      running: true
+                      to: 0
+                    }
+                  }
+                }
+              }
+            }
           }
         }
         displaced: Transition {
@@ -255,43 +450,6 @@ Item {
             position: 1.0
           }
         }
-      }
-    }
-    Row {
-      spacing: Config.spacing.normal
-      width: parent.width
-
-      Column {
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: Config.spacing.extraSmall
-        width: parent.width - clearAllButton.implicitWidth - parent.spacing
-
-        Text {
-          color: Config.colors.fg
-          elide: Text.ElideRight
-          font.pixelSize: Config.sizes.normal
-          font.weight: Font.Medium
-          text: NotificationStore.count === 1 ? "1 saved notification" : NotificationStore.count + " saved notifications"
-          textFormat: Text.PlainText
-          width: parent.width
-        }
-        Text {
-          color: Config.colors.surface4
-          elide: Text.ElideRight
-          font.pixelSize: Config.sizes.small
-          text: NotificationStore.count > 0 ? "Saved in NotificationV2" : "All clear"
-          textFormat: Text.PlainText
-          width: parent.width
-        }
-      }
-      PanelButton {
-        id: clearAllButton
-
-        enabled: NotificationStore.count > 0 && !root.clearingAll
-        label: "Clear all"
-        prominent: true
-
-        onPress: () => root.beginClearAll()
       }
     }
   }
