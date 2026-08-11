@@ -31,11 +31,29 @@ def wipe-font-cache [] { rm -rf ~/.cache/fontconfig; fc-cache -r -v }
 alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
 alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 
+def sync-clock [] {
+  let http_date = (
+    curl -sI https://www.google.com
+    | lines
+    | where $it =~ '(?i)^date:'
+    | first
+    | str replace -r '(?i)^date:\s*' ''
+    | str trim
+  )
+  let offset = (
+    (date now | into int) - ($http_date | into datetime | into int)
+    | math abs
+  )
+  if $offset > 15_000_000_000 {
+    print "Clock differs from HTTPS time by more than 15 seconds; synchronizing."
+    sudo /usr/bin/date --utc --set $http_date
+  }
+}
+
 def colors [] { 0..15 | each {|c| $"(ansi --escape $'48;5;($c)m')  (ansi reset)" } }
 alias link-nvim = ln -s ~/Vault/personal/nvim ~/.config
 alias yz = yazi
 alias l = ls -a
-alias r = exec nu
 alias md = table -t markdown
 alias c = clear --keep-scrollback
 alias ld = eza -lha --no-permissions --no-user --no-time

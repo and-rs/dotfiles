@@ -131,7 +131,6 @@ def --env r [] {
   oh-my-posh init nu --config ~/.config/oh-my-posh/config.yaml | save -f $omp_init
   zoxide init nushell | save -f $zoxide_init
   carapace _carapace nushell | $"($carapace_marker)($in)" | save -f $carapace_init
-
   exec nu
 }
 
