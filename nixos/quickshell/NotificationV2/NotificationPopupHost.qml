@@ -168,7 +168,6 @@ Scope {
           bottomInset: timeoutBar.height + Config.spacing.small
           compact: true
           entry: root.displayedEntry
-          previewIconSize: 52
           showActivateButton: root.displayedEntry ? root.displayedEntry.hasDefaultAction : false
           showInlineReply: false
           summaryLineLimit: 2

@@ -7,14 +7,20 @@ PanelWindow {
   id: root
 
   readonly property real closedPanelX: screen.width
-  default property alias content: panelBody.data
+  property bool bodyActive: false
   required property bool open
   readonly property real openPanelX: screen.width - panelWidth
+  property Component panel
   property int panelWidth: Config.sidebar.width
   property string title: ""
   required property PanelWindow window
 
   signal closeRequested
+
+  function finalizePendingRemovals(): void {
+    if (panelLoader.item && panelLoader.item.finalizePendingRemovals)
+      panelLoader.item.finalizePendingRemovals();
+  }
 
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
   WlrLayershell.layer: WlrLayer.Overlay
@@ -24,12 +30,16 @@ PanelWindow {
   visible: false
 
   Component.onCompleted: {
-    if (open)
+    if (open) {
+      bodyActive = true;
       visible = true;
+    }
   }
   onOpenChanged: {
-    if (open)
+    if (open) {
+      bodyActive = true;
       visible = true;
+    }
   }
 
   anchors {
@@ -79,6 +89,8 @@ PanelWindow {
           easing.type: Config.curve
 
           onRunningChanged: {
+            if (!running && !root.open)
+              root.bodyActive = false;
             if (!running && !root.open)
               root.visible = false;
           }
@@ -141,10 +153,13 @@ PanelWindow {
             }
           }
         }
-        Item {
-          id: panelBody
+        Loader {
+          id: panelLoader
 
+          active: root.bodyActive
+          asynchronous: true
           height: parent.height - y
+          sourceComponent: root.panel
           width: parent.width
         }
       }

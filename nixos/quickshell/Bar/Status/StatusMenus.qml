@@ -35,7 +35,7 @@ Item {
     activeMenu = "";
   }
   function closePanels() {
-    notificationsSidebar.finalizePendingRemovals();
+    sidebarHost.finalizePendingRemovals();
     activePanel = "";
   }
   function switchMenu(id) {
@@ -127,11 +127,11 @@ Item {
 
     onCloseRequested: root.closePanels()
 
-    NotificationsV2.NotificationSidebarActions {
-      id: notificationsSidebar
-
-      onClearAllRequested: NotificationsV2.NotificationStore.clear()
-      onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
+    panel: Component {
+      NotificationsV2.NotificationSidebarActions {
+        onClearAllRequested: NotificationsV2.NotificationStore.clear()
+        onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
+      }
     }
   }
 }

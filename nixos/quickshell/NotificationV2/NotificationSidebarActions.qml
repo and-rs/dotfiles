@@ -6,22 +6,56 @@ Item {
 
   property bool clearingAll: false
   property var pendingRemovals: ({})
-  property bool pendingScrollRestore: false
-  property real preservedContentY: 0
+  property int removalAnchorId: -1
+  property int removalFallbackId: -1
+  property real removalAnchorOffset: 0
+  readonly property int endInset: seamHeight + Config.padding.normal
   readonly property int seamHeight: 28
-  property real wheelScrollMultiplier: 7.0
+  property real wheelScrollMultiplier: 10.0
 
   signal clearAllRequested
   signal closeRequested(notificationId: int)
 
+  function captureViewportAnchor(removingIds: var): void {
+    if (root.removalAnchorId !== -1)
+      return;
+
+    const firstIndex = listView.indexAt(1, listView.contentY + 1);
+    const firstItem = firstIndex >= 0 ? listView.itemAtIndex(firstIndex) : null;
+    if (!firstItem)
+      return;
+
+    root.removalAnchorOffset = firstItem.y - listView.contentY;
+    for (let index = firstIndex; index < NotificationStore.entries.count; index++) {
+      const id = NotificationStore.entries.get(index).id;
+      if (!removingIds[id]) {
+        root.removalAnchorId = id;
+        return;
+      }
+    }
+    for (let index = firstIndex - 1; index >= 0; index--) {
+      const id = NotificationStore.entries.get(index).id;
+      if (!removingIds[id]) {
+        root.removalAnchorId = id;
+        return;
+      }
+    }
+    root.removalFallbackId = firstItem.notificationId;
+  }
+  function indexOfEntry(id: int): int {
+    for (let index = 0; index < NotificationStore.entries.count; index++) {
+      if (NotificationStore.entries.get(index).id === id)
+        return index;
+    }
+    return -1;
+  }
   function beginClearAll(): void {
     if (root.clearingAll || NotificationStore.count === 0)
       return;
 
     root.pendingRemovals = ({});
     removalTimer.stop();
-    root.preservedContentY = listView.contentY;
-    root.pendingScrollRestore = false;
+    root.resetViewportAnchor();
     root.clearingAll = true;
     clearAllTimer.restart();
   }
@@ -29,13 +63,12 @@ Item {
     if (root.clearingAll || root.pendingRemovals[id])
       return;
 
-    root.preservedContentY = listView.contentY;
-    root.pendingScrollRestore = true;
     const nextRemovals = Object.assign({}, root.pendingRemovals);
     nextRemovals[id] = {
       deadline: Date.now() + Config.notifications.popupDuration
     };
     root.pendingRemovals = nextRemovals;
+    root.captureViewportAnchor(nextRemovals);
     root.scheduleNextRemoval();
   }
   function finalizeDueRemovals(): void {
@@ -50,27 +83,47 @@ Item {
       else
         nextRemovals[id] = root.pendingRemovals[id];
     }
+    root.captureViewportAnchor(root.pendingRemovals);
     root.pendingRemovals = nextRemovals;
     root.scheduleNextRemoval();
     for (let index = 0; index < dueIds.length; index++)
       root.closeRequested(dueIds[index]);
     if (dueIds.length > 0)
-      restoreScrollTimer.restart();
+      Qt.callLater(root.restoreViewport);
   }
   function finalizePendingRemovals(): void {
     const ids = Object.keys(root.pendingRemovals);
     if (ids.length === 0)
       return;
 
+    root.captureViewportAnchor(root.pendingRemovals);
     root.pendingRemovals = ({});
     removalTimer.stop();
     for (let index = 0; index < ids.length; index++)
       root.closeRequested(Number(ids[index]));
-    restoreScrollTimer.restart();
+    Qt.callLater(root.restoreViewport);
   }
-  function restoreContentY(): void {
-    const maxContentY = Math.max(0, listView.contentHeight - listView.height);
-    listView.contentY = Math.max(0, Math.min(maxContentY, preservedContentY));
+  function resetViewportAnchor(): void {
+    root.removalAnchorId = -1;
+    root.removalFallbackId = -1;
+    root.removalAnchorOffset = 0;
+  }
+  function restoreViewport(): void {
+    listView.forceLayout();
+    let index = root.indexOfEntry(root.removalAnchorId);
+    if (index === -1)
+      index = root.indexOfEntry(root.removalFallbackId);
+    if (index < 0) {
+      root.resetViewportAnchor();
+      return;
+    }
+
+    const item = listView.itemAtIndex(index);
+    if (item) {
+      const maxContentY = Math.max(0, listView.contentHeight - listView.height);
+      listView.contentY = Math.max(0, Math.min(maxContentY, item.y - root.removalAnchorOffset));
+    }
+    root.resetViewportAnchor();
   }
   function scheduleNextRemoval(): void {
     let nextDeadline = 0;
@@ -96,7 +149,8 @@ Item {
     delete nextRemovals[id];
     root.pendingRemovals = nextRemovals;
     root.scheduleNextRemoval();
-    restoreScrollTimer.restart();
+    if (Object.keys(nextRemovals).length === 0)
+      root.resetViewportAnchor();
   }
 
   anchors.fill: parent
@@ -147,19 +201,6 @@ Item {
       width: parent.width
 
       Timer {
-        id: restoreScrollTimer
-
-        interval: 16
-        repeat: false
-
-        onTriggered: {
-          if (!root.pendingScrollRestore)
-            return;
-          root.restoreContentY();
-          root.pendingScrollRestore = false;
-        }
-      }
-      Timer {
         id: clearAllTimer
 
         interval: Config.durations.fast
@@ -198,47 +239,44 @@ Item {
         anchors.fill: parent
         boundsBehavior: Flickable.StopAtBounds
         boundsMovement: Flickable.StopAtBounds
+        bottomMargin: root.endInset
         clip: true
         interactive: false
         model: NotificationStore.entries
+        opacity: root.clearingAll ? 0 : 1
+        reuseItems: true
         spacing: Config.spacing.extraSmall
         visible: NotificationStore.count > 0
 
+        Behavior on opacity {
+          NumberAnimation {
+            duration: Config.durations.fast
+            easing.type: Config.curve
+          }
+        }
+        add: Transition {
+          NumberAnimation {
+            duration: Config.durations.fast
+            easing.type: Config.curve
+            from: 0
+            property: "opacity"
+            to: 1
+          }
+        }
+
         delegate: Item {
-          property bool closing: root.clearingAll
           required property var modelData
           readonly property bool pendingRemoval: Boolean(root.pendingRemovals[modelData.id])
+          readonly property int notificationId: modelData.id
 
-          height: closing ? 0 : pendingRemoval ? undoRow.implicitHeight : card.implicitHeight
-          opacity: closing ? 0 : 1
-          scale: closing ? 0.96 : 1
+          height: card.implicitHeight
+          opacity: 1
+          scale: 1
           width: listView.width
-          x: closing ? 20 : 0
+          x: 0
 
-          Behavior on height {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-            }
-          }
-          Behavior on opacity {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-            }
-          }
-          Behavior on scale {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-            }
-          }
-          Behavior on x {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-            }
-          }
+          ListView.onPooled: card.resetTransientState()
+          ListView.onReused: card.resetTransientState()
 
           NotificationCard {
             id: card
@@ -271,14 +309,23 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            height: implicitHeight
+            height: parent.height
 
             sourceComponent: Rectangle {
               color: Config.colors.surface1
-              height: implicitHeight
-              implicitHeight: undoContent.implicitHeight + Config.padding.normal * 2
+              height: parent.height
+              opacity: 0
               radius: Config.radius.normal
               width: parent.width
+
+              Component.onCompleted: opacity = 1
+
+              Behavior on opacity {
+                NumberAnimation {
+                  duration: Config.durations.fast
+                  easing.type: Config.curve
+                }
+              }
 
               Column {
                 id: undoContent
@@ -350,52 +397,6 @@ Item {
               }
             }
           }
-        }
-        displaced: Transition {
-          NumberAnimation {
-            duration: Config.durations.fast
-            easing.type: Config.curve
-            property: "y"
-          }
-        }
-        footer: Item {
-          height: root.seamHeight
-          width: listView.width
-        }
-        header: Item {
-          height: root.seamHeight
-          width: listView.width
-        }
-        remove: Transition {
-          ParallelAnimation {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-              property: "opacity"
-              to: 0
-            }
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-              property: "scale"
-              to: 0.96
-            }
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-              property: "x"
-              to: 20
-            }
-          }
-        }
-
-        onContentHeightChanged: {
-          if (root.pendingScrollRestore)
-            restoreScrollTimer.restart();
-        }
-        onCountChanged: {
-          if (root.pendingScrollRestore)
-            restoreScrollTimer.restart();
         }
       }
       Text {

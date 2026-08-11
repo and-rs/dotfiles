@@ -16,7 +16,7 @@ Rectangle {
   readonly property string image: entry ? entry.image : ""
   readonly property bool isClosed: entry ? entry.closed : false
   readonly property int notificationId: entry ? entry.id : -1
-  property int previewIconSize: compact ? 48 : 56
+  property int previewIconSize: 56
   property bool showActivateButton: entry ? entry.hasDefaultAction && !entry.closed : false
   property bool showCloseButton: false
   property bool showClosedLabel: false
@@ -28,6 +28,10 @@ Rectangle {
   signal activateRequested(notificationId: int)
   signal closeRequested(notificationId: int)
   signal inlineReplyRequested(notificationId: int, text: string)
+
+  function resetTransientState(): void {
+    notificationActions.resetTransientState();
+  }
 
   border.color: Config.colors.surface2
   border.width: 2
@@ -50,9 +54,9 @@ Rectangle {
       NotificationIconFallback {
         id: previewIcon
 
-        expandToAspect: true
+        appIcon: root.appIcon
         fallbackText: root.appName ? root.appName.charAt(0).toUpperCase() : ""
-        image: root.image || root.appIcon
+        notificationImage: root.image
         size: root.previewIconSize
       }
       Column {
@@ -147,6 +151,8 @@ Rectangle {
       wrapMode: Text.Wrap
     }
     NotificationActions {
+      id: notificationActions
+
       allowInlineReply: root.showInlineReply
       compact: root.compact
       entry: root.entry

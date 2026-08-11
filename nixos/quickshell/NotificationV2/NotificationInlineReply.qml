@@ -9,6 +9,11 @@ Row {
 
   signal sendRequested(text: string)
 
+  function reset(): void {
+    replyInput.text = "";
+    replyInput.focus = false;
+  }
+
   height: visible ? implicitHeight : 0
   spacing: Config.spacing.small
   visible: !root.compact

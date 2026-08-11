@@ -18,6 +18,10 @@ Column {
   signal actionRequested(index: int)
   signal inlineReplyRequested(text: string)
 
+  function resetTransientState(): void {
+    inlineReply.reset();
+  }
+
   function parseVisibleActions(value: var): var {
     if (!value || !value.visibleActionsJson)
       return [];
@@ -90,6 +94,8 @@ Column {
     }
   }
   NotificationInlineReply {
+    id: inlineReply
+
     compact: root.compact
     placeholder: root.inlineReplyPlaceholder
     visible: root.hasInlineReply

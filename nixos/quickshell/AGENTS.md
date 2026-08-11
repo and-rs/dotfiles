@@ -18,6 +18,7 @@ These instructions apply to `nixos/quickshell/`.
 - Keep global animation easing through `Config.curve`. Use existing
   `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
   `Config.radius`.
+- Every animation must use `Config.curve` and a `Config.durations` value.
 
 ## Performance
 
@@ -27,6 +28,9 @@ These instructions apply to `nixos/quickshell/`.
   leaves bindings, timers, and models active.
 - Keep list delegates small. Use `reuseItems` only when delegate state lives in
   the model/service, and pause timers/animations while delegates are pooled.
+- Do not animate geometry controlled by a view (`x`, `y`, width, or height) as
+  entries are inserted or removed. Reserve async content space up front and
+  use card-local visual feedback instead.
 - Load local images asynchronously and bound decode memory with `sourceSize`.
   Avoid mipmaps, clipping, layers, and effects in delegates unless benchmarked.
 - Batch model/state updates and keep hot bindings simple. Avoid per-frame JS
