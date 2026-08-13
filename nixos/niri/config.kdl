@@ -49,7 +49,7 @@ input {
     touchpad {
         tap
         drag-lock
-        accel-speed 0.1
+        accel-speed 0.2
         accel-profile "flat"
         scroll-factor 0.08
         natural-scroll
@@ -81,7 +81,7 @@ layout {
         on
         width 2
         active-gradient from="#2e7de9" to="#d0d5e3" angle=360
-        inactive-color "#d0d5e3"
+        inactive-color "#979fba"
     }
     focus-ring {
         off
@@ -89,7 +89,7 @@ layout {
     }
     shadow {
         on
-        spread 0
+        spread 1
         softness 6
         offset x=0 y=2
         draw-behind-window true
