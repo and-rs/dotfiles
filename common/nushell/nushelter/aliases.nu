@@ -27,7 +27,6 @@ def asus [--quiet (-q) --performance (-p)] {
   asusctl profile get
 }
 
-def wipe-font-cache [] { rm -rf ~/.cache/fontconfig; fc-cache -r -v }
 alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
 alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env -S nu -n
+
+def main [] {
+  rm -rf ~/.cache/fontconfig; fc-cache -r -v
+}

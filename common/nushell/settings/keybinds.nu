@@ -17,6 +17,54 @@ def _fzf_history [] {
   ($raw_selection | split row -n 2 (char tab) | get 0)
 }
 
+$env.config.menus = (
+  $env.config.menus | append [{
+    name: file_menu
+    only_buffer_difference: false
+    input_mode: cursor_prefix
+    marker: "| "
+    type: {
+      layout: columnar
+      columns: 4
+      col_padding: 2
+      tab_traversal: vertical
+    }
+    style: {
+      text: green
+      selected_text: green_reverse
+      description_text: yellow
+      match_text: {attr: u}
+      selected_match_text: {attr: ur}
+    }
+    source: {|buffer, position|
+      let contextual = (
+        $buffer
+        | commandline complete --detailed
+        | where kind in [file directory]
+      )
+
+      if ($contextual | is-not-empty) {
+        $contextual
+      } else {
+        let path = ($buffer | str replace -r '^.*\s' '')
+        let path_start = (($buffer | str length) - ($path | str length))
+
+        $path
+        | commandline complete --detailed --type path
+        | each {|completion|
+          $completion
+          | update span {
+            {
+              start: ($in.start + $path_start)
+              end: ($in.end + $path_start)
+            }
+          }
+        }
+      }
+    }
+  }]
+)
+
 $env.config.keybindings = (
   $env.config.keybindings | append [
     {
@@ -33,10 +81,25 @@ $env.config.keybindings = (
       modifier: control
       keycode: char_f
       mode: [emacs vi_insert]
-      event: [
-        {send: HistoryHintWordComplete}
-        {edit: MoveRight}
-      ]
+      event: {
+        until: [
+          {send: HistoryHintWordComplete}
+          {send: MenuRight}
+          {send: Right}
+        ]
+      }
+    }
+    {
+      name: file_menu
+      modifier: control
+      keycode: char_g
+      mode: [emacs vi_insert]
+      event: {
+        until: [
+          {send: menu name: file_menu}
+          {send: MenuNext}
+        ]
+      }
     }
     {
       name: aie_extend_command
