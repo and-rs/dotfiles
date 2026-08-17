@@ -1,0 +1,60 @@
+#!/usr/bin/env -S nu -n
+
+# Example
+# &spinner --msg "Listing files" -- sleep 2
+# Run an external command with a spinner and return its output.
+def main [
+  --msg: string
+  ...argv: string
+] {
+  if ($argv | is-empty) {
+    error make {msg: "usage: &spinner [--msg <message>] -- <command> [args...]"}
+  }
+
+  let execute = {||
+    try {
+      run-external ...$argv | complete
+    } catch {|err|
+      {
+        stdout: ""
+        stderr: $err.msg
+        exit_code: 1
+      }
+    }
+  }
+
+  let result = if (is-terminal --stderr) {
+    let job_id = (
+      job spawn {
+        let result = (do $execute)
+        $result | job send 0
+      }
+    )
+    mut i = 0
+    let frames = ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
+    mut result: any = null
+    loop {
+      let message = (try { job recv --timeout 80ms } catch { null })
+      if $message != null {
+        $result = $message
+        break
+      }
+
+      let frame = ($frames | get ($i mod ($frames | length)))
+      print -e -n $"\r\u{1b}[2K(ansi reset)($frame) ($msg)"
+      $i = $i + 1
+    }
+    print -e -n "\r\u{1b}[2K"
+    $result
+  } else {
+    do $execute
+  }
+
+  if ($result.stderr | is-not-empty) {
+    print -e -r -n $result.stderr
+  }
+  if ($result.stdout | is-not-empty) {
+    print -r -n $result.stdout
+  }
+  exit $result.exit_code
+}

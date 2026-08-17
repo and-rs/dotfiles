@@ -17,4 +17,3 @@ export def glo [...args: string] {
 
   git -C $root log --graph --color=always $"--format=($log_format)" ...$args | fzf ...$fzf_flags | ignore
 }
-

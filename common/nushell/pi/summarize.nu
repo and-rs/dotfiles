@@ -68,18 +68,11 @@ export def _ai_summarize [
   let model = (_ai_summarize_model)
   let input = (_ai_summarize_input $context $prompt)
 
-  spinner $label {
-    let result = (
+  (
+    &spinner --msg $label --
       bunx --bun pi -ns -nt -nbt --no-session
       --system-prompt $sp
       --model $model
       -p $input
-      | complete
-    )
-    if $result.exit_code != 0 {
-      let stderr = ($result.stderr | str trim)
-      error make {msg: $stderr}
-    }
-    $result.stdout
-  } | str trim
+  ) | str trim
 }

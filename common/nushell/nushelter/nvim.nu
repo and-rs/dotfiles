@@ -1,4 +1,3 @@
-alias nd = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 
 def nrg [pattern: string] {

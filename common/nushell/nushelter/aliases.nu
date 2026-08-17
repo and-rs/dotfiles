@@ -1,4 +1,4 @@
-def --wrapped nvim [...args] {
+def --wrapped vi [...args] {
   let editor = ($env.config.buffer_editor? | default $env.EDITOR)
   if ($editor | describe) == "list<string>" {
     run-external ($editor | first) ...($editor | skip 1) ...$args
@@ -50,6 +50,10 @@ def sync-clock [] {
   }
 }
 
+alias g = git
+alias gc = git commit
+alias gl = git log --oneline -n 10
+alias gs = git status
 def colors [] { 0..15 | each {|c| $"(ansi --escape $'48;5;($c)m')  (ansi reset)" } }
 alias link-nvim = ln -s ~/Vault/personal/nvim ~/.config
 alias yz = yazi
@@ -83,7 +87,7 @@ def win-start [] {
     docker start WinBoat
     sleep 10sec
   }
-  xfreerdp /v:127.0.0.1:47300 /u:andrs /p:jersey +clipboard /cert:ignore -compression +dynamic-resolution /scale:180
+  xfreerdp /v:127.0.0.1:47300 /u:andrs +clipboard /cert:ignore -compression +dynamic-resolution /scale:180
 }
 
 # VSCode Darwin check
@@ -92,4 +96,24 @@ def code [...args] {
   with-env {VSCODE_CWD: (pwd)} {
     ^open -n -b "com.microsoft.VSCode" --args ...$args
   }
+}
+
+# Interactive Directory Picker
+def --env f [] {
+  let excludes = [
+    node_module
+    .git
+    .cache
+    .npm
+    .mozilla
+    .meteor
+    .nv
+  ]
+  let cmd_args = $excludes | each {|it| ["--exclude" $it] } | flatten
+  let selected_dir = (
+    fd --type d --hidden ...$cmd_args
+    | fzf --prompt="choose directory > " --reverse --info="right" --padding="1,0,0,1"
+    | str trim
+  )
+  if ($selected_dir | is-not-empty) { cd $selected_dir } else { print "No directory selected." }
 }

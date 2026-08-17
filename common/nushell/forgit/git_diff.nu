@@ -36,4 +36,3 @@ export def gd [] {
 
   $entries | to tsv | fzf ...$fzf_flags | ignore
 }
-

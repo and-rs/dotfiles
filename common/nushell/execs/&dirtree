@@ -1,0 +1,13 @@
+#!/usr/bin/env -S nu -n
+
+use ../nushelter/clip.nu [ clip-copy ]
+
+# Copy directory tree structure to clipboard
+def main [] {
+  if (which eza | is-empty) { error make {msg: "'eza' is required"} }
+  let tree_output = (eza -Ta --git-ignore)
+  let formatted = $"```\n($tree_output)\n```"
+  $formatted | clip-copy
+  print $tree_output
+  print $"(ansi green)eza tree output copied to clipboard! (ansi reset)"
+}

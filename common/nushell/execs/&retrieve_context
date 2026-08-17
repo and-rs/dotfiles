@@ -1,4 +1,6 @@
-def ret [
+#!/usr/bin/env nu
+
+def main [
   --copy (-c)
   --preview (-p)
   --json (-j)

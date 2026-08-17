@@ -1,5 +1,5 @@
 export def "ai squash" [] {
-  let pi_count = (_ai_pi_commit_count | str trim | into int)
+  let pi_count = (&ai_pi_commit_count | str trim | into int)
   if $pi_count == 0 {
     print $"(ansi yellow)no [PI] checkpoint commits at HEAD(ansi reset)"
     return

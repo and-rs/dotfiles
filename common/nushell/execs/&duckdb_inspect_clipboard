@@ -1,0 +1,18 @@
+#!/usr/bin/env -S nu -n
+
+use ../nushelter/clip.nu [clip-paste]
+
+# Run a SQL query from the clipboard on a DuckDB database.
+# Example:
+#   :duckdb_inspect_clipboard my.db
+def main [
+  db: path # Path to the duckdb database file
+] {
+  let query = (clip-paste)
+  if ($query | is-empty) {
+    error make {msg: "Clipboard is empty."}
+  }
+  print $"(ansi cyan)Running query from clipboard:(ansi reset)"
+  print $"(ansi gray)($query)(ansi reset)"
+  :duckdb_inspect $db $query
+}

@@ -1,10 +1,7 @@
-alias g = git
-alias gc = git commit
-alias gl = git log --oneline -n 10
-alias gs = git status
+#!/usr/bin/env -S nu -n
 
 # Interactive github repo delete with clean ass fuck tables
-def gh-repo-delete [] {
+def main [] {
   let repos = (gh repo list --json owner,name,visibility)
   if ($repos | is-empty) {
     print "No repos found."

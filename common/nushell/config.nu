@@ -98,15 +98,9 @@ export-env {
   ]
 }
 
-source nushelter/clip.nu # 1st
+source nushelter/clip.nu # 1st because it's a dep
 source nushelter/aliases.nu
-source nushelter/spinner.nu
-source nushelter/screen.nu
-source nushelter/ret.nu
-source nushelter/utils.nu
-source nushelter/data.nu
 source nushelter/grit.nu
-source nushelter/git.nu
 source completions/just_completions.nu
 
 # Pi setup 8ms
@@ -136,7 +130,7 @@ def --env r [] {
 
 source nushelter/nvim.nu
 
-#only enable when debugging
+# Only enable when debugging
 
 # export-env {
 #   $env.is_startup = false

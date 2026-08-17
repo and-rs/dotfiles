@@ -1,5 +1,5 @@
 export def "ai gs" [] {
-  let pi_count = (_ai_pi_commit_count | str trim | into int)
+  let pi_count = (&ai_pi_commit_count | str trim | into int)
   if $pi_count > 0 {
     print $"(ansi yellow)($pi_count) [PI] commit(if $pi_count > 1 { "s" } else { "" }) pending — run: ai squash(ansi reset)"
     return
@@ -19,7 +19,7 @@ export def "ai gs" [] {
   changes like READMEs, only a quick content description"
 
   mut msg = (
-    _ai_summarize --label "Summarizing" --context (_ai_git_status) --prompt $base_prompt
+    _ai_summarize --label "Summarizing" --context (&ai_git_status) --prompt $base_prompt
   )
 
   loop {
@@ -45,7 +45,7 @@ export def "ai gs" [] {
     $msg = (
       _ai_summarize
       --label "Revising"
-      --context (_ai_git_status)
+      --context (&ai_git_status)
       --prompt $revise_prompt
     )
   }

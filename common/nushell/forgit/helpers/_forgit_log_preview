@@ -15,4 +15,3 @@ export def main [line: string] {
     git -C $root show --color=always -U3 $sha | if $has_delta { delta --paging=never } else { cat }
   }
 }
-

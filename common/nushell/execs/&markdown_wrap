@@ -1,4 +1,4 @@
-#!/usr/bin/env nu
+#!/usr/bin/env -S nu -n
 
 use ../nushelter/clip.nu clip-copy
 

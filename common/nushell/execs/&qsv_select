@@ -1,32 +1,7 @@
-# Run a DuckDB query on a database and inspect the result in csvlens.
-# Example:
-#   duck-inspect my.db "select * from users limit 100"
-def duck-inspect [
-  db: path # Path to the duckdb database file
-  query: string # SQL query string to execute
-] {
-  if (which duckdb | is-empty) { error make {msg: "'duckdb' is required"} }
-  if (which csvlens | is-empty) { error make {msg: "'csvlens' is required"} }
-  duckdb -csv $db $query | csvlens
-}
-
-# Run a SQL query from the clipboard on a DuckDB database.
-# Example:
-#   duck-inspect-clip my.db
-def duck-inspect-clip [
-  db: path # Path to the duckdb database file
-] {
-  let query = (clip-paste)
-  if ($query | is-empty) {
-    error make {msg: "Clipboard is empty."}
-  }
-  print $"(ansi cyan)Running query from clipboard:(ansi reset)"
-  print $"(ansi gray)($query)(ansi reset)"
-  duck-inspect $db $query
-}
+#!/usr/bin/env -S nu -n
 
 # Select specific CSV header interactively
-def qsv-select [] {
+def main [] {
   let has_stdin = (
     $in != null and $in | into string | str trim | is-not-empty
   )

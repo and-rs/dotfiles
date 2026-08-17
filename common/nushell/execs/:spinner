@@ -1,7 +1,9 @@
+#!/usr/bin/env -S nu -n
+
 # Example
-# let files = (spinner "Listing files" { sleep 2sec; ls })
+# let files = (:spinner "Listing files" { sleep 2sec; ls })
 # Show a spinner while a closure runs, then return closure output.
-def spinner [msg: string action: closure] {
+def main [msg: string action: closure] {
   if not $nu.is-interactive {
     let value = (do $action)
     return $value

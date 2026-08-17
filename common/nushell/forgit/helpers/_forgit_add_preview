@@ -17,4 +17,3 @@ export def main [file: string] {
     }
   }
 }
-

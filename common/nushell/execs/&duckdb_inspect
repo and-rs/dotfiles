@@ -1,0 +1,13 @@
+#!/usr/bin/env -S nu -n
+
+# Run a DuckDB query on a database and inspect the result in csvlens.
+# Example:
+#   :duckdb_inspect my.db "select * from users limit 100"
+def main [
+  db: path # Path to the duckdb database file
+  query: string # SQL query string to execute
+] {
+  if (which duckdb | is-empty) { error make {msg: "'duckdb' is required"} }
+  if (which csvlens | is-empty) { error make {msg: "'csvlens' is required"} }
+  duckdb -csv $db $query | csvlens
+}
