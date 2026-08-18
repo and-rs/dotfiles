@@ -1,0 +1,16 @@
+#!/usr/bin/env -S nu -n
+
+# Docker + VM Start
+def main [] {
+  if (which docker | is-empty) { error make "docker not found" }
+  if (which xfreerdp | is-empty) { error make "xfreerdp not found" }
+
+  let is_running = (
+    docker inspect -f '{{.State.Running}}' WinBoat | complete | get stdout | str trim
+  )
+  if $is_running != "true" {
+    docker start WinBoat
+    sleep 10sec
+  }
+  xfreerdp /v:127.0.0.1:47300 /u:andrs +clipboard /cert:ignore -compression +dynamic-resolution /scale:180
+}

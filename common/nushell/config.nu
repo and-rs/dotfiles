@@ -104,7 +104,7 @@ source nushelter/grit.nu
 source completions/just_completions.nu
 
 # Pi setup 8ms
-use pi *
+use nushelter/pi *
 
 # Forgit & git completions 8ms
 use forgit *
@@ -127,8 +127,6 @@ def --env r [] {
   carapace _carapace nushell | $"($carapace_marker)($in)" | save -f $carapace_init
   exec nu
 }
-
-source nushelter/nvim.nu
 
 # Only enable when debugging
 

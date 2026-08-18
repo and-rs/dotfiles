@@ -1,0 +1,20 @@
+#!/usr/bin/env -S nu -n
+
+def main [] {
+  let http_date = (
+    curl -sI https://www.google.com
+    | lines
+    | where $it =~ '(?i)^date:'
+    | first
+    | str replace -r '(?i)^date:\s*' ''
+    | str trim
+  )
+  let offset = (
+    (date now | into int) - ($http_date | into datetime | into int)
+    | math abs
+  )
+  if $offset > 15_000_000_000 {
+    print "Clock differs from HTTPS time by more than 15 seconds; synchronizing."
+    sudo /usr/bin/date --utc --set $http_date
+  }
+}

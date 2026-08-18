@@ -1,0 +1,30 @@
+#!/usr/bin/env -S nu -n
+
+use ../nushelter/aliases.nu [ vi ]
+
+def main [pattern: string] {
+  let rgresult = (rg --json --vimgrep $pattern | complete)
+
+  # ripgrep exits with 1 when the search has no matches.
+  if $rgresult.exit_code == 1 {
+    print "No matches found"
+    return
+  }
+  if $rgresult.exit_code != 0 {
+    error make {msg: ($rgresult.stderr | str trim)}
+  }
+
+  let rgcmd = $rgresult.stdout | from json --objects | where type == 'match' | get data | each {|l|
+      return {
+        filename: $l.path.text
+        lnum: $l.line_number
+        text: ($l.lines.text | str replace --all "\n" "")
+        col: ($l.submatches.0.start + 1)
+      }
+    } | to json -r
+
+  let qflist = "lua vim.cmd([[call setqflist(" + $rgcmd + ")]])"
+  let cfirst = "lua vim.schedule(function() vim.cmd.copen() vim.cmd.cfirst() end)"
+
+  vi -c $qflist -c $cfirst
+}
