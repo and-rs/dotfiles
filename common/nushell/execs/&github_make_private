@@ -1,0 +1,44 @@
+#!/usr/bin/env -S nu -n
+
+# Interactive GitHub repo privacy change
+def main [] {
+  let repos = (gh repo list --json owner,name,visibility)
+  if ($repos | is-empty) {
+    print "No repos found."
+    return
+  }
+  let selection = (
+    $repos | from json | each {|r|
+      {
+        NAME: $r.name
+        OWNER: $r.owner.login
+        VISIBILITY: $r.visibility
+      }
+    } | table --theme light -i false
+    | fzf --ansi --multi --reverse --header-lines=2 --prompt="Make private > " --padding="1,0,0,1"
+  )
+  if ($selection | is-empty) {
+    print "No repos selected."
+    return
+  }
+  let to_private = $selection | lines | each {
+      $in | str trim | split row " " | where { $in | str trim | is-not-empty } | {
+        NAME: $in.0
+        OWNER: $in.1
+        VISIBILITY: $in.2
+      }
+    }
+  let count = $to_private | length
+  print $"(char newline)About to make ($count) repositories private:"
+  print $to_private
+  print "Changing repository visibility can have unexpected consequences."
+  let confirmation = (input "Type PRIVATE to confirm: ")
+  if $confirmation != "PRIVATE" {
+    print "Aborted."
+    return
+  }
+  $to_private | each {|repo|
+    print $"Making ($repo.OWNER)/($repo.NAME) private..."
+    gh repo edit $"($repo.OWNER)/($repo.NAME)" --visibility private --accept-visibility-change-consequences
+  }
+}
