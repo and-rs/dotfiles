@@ -26,7 +26,11 @@
     "bash": {
       "*": "allow",
       "*.env": "deny",
-      "*.env.*": "deny"
+      "*.env.*": "deny",
+      "git commit": "deny",
+      "git commit *": "deny",
+      "gh": "deny",
+      "gh *": "deny"
     }
   }
 }
