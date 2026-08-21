@@ -1,5 +1,7 @@
 #!/usr/bin/env nu
 
+use ../nushelter/clip.nu [ clip-copy ]
+
 def main [
   --copy (-c)
   --preview (-p)
@@ -12,7 +14,7 @@ def main [
   --dry
 ] {
   let paths = if $select {
-    let cmd = if ($glob | is-empty) { "fd --type f" } else { $"fd --type f --glob '($glob)'" }
+    let cmd = if ($glob | is-empty) { "fd -H --type f" } else { $"fd -H --type f --glob '($glob)'" }
     let selected = (
       bash -c $cmd
       | fzf --multi --padding=1,0,0,1 --prompt="Files for context > " --layout=reverse --height=100%
