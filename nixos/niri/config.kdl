@@ -177,7 +177,7 @@ window-rule {
     match app-id="^com.mitchellh.ghostty$"
     open-maximized false
     default-column-width {
-        proportion 0.8
+        proportion 0.82
     }
     background-effect {
         blur false
