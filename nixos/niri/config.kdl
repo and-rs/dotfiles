@@ -305,7 +305,7 @@ binds {
         spawn-sh "~/.config/hypr/hyprlock-launch"
     }
     Mod+Return repeat=false {
-        spawn "kitty"
+        spawn "alacritty"
     }
     Mod+Q {
         close-window

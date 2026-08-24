@@ -7,36 +7,27 @@ TERM = "alacritty"
 [terminal]
 shell = "nu"
 
-[font]
-size = 13
+[cursor]
+style = { blinking = "Never" }
 
-offset = { y = 10 }
-glyph_offset = { y = 2 }
-normal = { family = "Input"}
+[font]
+size = 12.5
+offset = { y = 9, x = 0 }
+glyph_offset = { y = 3, x = 0 }
+
+normal = { family = "MD IO Trial"}
 
 # normal = { family = "Rec Mono Linear" }
 # bold = { family = "Rec Mono Linear" }
 # italic = { family = "Rec Mono Casual" }
 # bold_italic = { family = "Rec Mono Casual" }
 
-# offset = { y = 4 }
-# glyph_offset = { y = 2 }
-# normal = { family = "JetBrainsMono"}
-
-# offset = { y = 4 }
-# glyph_offset = { y = 2 }
-# normal = { family = "Monaspace Neon" }
-# bold = { family = "Monaspace Neon" }
-# italic = { family = "Monaspace Argon", style = "Italic" }
-# bold_italic = { family = "Monaspace Argon", style = "Bold Italic" }
-
 [window]
 title = "Terminalino"
 dynamic_padding = true
-#opacity = 0.9
 
 [window.padding]
-x = 8
+x = 0
 y = 0
 
 [keyboard]
@@ -47,6 +38,7 @@ bindings = [
   { key = "F", mods = "Super|Control", chars = "\u001bf" },
   { key = "B", mods = "Super|Control", chars = "\u001bb" },
 
+  { key = "Enter", mods = "Shift", chars = "\x1b[13;2u" },
   { key = "Backspace", mods = "Super", chars = "\u0017" },
   { key = "Backspace", mods = "Alt", chars = "\u0015" },
 

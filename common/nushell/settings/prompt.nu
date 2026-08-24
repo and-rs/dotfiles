@@ -21,7 +21,7 @@ export-env {
   $env.TRANSIENT_PROMPT_INDICATOR_VI_NORMAL = null
 
   $env.TRANSIENT_PROMPT_COMMAND = ""
-  $env.TRANSIENT_PROMPT_INDICATOR = {|| $"(ansi grey)▶(ansi reset) " }
+  $env.TRANSIENT_PROMPT_INDICATOR = {|| $"(ansi grey)λ(ansi reset) " }
   $env.TRANSIENT_PROMPT_COMMAND_RIGHT = null
 
   $env.PROMPT_MULTILINE_INDICATOR = $"(ansi grey)▎ (ansi reset)"

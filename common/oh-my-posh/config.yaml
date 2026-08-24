@@ -73,10 +73,10 @@ blocks:
           fetch_virtual_env: true
           fetch_version: false
       - type: status
-        foreground: "blue"
+        foreground: "cyan"
         foreground_templates:
-          - "{{ if gt .Code 0 }}red{{ end }}"
-        template: "<cyan>▶</>"
+          - "{{ if .Error }}red{{ end }}"
+        template: "{{ if .Error }} {{ .Code }} {{ end }}<b>λ</b>"
         options:
           always_enabled: true
 final_space: true
