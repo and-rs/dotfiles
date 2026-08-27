@@ -7,19 +7,19 @@ import qs.Bar
 Singleton {
   id: root
 
+  property var connectedNotifications: ({})
   readonly property int count: records.length
   readonly property var entries: entriesModel
   readonly property bool hasNotifications: count > 0
   readonly property string imageCacheDir: imageCachePrefix
   readonly property string imageCachePrefix: Quickshell.cachePath("notification-v2-")
-  property var records: []
   readonly property int popupDurationMs: popupNotification ? NotificationData.popupDurationFromTimeout(popupNotification.expireTimeout) : 0
   readonly property var popupEntry: popupId === -1 ? null : getById(popupId)
   property int popupId: -1
   readonly property var popupNotification: popupEntry ? popupEntry.notification : null
   property var popupQueueIds: []
   readonly property bool popupVisible: popupEntry !== null
-  property var connectedNotifications: ({})
+  property var records: []
   property var removingIds: ({})
 
   function activateNextPopup(): void {
@@ -44,46 +44,6 @@ Singleton {
     enqueuePopupId(notification.id);
     activateNextPopup();
     return nextEntry;
-  }
-  function cleanupEntryAssets(entry: var): void {
-    if (!entry || !entry.closed)
-      return;
-
-    cleanupCachedFile(entry.cachedImage);
-    cleanupCachedFile(entry.cachedAppIcon);
-  }
-  function cleanupReplacedAssets(previousEntry: var, nextEntry: var): void {
-    if (previousEntry?.cachedImage && previousEntry.cachedImage !== nextEntry.cachedImage)
-      cleanupCachedFile(previousEntry.cachedImage);
-    if (previousEntry?.cachedAppIcon && previousEntry.cachedAppIcon !== nextEntry.cachedAppIcon)
-      cleanupCachedFile(previousEntry.cachedAppIcon);
-  }
-  function clear(): void {
-    const currentEntries = records;
-    records = [];
-    popupQueueIds = [];
-    popupId = -1;
-
-    for (let index = 0; index < currentEntries.length; index++) {
-      const entry = currentEntries[index];
-      const notification = entry.notification;
-      removingIds[entry.id] = true;
-      if (notification)
-        NotificationLifecycle.dismiss(notification);
-      else
-        delete removingIds[entry.id];
-      delete connectedNotifications[entry.id];
-    }
-
-    cleanupImageCacheDirectory();
-  }
-  function clearPopup(id: int): void {
-    if (popupId !== id)
-      return;
-
-    const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, records);
-    popupQueueIds = nextPopup.queue;
-    popupId = nextPopup.id;
   }
   function cacheImage(image: var, cacheKey: string): string {
     const sourcePath = localImagePath(image);
@@ -123,10 +83,50 @@ Singleton {
       command: ["rm", "-f", localPath]
     });
   }
+  function cleanupEntryAssets(entry: var): void {
+    if (!entry || !entry.closed)
+      return;
+
+    cleanupCachedFile(entry.cachedImage);
+    cleanupCachedFile(entry.cachedAppIcon);
+  }
   function cleanupImageCacheDirectory(): void {
     Quickshell.execDetached({
       command: ["sh", "-c", "rm -f \"$1\"*", "sh", imageCachePrefix]
     });
+  }
+  function cleanupReplacedAssets(previousEntry: var, nextEntry: var): void {
+    if (previousEntry?.cachedImage && previousEntry.cachedImage !== nextEntry.cachedImage)
+      cleanupCachedFile(previousEntry.cachedImage);
+    if (previousEntry?.cachedAppIcon && previousEntry.cachedAppIcon !== nextEntry.cachedAppIcon)
+      cleanupCachedFile(previousEntry.cachedAppIcon);
+  }
+  function clear(): void {
+    const currentEntries = records;
+    records = [];
+    popupQueueIds = [];
+    popupId = -1;
+
+    for (let index = 0; index < currentEntries.length; index++) {
+      const entry = currentEntries[index];
+      const notification = entry.notification;
+      removingIds[entry.id] = true;
+      if (notification)
+        NotificationLifecycle.dismiss(notification);
+      else
+        delete removingIds[entry.id];
+      delete connectedNotifications[entry.id];
+    }
+
+    cleanupImageCacheDirectory();
+  }
+  function clearPopup(id: int): void {
+    if (popupId !== id)
+      return;
+
+    const nextPopup = NotificationPopupQueue.takeNext(popupQueueIds, records);
+    popupQueueIds = nextPopup.queue;
+    popupId = nextPopup.id;
   }
   function cloneObject(value: var): var {
     const clone = {};
@@ -169,17 +169,17 @@ Singleton {
     if (popupId !== -1)
       clearPopup(popupId);
   }
+  function imageExtension(path: string): string {
+    const cleanPath = path.split("?")[0].split("#")[0];
+    const match = cleanPath.match(/\.([A-Za-z0-9]{1,8})$/);
+    return match ? match[1].toLowerCase() : "image";
+  }
   function indexOfId(id: int): int {
     for (let index = 0; index < records.length; index++) {
       if (records[index].id === id)
         return index;
     }
     return -1;
-  }
-  function imageExtension(path: string): string {
-    const cleanPath = path.split("?")[0].split("#")[0];
-    const match = cleanPath.match(/\.([A-Za-z0-9]{1,8})$/);
-    return match ? match[1].toLowerCase() : "image";
   }
   function invokeAction(id: int, actionIndex: int): void {
     const notification = getById(id)?.notification;
@@ -195,6 +195,19 @@ Singleton {
     const actionIndex = NotificationData.defaultActionIndex(notification.actions);
     if (actionIndex !== -1)
       invokeAction(id, actionIndex);
+  }
+  function localImagePath(image: var): string {
+    if (!image)
+      return "";
+
+    const value = String(image);
+    if (value.startsWith("image://icon//"))
+      return decodeURIComponent(value.slice(13));
+    if (value.startsWith("file://"))
+      return decodeURIComponent(value.slice(7));
+    if (value.startsWith("/"))
+      return value;
+    return "";
   }
   function markClosed(id: int, reason: var): void {
     if (removingIds[id]) {
@@ -221,6 +234,16 @@ Singleton {
     cleanupReplacedAssets(entry, nextEntry);
     if (wasActive)
       activateNextPopup();
+  }
+  function refreshNotification(notification: var): void {
+    if (!notification || !notification.tracked)
+      return;
+
+    const current = getById(notification.id);
+    if (!current || current.closed)
+      return;
+
+    upsertEntry(NotificationData.entryForNotification(notification, current));
   }
   function removeEntryOnly(id: int): void {
     const index = indexOfId(id);
@@ -258,16 +281,6 @@ Singleton {
   function removeQueuedPopupId(id: int): void {
     popupQueueIds = NotificationPopupQueue.remove(popupQueueIds, id);
   }
-  function refreshNotification(notification: var): void {
-    if (!notification || !notification.tracked)
-      return;
-
-    const current = getById(notification.id);
-    if (!current || current.closed)
-      return;
-
-    upsertEntry(NotificationData.entryForNotification(notification, current));
-  }
   function sendInlineReply(id: int, text: string): void {
     const notification = getById(id)?.notification;
     if (popupId === id)
@@ -293,19 +306,6 @@ Singleton {
   function updateNotification(notification: var): var {
     return addNotification(notification);
   }
-  function localImagePath(image: var): string {
-    if (!image)
-      return "";
-
-    const value = String(image);
-    if (value.startsWith("image://icon//"))
-      return decodeURIComponent(value.slice(13));
-    if (value.startsWith("file://"))
-      return decodeURIComponent(value.slice(7));
-    if (value.startsWith("/"))
-      return value;
-    return "";
-  }
   function upsertEntry(nextEntry: var): var {
     const index = indexOfId(nextEntry.id);
     const nextEntries = records.slice();
@@ -321,12 +321,12 @@ Singleton {
     return nextEntry;
   }
 
+  Component.onCompleted: cleanupImageCacheDirectory()
+
   ScriptModel {
     id: entriesModel
 
     objectProp: "id"
     values: root.records
   }
-
-  Component.onCompleted: cleanupImageCacheDirectory()
 }

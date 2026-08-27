@@ -70,8 +70,9 @@ These instructions apply to `nixos/quickshell/`.
 
 ## Notification Test Bench
 
-- Use `nu utils/test-notifs.nu --img` for image-only notification cases.
-- Use `nu utils/quickshell-notif-bench.nu --delay 50` for Quickshell log-driven
+- Use `nu nixos/quickshell/utils/test-notifs.nu --img` for image-only notification cases.
+- Use `nu nixos/quickshell/utils/test-notifs.nu --count 50 --delay 20` to stress sidebar scrolling.
+- Use `nu nixos/quickshell/utils/quickshell-notif-bench.nu --delay 50` for Quickshell log-driven
   image cache testing.
 - Bench must kill spawned Quickshell process group before exit.
 - Relevant image cache log lines contain `[NotificationV2] image cache wrote`.

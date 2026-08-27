@@ -1,7 +1,9 @@
 #!/usr/bin/env nu
 
+const script_dir = (path self | path dirname)
+
 # Fires a batch of test notifications to exercise the notification stack.
-# Usage: nu test-notifs.nu [--delay <ms>] [--img]
+# Usage: nu test-notifs.nu [--delay <ms>] [--img] [--count <notifications>]
 
 def send [
   summary: string
@@ -58,12 +60,25 @@ def send-image-cases [img: string, delay: int] {
   sleep ($delay * 1ms)
 }
 
-def main [--delay: int = 300, --img] {
-  let image_path = ($env.FILE_PWD | path join "../wallpapers/stars.png" | path expand)
+def send-scroll-cases [count: int, delay: int] {
+  for index in 1..$count {
+    send $"Scroll test ($index)/($count)" --body "This notification verifies that the sidebar can reach both bounds with a long history." --app "test-scroll" --urgency normal
+    sleep ($delay * 1ms)
+  }
+}
+
+def main [--delay: int = 300, --img, --count: int = 0] {
+  let image_path = ($script_dir | path join "../../../wallpapers/stars.png" | path expand)
 
   if $img {
     send-image-cases $image_path $delay
     print "done — image notifications sent"
+    return
+  }
+
+  if $count > 0 {
+    send-scroll-cases $count $delay
+    print $"done - ($count) scroll-test notifications sent"
     return
   }
 

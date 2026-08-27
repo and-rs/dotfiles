@@ -5,17 +5,38 @@ Item {
   id: root
 
   property bool clearingAll: false
+  readonly property int endInset: seamHeight + Config.padding.normal
   property var pendingRemovals: ({})
   property int removalAnchorId: -1
-  property int removalFallbackId: -1
   property real removalAnchorOffset: 0
-  readonly property int endInset: seamHeight + Config.padding.normal
+  property int removalFallbackId: -1
   readonly property int seamHeight: 28
   property real wheelScrollMultiplier: 10.0
 
   signal clearAllRequested
   signal closeRequested(notificationId: int)
 
+  function beginClearAll(): void {
+    if (root.clearingAll || NotificationStore.count === 0)
+      return;
+
+    root.pendingRemovals = ({});
+    removalTimer.stop();
+    root.resetViewportAnchor();
+    root.clearingAll = true;
+    clearAllTimer.restart();
+  }
+  function beginRemoval(id: int): void {
+    if (root.clearingAll || root.pendingRemovals[id])
+      return;
+
+    const nextRemovals = Object.assign({}, root.pendingRemovals);
+    nextRemovals[id] = {
+      deadline: Date.now() + Config.notifications.popupDuration
+    };
+    root.pendingRemovals = nextRemovals;
+    root.scheduleNextRemoval();
+  }
   function captureViewportAnchor(removingIds: var): void {
     if (root.removalAnchorId !== -1)
       return;
@@ -42,33 +63,8 @@ Item {
     }
     root.removalFallbackId = firstItem.notificationId;
   }
-  function indexOfEntry(id: int): int {
-    for (let index = 0; index < NotificationStore.count; index++) {
-      if (NotificationStore.records[index].id === id)
-        return index;
-    }
-    return -1;
-  }
-  function beginClearAll(): void {
-    if (root.clearingAll || NotificationStore.count === 0)
-      return;
-
-    root.pendingRemovals = ({});
-    removalTimer.stop();
-    root.resetViewportAnchor();
-    root.clearingAll = true;
-    clearAllTimer.restart();
-  }
-  function beginRemoval(id: int): void {
-    if (root.clearingAll || root.pendingRemovals[id])
-      return;
-
-    const nextRemovals = Object.assign({}, root.pendingRemovals);
-    nextRemovals[id] = {
-      deadline: Date.now() + Config.notifications.popupDuration
-    };
-    root.pendingRemovals = nextRemovals;
-    root.scheduleNextRemoval();
+  function clampContentY(value: real): real {
+    return Math.max(root.minimumContentY(), Math.min(root.maximumContentY(), value));
   }
   function finalizeDueRemovals(): void {
     const now = Date.now();
@@ -102,6 +98,19 @@ Item {
       root.closeRequested(Number(ids[index]));
     restoreViewportTimer.restart();
   }
+  function indexOfEntry(id: int): int {
+    for (let index = 0; index < NotificationStore.count; index++) {
+      if (NotificationStore.records[index].id === id)
+        return index;
+    }
+    return -1;
+  }
+  function maximumContentY(): real {
+    return Math.max(root.minimumContentY(), listView.contentHeight - listView.height + listView.bottomMargin);
+  }
+  function minimumContentY(): real {
+    return listView.originY - listView.topMargin;
+  }
   function resetViewportAnchor(): void {
     root.removalAnchorId = -1;
     root.removalFallbackId = -1;
@@ -118,10 +127,8 @@ Item {
     }
 
     const item = listView.itemAtIndex(index);
-    if (item) {
-      const maxContentY = Math.max(0, listView.contentHeight - listView.height);
-      listView.contentY = Math.max(0, Math.min(maxContentY, item.y - root.removalAnchorOffset));
-    }
+    if (item)
+      listView.contentY = root.clampContentY(item.y - root.removalAnchorOffset);
     root.resetViewportAnchor();
   }
   function scheduleNextRemoval(): void {
@@ -233,18 +240,17 @@ Item {
             return;
 
           wheel.accepted = true;
-          const maxContentY = Math.max(0, listView.contentHeight - listView.height);
           const delta = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y * root.wheelScrollMultiplier : (wheel.angleDelta.y / 120) * 24 * root.wheelScrollMultiplier;
-          listView.contentY = Math.max(0, Math.min(maxContentY, listView.contentY - delta));
+          listView.contentY = root.clampContentY(listView.contentY - delta);
         }
       }
       ListView {
         id: listView
 
         anchors.fill: parent
+        bottomMargin: root.endInset
         boundsBehavior: Flickable.StopAtBounds
         boundsMovement: Flickable.StopAtBounds
-        bottomMargin: root.endInset
         clip: true
         interactive: false
         model: NotificationStore.entries
@@ -253,12 +259,6 @@ Item {
         spacing: Config.spacing.extraSmall
         visible: NotificationStore.count > 0
 
-        Behavior on opacity {
-          NumberAnimation {
-            duration: Config.durations.fast
-            easing.type: Config.curve
-          }
-        }
         add: Transition {
           NumberAnimation {
             duration: Config.durations.fast
@@ -268,27 +268,10 @@ Item {
             to: 1
           }
         }
-        remove: Transition {
-          ParallelAnimation {
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-              property: "opacity"
-              to: 0
-            }
-            NumberAnimation {
-              duration: Config.durations.fast
-              easing.type: Config.curve
-              property: "scale"
-              to: 0.96
-            }
-          }
-        }
-
         delegate: Item {
           required property var modelData
-          readonly property bool pendingRemoval: Boolean(root.pendingRemovals[modelData.id])
           readonly property int notificationId: modelData.id
+          readonly property bool pendingRemoval: Boolean(root.pendingRemovals[modelData.id])
 
           ListView.delayRemove: false
           height: card.implicitHeight
@@ -338,14 +321,14 @@ Item {
               radius: Config.radius.normal
               width: parent.width
 
-              Component.onCompleted: opacity = 1
-
               Behavior on opacity {
                 NumberAnimation {
                   duration: Config.durations.fast
                   easing.type: Config.curve
                 }
               }
+
+              Component.onCompleted: opacity = 1
 
               Column {
                 id: undoContent
@@ -418,6 +401,28 @@ Item {
             }
           }
         }
+        Behavior on opacity {
+          NumberAnimation {
+            duration: Config.durations.fast
+            easing.type: Config.curve
+          }
+        }
+        remove: Transition {
+          ParallelAnimation {
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+              property: "opacity"
+              to: 0
+            }
+            NumberAnimation {
+              duration: Config.durations.fast
+              easing.type: Config.curve
+              property: "scale"
+              to: 0.96
+            }
+          }
+        }
       }
       Text {
         anchors.centerIn: parent
@@ -434,7 +439,7 @@ Item {
         anchors.top: parent.top
         color: "transparent"
         height: root.seamHeight
-        visible: listView.visible && listView.contentY > 0
+        visible: listView.visible && listView.contentY > root.minimumContentY() + 1
         z: 2
 
         gradient: Gradient {
@@ -456,7 +461,7 @@ Item {
         anchors.right: parent.right
         color: "transparent"
         height: root.seamHeight
-        visible: listView.visible && listView.contentY < Math.max(0, listView.contentHeight - listView.height) - 1
+        visible: listView.visible && listView.contentY < root.maximumContentY() - 1
         z: 2
 
         gradient: Gradient {

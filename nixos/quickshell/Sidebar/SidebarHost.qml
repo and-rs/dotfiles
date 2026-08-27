@@ -6,8 +6,8 @@ import qs.Bar
 PanelWindow {
   id: root
 
-  readonly property real closedPanelX: screen.width
   property bool bodyActive: false
+  readonly property real closedPanelX: screen.width
   required property bool open
   readonly property real openPanelX: screen.width - panelWidth
   property Component panel

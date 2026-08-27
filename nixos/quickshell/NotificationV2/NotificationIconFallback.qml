@@ -6,12 +6,12 @@ import qs.Bar
 ClippingRectangle {
   id: root
 
-  required property string fallbackText
-  required property string appIcon
-  required property string notificationImage
   readonly property string activeImage: notificationImage || appIcon
+  required property string appIcon
+  required property string fallbackText
   readonly property bool hasNotificationImage: imageLooksLoadable(notificationImage)
   readonly property bool imageReady: sourceImage.status === Image.Ready && sourceImage.implicitWidth > 2 && sourceImage.implicitHeight > 2
+  required property string notificationImage
   property int size: 56
 
   function imageLooksLoadable(value: string): bool {
@@ -38,9 +38,9 @@ ClippingRectangle {
     asynchronous: true
     cache: false
     fillMode: root.hasNotificationImage ? Image.PreserveAspectCrop : Image.PreserveAspectFit
+    source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
     sourceSize.height: root.size * 2
     sourceSize.width: root.size * 2
-    source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
     visible: false
   }
   MultiEffect {
@@ -57,9 +57,9 @@ ClippingRectangle {
     asynchronous: true
     cache: false
     fillMode: root.hasNotificationImage ? Image.PreserveAspectFit : Image.PreserveAspectFit
+    source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
     sourceSize.height: root.size * 2
     sourceSize.width: root.size * 2
-    source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
     visible: root.imageReady
   }
   Rectangle {

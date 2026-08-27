@@ -7,10 +7,10 @@ Column {
   readonly property int actionCount: visibleActions ? visibleActions.length : 0
   property bool allowInlineReply: true
   property bool compact: false
-  required property var notification
   readonly property bool hasInlineReply: allowInlineReply && inlineReplyAvailable
   readonly property bool inlineReplyAvailable: notification ? Boolean(notification.hasInlineReply) : false
   readonly property string inlineReplyPlaceholder: notification ? String(notification.inlineReplyPlaceholder || "Reply") : "Reply"
+  required property var notification
   readonly property bool showInlineReplyIndicator: !allowInlineReply && inlineReplyAvailable
   readonly property bool usable: notification !== null
   readonly property var visibleActions: NotificationData.visibleActions(notification?.actions)

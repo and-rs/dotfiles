@@ -1,5 +1,7 @@
 #!/usr/bin/env nu
 
+const script_dir = (path self | path dirname)
+
 def main [--delay: int = 300, --log: string = ""] {
   let log_path = if ($log | is-empty) {
     ($env.HOME | path join ".cache/quickshell-notification-v2-bench.log")
@@ -15,7 +17,8 @@ def main [--delay: int = 300, --log: string = ""] {
   print $"→ quickshell process group: ($pid)"
   sleep 1500ms
 
-  nu utils/test-notifs.nu --img --delay $delay
+  let test_script = ($script_dir | path join "test-notifs.nu")
+  nu $test_script --img --delay $delay
   sleep 1500ms
 
   print "→ NotificationV2 log lines"
