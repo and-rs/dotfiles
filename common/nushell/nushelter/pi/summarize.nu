@@ -70,9 +70,9 @@ export def _ai_summarize [
 
   (
     &spinner --msg $label --
-      bunx --bun pi -ns -nt -nbt --no-session
-      --system-prompt $sp
-      --model $model
-      -p $input
+    ~/.bun/bin/bun x --bun pi -ns -nt -nbt --no-session
+    --system-prompt $sp
+    --model $model
+    -p $input
   ) | str trim
 }

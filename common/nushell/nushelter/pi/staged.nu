@@ -1,10 +1,4 @@
 export def "ai gs" [] {
-  let pi_count = (&ai_pi_commit_count | str trim | into int)
-  if $pi_count > 0 {
-    print $"(ansi yellow)($pi_count) [PI] commit(if $pi_count > 1 { "s" } else { "" }) pending — run: ai squash(ansi reset)"
-    return
-  }
-
   let staged = (git diff --staged | str trim)
   if ($staged | is-empty) {
     print $"(ansi yellow)nothing staged(ansi reset)"
