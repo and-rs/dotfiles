@@ -172,7 +172,10 @@ Item {
 
     panel: Component {
       NotificationsV2.NotificationSidebarActions {
-        onClearAllRequested: NotificationsV2.NotificationStore.clear()
+        onClearAllRequested: {
+          NotificationsV2.NotificationStore.clear();
+          root.closePanels();
+        }
         onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
       }
     }

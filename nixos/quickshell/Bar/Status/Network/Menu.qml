@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import qs.Bar
 
 Column {
@@ -168,19 +167,15 @@ Column {
       }
     }
   }
-  ListView {
+  DirectScrollList {
     id: networkList
 
     clip: true
     height: Math.min(contentHeight, Config.networkPanel.listHeight)
-    interactive: contentHeight > height
     model: root.wifiDevice && NetworkService.wifiEnabled ? NetworkService.wifiNetworks : []
     spacing: Config.spacing.extraSmall
     width: parent.width
 
-    ScrollBar.vertical: ScrollBar {
-      policy: ScrollBar.AsNeeded
-    }
     delegate: Item {
       readonly property bool firstKnown: modelData.known && (index === 0 || !NetworkService.wifiNetworks[index - 1].known)
       readonly property bool firstOther: !modelData.known && (index === 0 || NetworkService.wifiNetworks[index - 1].known)

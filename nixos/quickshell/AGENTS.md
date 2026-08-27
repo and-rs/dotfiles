@@ -29,6 +29,10 @@ These instructions apply to `nixos/quickshell/`.
   `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
   `Config.radius`.
 - Every animation must use `Config.curve` and a `Config.durations` value.
+- Use `DirectScrollList` for compact scrollable panels. It owns amplified
+  mouse/touchpad wheel input, origin-and-margin-aware bounds, hard edge stops,
+  and a persistent custom overflow indicator. Do not recreate this behavior locally or
+  use a full-area `MouseArea` solely to intercept wheel input.
 
 ## Performance
 

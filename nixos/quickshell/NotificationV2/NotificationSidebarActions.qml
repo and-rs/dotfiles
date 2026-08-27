@@ -11,7 +11,6 @@ Item {
   property real removalAnchorOffset: 0
   property int removalFallbackId: -1
   readonly property int seamHeight: 28
-  property real wheelScrollMultiplier: 10.0
 
   signal clearAllRequested
   signal closeRequested(notificationId: int)
@@ -63,9 +62,6 @@ Item {
     }
     root.removalFallbackId = firstItem.notificationId;
   }
-  function clampContentY(value: real): real {
-    return Math.max(root.minimumContentY(), Math.min(root.maximumContentY(), value));
-  }
   function finalizeDueRemovals(): void {
     const now = Date.now();
     const dueIds = [];
@@ -105,12 +101,6 @@ Item {
     }
     return -1;
   }
-  function maximumContentY(): real {
-    return Math.max(root.minimumContentY(), listView.contentHeight - listView.height + listView.bottomMargin);
-  }
-  function minimumContentY(): real {
-    return listView.originY - listView.topMargin;
-  }
   function resetViewportAnchor(): void {
     root.removalAnchorId = -1;
     root.removalFallbackId = -1;
@@ -128,7 +118,7 @@ Item {
 
     const item = listView.itemAtIndex(index);
     if (item)
-      listView.contentY = root.clampContentY(item.y - root.removalAnchorOffset);
+      listView.contentY = listView.clampContentY(item.y - root.removalAnchorOffset);
     root.resetViewportAnchor();
   }
   function scheduleNextRemoval(): void {
@@ -231,20 +221,7 @@ Item {
 
         onTriggered: root.restoreViewport()
       }
-      MouseArea {
-        acceptedButtons: Qt.NoButton
-        anchors.fill: parent
-
-        onWheel: wheel => {
-          if (!listView.visible)
-            return;
-
-          wheel.accepted = true;
-          const delta = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y * root.wheelScrollMultiplier : (wheel.angleDelta.y / 120) * 24 * root.wheelScrollMultiplier;
-          listView.contentY = root.clampContentY(listView.contentY - delta);
-        }
-      }
-      ListView {
+      DirectScrollList {
         id: listView
 
         anchors.fill: parent
@@ -439,7 +416,7 @@ Item {
         anchors.top: parent.top
         color: "transparent"
         height: root.seamHeight
-        visible: listView.visible && listView.contentY > root.minimumContentY() + 1
+        visible: listView.visible && listView.contentY > listView.minimumContentY() + 1
         z: 2
 
         gradient: Gradient {
@@ -461,7 +438,7 @@ Item {
         anchors.right: parent.right
         color: "transparent"
         height: root.seamHeight
-        visible: listView.visible && listView.contentY < root.maximumContentY() - 1
+        visible: listView.visible && listView.contentY < listView.maximumContentY() - 1
         z: 2
 
         gradient: Gradient {
