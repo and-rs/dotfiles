@@ -1,298 +1,225 @@
 import QtQuick
-import Quickshell
-import Quickshell.Networking
+import QtQuick.Controls
 import qs.Bar
 
 Column {
   id: root
 
-  readonly property var connectedNetwork: {
-    if (useIwd)
-      return IwdService.connectedNetwork;
-    if (!wifiDevice)
-      return null;
-    let nets = wifiDevice.networks;
-    if (!nets)
-      return null;
-    let list = nets.values ?? [];
-    for (let i = 0; i < list.length; i++) {
-      if (list[i] && list[i].connected)
-        return list[i];
-    }
-    return null;
-  }
-  readonly property var connectedWiredNetwork: wiredDevice && wiredDevice.hasLink ? wiredDevice.network : null
-  readonly property bool hasInternet: useIwd ? IwdService.connectivity === "Full" : Networking.connectivity === NetworkConnectivity.Full
-  readonly property var networkDevices: Networking.devices.values ?? []
-  readonly property var nmWifiDevice: {
-    for (let i = 0; i < networkDevices.length; i++) {
-      if (networkDevices[i] && networkDevices[i].type === DeviceType.Wifi)
-        return networkDevices[i];
-    }
-    return null;
-  }
-  readonly property var nmWiredDevice: {
-    for (let i = 0; i < networkDevices.length; i++) {
-      if (networkDevices[i] && networkDevices[i].type === DeviceType.Wired)
-        return networkDevices[i];
-    }
-    return null;
-  }
-  readonly property real signalStrength: connectedNetwork ? connectedNetwork.signalStrength : 0
-  readonly property color statusColor: {
-    if (connectedWiredNetwork)
-      return hasInternet ? Config.colors.fg : Config.colors.destructive;
-    if (!wifiEnabled || !connectedNetwork)
-      return Config.colors.surface3;
-    if (!hasInternet)
-      return Config.colors.destructive;
-    return Config.colors.fg;
-  }
-  readonly property string statusText: useIwd ? IwdService.connectivity : Networking.canCheckConnectivity ? NetworkConnectivity.toString(Networking.connectivity) : "Unknown"
-  readonly property bool useIwd: !nmWifiDevice && !nmWiredDevice && IwdService.available
-  readonly property var wifiDevice: useIwd ? IwdService.wifiDevice : nmWifiDevice
-  readonly property bool wifiEnabled: useIwd ? IwdService.wifiEnabled : Networking.wifiEnabled
-  readonly property var wiredDevice: useIwd ? null : nmWiredDevice
+  readonly property var connectedNetwork: NetworkService.connectedNetwork
+  property alias debugHeroStatus: heroStatus
+  property alias debugHeroTitle: heroTitle
+  property alias debugNetworkList: networkList
+  property var passwordNetwork: null
+  property string passwordText: ""
+  readonly property var wifiDevice: NetworkService.wifiDevice
+  readonly property var wiredDevice: NetworkService.wiredDevice
 
-  spacing: Config.spacing.small
-  width: parent ? parent.width : 0
+  function activateNetwork(network) {
+    if (!network)
+      return;
+    if (network.security === "Open" || NetworkService.backend === "iwctl") {
+      NetworkService.connect(network, "");
+      return;
+    }
+    passwordNetwork = network;
+    passwordText = "";
+  }
+  function detailText(label, value) {
+    return value ? label + "\n" + value : "";
+  }
+  function submitPassword() {
+    if (!passwordNetwork || passwordText.length === 0)
+      return;
+    NetworkService.connect(passwordNetwork, passwordText);
+    passwordText = "";
+    passwordNetwork = null;
+  }
 
-  Text {
-    color: Config.colors.fg
-    font.pointSize: 10
-    font.weight: 700
-    text: "Network"
+  spacing: Config.spacing.normal
+  width: parent ? parent.width : Config.networkPanel.width - Config.padding.large * 2
+
+  Item {
+    implicitHeight: Math.max(heroIcon.implicitHeight, heroTitle.implicitHeight + heroStatus.implicitHeight + Config.padding.micro, wifiToggle.implicitHeight)
+    width: parent.width
+
+    MaterialIcon {
+      id: heroIcon
+
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      centered: false
+      code: root.wiredDevice && root.wiredDevice.hasLink ? 0xEDDE : root.connectedNetwork ? 0xE4EA : 0xE4F2
+      iconColor: NetworkService.connectivity === "Full" ? Config.colors.primary : Config.colors.surface4
+      iconSize: 30
+    }
+    Text {
+      id: heroTitle
+
+      anchors.left: heroIcon.right
+      anchors.leftMargin: Config.spacing.normal
+      anchors.right: wifiToggle.left
+      anchors.rightMargin: Config.spacing.normal
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.verticalCenterOffset: -(heroStatus.implicitHeight + Config.padding.micro) / 2
+      color: Config.colors.fg
+      elide: Text.ElideRight
+      font.pointSize: 12
+      font.weight: 600
+      text: !NetworkService.available ? "Network unavailable" : root.connectedNetwork ? root.connectedNetwork.name : root.wiredDevice && root.wiredDevice.hasLink ? "Ethernet" : root.wifiDevice ? "Wi-Fi" : "No network device"
+    }
+    Text {
+      id: heroStatus
+
+      anchors.left: heroTitle.left
+      anchors.right: heroTitle.right
+      anchors.top: heroTitle.bottom
+      anchors.topMargin: Config.padding.micro
+      color: NetworkService.stale ? Config.colors.destructive : Config.colors.surface5
+      elide: Text.ElideRight
+      font.pointSize: 8
+      font.weight: 500
+      text: (NetworkService.stale ? "STALE · " : "") + NetworkService.connectivity.toUpperCase() + " · " + NetworkService.backend.toUpperCase()
+    }
+    Rectangle {
+      id: wifiToggle
+
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      color: NetworkService.wifiEnabled ? Config.colors.primary : Config.colors.surface3
+      height: 24
+      radius: height / 2
+      visible: root.wifiDevice !== null
+      width: 44
+
+      Rectangle {
+        anchors.verticalCenter: parent.verticalCenter
+        color: Config.colors.base
+        height: 18
+        radius: height / 2
+        width: height
+        x: NetworkService.wifiEnabled ? parent.width - width - 3 : 3
+      }
+      MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        enabled: NetworkService.actionState === "idle"
+
+        onClicked: NetworkService.toggleWifi(!NetworkService.wifiEnabled)
+      }
+    }
   }
   Rectangle {
     color: Config.colors.surface2
     height: 1
     width: parent.width
   }
-  Row {
-    spacing: Config.spacing.small
+  Grid {
+    columnSpacing: Config.spacing.large
+    columns: 3
+    rowSpacing: Config.spacing.normal
+    width: parent.width
 
-    Text {
-      color: Config.colors.surface4
-      font.pointSize: 9
-      text: "Status"
+    Repeater {
+      model: [root.detailText("INTERFACE", root.wifiDevice ? root.wifiDevice.name : root.wiredDevice ? root.wiredDevice.name : ""), root.detailText("SIGNAL", root.connectedNetwork ? Math.round(root.connectedNetwork.signalStrength * 100) + "%" : ""), root.detailText("SECURITY", root.connectedNetwork ? root.connectedNetwork.security : ""), root.detailText("ADAPTER", root.wifiDevice ? root.wifiDevice.address : ""), root.detailText("ETHERNET", root.wiredDevice && root.wiredDevice.hasLink ? root.wiredDevice.linkSpeed > 0 ? root.wiredDevice.linkSpeed + " Mbps" : "Connected" : ""), root.detailText("STATUS", NetworkService.connectivity)]
+
+      delegate: Text {
+        required property string modelData
+
+        color: Config.colors.surface5
+        font.pointSize: 8
+        font.weight: 500
+        text: modelData
+        visible: text !== ""
+        width: (parent.width - parent.columnSpacing * 2) / 3
+      }
+    }
+  }
+  Rectangle {
+    color: Config.colors.surface2
+    height: 1
+    visible: root.wifiDevice !== null && NetworkService.wifiEnabled
+    width: parent.width
+  }
+  Item {
+    height: visible ? 22 : 0
+    visible: root.wifiDevice !== null && NetworkService.wifiEnabled
+    width: parent.width
+
+    NetworkSectionHeader {
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      text: NetworkService.scanState === "scanning" ? "SCANNING WI-FI" : "WI-FI NETWORKS"
     }
     Text {
-      color: root.statusColor
-      font.pointSize: 9
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      color: Config.colors.primary
+      font.pointSize: 8
       font.weight: 600
-      text: root.statusText
-    }
-  }
-  Row {
-    spacing: Config.spacing.small
+      text: NetworkService.scanState === "scanning" ? "SCANNING" : "REFRESH"
 
-    Text {
-      color: Config.colors.surface4
-      font.pointSize: 9
-      text: "WiFi"
-    }
-    Text {
-      color: root.wifiEnabled ? Config.colors.success : Config.colors.surface3
-      font.pointSize: 9
-      font.weight: 600
-      text: root.wifiEnabled ? "Enabled" : "Disabled"
+      MouseArea {
+        anchors.fill: parent
+        anchors.margins: -Config.padding.small
+        cursorShape: Qt.PointingHandCursor
+        enabled: NetworkService.scanState !== "scanning" && NetworkService.actionState === "idle"
+
+        onClicked: NetworkService.scan()
+      }
     }
   }
-  Column {
-    spacing: Config.spacing.small
-    visible: root.connectedNetwork !== null
+  ListView {
+    id: networkList
+
+    clip: true
+    height: Math.min(contentHeight, Config.networkPanel.listHeight)
+    interactive: contentHeight > height
+    model: root.wifiDevice && NetworkService.wifiEnabled ? NetworkService.wifiNetworks : []
+    spacing: Config.spacing.extraSmall
     width: parent.width
 
-    Rectangle {
-      color: Config.colors.surface2
-      height: 1
-      width: parent.width
+    ScrollBar.vertical: ScrollBar {
+      policy: ScrollBar.AsNeeded
     }
-    Row {
-      spacing: Config.spacing.small
+    delegate: Item {
+      readonly property bool firstKnown: modelData.known && (index === 0 || !NetworkService.wifiNetworks[index - 1].known)
+      readonly property bool firstOther: !modelData.known && (index === 0 || NetworkService.wifiNetworks[index - 1].known)
+      required property int index
+      required property var modelData
 
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "SSID"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.connectedNetwork ? root.connectedNetwork.name : ""
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
+      height: rowColumn.implicitHeight
+      width: ListView.view.width
 
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Signal"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: Math.round(root.signalStrength * 100) + "%"
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
+      Column {
+        id: rowColumn
 
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Security"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.connectedNetwork ? root.useIwd ? root.connectedNetwork.security : WifiSecurityType.toString(root.connectedNetwork.security) : ""
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
+        spacing: Config.spacing.extraSmall
+        width: parent.width
 
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Saved"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.connectedNetwork && root.connectedNetwork.known ? "Yes" : "No"
-      }
-    }
-  }
-  Column {
-    spacing: Config.spacing.small
-    visible: root.wifiDevice !== null
-    width: parent.width
-
-    Rectangle {
-      color: Config.colors.surface2
-      height: 1
-      width: parent.width
-    }
-    Row {
-      spacing: Config.spacing.small
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Device"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.wifiDevice ? root.wifiDevice.name : ""
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "State"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.wifiDevice ? root.useIwd ? root.wifiDevice.state : ConnectionState.toString(root.wifiDevice.state) : ""
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "MAC"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.wifiDevice ? root.wifiDevice.address : ""
-      }
-    }
-  }
-  Column {
-    spacing: Config.spacing.small
-    visible: root.wiredDevice !== null
-    width: parent.width
-
-    Rectangle {
-      color: Config.colors.surface2
-      height: 1
-      width: parent.width
-    }
-    Row {
-      spacing: Config.spacing.small
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Ethernet"
-      }
-      Text {
-        color: root.wiredDevice && root.wiredDevice.hasLink ? Config.colors.success : Config.colors.surface3
-        font.pointSize: 9
-        font.weight: 600
-        text: root.wiredDevice && root.wiredDevice.hasLink ? "Plugged" : "Unplugged"
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
-      visible: root.wiredDevice && root.wiredDevice.hasLink
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Network"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.connectedWiredNetwork ? root.connectedWiredNetwork.name : ""
-      }
-    }
-    Row {
-      spacing: Config.spacing.small
-      visible: root.wiredDevice && root.wiredDevice.hasLink
-
-      Text {
-        color: Config.colors.surface4
-        font.pointSize: 9
-        text: "Speed"
-      }
-      Text {
-        color: Config.colors.fg
-        font.pointSize: 9
-        font.weight: 600
-        text: root.wiredDevice && root.wiredDevice.linkSpeed > 0 ? root.wiredDevice.linkSpeed + " Mbps" : "Unknown"
+        NetworkSectionHeader {
+          text: parent.parent.firstKnown ? "KNOWN NETWORKS" : parent.parent.firstOther ? "OTHER NETWORKS" : ""
+          visible: text !== ""
+        }
+        NetworkRow {
+          network: modelData
+          panel: root
+          width: parent.width
+        }
       }
     }
   }
   Text {
     color: Config.colors.surface3
     font.pointSize: 9
-    text: "Not connected"
-    visible: !root.connectedWiredNetwork && !root.connectedNetwork && root.wifiEnabled
+    text: root.wifiDevice === null ? "No Wi-Fi device found" : !NetworkService.wifiEnabled ? "Wi-Fi is disabled" : NetworkService.scanState === "idle" && NetworkService.wifiNetworks.length === 0 ? "No networks found" : ""
+    visible: text !== ""
   }
   Text {
-    color: Config.colors.surface3
-    font.pointSize: 9
-    text: "WiFi is disabled"
-    visible: !root.connectedWiredNetwork && !root.wifiEnabled
+    color: Config.colors.destructive
+    font.pointSize: 8
+    text: NetworkService.lastError
+    visible: text !== ""
+    width: parent.width
+    wrapMode: Text.Wrap
   }
 }

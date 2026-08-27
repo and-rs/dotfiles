@@ -7,9 +7,9 @@ PopupWindow {
 
   required property Item activeButton
   required property Item batteryButton
-  readonly property real batteryPanelXInHost: batteryButton.x - (Config.popup.width / 2) + (batteryButton.width / 2)
+  readonly property real batteryPanelXInHost: panelXFor(batteryButton, "battery")
   required property Item bluetoothButton
-  readonly property real bluetoothPanelXInHost: bluetoothButton.x - (Config.popup.width / 2) + (bluetoothButton.width / 2)
+  readonly property real bluetoothPanelXInHost: panelXFor(bluetoothButton, "bluetooth")
   default property alias content: contentColumn.data
   required property Item controller
   required property Item hostItem
@@ -25,16 +25,36 @@ PopupWindow {
   property string lastActive: ""
   readonly property real leftEdge: Math.min(0, batteryPanelXInHost, trayPanelXInHost, bluetoothPanelXInHost, networkPanelXInHost)
   required property Item networkButton
-  readonly property real networkPanelXInHost: networkButton.x - (Config.popup.width / 2) + (networkButton.width / 2)
+  readonly property real networkPanelXInHost: panelXFor(networkButton, "network")
+  readonly property Item panelButton: {
+    if (panelMenu === "battery")
+      return batteryButton;
+    if (panelMenu === "bluetooth")
+      return bluetoothButton;
+    if (panelMenu === "network")
+      return networkButton;
+    if (panelMenu === "tray")
+      return trayButton;
+    return activeButton;
+  }
+  readonly property string panelMenu: controller.activeMenu || lastActive
+  readonly property real panelWidth: panelWidthFor(panelMenu)
   readonly property real panelX: panelXInHost - leftEdge
-  readonly property real panelXInHost: activeButton.x - (Config.popup.width / 2) + (activeButton.width / 2)
+  readonly property real panelXInHost: panelXFor(panelButton, panelMenu)
   readonly property real panelY: window.height + Config.popup.gap
   required property bool popupVisible
-  readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + Config.popup.width, trayPanelXInHost + Config.popup.width, bluetoothPanelXInHost + Config.popup.width, networkPanelXInHost + Config.popup.width)
+  readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + panelWidthFor("battery"), trayPanelXInHost + panelWidthFor("tray"), bluetoothPanelXInHost + panelWidthFor("bluetooth"), networkPanelXInHost + panelWidthFor("network"))
   readonly property real stripX: -leftEdge
   required property Item trayButton
-  readonly property real trayPanelXInHost: trayButton.x - (Config.popup.width / 2) + (trayButton.width / 2)
+  readonly property real trayPanelXInHost: panelXFor(trayButton, "tray")
   required property PanelWindow window
+
+  function panelWidthFor(menu: string): real {
+    return menu === "network" ? Config.networkPanel.width : Config.popup.width;
+  }
+  function panelXFor(button: Item, menu: string): real {
+    return button.x - (panelWidthFor(menu) / 2) + (button.width / 2);
+  }
 
   anchor.item: hostItem
   anchor.rect.x: leftEdge
@@ -165,7 +185,7 @@ PopupWindow {
 
       height: contentColumn.implicitHeight + Config.padding.large * 2
       opacity: 1
-      width: Config.popup.width
+      width: popup.panelWidth
       x: popup.panelX
       y: popup.panelY
 

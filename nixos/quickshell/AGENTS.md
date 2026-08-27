@@ -12,9 +12,13 @@ These instructions apply to `nixos/quickshell/`.
 ## QML Style
 
 - Use PascalCase component filenames.
-- Do not add `.js` helper files.
+- QML-imported `.js` helpers must be pure and side-effect-free. Keep them free
+  of QML object references and cover their behavior with Bun tests.
 - Do not add `qmldir` files.
 - Do not add wrapper components.
+- For network UI diagnosis, set `Config.networkDebug.enabled` to `true`, reload
+  Quickshell, then run `just network-capture`. It writes QML subtree and
+  compositor snapshots under `/tmp/quickshell-network-debug/`.
 - Keep global animation easing through `Config.curve`. Use existing
   `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
   `Config.radius`.

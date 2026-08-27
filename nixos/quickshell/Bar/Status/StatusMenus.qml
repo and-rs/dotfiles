@@ -32,6 +32,8 @@ Item {
     closePanels();
   }
   function closeMenus() {
+    if (activeMenu === "network")
+      NetworkService.closePanel();
     activeMenu = "";
   }
   function closePanels() {
@@ -40,7 +42,12 @@ Item {
   }
   function switchMenu(id) {
     closePanels();
-    activeMenu = activeMenu === id ? "" : id;
+    const nextMenu = activeMenu === id ? "" : id;
+    if (activeMenu === "network" && nextMenu !== "network")
+      NetworkService.closePanel();
+    activeMenu = nextMenu;
+    if (activeMenu === "network")
+      NetworkService.openPanel();
   }
   function switchPanel(id) {
     closeMenus();
@@ -114,8 +121,20 @@ Item {
       width: parent.width
     }
     NetworkStatus.Menu {
+      id: networkMenu
+
       visible: root.activeMenu === "network" || (popupHost.keepAlive && popupHost.lastActive === "network")
       width: parent.width
+    }
+  }
+  Loader {
+    active: Config.networkDebug.enabled
+
+    sourceComponent: Component {
+      NetworkStatus.NetworkDebugCapture {
+        controller: root
+        menu: networkMenu
+      }
     }
   }
   SidebarHost {
@@ -125,13 +144,13 @@ Item {
     title: "Notifications"
     window: root.window
 
-    onCloseRequested: root.closePanels()
-
     panel: Component {
       NotificationsV2.NotificationSidebarActions {
         onClearAllRequested: NotificationsV2.NotificationStore.clear()
         onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
       }
     }
+
+    onCloseRequested: root.closePanels()
   }
 }

@@ -8,3 +8,9 @@ qmlfmt:
 
 symlinks:
   dotbot -v -c install.conf.yaml
+
+test-quickshell:
+    bun test nixos/quickshell/tests/network.test.js
+
+network-capture:
+    ./nixos/quickshell/utils/network-capture.sh

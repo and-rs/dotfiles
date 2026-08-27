@@ -56,6 +56,13 @@ Singleton {
     property real scale: 1
     property int slow: 600 * scale
   }
+  readonly property QtObject networkDebug: QtObject {
+    property bool enabled: false
+  }
+  readonly property QtObject networkPanel: QtObject {
+    property int listHeight: 260
+    property int width: 380
+  }
   readonly property QtObject notifications: QtObject {
     property int historyLimit: 100
     property int popupDuration: 5000
