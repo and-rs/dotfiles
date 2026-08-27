@@ -47,6 +47,9 @@ Singleton {
   }
   readonly property var curve: Easing.OutQuint
   property bool darkMode: false
+  readonly property QtObject debug: QtObject {
+    property bool enabled: false
+  }
   readonly property QtObject durations: QtObject {
     property int extraFast: 100 * scale
     property int extraSlow: 1000 * scale
@@ -55,9 +58,6 @@ Singleton {
     property int normal: 400 * scale
     property real scale: 1
     property int slow: 600 * scale
-  }
-  readonly property QtObject networkDebug: QtObject {
-    property bool enabled: false
   }
   readonly property QtObject networkPanel: QtObject {
     property int listHeight: 260

@@ -16,9 +16,15 @@ These instructions apply to `nixos/quickshell/`.
   of QML object references and cover their behavior with Bun tests.
 - Do not add `qmldir` files.
 - Do not add wrapper components.
-- For network UI diagnosis, set `Config.networkDebug.enabled` to `true`, reload
-  Quickshell, then run `just network-capture`. It writes QML subtree and
-  compositor snapshots under `/tmp/quickshell-network-debug/`.
+- For visual UI diagnosis, set `Config.debug.enabled` to `true`, reload
+  Quickshell, then run `just debug-capture <target>`. It writes target-subtree,
+  compositor, and runtime-log snapshots under `/tmp/quickshell-debug/`.
+- Capture targets are registered by their owning host in `Debug.Capture`.
+  Keep the generic capture service target-agnostic and add only target-specific
+  open/close actions and items at the host.
+- The capture utility retains the 10 newest directories. Override that limit
+  with `QS_DEBUG_CAPTURE_RETAIN`; pass an explicit output directory to keep a
+  capture outside the managed temporary directory.
 - Keep global animation easing through `Config.curve`. Use existing
   `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
   `Config.radius`.

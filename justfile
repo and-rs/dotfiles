@@ -12,5 +12,5 @@ symlinks:
 test-quickshell:
     bun test nixos/quickshell/tests/network.test.js
 
-network-capture:
-    ./nixos/quickshell/utils/network-capture.sh
+debug-capture target output_directory="":
+    ./nixos/quickshell/utils/debug-capture.sh "{{ target }}" "{{ output_directory }}"

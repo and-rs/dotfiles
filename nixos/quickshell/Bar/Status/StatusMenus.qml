@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Bar
+import qs.Debug as Debug
 import qs.Sidebar
 import qs.NotificationV2 as NotificationsV2
 import qs.Bar.Status.Battery as BatteryStatus
@@ -25,6 +26,32 @@ Item {
   property string activeMenu: ""
   property string activePanel: ""
   readonly property real buttonHorizontalPadding: Config.spacing.small / 3
+  readonly property var debugTargets: [
+    {
+      name: "network",
+      item: networkMenu,
+      items: [
+        {
+          name: "hero-title",
+          item: networkMenu.debugHeroTitle
+        },
+        {
+          name: "hero-status",
+          item: networkMenu.debugHeroStatus
+        },
+        {
+          name: "network-list",
+          item: networkMenu.debugNetworkList
+        }
+      ],
+      open: function () {
+        root.switchMenu("network");
+      },
+      close: function () {
+        root.closeMenus();
+      }
+    }
+  ]
   required property PanelWindow window
 
   function closeAll() {
@@ -128,12 +155,11 @@ Item {
     }
   }
   Loader {
-    active: Config.networkDebug.enabled
+    active: Config.debug.enabled
 
     sourceComponent: Component {
-      NetworkStatus.NetworkDebugCapture {
-        controller: root
-        menu: networkMenu
+      Debug.Capture {
+        targets: root.debugTargets
       }
     }
   }
