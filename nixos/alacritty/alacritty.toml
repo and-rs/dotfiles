@@ -2,7 +2,7 @@
 import = [ "~/.config/alacritty/themes/tokyo-night-day.toml" ]
 
 [env]
-TERM = "alacritty"
+TERM = "tmux-256color"
 
 [terminal]
 shell = "nu"

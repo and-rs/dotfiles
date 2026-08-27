@@ -12,23 +12,3 @@ desc = "Create files in bulk"
 on   = "<C-c>"
 run  = [ "escape --all", "unyank" ]
 desc = "Cancel select status"
-
-[[mgr.prepend_keymap]]
-on = [ "m" ]
-run = "plugin bookmarks save"
-desc = "Save current position as a bookmark"
-
-[[mgr.prepend_keymap]]
-on = [ "'" ]
-run = "plugin bookmarks jump"
-desc = "Jump to a bookmark"
-
-[[mgr.prepend_keymap]]
-on = [ "b", "d" ]
-run = "plugin bookmarks delete"
-desc = "Delete a bookmark"
-
-[[mgr.prepend_keymap]]
-on = [ "b", "D" ]
-run = "plugin bookmarks delete_all"
-desc = "Delete all bookmarks"

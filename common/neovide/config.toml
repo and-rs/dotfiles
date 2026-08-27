@@ -4,7 +4,7 @@ fork = true
 size = 13
 
 [font.normal]
-family = "Rec Mono Duotone"
+family = "MD IO Trial"
 
 [box-drawing]
 mode = "native"

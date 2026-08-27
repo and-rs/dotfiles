@@ -1,19 +1,23 @@
 [git]
 unknown_sign = ""
-# unknown = { fg = "3", bold = true }
-
-modified_sign = "~"
-modified = { fg = "2", bold = true }
-added_sign = "+"
-added = { fg = "4", bold = true }
-untracked_sign = "?"
-untracked = { fg = "6", bold = true }
 ignored_sign = "/"
 ignored = { fg = "8", bold = true }
-deleted_sign = "×"
-deleted = { fg = "1", bold = true }
+excluded_sign = "//"
+excluded = { fg = "8", bold = true }
+
+staged_sign = "+"
+staged = { fg = "2", bold = true }
+added_sign = "+"
+added = { fg = "2", bold = true }
 updated_sign = ">"
 updated = { fg = "2", bold = true }
+
+unstaged_sign = "~"
+unstaged = { fg = "3", bold = true }
+untracked_sign = "?"
+untracked = { fg = "6", bold = true }
+deleted_sign = "×"
+deleted = { fg = "1", bold = true }
 
 [mgr]
 border_style = { fg = "0" }
