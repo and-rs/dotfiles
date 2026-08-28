@@ -103,8 +103,8 @@ source nushelter/aliases.nu
 source nushelter/grit.nu
 source completions/just_completions.nu
 
-# Pi setup 8ms
-use nushelter/pi *
+# Pi setup
+use nushelter/pi.nu *
 
 # Forgit & git completions 8ms
 use forgit *
