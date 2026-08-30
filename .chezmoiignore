@@ -1,0 +1,22 @@
+README.md
+justfile
+nufmt.nuon
+.gitignore
+utils
+wallpapers
+
+{{- if ne .chezmoi.os "linux" }}
+.config/hypr
+.config/rofi
+.config/niri
+.config/quickshell
+.config/launcher
+.config/xremap
+.config/xdg-desktop-portal
+.local/bin/xremap-niri
+{{- end }}
+
+{{- if ne .chezmoi.os "darwin" }}
+.config/aerospace
+.cargo
+{{- end }}

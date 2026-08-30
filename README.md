@@ -19,19 +19,25 @@ My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
 
 ## Structure
 
-- `install.conf.yaml` - Dotbot link map and OS-specific targets
-- `common/` - shared config used across platforms
-- `nixos/` - Linux-specific configs
-- `macos/` - macOS-specific configs
-- `utils/` - scripts and tooling for work Ubuntu / Nix environments
+Chezmoi source tree (home-shaped):
+
+- `.chezmoiignore` - skip non-dotfile paths and OS-specific targets
+- `.chezmoitemplates/` - Linux vs Darwin kitty / ghostty / alacritty bodies
+- `dot_config/` - `~/.config`
+- `dot_pi/` - `~/.pi`
+- `dot_local/` - `~/.local`
+- `utils/` - scripts and tooling, not deployed
+- `wallpapers/` - not deployed
 
 ## Install
 
 ```sh
-dotbot -c install.conf.yaml
+mkdir -p ~/.config/chezmoi
+printf 'sourceDir = "%s/Vault/personal/dotfiles"\n' "$HOME" > ~/.config/chezmoi/chezmoi.toml
+chezmoi apply
 ```
 
-It handles macOS and Linux specific configs.
+`just apply`, `just diff`, and `just status` wrap chezmoi.
 
 ## Highlights
 
@@ -57,14 +63,14 @@ It handles macOS and Linux specific configs.
 
 These are all the places that need to change for a full theme swap:
 
-- `nixos/ghostty/config.ghostty` + `macos/ghostty/config.ghostty` — `config-file = themes/<name>`
-- `nixos/kitty/kitty.conf` + `macos/kitty/kitty.conf` — `include ./themes/<name>.conf`
-- `nixos/alacritty/alacritty.toml` + `macos/alacritty/alacritty.toml` — `import = ["themes/<name>.toml"]`
-- `common/alacritty/themes/` — create theme file if it doesn't exist
-- `common/nushell/config.nu` — `BAT_THEME`
-- `nixos/quickshell/Bar/Config.qml` — `_dark` and `_light` palette blocks
-- `nixos/rofi/monochrome.rasi` — `color0` through `color4` + `text`
-- `nixos/niri/config.kdl` — backdrop, border active/inactive, focus ring, shadow colors
+- `.chezmoitemplates/ghostty-linux` + `ghostty-darwin` — `config-file = themes/<name>`
+- `.chezmoitemplates/kitty-linux` + `kitty-darwin` — `include ./themes/<name>.conf`
+- `.chezmoitemplates/alacritty-linux` + `alacritty-darwin` — `import = ["themes/<name>.toml"]`
+- `dot_config/alacritty/themes/` — create theme file if it doesn't exist
+- `dot_config/nushell/config.nu` — `BAT_THEME`
+- `dot_config/quickshell/Bar/Config.qml` — `_dark` and `_light` palette blocks
+- `dot_config/rofi/monochrome.rasi` — `color0` through `color4` + `text`
+- `dot_config/niri/config.kdl` — backdrop, border active/inactive, focus ring, shadow colors
 
 ## Notes
 
