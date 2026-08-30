@@ -2,7 +2,7 @@ background {{ .bg }}
 foreground {{ .fg }}
 selection_background {{ .selection }}
 selection_foreground {{ .fg }}
-url_color {{ .primary }}
+url_color {{ .blue }}
 cursor {{ .cursor }}
 cursor_text_color {{ .cursor_text }}
 

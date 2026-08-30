@@ -1,6 +1,6 @@
 {{- $c := index .palettes .theme -}}
 const vec4 COLOR = {{ template "vec4" $c.cursor }};
-const vec4 COLOR_ACCENT = {{ template "vec4" $c.primary }};
+const vec4 COLOR_ACCENT = {{ template "vec4" $c.blue }};
 
 const float DURATION = 0.2; // In seconds
 const float DISTANCE_THRESHOLD = 3.5; // Maximum distance for trail effect
