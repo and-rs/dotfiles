@@ -20,3 +20,9 @@ test-quickshell:
 
 debug-capture target output_directory="":
     ./dot_config/quickshell/utils/debug-capture.sh "{{ target }}" "{{ output_directory }}"
+
+migrate-stash:
+    ./utils/migrate-to-chezmoi stash
+
+migrate-restore:
+    ./utils/migrate-to-chezmoi restore

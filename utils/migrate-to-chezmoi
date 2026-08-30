@@ -1,0 +1,112 @@
+#!/bin/sh
+set -eu
+
+STASH="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-migrate"
+NU_DIR="$HOME/.config/nushell"
+PI_DIR="$HOME/.pi/agent"
+
+die() {
+  echo "migrate-to-chezmoi: $*" >&2
+  exit 1
+}
+
+stash_file() {
+  src=$1
+  dest=$2
+  if [ -f "$src" ]; then
+    mkdir -p "$(dirname "$dest")"
+    cp -a "$src" "$dest"
+    echo "stashed $src"
+  fi
+}
+
+stash_dir() {
+  src=$1
+  dest=$2
+  if [ -d "$src" ]; then
+    mkdir -p "$dest"
+    cp -a "$src/." "$dest/"
+    echo "stashed $src/"
+  fi
+}
+
+cmd_stash() {
+  mkdir -p "$STASH/nushell" "$STASH/pi"
+
+  hist="$NU_DIR/history.sqlite3"
+  if [ -f "$hist" ]; then
+    if command -v sqlite3 >/dev/null 2>&1; then
+      sqlite3 "$hist" ".backup '$STASH/nushell/history.sqlite3'"
+      echo "stashed sqlite backup of $hist"
+    else
+      stash_file "$hist" "$STASH/nushell/history.sqlite3"
+      stash_file "$NU_DIR/history.sqlite3-wal" "$STASH/nushell/history.sqlite3-wal"
+      stash_file "$NU_DIR/history.sqlite3-shm" "$STASH/nushell/history.sqlite3-shm"
+    fi
+  else
+    echo "no $hist (skip)"
+  fi
+
+  stash_file "$NU_DIR/history.txt" "$STASH/nushell/history.txt"
+
+  stash_file "$PI_DIR/auth.json" "$STASH/pi/auth.json"
+  stash_file "$PI_DIR/settings.json" "$STASH/pi/settings.json"
+  stash_file "$PI_DIR/models-store.json" "$STASH/pi/models-store.json"
+  stash_dir "$PI_DIR/sessions" "$STASH/pi/sessions"
+
+  echo "stash at $STASH"
+}
+
+restore_file() {
+  src=$1
+  dest=$2
+  if [ -f "$src" ]; then
+    mkdir -p "$(dirname "$dest")"
+    cp -a "$src" "$dest"
+    echo "restored $dest"
+  fi
+}
+
+cmd_restore() {
+  [ -d "$STASH" ] || die "no stash at $STASH; run stash first"
+
+  chezmoi apply --force
+
+  mkdir -p "$NU_DIR" "$PI_DIR"
+
+  if [ -f "$STASH/nushell/history.sqlite3" ]; then
+    rm -f "$NU_DIR/history.sqlite3-wal" "$NU_DIR/history.sqlite3-shm"
+    cp -a "$STASH/nushell/history.sqlite3" "$NU_DIR/history.sqlite3"
+    echo "restored $NU_DIR/history.sqlite3"
+  fi
+  restore_file "$STASH/nushell/history.txt" "$NU_DIR/history.txt"
+
+  restore_file "$STASH/pi/auth.json" "$PI_DIR/auth.json"
+  restore_file "$STASH/pi/settings.json" "$PI_DIR/settings.json"
+  restore_file "$STASH/pi/models-store.json" "$PI_DIR/models-store.json"
+  if [ -d "$STASH/pi/sessions" ]; then
+    mkdir -p "$PI_DIR/sessions"
+    cp -a "$STASH/pi/sessions/." "$PI_DIR/sessions/"
+    echo "restored $PI_DIR/sessions/"
+  fi
+
+  if [ ! -f "$NU_DIR/zoxide.nu" ] && command -v zoxide >/dev/null 2>&1; then
+    zoxide init nushell >"$NU_DIR/zoxide.nu"
+    echo "generated $NU_DIR/zoxide.nu"
+  fi
+
+  if [ ! -d "$HOME/.config/yazi/plugins/git.yazi" ] && command -v ya >/dev/null 2>&1; then
+    (cd "$HOME/.config/yazi" && ya pkg install)
+  fi
+
+  echo "restore done; stash kept at $STASH"
+}
+
+case "${1:-}" in
+  stash) cmd_stash ;;
+  restore) cmd_restore ;;
+  *)
+    echo "usage: $0 stash|restore" >&2
+    exit 2
+    ;;
+esac

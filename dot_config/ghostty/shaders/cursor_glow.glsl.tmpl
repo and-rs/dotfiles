@@ -1,4 +1,5 @@
-const vec4 CURSOR_COLOR = vec4(0.651, 0.859, 1.0, 1.0);
+{{- $c := index .palettes .theme -}}
+const vec4 COLOR = {{ template "vec4" $c.cursor }};
 const float DURATION = 0.26;
 const float GLOW_SIZE = 0.006;
 const float GLOW_INTENSITY = 0.9;
@@ -50,5 +51,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 
     float cCursorDistance = sdBox(vu, currentCursor.xy - (currentCursor.zw * offsetFactor), currentCursor.zw * 0.5);
     float glowAlpha = (1.0 - smoothstep(cCursorDistance, -0.000, GLOW_SIZE * (1.0 - progress))) * GLOW_INTENSITY;
-    fragColor = mix(fragColor, CURSOR_COLOR, glowAlpha);
+    fragColor = mix(fragColor, COLOR, glowAlpha);
 }

@@ -1,10 +1,6 @@
-// light mode
-const vec4 TRAIL_COLOR = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
-const vec4 TRAIL_COLOR_ACCENT = vec4(0.02745098, 0.03137255, 0.05098039, 1.0);
-
-// dark mode
-// const vec4 TRAIL_COLOR = vec4(0.478, 0.635, 0.969, 1.0);
-// const vec4 TRAIL_COLOR_ACCENT = vec4(0.478, 0.635, 0.969, 1.0);
+{{- $c := index .palettes .theme -}}
+const vec4 COLOR = {{ template "vec4" $c.cursor }};
+const vec4 COLOR_ACCENT = {{ template "vec4" $c.primary }};
 
 const float DURATION = 0.2; // In seconds
 const float DISTANCE_THRESHOLD = 3.5; // Maximum distance for trail effect
@@ -108,14 +104,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
   //trailblaze
   vec4 trail = fragColor;
   if (trailEnabled) {
-    trail = mix(TRAIL_COLOR_ACCENT, fragColor, 1. - smoothstep(0., sdfTrail + mod, 0.007));
-    trail = mix(TRAIL_COLOR, trail, 1. - smoothstep(0., sdfTrail + mod, 0.006));
-    trail = mix(trail, TRAIL_COLOR, step(sdfTrail + mod, 0.));
+    trail = mix(COLOR_ACCENT, fragColor, 1. - smoothstep(0., sdfTrail + mod, 0.007));
+    trail = mix(COLOR, trail, 1. - smoothstep(0., sdfTrail + mod, 0.006));
+    trail = mix(trail, COLOR, step(sdfTrail + mod, 0.));
   }
 
   //cursorblaze
-  trail = mix(TRAIL_COLOR_ACCENT, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
-  trail = mix(TRAIL_COLOR, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
+  trail = mix(COLOR_ACCENT, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
+  trail = mix(COLOR, trail, 1. - smoothstep(0., sdfCurrentCursor + .002, 0.004));
 
   float coverage_scale = 0.1;
   fragColor = mix(trail, fragColor, 1. - smoothstep(0., sdfCurrentCursor, (easedProgress * lineLength) * coverage_scale));

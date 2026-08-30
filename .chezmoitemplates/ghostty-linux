@@ -14,7 +14,8 @@ window-padding-x = 1
 window-padding-y = 0
 
 # Enabling this increases CPU usage
-custom-shader-animation = false
+custom-shader-animation = true
+custom-shader = shaders/cursor_slash.glsl
 
 #--- KEYBINDS ---#
 keybind = super+ctrl+f=text:\x1bf
