@@ -3,7 +3,7 @@
 const script_dir = (path self | path dirname)
 
 # Fires a batch of test notifications to exercise the notification stack.
-# Usage: nu test-notifs.nu [--delay <ms>] [--img] [--count <notifications>]
+# Usage: nu test-notifs.nu [--delay <ms>] [--img] [--count <notifications>] [--massive] [--persistent] [--timeouts] [--burst]
 
 def send [
   summary: string
@@ -67,7 +67,41 @@ def send-scroll-cases [count: int, delay: int] {
   }
 }
 
-def main [--delay: int = 300, --img, --count: int = 0] {
+def send-massive-case [delay: int] {
+  for index in 1..6 {
+    send $"Comparison short notification ($index)/12" --body "This normal-height notification provides a scrollbar movement baseline around the massive entry." --app "test-massive-scroll" --urgency normal
+    sleep ($delay * 1ms)
+  }
+
+  let paragraph = "This deliberately oversized plain-text notification body verifies that the sidebar preview remains capped instead of laying out every line. Compare its card height and scroll behavior with the surrounding short notifications."
+  let body = (1..300 | each {|index| $"Section ($index): ($paragraph)" } | str join "\n\n")
+  send "Massive sidebar scroll test" --body $body --app "test-massive-scroll" --urgency normal
+  sleep ($delay * 1ms)
+
+  for index in 7..12 {
+    send $"Comparison short notification ($index)/12" --body "This normal-height notification provides a scrollbar movement baseline around the massive entry." --app "test-massive-scroll" --urgency normal
+    sleep ($delay * 1ms)
+  }
+}
+
+def send-timeout-cases [delay: int] {
+  print "→ server-default timeout (-1)"
+  dbus-notify test-timeout-default "Server default timeout" "Should use the configured popup duration." [] [] -1
+  sleep ($delay * 1ms)
+
+  print "→ short timeout (1000ms)"
+  dbus-notify test-timeout-short "Short timeout" "Should expire after one second, without a three-second minimum." [] [] 1000
+  sleep ($delay * 1ms)
+
+  print "→ persistent timeout (0)"
+  dbus-notify test-timeout-persistent "Persistent notification" "The popup has no progress bar and remains until dismissed." [] [] 0
+}
+
+def send-persistent-case [] {
+  dbus-notify test-timeout-persistent "Persistent notification" "This popup has no progress bar and remains until dismissed." [] [] 0
+}
+
+def main [--delay: int = 300, --img, --count: int = 0, --massive, --persistent, --timeouts, --burst] {
   let image_path = ($script_dir | path join "../../../wallpapers/stars.png" | path expand)
 
   if $img {
@@ -76,9 +110,35 @@ def main [--delay: int = 300, --img, --count: int = 0] {
     return
   }
 
+  if $persistent {
+    print "→ persistent timeout (0)"
+    send-persistent-case
+    print "done - persistent notification sent; dismiss it manually"
+    return
+  }
+
+  if $timeouts {
+    send-timeout-cases $delay
+    print "done - timeout notifications sent; the persistent popup appears after the default and short popups expire"
+    return
+  }
+
+  if $burst {
+    send-scroll-cases 50 0
+    print "done - 50 burst notifications sent"
+    return
+  }
+
   if $count > 0 {
     send-scroll-cases $count $delay
     print $"done - ($count) scroll-test notifications sent"
+    return
+  }
+
+  if $massive {
+    print "→ massive body with short comparison notifications"
+    send-massive-case $delay
+    print "done - 12 short and 1 massive scroll-test notifications sent"
     return
   }
 

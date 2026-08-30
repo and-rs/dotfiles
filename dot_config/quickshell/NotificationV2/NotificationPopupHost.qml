@@ -166,7 +166,7 @@ Scope {
           id: popupCard
 
           bodyLineLimit: 4
-          bottomInset: timeoutBar.height + Config.spacing.small
+          bottomInset: timeoutBar.visible ? timeoutBar.height + Config.spacing.small : 0
           compact: true
           entry: NotificationStore.getById(root.displayedNotificationId)
           showInlineReply: false

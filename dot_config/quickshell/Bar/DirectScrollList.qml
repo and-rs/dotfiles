@@ -31,7 +31,13 @@ ListView {
     radius: width / 2
     visible: root.scrollable
     width: Config.padding.micro
-    y: (root.contentY - root.minimumContentY()) / (root.maximumContentY() - root.minimumContentY()) * (root.height - height)
+    y: {
+      const range = root.maximumContentY() - root.minimumContentY();
+      if (range <= 0)
+        return 0;
+      const progress = Math.max(0, Math.min(1, (root.contentY - root.minimumContentY()) / range));
+      return progress * (root.height - height);
+    }
     z: 2
   }
   WheelHandler {

@@ -144,10 +144,12 @@ Rectangle {
     }
     Text {
       color: Config.colors.fg
+      elide: Text.ElideRight
       font.pixelSize: Config.sizes.normal
+      linkColor: Config.colors.primary
       maximumLineCount: root.bodyLineLimit
       text: root.body
-      textFormat: Text.RichText
+      textFormat: Text.StyledText
       visible: text !== ""
       width: parent.width
       wrapMode: Text.Wrap

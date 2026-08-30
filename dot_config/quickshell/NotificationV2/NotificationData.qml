@@ -79,10 +79,10 @@ Singleton {
       return Config.notifications.popupDuration;
 
     const timeout = Number(expireTimeout);
-    if (timeout <= 0)
+    if (!isFinite(timeout) || timeout < 0)
       return Config.notifications.popupDuration;
 
-    return Math.max(3000, Math.round(timeout * 1000));
+    return Math.max(0, Math.round(timeout));
   }
   function visibleActions(actions: var): var {
     const visible = [];

@@ -22,6 +22,8 @@ Singleton {
   property var records: []
   property var removingIds: ({})
 
+  signal entriesPrepending
+
   function activateNextPopup(): void {
     if (popupId !== -1)
       return;
@@ -310,6 +312,7 @@ Singleton {
     const index = indexOfId(nextEntry.id);
     const nextEntries = records.slice();
     if (index === -1) {
+      entriesPrepending();
       nextEntries.unshift(nextEntry);
     } else {
       const previousEntry = records[index];

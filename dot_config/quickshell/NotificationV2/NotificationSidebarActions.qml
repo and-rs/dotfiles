@@ -10,6 +10,8 @@ Item {
   property int removalAnchorId: -1
   property real removalAnchorOffset: 0
   property int removalFallbackId: -1
+  property int prependAnchorId: -1
+  property real prependAnchorOffset: 0
   readonly property int seamHeight: 28
 
   signal clearAllRequested
@@ -45,22 +47,47 @@ Item {
     if (!firstItem)
       return;
 
-    root.removalAnchorOffset = firstItem.y - listView.contentY;
     for (let index = firstIndex; index < NotificationStore.count; index++) {
       const id = NotificationStore.records[index].id;
-      if (!removingIds[id]) {
-        root.removalAnchorId = id;
+      if (!removingIds[id] && root.captureRemovalAnchor(index, id))
         return;
-      }
     }
     for (let index = firstIndex - 1; index >= 0; index--) {
       const id = NotificationStore.records[index].id;
-      if (!removingIds[id]) {
-        root.removalAnchorId = id;
+      if (!removingIds[id] && root.captureRemovalAnchor(index, id))
         return;
-      }
     }
     root.removalFallbackId = firstItem.notificationId;
+  }
+  function captureRemovalAnchor(index: int, id: int): bool {
+    const contentY = listView.contentY;
+    let item = listView.itemAtIndex(index);
+    if (!item) {
+      listView.positionViewAtIndex(index, ListView.Contain);
+      listView.forceLayout();
+      item = listView.itemAtIndex(index);
+      listView.contentY = contentY;
+    }
+    if (!item)
+      return false;
+
+    root.removalAnchorId = id;
+    root.removalAnchorOffset = item.y - contentY;
+    return true;
+  }
+  function capturePrependViewportAnchor(): void {
+    if (root.prependAnchorId !== -1)
+      return;
+    if (listView.contentY <= listView.minimumContentY() + 1)
+      return;
+
+    const index = listView.indexAt(1, listView.contentY + 1);
+    const item = index >= 0 ? listView.itemAtIndex(index) : null;
+    if (!item)
+      return;
+
+    root.prependAnchorId = item.notificationId;
+    root.prependAnchorOffset = item.y - listView.contentY;
   }
   function finalizeDueRemovals(): void {
     const now = Date.now();
@@ -107,7 +134,6 @@ Item {
     root.removalAnchorOffset = 0;
   }
   function restoreViewport(): void {
-    listView.forceLayout();
     let index = root.indexOfEntry(root.removalAnchorId);
     if (index === -1)
       index = root.indexOfEntry(root.removalFallbackId);
@@ -116,10 +142,24 @@ Item {
       return;
     }
 
+    listView.positionViewAtIndex(index, ListView.Contain);
+    listView.forceLayout();
     const item = listView.itemAtIndex(index);
     if (item)
       listView.contentY = listView.clampContentY(item.y - root.removalAnchorOffset);
     root.resetViewportAnchor();
+  }
+  function restorePrependViewport(): void {
+    const index = root.indexOfEntry(root.prependAnchorId);
+    if (index >= 0) {
+      listView.positionViewAtIndex(index, ListView.Contain);
+      listView.forceLayout();
+      const item = listView.itemAtIndex(index);
+      if (item)
+        listView.contentY = listView.clampContentY(item.y - root.prependAnchorOffset);
+    }
+    root.prependAnchorId = -1;
+    root.prependAnchorOffset = 0;
   }
   function scheduleNextRemoval(): void {
     let nextDeadline = 0;
@@ -148,6 +188,18 @@ Item {
   }
 
   anchors.fill: parent
+
+  Connections {
+    target: NotificationStore
+
+    function onEntriesPrepending(): void {
+      root.capturePrependViewportAnchor();
+    }
+    function onRecordsChanged(): void {
+      if (root.prependAnchorId !== -1)
+        restorePrependViewportTimer.restart();
+    }
+  }
 
   Column {
     anchors.fill: parent
@@ -221,6 +273,14 @@ Item {
 
         onTriggered: root.restoreViewport()
       }
+      Timer {
+        id: restorePrependViewportTimer
+
+        interval: 0
+        repeat: false
+
+        onTriggered: root.restorePrependViewport()
+      }
       DirectScrollList {
         id: listView
 
@@ -255,7 +315,11 @@ Item {
           width: listView.width
 
           ListView.onPooled: card.resetTransientState()
-          ListView.onReused: card.resetTransientState()
+          ListView.onReused: {
+            opacity = 1;
+            scale = 1;
+            card.resetTransientState();
+          }
 
           NotificationCard {
             id: card

@@ -23,8 +23,9 @@ Rectangle {
 
   clip: true
   color: Config.colors.surface2
-  height: 3
+  height: visible ? 3 : 0
   radius: Config.radius.small
+  visible: durationMs > 0
 
   Component.onCompleted: restart()
   onDurationMsChanged: restart()
