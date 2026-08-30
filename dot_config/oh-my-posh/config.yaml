@@ -36,10 +36,7 @@ blocks:
     segments:
       - type: git
         foreground: "white"
-        templates:
-          - "<darkGray>on</> <cyan>{{ .HEAD }}</>"
-          - "{{- if .User.Email }} <darkGray>[</><magenta>{{ .User.Email }}</><darkGray>]</>{{ end -}}"
-          - "{{- $origin := index .Remotes \"origin\" -}}{{- if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>azure</><darkGray>]</>{{ else if contains \"github.com\" $origin }} <darkGray>[</><magenta>github</><darkGray>]</>{{ end -}}"
+        template: "<darkGray>on</> <cyan>{{ .HEAD }}</>{{- $origin := index .Remotes \"origin\" -}}{{- if .User.Email -}}{{- $email := replaceP \"^.*@\" .User.Email \"\" -}}{{- if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>{{ $email }} · azure</><darkGray>]</>{{- else if contains \"github.com\" $origin }} <darkGray>[</><magenta>{{ $email }} · github</><darkGray>]</>{{- else }} <darkGray>[</><magenta>{{ $email }}</><darkGray>]</>{{- end -}}{{- else if contains \"dev.azure.com\" $origin }} <darkGray>[</><magenta>azure</><darkGray>]</>{{- else if contains \"github.com\" $origin }} <darkGray>[</><magenta>github</><darkGray>]</>{{- end -}}"
         options:
           fetch_status: false
           fetch_user: true

@@ -19,6 +19,7 @@ if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmu
 source settings/prompt.nu
 source settings/theme.nu
 source settings/keybinds.nu
+source settings/gh.nu
 
 # Options
 export-env {
@@ -95,6 +96,7 @@ export-env {
       direnv export json | from json | default {} | load-env
       $env.PATH = do (env-conversions).path.from_string $env.PATH
     }
+    {|| pin-gh }
   ]
 }
 
@@ -109,7 +111,7 @@ use nushelter/pi.nu *
 # Forgit & git completions 8ms
 use forgit *
 
-source zoxide.nu
+source ~/.config/nushell/zoxide.nu
 alias "cd" = z
 alias "ci" = zi
 
