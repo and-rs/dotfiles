@@ -1,5 +1,5 @@
 shell "/run/current-system/sw/bin/nu"
-include ./themes/tokyo-night-day.conf
+include ./themes/current.conf
 
 hide_window_decorations titlebar-only
 modify_font strikethrough_thickness 1px

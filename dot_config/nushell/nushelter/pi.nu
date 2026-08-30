@@ -22,6 +22,10 @@ def _ai_summarize_model [] {
     return "openai-codex/gpt-5.4-mini:off"
   }
 
+  if (_ai_has_provider_auth "xai") {
+    return "xai/grok-4.5:off"
+  }
+
   if (_ai_has_provider_auth "openai-codex") or (_ai_has_provider_auth "openai") {
     return "openai-codex/gpt-5.4-mini:off"
   }

@@ -62,9 +62,9 @@ Row {
       }
       readonly property bool showMiniMap: focused && !empty && miniMapRevealProgress > 0.35
 
-      border.color: focused ? Qt.alpha(Config.colors.primary, Config.darkMode ? 0.7 : 0.55) : empty ? Config.colors.surface1 : Config.colors.surface2
+      border.color: focused ? Qt.alpha(Config.colors.primary, 0.55) : empty ? Config.colors.surface1 : Config.colors.surface2
       border.width: focused ? 2 : 1
-      color: focused ? Qt.alpha(Config.colors.primary, Config.darkMode ? 0.16 : 0.12) : empty ? Config.colors.surface1 : Config.colors.surface2
+      color: focused ? Qt.alpha(Config.colors.primary, 0.12) : empty ? Config.colors.surface1 : Config.colors.surface2
       height: Config.sizes.extraLarge
       radius: Config.radius.small
       width: focused && !empty ? expandedWidth : collapsedWidth

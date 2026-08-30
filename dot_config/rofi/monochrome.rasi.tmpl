@@ -1,10 +1,11 @@
+{{- $c := index .palettes .theme -}}
 * {
-    base:     #dddde3;
-    surface1: #d0d5e3;
-    surface2: #b7c1e3;
-    surface3: #979fba;
-    surface4: #777c92;
-    fg:       #3760bf;
+    base:     {{ $c.base }};
+    surface1: {{ $c.surface1 }};
+    surface2: {{ $c.surface2 }};
+    surface3: {{ $c.surface3 }};
+    surface4: {{ $c.surface4 }};
+    fg:       {{ $c.fg }};
 
     font: "Hanken Grotesk 12";
     width: 500px;

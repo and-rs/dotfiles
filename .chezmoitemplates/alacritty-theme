@@ -1,0 +1,31 @@
+[colors.primary]
+background = "{{ .bg }}"
+foreground = "{{ .fg }}"
+
+[colors.cursor]
+text = "{{ .cursor_text }}"
+cursor = "{{ .cursor }}"
+
+[colors.selection]
+text = "{{ .fg }}"
+background = "{{ .selection }}"
+
+[colors.normal]
+black = "{{ .black }}"
+red = "{{ .red }}"
+green = "{{ .green }}"
+yellow = "{{ .yellow }}"
+blue = "{{ .blue }}"
+magenta = "{{ .magenta }}"
+cyan = "{{ .cyan }}"
+white = "{{ .white }}"
+
+[colors.bright]
+black = "{{ .bright_black }}"
+red = "{{ .red }}"
+green = "{{ .green }}"
+yellow = "{{ .yellow }}"
+blue = "{{ .blue }}"
+magenta = "{{ .magenta }}"
+cyan = "{{ .cyan }}"
+white = "{{ .white }}"

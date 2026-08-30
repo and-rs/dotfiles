@@ -61,16 +61,7 @@ chezmoi apply
 
 ## Switching themes
 
-These are all the places that need to change for a full theme swap:
-
-- `.chezmoitemplates/ghostty-linux` + `ghostty-darwin` — `config-file = themes/<name>`
-- `.chezmoitemplates/kitty-linux` + `kitty-darwin` — `include ./themes/<name>.conf`
-- `.chezmoitemplates/alacritty-linux` + `alacritty-darwin` — `import = ["themes/<name>.toml"]`
-- `dot_config/alacritty/themes/` — create theme file if it doesn't exist
-- `dot_config/nushell/config.nu` — `BAT_THEME`
-- `dot_config/quickshell/Bar/Config.qml` — `_dark` and `_light` palette blocks
-- `dot_config/rofi/monochrome.rasi` — `color0` through `color4` + `text`
-- `dot_config/niri/config.kdl` — backdrop, border active/inactive, focus ring, shadow colors
+Edit `.chezmoidata.toml` (`theme`, `dark`, `light`, or the palette tables) then `just apply`.
 
 ## Notes
 

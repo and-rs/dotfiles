@@ -1,3 +1,4 @@
+{{- $c := index .palettes .theme -}}
 spawn-at-startup "awww-daemon"
 spawn-sh-at-startup "pgrep -x hypridle >/dev/null || hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"
@@ -8,14 +9,14 @@ screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 prefer-no-csd
 overview {
     zoom 0.7
-    backdrop-color "#212330"
+    backdrop-color "{{ $c.surface1 }}"
     workspace-shadow {
         off
     }
 }
 output "eDP-1" {
     scale 1.6
-    backdrop-color "#212330"
+    backdrop-color "{{ $c.surface1 }}"
 }
 hotkey-overlay {
     skip-at-startup
@@ -80,12 +81,12 @@ layout {
     border {
         on
         width 2
-        active-gradient from="#2e7de9" to="#d0d5e3" angle=360
-        inactive-color "#979fba"
+        active-gradient from="{{ $c.surface4 }}" to="{{ $c.surface1 }}" angle=360
+        inactive-color "{{ $c.surface3 }}"
     }
     focus-ring {
         off
-        active-gradient from="#82aaff" to="#c099ff" angle=60
+        active-gradient from="{{ $c.primary }}" to="{{ $c.secondary }}" angle=60
     }
     shadow {
         on
@@ -93,8 +94,8 @@ layout {
         softness 6
         offset x=0 y=2
         draw-behind-window true
-        color "#2e7de990"
-        inactive-color "#21233070"
+        color "{{ $c.surface1 }}90"
+        inactive-color "{{ $c.surface1 }}70"
     }
 }
 workspace "1"
@@ -231,8 +232,8 @@ layer-rule {
         softness 10
         offset x=0 y=2
         draw-behind-window true
-        color "#21233040"
-        inactive-color "#21233040"
+        color "{{ $c.surface1 }}40"
+        inactive-color "{{ $c.surface1 }}40"
     }
 }
 layer-rule {

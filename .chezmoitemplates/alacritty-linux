@@ -1,5 +1,5 @@
 [general]
-import = [ "~/.config/alacritty/themes/tokyo-night-day.toml" ]
+import = [ "~/.config/alacritty/themes/current.toml" ]
 
 [env]
 TERM = "tmux-256color"

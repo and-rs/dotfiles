@@ -1,6 +1,6 @@
 command = nu
 config-file = fonts.ghostty
-config-file = themes/tokyo-night-day
+config-file = themes/current
 
 #--- WINDOW ---#
 quit-after-last-window-closed = true

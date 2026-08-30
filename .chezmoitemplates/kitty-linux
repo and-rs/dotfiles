@@ -2,7 +2,7 @@ shell nu
 
 #--- GENERAL ---#
 
-include ./themes/tokyo-night-day.conf
+include ./themes/current.conf
 text_composition_strategy legacy
 confirm_os_window_close 0
 cursor_blink_interval 0

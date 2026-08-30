@@ -1,0 +1,25 @@
+background {{ .bg }}
+foreground {{ .fg }}
+selection_background {{ .selection }}
+selection_foreground {{ .fg }}
+url_color {{ .primary }}
+cursor {{ .cursor }}
+cursor_text_color {{ .cursor_text }}
+
+color0 {{ .black }}
+color1 {{ .red }}
+color2 {{ .green }}
+color3 {{ .yellow }}
+color4 {{ .blue }}
+color5 {{ .magenta }}
+color6 {{ .cyan }}
+color7 {{ .white }}
+
+color8 {{ .bright_black }}
+color9 {{ .red }}
+color10 {{ .green }}
+color11 {{ .yellow }}
+color12 {{ .blue }}
+color13 {{ .magenta }}
+color14 {{ .cyan }}
+color15 {{ .white }}
