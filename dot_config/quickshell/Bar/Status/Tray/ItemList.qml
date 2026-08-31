@@ -1,6 +1,7 @@
 import Quickshell.Services.SystemTray
 import Quickshell
 import QtQuick
+import IconValidation 1.0
 import qs.Bar
 
 Column {
@@ -17,6 +18,9 @@ Column {
     const [name, path] = icon.split("?path=");
     return Qt.resolvedUrl(`${path}/${name.slice(name.lastIndexOf("/") + 1)}`);
   }
+  function iconIsValid(icon, width, height) {
+    return !iconValidator.canValidate(icon) || iconValidator.isValid(icon, width, height);
+  }
   function triggerDeferredAction(action) {
     root.controller.closeMenus();
     root.pendingAction = action;
@@ -26,6 +30,9 @@ Column {
   spacing: 2
   width: parent ? parent.width : Config.popup.width
 
+  IconValidator {
+    id: iconValidator
+  }
   Timer {
     id: actionTimer
 
@@ -119,14 +126,14 @@ Column {
               source: root.resolveIcon(itemDelegate.modelData.icon)
               sourceSize.height: 32
               sourceSize.width: 32
-              visible: status === Image.Ready
+              visible: status === Image.Ready && root.iconIsValid(itemDelegate.modelData.icon, sourceSize.width, sourceSize.height)
             }
             MaterialIcon {
               anchors.centerIn: parent
               code: 0xE3E8
               iconColor: Config.colors.surface4
               iconSize: Config.sizes.normal
-              visible: headerIcon.status !== Image.Ready
+              visible: headerIcon.status !== Image.Ready || !root.iconIsValid(itemDelegate.modelData.icon, headerIcon.sourceSize.width, headerIcon.sourceSize.height)
             }
           }
           Text {
@@ -246,14 +253,14 @@ Column {
                   source: root.resolveIcon(modelData.icon)
                   sourceSize.height: Config.sizes.normal
                   sourceSize.width: Config.sizes.normal
-                  visible: status === Image.Ready
+                  visible: status === Image.Ready && root.iconIsValid(modelData.icon, sourceSize.width, sourceSize.height)
                 }
                 MaterialIcon {
                   anchors.centerIn: parent
                   code: 0xE3E8
                   iconColor: Config.colors.surface4
                   iconSize: Config.sizes.small
-                  visible: entryIcon.status !== Image.Ready
+                  visible: entryIcon.status !== Image.Ready || !root.iconIsValid(modelData.icon, entryIcon.sourceSize.width, entryIcon.sourceSize.height)
                 }
               }
               Text {
