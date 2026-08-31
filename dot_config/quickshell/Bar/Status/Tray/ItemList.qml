@@ -131,7 +131,7 @@ Column {
             MaterialIcon {
               anchors.centerIn: parent
               code: 0xE3E8
-              iconColor: Config.colors.surface5
+              iconColor: Config.colors.fg
               iconSize: Config.sizes.normal
               visible: headerIcon.status !== Image.Ready || !root.iconIsValid(itemDelegate.modelData.icon, headerIcon.sourceSize.width, headerIcon.sourceSize.height)
             }
