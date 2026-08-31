@@ -85,10 +85,8 @@ Scope {
           padding: Config.padding.micro
           spacing: Config.spacing.normal
 
-          Workspaces {
-          }
-          WindowTitle {
-          }
+          Workspaces {}
+          WindowTitle {}
         }
         Row {
           id: rightRect
@@ -104,8 +102,7 @@ Scope {
             anchors.verticalCenter: parent.verticalCenter
             spacing: Config.spacing.small
 
-            Recording {
-            }
+            Recording {}
             Caffeine {
               id: caffeine
 
@@ -130,10 +127,11 @@ Scope {
           }
           Text {
             anchors.verticalCenter: parent.verticalCenter
+            text: Time.format("ddd d MMM hh:mm")
             color: Config.colors.fg
             font.pointSize: 10
             font.weight: 500
-            text: Time.format("ddd d MMM hh:mm")
+            width: 120
           }
         }
       }

@@ -16,6 +16,6 @@ target_compile_features(iconvalidationplugin PRIVATE cxx_std_20)
 target_link_libraries(iconvalidationplugin PRIVATE Qt6::Gui Qt6::Qml)
 
 set_target_properties(iconvalidationplugin PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dot_config/quickshell/IconValidation"
   OUTPUT_NAME "iconvalidationplugin"
 )

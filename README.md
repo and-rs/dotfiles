@@ -31,23 +31,12 @@ Chezmoi source tree (home-shaped):
 
 ## Install
 
-```sh
+```bash
 mkdir -p ~/.config/chezmoi
-printf 'sourceDir = "%s/Vault/personal/dotfiles"\n' "$HOME" > ~/.config/chezmoi/chezmoi.toml
+
+# change this
+printf 'sourceDir = "%s/actual/dir/dotfiles"\n' "$HOME" > ~/.config/chezmoi/chezmoi.toml
 chezmoi apply
-```
-
-## migrate
-
-Close nu/tmux first. Fetch does not delete `common/`; pull does.
-
-```sh
-git fetch
-git show origin/main:utils/migrate-to-chezmoi | sh -s stash
-git pull
-mkdir -p ~/.config/chezmoi
-printf 'sourceDir = "%s/Vault/personal/dotfiles"\n' "$HOME" > ~/.config/chezmoi/chezmoi.toml
-./utils/migrate-to-chezmoi restore
 ```
 
 `just apply`, `just diff`, and `just status` wrap chezmoi.
