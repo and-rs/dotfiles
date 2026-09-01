@@ -1,0 +1,31 @@
+#!/usr/bin/env -S nu -n
+
+def main [] {
+  let config_home = $"($env.HOME)/.config"
+  let colors_file = ($config_home | path join colors current.lua)
+
+  if not ($colors_file | path exists) {
+    error make {msg: $"Colors file not found: ($colors_file)"}
+  }
+
+  let colors = (
+    open $colors_file
+    | lines
+    | parse '  {name} = "{hex}",'
+  )
+  let terminal_order = [black red green yellow blue magenta cyan white bright_black]
+  let ordered_colors = (
+    $terminal_order
+    | each {|name| $colors | where name == $name | first }
+    | append ($colors | where name not-in $terminal_order)
+  )
+
+  $ordered_colors
+  | each {|color|
+    let value = ($color.hex | str substring 1..)
+    let red = ($value | str substring 0..1 | into int --radix 16)
+    let green = ($value | str substring 2..3 | into int --radix 16)
+    let blue = ($value | str substring 4..5 | into int --radix 16)
+    $"(ansi --escape $'48;2;($red);($green);($blue)m')  (ansi reset) ($color.name): ($color.hex)"
+  }
+}
