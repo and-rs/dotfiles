@@ -1,4 +1,4 @@
-font-size = 12
+font-size = 13
 #adjust-font-baseline = 0
 #adjust-underline-thickness = 1
 #adjust-underline-position = 2
@@ -17,13 +17,14 @@ font-size = 12
 # adjust-box-thickness = 2
 # adjust-cell-height = 6
 
-# font-family = CommitMono
-font-family = MD IO Trial
+font-family = CommitMono
+#font-family = MD IO Trial
 # font-family = Input
 adjust-cell-height = 12
 adjust-cursor-height = 12
 adjust-underline-position = 9
 adjust-underline-thickness = 0
+freetype-load-flags = light
 
 # font-family = Rec Mono Linear
 # font-family-bold = Rec Mono Linear

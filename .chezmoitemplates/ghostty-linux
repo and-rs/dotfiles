@@ -4,7 +4,6 @@ config-file = themes/current
 
 #--- WINDOW ---#
 quit-after-last-window-closed = true
-freetype-load-flags = light
 window-padding-balance = true
 confirm-close-surface = false
 adjust-cursor-thickness = 3
