@@ -1,13 +1,14 @@
 import QtQuick
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
 
 Rectangle {
 	id: network
 
 	readonly property var connectedNetwork: NetworkService.connectedNetwork
 	readonly property var connectedWiredNetwork: wiredDevice && wiredDevice.hasLink ? wiredDevice.network : null
-	required property Item controller
+	required property Status.StatusMenus controller
 	readonly property bool hasInternet: NetworkService.connectivity === "Full"
 	readonly property real horizontalPadding: controller.buttonHorizontalPadding
 	readonly property int iconCode: {
@@ -29,7 +30,7 @@ Rectangle {
 		if (connectedWiredNetwork)
 			return hasInternet ? Config.colors.fg : Config.colors.destructive;
 		if (!wifiEnabled || !connectedNetwork)
-			return Config.colors.surface3;
+			return Config.colors.surface4;
 		if (!hasInternet)
 			return Config.colors.destructive;
 		return Config.colors.fg;

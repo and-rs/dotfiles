@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell
 import Quickshell.Io
 import QtQuick
@@ -18,15 +20,15 @@ Rectangle {
 	MaterialIcon {
 		id: caffeineIcon
 
-		code: isActive ? 0xE220 : 0xE224
-		iconColor: isActive ? Config.colors.fg : Config.colors.surface3
+		code: caffeine.isActive ? 0xE220 : 0xE224
+		iconColor: caffeine.isActive ? Config.colors.fg : Config.colors.surface4
 		iconSize: 16
 	}
 	MouseArea {
 		anchors.fill: parent
 
 		onClicked: {
-			caffeine.isActive = !isActive;
+			caffeine.isActive = !caffeine.isActive;
 		}
 	}
 	Process {

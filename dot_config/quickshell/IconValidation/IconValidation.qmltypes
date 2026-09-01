@@ -1,0 +1,24 @@
+import QtQuick.tooling 1.2
+
+// This file describes the plugin-supplied types for QML language tooling.
+Module {
+    Component {
+        name: "IconValidator"
+        prototype: "QObject"
+        exports: ["IconValidator 1.0"]
+        exportMetaObjectRevisions: [256]
+        Method {
+            name: "canValidate"
+            type: "bool"
+            Parameter { name: "source"; type: "QUrl" }
+        }
+        Method {
+            name: "isValid"
+            type: "bool"
+            Parameter { name: "source"; type: "QUrl" }
+            Parameter { name: "width"; type: "int" }
+            Parameter { name: "height"; type: "int" }
+        }
+        Method { name: "clearCache" }
+    }
+}

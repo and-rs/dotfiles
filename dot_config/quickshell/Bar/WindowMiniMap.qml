@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Config
+import qs.Bar
 
 Item {
 	id: root
@@ -142,7 +143,7 @@ Item {
 
 					let flashInset = focused ? root.focusFlash : 0;
 					ctx.globalAlpha = focused ? 1 : 0.9;
-					ctx.fillStyle = focused ? Config.colors.primary : Config.colors.surface3;
+					ctx.fillStyle = focused ? Config.colors.primary : Config.colors.surface4;
 					ctx.beginPath();
 					ctx.roundedRect(x - flashInset, y - flashInset, columnW + flashInset * 2, tileH + flashInset * 2, root.tileRadius, root.tileRadius);
 					ctx.fill();

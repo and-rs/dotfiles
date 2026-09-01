@@ -5,12 +5,13 @@ import QtQuick.Effects
 import Quickshell.Services.UPower
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
 
 Rectangle {
 	id: root
 
 	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
-	required property Item controller
+	required property Status.StatusMenus controller
 	readonly property var device: UPower.displayDevice
 	readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.success : Config.colors.fg
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))

@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Bluetooth
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
 
 Rectangle {
 	id: bluetooth
@@ -11,7 +12,7 @@ Rectangle {
 		let adapters = Bluetooth.adapters.values ?? [];
 		return adapters.length > 0 ? adapters[0] : null;
 	}
-	required property Item controller
+	required property Status.StatusMenus controller
 	readonly property bool hasConnectedDevice: {
 		let devs = Bluetooth.devices.values ?? [];
 		for (let i = 0; i < devs.length; i++) {
@@ -30,7 +31,7 @@ Rectangle {
 	}
 	readonly property color iconColor: {
 		if (!isEnabled)
-			return Config.colors.surface3;
+			return Config.colors.surface4;
 		if (hasConnectedDevice)
 			return Config.colors.primary;
 		return Config.colors.fg;

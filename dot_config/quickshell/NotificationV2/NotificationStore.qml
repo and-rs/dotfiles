@@ -290,7 +290,6 @@ Singleton {
 			clearPopup(id);
 		NotificationLifecycle.sendInlineReply(notification, text);
 	}
-
 	function trimToLimit(nextEntries: var): var {
 		while (nextEntries.length > Config.notifications.historyLimit) {
 			const entry = nextEntries[nextEntries.length - 1];

@@ -1,5 +1,5 @@
-import Quickshell
 import QtQuick
+import qs.Bar
 import qs.Config
 
 Row {

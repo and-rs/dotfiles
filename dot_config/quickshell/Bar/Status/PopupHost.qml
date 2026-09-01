@@ -2,6 +2,7 @@ import Quickshell
 import QtQuick
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
 
 PopupWindow {
 	id: popup
@@ -12,7 +13,7 @@ PopupWindow {
 	required property Item bluetoothButton
 	readonly property real bluetoothPanelXInHost: panelXFor(bluetoothButton, "bluetooth")
 	default property alias content: contentColumn.data
-	required property Item controller
+	required property Status.StatusMenus controller
 	required property Item hostItem
 	readonly property point hostPos: {
 		window.windowTransform;

@@ -1,12 +1,12 @@
-import Quickshell
 import QtQuick
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
 
 Column {
 	id: root
 
-	required property Item controller
+	required property Status.StatusMenus controller
 
 	spacing: Config.spacing.small
 	width: parent ? parent.width : Config.popup.width
@@ -19,7 +19,7 @@ Column {
 	Text {
 		color: Config.colors.fg
 		font.pointSize: 10
-		font.weight: 700
+		font.weight: 600
 		text: "System Tray"
 	}
 	Rectangle {

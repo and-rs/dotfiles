@@ -1,14 +1,17 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell.Services.SystemTray
 import Quickshell
 import QtQuick
-import IconValidation 1.0
 import qs.Bar
 import qs.Config
+import qs.Bar.Status as Status
+import IconValidation 1.0
 
 Column {
 	id: root
 
-	required property Item controller
+	required property Status.StatusMenus controller
 	property int expandedIndex: -1
 	readonly property int itemCount: trayRepeater.count
 	property var pendingAction: null
@@ -229,58 +232,58 @@ Column {
 							spacing: Config.spacing.small
 
 							Rectangle {
-								property bool hasButton: modelData.buttonType !== QsMenuButtonType.None
-								property bool isChecked: modelData.checkState === Qt.Checked
+								property bool hasButton: entryDelegate.modelData.buttonType !== QsMenuButtonType.None
+								property bool isChecked: entryDelegate.modelData.checkState === Qt.Checked
 
 								anchors.verticalCenter: parent.verticalCenter
 								border.color: Config.colors.surface3
 								border.width: 2
 								color: isChecked ? Config.colors.primary : "transparent"
 								height: Config.sizes.small + 2
-								radius: modelData.buttonType === QsMenuButtonType.RadioButton ? Config.radius.full : 3
+								radius: entryDelegate.modelData.buttonType === QsMenuButtonType.RadioButton ? Config.radius.full : 3
 								visible: hasButton
 								width: hasButton ? Config.sizes.small + 2 : 0
 							}
 							Item {
 								anchors.verticalCenter: parent.verticalCenter
 								height: Config.sizes.small + 2
-								visible: modelData.icon !== undefined && modelData.icon !== ""
+								visible: entryDelegate.modelData.icon !== undefined && entryDelegate.modelData.icon !== ""
 								width: visible ? Config.sizes.small + 2 : 0
 
 								Image {
 									id: entryIcon
 
 									anchors.fill: parent
-									source: root.resolveIcon(modelData.icon)
+									source: root.resolveIcon(entryDelegate.modelData.icon)
 									sourceSize.height: Config.sizes.normal
 									sourceSize.width: Config.sizes.normal
-									visible: status === Image.Ready && root.iconIsValid(modelData.icon, sourceSize.width, sourceSize.height)
+									visible: status === Image.Ready && root.iconIsValid(entryDelegate.modelData.icon, sourceSize.width, sourceSize.height)
 								}
 								MaterialIcon {
 									anchors.centerIn: parent
 									code: 0xE3E8
 									iconColor: Config.colors.surface4
 									iconSize: Config.sizes.small
-									visible: entryIcon.status !== Image.Ready || !root.iconIsValid(modelData.icon, entryIcon.sourceSize.width, entryIcon.sourceSize.height)
+									visible: entryIcon.status !== Image.Ready || !root.iconIsValid(entryDelegate.modelData.icon, entryIcon.sourceSize.width, entryIcon.sourceSize.height)
 								}
 							}
 							Text {
 								anchors.verticalCenter: parent.verticalCenter
-								color: modelData.enabled ? Config.colors.fg : Config.colors.surface3
+								color: entryDelegate.modelData.enabled ? Config.colors.fg : Config.colors.surface3
 								elide: Text.ElideRight
 								font.pointSize: 9
 								font.weight: 500
-								text: modelData.text || ""
+								text: entryDelegate.modelData.text || ""
 								width: Math.min(implicitWidth, Config.popup.width - Config.padding.small * 4)
 							}
 						}
 						MouseArea {
 							anchors.fill: parent
-							cursorShape: modelData.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-							enabled: modelData.enabled
+							cursorShape: entryDelegate.modelData.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+							enabled: entryDelegate.modelData.enabled
 
 							onClicked: {
-								root.triggerDeferredAction(() => modelData.triggered());
+								root.triggerDeferredAction(() => entryDelegate.modelData.triggered());
 							}
 						}
 					}

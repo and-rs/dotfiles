@@ -8,6 +8,32 @@ These instructions apply to `dot_config/quickshell/`.
 
 - Do not use `qmllint`; it produces low-value noise for this setup.
 - Prefer live bench scripts over fake debug paths.
+- QML language-server types come from the live Quickshell tooling VFS. The
+  generated `~/.config/quickshell/.qmlls.ini` points `qmlls` at that VFS via
+  `General.buildDir` and at the config through `General.importPaths`.
+- Keep Quickshell running while working on QML types so it can regenerate the
+  VFS `qmldir` metadata. Do not commit the generated `.qmlls.ini`, VFS files,
+  or hand-written `qmldir` files; restart or reload the language server after
+  Quickshell regenerates its tooling metadata.
+- When a component receives an instance of a custom QML component and accesses
+  that component's custom properties or functions, type the property with the
+  concrete QML type, not `Item` or `var`. Import the defining module with an
+  alias and qualify the type, for example:
+  `import qs.Bar.Status as Status` followed by
+  `required property Status.StatusMenus controller`. This gives `qmlls` the
+  component's generated property and function information. Use `Item` only
+  when the consumer needs base `Item` members, and use `var` only when the
+  value is intentionally untyped or can have unrelated runtime types.
+- Native QML plugins need tool metadata in addition to runtime registration.
+  If a plugin uses `qmlRegisterType()` and `qmlls` reports its type or import as
+  missing, add a `<ModuleName>.qmltypes` file beside the plugin `qmldir` and
+  reference it with `typeinfo <ModuleName>.qmltypes`. Generate it with
+  `qmlplugindump` when necessary, or use `qmltyperegistrar` with
+  `QML_ELEMENT` declarations when the plugin is migrated to that approach. A
+  native plugin module is the exception to the no-`qmldir` rule: retain its
+  `qmldir` with both the `plugin` and `typeinfo` entries. Pure QML directories
+  should still rely on Quickshell's generated VFS metadata instead of adding a
+  `qmldir` manually.
 
 ## QML Style
 

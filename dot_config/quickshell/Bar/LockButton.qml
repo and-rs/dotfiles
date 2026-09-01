@@ -1,6 +1,5 @@
 import Quickshell
 import QtQuick
-import Quickshell.Io
 import qs.Config
 
 Rectangle {
@@ -15,7 +14,7 @@ Rectangle {
 
 	MaterialIcon {
 		code: 0xE308
-		iconColor: Config.colors.surface3
+		iconColor: Config.colors.surface4
 	}
 	MouseArea {
 		anchors.fill: parent
