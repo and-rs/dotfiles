@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import QtQuick.Effects
 import qs.Bar
+import qs.Config
 
 Row {
 	id: recordingRoot

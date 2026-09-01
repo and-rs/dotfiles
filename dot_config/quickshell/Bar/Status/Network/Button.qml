@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Rectangle {
 	id: network

@@ -1,0 +1,83 @@
+{{- $c := index .palettes .theme -}}
+{{- template "palette-surfaces" $c -}}
+{
+  "colors": {
+    "fg": "{{ $c.fg }}",
+    "bg": "{{ $c.bg }}",
+    "primary": "{{ $c.blue }}",
+    "success": "{{ $c.green }}",
+    "destructive": "{{ $c.red }}",
+    "secondary": "{{ $c.magenta }}",
+    "surface1": "{{ $c.surface1 }}",
+    "surface2": "{{ $c.surface2 }}",
+    "surface3": "{{ $c.surface3 }}",
+    "surface4": "{{ $c.surface4 }}",
+    "surface5": "{{ $c.surface5 }}"
+  },
+  "debug": {
+    "enabled": false
+  },
+  "durations": {
+    "extraFast": 100,
+    "extraSlow": 1000,
+    "fast": 200,
+    "instant": 75,
+    "normal": 400,
+    "slow": 600
+  },
+  "networkPanel": {
+    "listHeight": 260,
+    "width": 380
+  },
+  "notifications": {
+    "historyLimit": 100,
+    "popupDuration": 5000,
+    "popupWidth": 360
+  },
+  "padding": {
+    "extraLarge": 15,
+    "extraSmall": 5,
+    "large": 12,
+    "micro": 4,
+    "normal": 10,
+    "small": 7
+  },
+  "popup": {
+    "borderWidth": 2,
+    "debug": false,
+    "gap": 6,
+    "width": 240
+  },
+  "radius": {
+    "full": 1000,
+    "large": 16,
+    "normal": 8,
+    "small": 4
+  },
+  "sidebar": {
+    "borderWidth": 2,
+    "gap": 8,
+    "maxHeight": 560,
+    "rightMargin": 12,
+    "width": 420
+  },
+  "sizes": {
+    "extraLarge": 24,
+    "extraSmall": 8,
+    "large": 20,
+    "normal": 16,
+    "small": 12
+  },
+  "spacing": {
+    "extraLarge": 24,
+    "extraSmall": 4,
+    "large": 16,
+    "normal": 12,
+    "small": 10
+  },
+  "transparency": {
+    "base": 0.85,
+    "enabled": false,
+    "layers": 0.4
+  }
+}

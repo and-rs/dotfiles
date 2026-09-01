@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Services.UPower
 import qs.Bar
+import qs.Config
 
 Column {
 	id: root

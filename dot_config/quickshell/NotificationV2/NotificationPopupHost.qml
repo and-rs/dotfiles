@@ -3,6 +3,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Scope {
 	id: root

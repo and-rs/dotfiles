@@ -2,6 +2,7 @@ pragma Singleton
 import Quickshell
 import QtQuick
 import qs.Bar
+import qs.Config
 import qs.NotificationV2
 
 Singleton {

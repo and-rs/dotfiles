@@ -3,6 +3,7 @@ import Quickshell
 import QtQuick
 import IconValidation 1.0
 import qs.Bar
+import qs.Config
 
 Column {
 	id: root

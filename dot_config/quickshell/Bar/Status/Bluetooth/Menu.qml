@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Io
 import qs.Bar
+import qs.Config
 
 Column {
 	id: root

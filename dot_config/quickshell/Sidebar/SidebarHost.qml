@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import qs.Bar
+import qs.Config
 
 PanelWindow {
 	id: root

@@ -1,4 +1,4 @@
-theme = "carbonfox"
+theme = "neovim-light"
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"
@@ -60,9 +60,9 @@ bg = "#e0e2ea"
 cursor = "#000000"
 cursor_text = "#ffffff"
 selection = "#9b9ea4"
-black = "#07080d"
-white = "#d7d8db"
-bright_black = "#4f5258"
+black = "#d4d9e6"
+white = "#07080d"
+bright_black = "#5a78b9"
 
 [palettes.carbonfox]
 fg = "#f2f4f8"

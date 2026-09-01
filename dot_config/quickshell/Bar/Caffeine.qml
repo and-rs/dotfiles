@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Rectangle {
 	id: caffeine

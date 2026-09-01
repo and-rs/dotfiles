@@ -6,6 +6,7 @@ import QtQuick
 import qs.Bar
 import qs.Bar.Recording
 import qs.Bar.Status
+import qs.Config
 
 Scope {
 	id: barScope

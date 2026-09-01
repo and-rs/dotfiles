@@ -3,6 +3,7 @@ import Quickshell.Io
 import Quickshell
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Scope {
 	id: osdScope

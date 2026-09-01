@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import qs.Bar
+import qs.Config
 
 PopupWindow {
 	id: popup

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Bluetooth
 import qs.Bar
+import qs.Config
 
 Rectangle {
 	id: bluetooth

@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell.Services.UPower
 import qs.Bar
+import qs.Config
 
 Rectangle {
 	id: root

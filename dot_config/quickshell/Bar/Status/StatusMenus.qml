@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Bar
+import qs.Config
 import qs.Debug as Debug
 import qs.Sidebar
 import qs.NotificationV2 as NotificationsV2

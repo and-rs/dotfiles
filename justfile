@@ -4,7 +4,7 @@ default:
     just --list
 
 qmlfmt:
-  fd | lines | where $it =~ `\.qml` | each {|i| qmlformat -n -i -w 2 $i }
+  fd | lines | where $it =~ `\.qml$` | each { qmlformat -n -w 4 -i $in }
 
 cppfmt:
   nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"

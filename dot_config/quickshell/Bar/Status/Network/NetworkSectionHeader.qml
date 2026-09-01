@@ -1,5 +1,6 @@
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Text {
 	color: Config.colors.surface4

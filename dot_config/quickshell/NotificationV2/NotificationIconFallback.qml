@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell.Widgets
 import qs.Bar
+import qs.Config
 
 ClippingRectangle {
 	id: root

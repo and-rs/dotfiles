@@ -1,4 +1,5 @@
 import QtQuick
+import qs.Config
 
 Item {
 	id: root

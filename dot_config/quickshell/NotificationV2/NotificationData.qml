@@ -1,6 +1,7 @@
 pragma Singleton
 import Quickshell
 import qs.Bar
+import qs.Config
 
 Singleton {
 	id: root

@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Services.SystemTray
 import QtQuick
 import qs.Bar
+import qs.Config
 
 Rectangle {
 	id: trayRect
