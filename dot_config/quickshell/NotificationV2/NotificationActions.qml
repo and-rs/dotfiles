@@ -2,94 +2,94 @@ import QtQuick
 import qs.Bar
 
 Column {
-  id: root
+	id: root
 
-  readonly property int actionCount: visibleActions ? visibleActions.length : 0
-  property bool allowInlineReply: true
-  property bool compact: false
-  readonly property bool hasInlineReply: allowInlineReply && inlineReplyAvailable
-  readonly property bool inlineReplyAvailable: notification ? Boolean(notification.hasInlineReply) : false
-  readonly property string inlineReplyPlaceholder: notification ? String(notification.inlineReplyPlaceholder || "Reply") : "Reply"
-  required property var notification
-  readonly property bool showInlineReplyIndicator: !allowInlineReply && inlineReplyAvailable
-  readonly property bool usable: notification !== null
-  readonly property var visibleActions: NotificationData.visibleActions(notification?.actions)
+	readonly property int actionCount: visibleActions ? visibleActions.length : 0
+	property bool allowInlineReply: true
+	property bool compact: false
+	readonly property bool hasInlineReply: allowInlineReply && inlineReplyAvailable
+	readonly property bool inlineReplyAvailable: notification ? Boolean(notification.hasInlineReply) : false
+	readonly property string inlineReplyPlaceholder: notification ? String(notification.inlineReplyPlaceholder || "Reply") : "Reply"
+	required property var notification
+	readonly property bool showInlineReplyIndicator: !allowInlineReply && inlineReplyAvailable
+	readonly property bool usable: notification !== null
+	readonly property var visibleActions: NotificationData.visibleActions(notification?.actions)
 
-  signal actionRequested(actionIndex: int)
-  signal inlineReplyRequested(text: string)
+	signal actionRequested(actionIndex: int)
+	signal inlineReplyRequested(text: string)
 
-  function resetTransientState(): void {
-    inlineReply.reset();
-  }
+	function resetTransientState(): void {
+		inlineReply.reset();
+	}
 
-  height: visible ? implicitHeight : 0
-  spacing: Config.spacing.small
-  visible: usable && (actionCount > 0 || hasInlineReply || showInlineReplyIndicator)
+	height: visible ? implicitHeight : 0
+	spacing: Config.spacing.small
+	visible: usable && (actionCount > 0 || hasInlineReply || showInlineReplyIndicator)
 
-  Flow {
-    spacing: Config.spacing.small
-    visible: root.actionCount > 0
-    width: parent.width
+	Flow {
+		spacing: Config.spacing.small
+		visible: root.actionCount > 0
+		width: parent.width
 
-    Repeater {
-      model: root.actionCount
+		Repeater {
+			model: root.actionCount
 
-      Rectangle {
-        required property int index
+			Rectangle {
+				required property int index
 
-        color: actionArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
-        implicitHeight: actionText.implicitHeight + Config.padding.small * 2
-        implicitWidth: actionText.implicitWidth + Config.padding.normal * 2
-        radius: Config.radius.normal
+				color: actionArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
+				implicitHeight: actionText.implicitHeight + Config.padding.small * 2
+				implicitWidth: actionText.implicitWidth + Config.padding.normal * 2
+				radius: Config.radius.normal
 
-        Text {
-          id: actionText
+				Text {
+					id: actionText
 
-          anchors.centerIn: parent
-          color: actionArea.containsMouse ? Config.colors.bg : Config.colors.fg
-          elide: Text.ElideRight
-          font.pixelSize: Config.sizes.small
-          font.weight: Font.Medium
-          text: root.visibleActions[index]?.text ?? "Action"
-          textFormat: Text.PlainText
-        }
-        MouseArea {
-          id: actionArea
+					anchors.centerIn: parent
+					color: actionArea.containsMouse ? Config.colors.bg : Config.colors.fg
+					elide: Text.ElideRight
+					font.pixelSize: Config.sizes.small
+					font.weight: Font.Medium
+					text: root.visibleActions[index]?.text ?? "Action"
+					textFormat: Text.PlainText
+				}
+				MouseArea {
+					id: actionArea
 
-          anchors.fill: parent
-          hoverEnabled: true
+					anchors.fill: parent
+					hoverEnabled: true
 
-          onClicked: root.actionRequested(root.visibleActions[index].index)
-        }
-      }
-    }
-  }
-  Rectangle {
-    color: Config.colors.surface1
-    implicitHeight: replyIndicatorText.implicitHeight + Config.padding.small * 2
-    implicitWidth: replyIndicatorText.implicitWidth + Config.padding.normal * 2
-    radius: Config.radius.normal
-    visible: root.showInlineReplyIndicator
+					onClicked: root.actionRequested(root.visibleActions[index].index)
+				}
+			}
+		}
+	}
+	Rectangle {
+		color: Config.colors.surface1
+		implicitHeight: replyIndicatorText.implicitHeight + Config.padding.small * 2
+		implicitWidth: replyIndicatorText.implicitWidth + Config.padding.normal * 2
+		radius: Config.radius.normal
+		visible: root.showInlineReplyIndicator
 
-    Text {
-      id: replyIndicatorText
+		Text {
+			id: replyIndicatorText
 
-      anchors.centerIn: parent
-      color: Config.colors.surface4
-      font.pixelSize: Config.sizes.small
-      font.weight: Font.Medium
-      text: "Reply in sidebar"
-      textFormat: Text.PlainText
-    }
-  }
-  NotificationInlineReply {
-    id: inlineReply
+			anchors.centerIn: parent
+			color: Config.colors.surface4
+			font.pixelSize: Config.sizes.small
+			font.weight: Font.Medium
+			text: "Reply in sidebar"
+			textFormat: Text.PlainText
+		}
+	}
+	NotificationInlineReply {
+		id: inlineReply
 
-    compact: root.compact
-    placeholder: root.inlineReplyPlaceholder
-    visible: root.hasInlineReply
-    width: parent.width
+		compact: root.compact
+		placeholder: root.inlineReplyPlaceholder
+		visible: root.hasInlineReply
+		width: parent.width
 
-    onSendRequested: text => root.inlineReplyRequested(text)
-  }
+		onSendRequested: text => root.inlineReplyRequested(text)
+	}
 }
