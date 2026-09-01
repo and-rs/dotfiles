@@ -1,4 +1,5 @@
 {{- $c := index .palettes .theme -}}
+{{- template "palette-surfaces" $c -}}
 pragma Singleton
 
 import Quickshell
@@ -8,12 +9,14 @@ Singleton {
   id: root
 
   readonly property QtObject colors: QtObject {
-    property string base: "{{ $c.base }}"
-    property string destructive: "{{ $c.red }}"
     property string fg: "{{ $c.fg }}"
+    property string bg: "{{ $c.bg }}"
+
     property string primary: "{{ $c.blue }}"
-    property string secondary: "{{ $c.magenta }}"
     property string success: "{{ $c.green }}"
+    property string destructive: "{{ $c.red }}"
+    property string secondary: "{{ $c.magenta }}"
+
     property string surface1: "{{ $c.surface1 }}"
     property string surface2: "{{ $c.surface2 }}"
     property string surface3: "{{ $c.surface3 }}"

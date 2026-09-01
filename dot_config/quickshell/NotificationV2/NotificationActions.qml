@@ -46,7 +46,7 @@ Column {
           id: actionText
 
           anchors.centerIn: parent
-          color: actionArea.containsMouse ? Config.colors.base : Config.colors.fg
+          color: actionArea.containsMouse ? Config.colors.bg : Config.colors.fg
           elide: Text.ElideRight
           font.pixelSize: Config.sizes.small
           font.weight: Font.Medium

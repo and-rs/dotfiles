@@ -138,7 +138,7 @@ Column {
           }
           Text {
             anchors.verticalCenter: parent.verticalCenter
-            color: headerHover.hovered ? Config.colors.base : Config.colors.fg
+            color: headerHover.hovered ? Config.colors.bg : Config.colors.fg
             elide: Text.ElideRight
             font.pointSize: 9
             font.weight: 600
@@ -155,7 +155,7 @@ Column {
             MaterialIcon {
               anchors.centerIn: parent
               code: itemDelegate.isExpanded ? 0xE136 : 0xE13A
-              iconColor: headerHover.hovered ? Config.colors.base : Config.colors.fg
+              iconColor: headerHover.hovered ? Config.colors.bg : Config.colors.fg
               iconSize: Config.sizes.small + 2
               visible: itemDelegate.hasMenuEntries
             }

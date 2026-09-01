@@ -238,7 +238,7 @@ Column {
             spacing: Config.spacing.small
 
             Text {
-              color: active ? Config.colors.base : Config.colors.fg
+              color: active ? Config.colors.bg : Config.colors.fg
               font.family: "Phosphor-Bold"
               font.pointSize: 12
               height: parent.height
@@ -247,7 +247,7 @@ Column {
               width: 16
             }
             Text {
-              color: active ? Config.colors.base : Config.colors.fg
+              color: active ? Config.colors.bg : Config.colors.fg
               elide: Text.ElideRight
               font.pointSize: 9
               font.weight: active ? 700 : 500

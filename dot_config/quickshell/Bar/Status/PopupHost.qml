@@ -200,7 +200,7 @@ PopupWindow {
         anchors.fill: parent
         border.color: Config.popup.debug ? "#ff4444" : Config.colors.surface4
         border.width: Config.popup.borderWidth
-        color: Config.colors.base
+        color: Config.colors.bg
         radius: Config.radius.normal
       }
       Column {

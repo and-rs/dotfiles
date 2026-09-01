@@ -174,7 +174,7 @@ Row {
         id: label
 
         anchors.fill: parent
-        color: Config.colors.base
+        color: Config.colors.bg
         font.pointSize: 10
         font.weight: 700
         horizontalAlignment: Text.AlignHCenter

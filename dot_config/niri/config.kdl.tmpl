@@ -1,4 +1,5 @@
 {{- $c := index .palettes .theme -}}
+{{- template "palette-surfaces" $c -}}
 spawn-at-startup "awww-daemon"
 spawn-sh-at-startup "pgrep -x hypridle >/dev/null || hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"

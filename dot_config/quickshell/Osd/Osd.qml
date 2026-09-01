@@ -189,7 +189,7 @@ Scope {
             }
           }
           Rectangle {
-            color: Config.colors.base
+            color: Config.colors.bg
             height: Config.spacing.small
             radius: Config.radius.full
             width: parent.width

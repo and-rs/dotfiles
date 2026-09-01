@@ -1,6 +1,7 @@
 {{- $c := index .palettes .theme -}}
+{{- template "palette-surfaces" $c -}}
 * {
-    base:     {{ $c.base }};
+    bg:       {{ $c.bg }};
     surface1: {{ $c.surface1 }};
     surface2: {{ $c.surface2 }};
     surface3: {{ $c.surface3 }};
@@ -41,7 +42,7 @@ inputbar {
 
 prompt {
     background-color: @fg;
-    text-color: @base;
+    text-color: @bg;
     padding: 6px;
     border-radius: 6px;
     margin: 10px 0px 0px 10px;
@@ -72,7 +73,7 @@ element {
 element selected {
     border-radius: 6px;
     background-color:  @fg;
-    text-color: @base;
+    text-color: @bg;
 }
 
 mode-switcher {

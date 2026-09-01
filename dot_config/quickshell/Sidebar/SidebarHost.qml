@@ -69,7 +69,7 @@ PanelWindow {
       id: panelFrame
 
       border.width: 0
-      color: Config.colors.base
+      color: Config.colors.bg
       height: parent.height
       opacity: root.open ? 1 : 0
       radius: 0
@@ -140,7 +140,7 @@ PanelWindow {
             MaterialIcon {
               anchors.centerIn: parent
               code: 0xE4F6
-              iconColor: closeArea.containsMouse ? Config.colors.base : Config.colors.primary
+              iconColor: closeArea.containsMouse ? Config.colors.bg : Config.colors.primary
               iconSize: 12
             }
             MouseArea {

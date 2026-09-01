@@ -63,7 +63,25 @@ chezmoi apply
 
 ## Switching themes
 
-Edit `.chezmoidata.toml` (`theme`, `dark`, `light`, or the palette tables) then `just apply`.
+Themes are swappable palettes selected by the `theme` value in `.chezmoidata.toml`.
+Change it to any palette name, then apply the configuration:
+
+```toml
+theme = "tokyo-night"
+```
+
+```bash
+just apply
+```
+
+Each palette defines its colors, including `bg`. The `surface1` through
+`surface5` colors are generated automatically by adjusting the HSL lightness of
+`bg` in 6 percentage-point steps. Dark backgrounds become lighter, with
+`surface5` 6 points lighter through `surface1` 30 points lighter. Light
+backgrounds become darker in the opposite order, with `surface1` 6 points
+darker through `surface5` 30 points darker. Hue and saturation are preserved,
+so the surfaces retain the theme tint instead of becoming neutral gray. They
+do not need to be defined in `.chezmoidata.toml`.
 
 ## Notes
 

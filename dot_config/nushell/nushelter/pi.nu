@@ -18,10 +18,6 @@ def _ai_summarize_model [] {
     return $override
   }
 
-  if not (($env.OPENAI_API_KEY? | default "") | is-empty) {
-    return "openai-codex/gpt-5.4-mini:off"
-  }
-
   if (_ai_has_provider_auth "xai") {
     return "xai/grok-4.5:off"
   }
@@ -31,7 +27,7 @@ def _ai_summarize_model [] {
   }
 
   if (_ai_has_provider_auth "github-copilot") {
-    return "github-copilot/gpt-5-mini:off"
+    return "github-copilot/gpt-5.4-mini:off"
   }
 
   "openai-codex/gpt-5.4-mini:off"
@@ -83,6 +79,7 @@ def _ai_summarize [
   _ai_run $label $system_prompt (_ai_summarize_model) (_ai_summarize_input $context $prompt)
 }
 
+export def "ai" [] { bun x --bun pi }
 export def "ai gs" [] {
   let staged = (git diff --staged | str trim)
   if ($staged | is-empty) {

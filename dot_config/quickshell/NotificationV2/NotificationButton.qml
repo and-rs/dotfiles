@@ -34,7 +34,7 @@ Rectangle {
       id: badgeText
 
       anchors.centerIn: parent
-      color: Config.colors.base
+      color: Config.colors.bg
       font.pixelSize: Config.sizes.small
       font.weight: Font.Bold
       text: root.count > 99 ? "99+" : String(root.count)

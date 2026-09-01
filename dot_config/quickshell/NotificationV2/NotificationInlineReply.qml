@@ -48,7 +48,7 @@ Row {
       focus: visible
       font.pixelSize: Config.sizes.small
       inputMethodHints: Qt.ImhNoPredictiveText
-      selectedTextColor: Config.colors.base
+      selectedTextColor: Config.colors.bg
       selectionColor: Config.colors.primary
       text: ""
       z: 1
@@ -87,7 +87,7 @@ Row {
       id: sendText
 
       anchors.centerIn: parent
-      color: sendArea.containsMouse && replyInput.text.trim() !== "" ? Config.colors.base : Config.colors.fg
+      color: sendArea.containsMouse && replyInput.text.trim() !== "" ? Config.colors.bg : Config.colors.fg
       font.pixelSize: Config.sizes.small
       font.weight: Font.Medium
       text: "Send"

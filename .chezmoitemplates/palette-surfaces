@@ -1,0 +1,28 @@
+{{- $bg := hexDecode (trimPrefix "#" .bg) -}}
+{{- $r := divf (float64 (index $bg 0)) 255.0 -}}
+{{- $g := divf (float64 (index $bg 1)) 255.0 -}}
+{{- $b := divf (float64 (index $bg 2)) 255.0 -}}
+{{- $hsl := dict "h" 0.0 "s" 0.0 "l" 0.0 -}}
+{{- template "rgb-to-hsl" (dict "r" $r "g" $g "b" $b "out" $hsl) -}}
+{{- $surfaces := list (list "surface5" 0.06) (list "surface4" 0.12) (list "surface3" 0.18) (list "surface2" 0.24) (list "surface1" 0.30) -}}
+{{- $light := false -}}
+{{- if gt (addf (mulf $r 0.2126) (mulf $g 0.7152) (mulf $b 0.0722)) 0.5 -}}
+  {{- $light = true -}}
+  {{- $surfaces = list (list "surface1" 0.06) (list "surface2" 0.12) (list "surface3" 0.18) (list "surface4" 0.24) (list "surface5" 0.30) -}}
+{{- end -}}
+{{- range $surface := $surfaces -}}
+  {{- $name := index $surface 0 -}}
+  {{- $amount := index $surface 1 -}}
+  {{- $l := index $hsl "l" -}}
+  {{- if $light }}{{ $l = maxf 0.0 (subf $l $amount) }}{{ else }}{{ $l = minf 1.0 (addf $l $amount) }}{{ end -}}
+  {{- $q := 0.0 -}}
+  {{- if lt $l 0.5 }}{{ $q = mulf $l (addf 1.0 (index $hsl "s")) }}{{ else }}{{ $q = subf (addf $l (index $hsl "s")) (mulf $l (index $hsl "s")) }}{{ end -}}
+  {{- $p := subf (mulf 2.0 $l) $q -}}
+  {{- $red := dict "value" 0.0 -}}
+  {{- $green := dict "value" 0.0 -}}
+  {{- $blue := dict "value" 0.0 -}}
+  {{- template "hsl-channel" (dict "p" $p "q" $q "t" (addf (index $hsl "h") (divf 1.0 3.0)) "out" $red) -}}
+  {{- template "hsl-channel" (dict "p" $p "q" $q "t" (index $hsl "h") "out" $green) -}}
+  {{- template "hsl-channel" (dict "p" $p "q" $q "t" (subf (index $hsl "h") (divf 1.0 3.0)) "out" $blue) -}}
+  {{- $_ := set $ (toString $name) (printf "#%02x%02x%02x" (int (round (mulf (index $red "value") 255.0) 0)) (int (round (mulf (index $green "value") 255.0) 0)) (int (round (mulf (index $blue "value") 255.0) 0))) -}}
+{{- end -}}

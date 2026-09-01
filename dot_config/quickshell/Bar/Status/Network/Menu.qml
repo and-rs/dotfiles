@@ -92,7 +92,7 @@ Column {
 
       Rectangle {
         anchors.verticalCenter: parent.verticalCenter
-        color: Config.colors.base
+        color: Config.colors.bg
         height: 18
         radius: height / 2
         width: height

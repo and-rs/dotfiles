@@ -148,7 +148,7 @@ Item {
 
           if (!focused) {
             ctx.globalAlpha = 0.18;
-            ctx.strokeStyle = Config.colors.base;
+            ctx.strokeStyle = Config.colors.bg;
             ctx.lineWidth = 1;
             ctx.stroke();
           }

@@ -1,6 +1,6 @@
 {{- $c := index .palettes .theme -}}
+{{- template "palette-surfaces" $c -}}
 return {
-  base = "{{ $c.base }}",
   fg = "{{ $c.fg }}",
   yellow = "{{ $c.yellow }}",
   cyan = "{{ $c.cyan }}",

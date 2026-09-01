@@ -64,7 +64,7 @@ ClippingRectangle {
   }
   Rectangle {
     anchors.fill: parent
-    color: Qt.alpha(Config.colors.base, 0.12)
+    color: Qt.alpha(Config.colors.bg, 0.12)
     visible: root.imageReady && root.hasNotificationImage
   }
 }

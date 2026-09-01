@@ -402,7 +402,7 @@ Item {
                       id: undoLabel
 
                       anchors.centerIn: parent
-                      color: undoArea.containsMouse ? Config.colors.base : Config.colors.primary
+                      color: undoArea.containsMouse ? Config.colors.bg : Config.colors.primary
                       font.pixelSize: Config.sizes.small
                       font.weight: Font.Medium
                       text: "Undo"
@@ -487,7 +487,7 @@ Item {
           orientation: Gradient.Vertical
 
           GradientStop {
-            color: Config.colors.base
+            color: Config.colors.bg
             position: 0.0
           }
           GradientStop {
@@ -513,7 +513,7 @@ Item {
             position: 0.0
           }
           GradientStop {
-            color: Config.colors.base
+            color: Config.colors.bg
             position: 1.0
           }
         }

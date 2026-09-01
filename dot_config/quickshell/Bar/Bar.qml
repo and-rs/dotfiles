@@ -69,7 +69,7 @@ Scope {
           id: background
 
           anchors.fill: parent
-          color: Config.colors.base
+          color: Config.colors.bg
 
           Rectangle {
             id: bottomBorder

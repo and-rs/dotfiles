@@ -37,7 +37,7 @@ Rectangle {
 
   border.color: Config.colors.surface2
   border.width: 2
-  color: Config.colors.base
+  color: Config.colors.bg
   implicitHeight: contentColumn.implicitHeight + Config.padding.large * 2 + bottomInset
   radius: Config.radius.normal
 
@@ -101,7 +101,7 @@ Rectangle {
           MaterialIcon {
             anchors.centerIn: parent
             code: root.activateIconCode
-            iconColor: activateArea.containsMouse ? Config.colors.base : Config.colors.primary
+            iconColor: activateArea.containsMouse ? Config.colors.bg : Config.colors.primary
             iconSize: root.activateIconSize
           }
           MouseArea {
@@ -128,7 +128,7 @@ Rectangle {
           MaterialIcon {
             anchors.centerIn: parent
             code: 0xE4F6
-            iconColor: closeArea.containsMouse ? Config.colors.base : Config.colors.primary
+            iconColor: closeArea.containsMouse ? Config.colors.bg : Config.colors.primary
             iconSize: 10
           }
           MouseArea {
