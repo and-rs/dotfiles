@@ -4,7 +4,7 @@ default:
     just --list
 
 qmlfmt:
-  fd | lines | where $it =~ `\.qml$` | each { qmlformat --single-line-empty-objects -n -w 4 -i $in }
+  ls -a **/*.qml -a | get name | each { try { qmlformat --single-line-empty-objects -n -w 4 -i $in }}
 
 cppfmt:
   nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"

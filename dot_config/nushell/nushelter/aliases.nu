@@ -1,6 +1,6 @@
-alias caffeine = systemd-inhibit --what=idle:sleep --why="no-sleep" sleep infinity
-alias dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
-alias light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
+alias &dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
+alias &light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
+alias &loc = tokei -r code -C
 
 alias g = git
 alias gc = git commit
@@ -13,7 +13,21 @@ alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 alias md = table -t markdown
 alias c = clear --keep-scrollback
 
-alias l = ls -a
+def ls [] {
+  let size_width = (%ls --all | get size | each { into string | str length } | math max)
+  %ls --all | sort-by type | each {|line|
+    return {
+      name: $line.name
+      size: (
+        if $line.type == "dir" {
+          $"(ansi blue)dir" | fill --alignment right --width $size_width
+        } else { $line.size }
+      )
+      modified: $line.modified
+    }
+  } | table -i false
+}
+
 alias ld = eza -lha --no-permissions --no-user --no-time
 alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 

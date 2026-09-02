@@ -18,10 +18,10 @@ Item {
 
 		return maxHeight;
 	}
-	readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
 	readonly property int mapHeight: Config.sizes.small + 2
 	readonly property int minColumnWidth: 8
 	readonly property int tileGap: 1
+	readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
 
 	function columnWidth(column) {
 		return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
@@ -117,10 +117,10 @@ Item {
 	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	visible: columns.length > 0
+	height: implicitHeight
 	implicitHeight: mapHeight
 	implicitWidth: mapWidth()
-	height: implicitHeight
+	visible: columns.length > 0
 	width: implicitWidth
 
 	Repeater {
@@ -145,8 +145,8 @@ Item {
 
 					color: root.isFocused(modelData) ? Config.colors.primary : Qt.alpha(Config.colors.primary, 0.3)
 					height: root.tileHeights(columnDelegate.modelData)[index]
-					width: columnDelegate.width
 					radius: root.tileRadius
+					width: columnDelegate.width
 					x: 0
 					y: root.tileY(columnDelegate.modelData, index)
 				}
