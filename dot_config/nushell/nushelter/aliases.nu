@@ -13,7 +13,7 @@ alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 alias md = table -t markdown
 alias c = clear --keep-scrollback
 
-def ls [] {
+def ls [--sortable (-s)] {
   let size_width = (%ls --all | get size | each { into string | str length } | math max)
   %ls --all | sort-by type | each {|line|
     return {
@@ -25,7 +25,7 @@ def ls [] {
       )
       modified: $line.modified
     }
-  } | table -i false
+  } | if (not $sortable) { $in | table -i false } else { $in }
 }
 
 alias ld = eza -lha --no-permissions --no-user --no-time
