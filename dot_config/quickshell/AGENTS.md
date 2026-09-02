@@ -1,108 +1,65 @@
 # Quickshell Agent Notes
 
-## Scope
-
-These instructions apply to `dot_config/quickshell/`.
+These rules apply to `dot_config/quickshell/`.
 
 ## Workflow
 
-- Do not use `qmllint`; it produces low-value noise for this setup.
-- Prefer live bench scripts over fake debug paths.
-- QML language-server types come from the live Quickshell tooling VFS. The
-  generated `~/.config/quickshell/.qmlls.ini` points `qmlls` at that VFS via
-  `General.buildDir` and at the config through `General.importPaths`.
-- Keep Quickshell running while working on QML types so it can regenerate the
-  VFS `qmldir` metadata. Do not commit the generated `.qmlls.ini`, VFS files,
-  or hand-written `qmldir` files; restart or reload the language server after
-  Quickshell regenerates its tooling metadata.
-- When a component receives an instance of a custom QML component and accesses
-  that component's custom properties or functions, type the property with the
-  concrete QML type, not `Item` or `var`. Import the defining module with an
-  alias and qualify the type, for example:
-  `import qs.Bar.Status as Status` followed by
-  `required property Status.StatusMenus controller`. This gives `qmlls` the
-  component's generated property and function information. Use `Item` only
-  when the consumer needs base `Item` members, and use `var` only when the
-  value is intentionally untyped or can have unrelated runtime types.
-- Native QML plugins need tool metadata in addition to runtime registration.
-  If a plugin uses `qmlRegisterType()` and `qmlls` reports its type or import as
-  missing, add a `<ModuleName>.qmltypes` file beside the plugin `qmldir` and
-  reference it with `typeinfo <ModuleName>.qmltypes`. Generate it with
-  `qmlplugindump` when necessary, or use `qmltyperegistrar` with
-  `QML_ELEMENT` declarations when the plugin is migrated to that approach. A
-  native plugin module is the exception to the no-`qmldir` rule: retain its
-  `qmldir` with both the `plugin` and `typeinfo` entries. Pure QML directories
-  should still rely on Quickshell's generated VFS metadata instead of adding a
-  `qmldir` manually.
+- Do not use `qmllint`; it produces low-value noise here.
+- QML types come from Quickshell's live tooling VFS. Keep Quickshell running
+  while editing types; do not commit generated VFS files or `.qmlls.ini`.
+- Pure-QML modules use generated metadata. Native plugins may keep a `qmldir`
+  and need matching `.qmltypes` metadata when `qmlls` cannot see their types.
+- For visual diagnosis, enable `Config.debug.enabled`, reload Quickshell, and
+  run `just debug-capture <target>`.
 
-## QML Style
+## QML
 
-- Use PascalCase component filenames.
-- QML-imported `.js` helpers must be pure and side-effect-free. Keep them free
-  of QML object references and cover their behavior with Bun tests.
-- Do not add `qmldir` files.
-- Do not add wrapper components.
-- For visual UI diagnosis, set `Config.debug.enabled` to `true`, reload
-  Quickshell, then run `just debug-capture <target>`. It writes target-subtree,
-  compositor, and runtime-log snapshots under `/tmp/quickshell-debug/`.
-- Capture targets are registered by their owning host in `Debug.Capture`.
-  Keep the generic capture service target-agnostic and add only target-specific
-  open/close actions and items at the host.
-- The capture utility retains the 10 newest directories. Override that limit
-  with `QS_DEBUG_CAPTURE_RETAIN`; pass an explicit output directory to keep a
-  capture outside the managed temporary directory.
-- Keep global animation easing through `Config.curve`. Use existing
-  `Config.durations`, `Config.spacing`, `Config.padding`, `Config.colors`, and
-  `Config.radius`.
-- Every animation must use `Config.curve` and a `Config.durations` value.
-- Use `DirectScrollList` for compact scrollable panels. It owns amplified
-  mouse/touchpad wheel input, origin-and-margin-aware bounds, hard edge stops,
-  and a persistent custom overflow indicator. Do not recreate this behavior locally or
-  use a full-area `MouseArea` solely to intercept wheel input.
+- Use PascalCase component filenames; do not add wrapper components.
+- Under `ComponentBehavior: Bound`, declare Repeater inputs as required
+  properties; in nested delegates, qualify outer values via the outer
+  delegate's id.
+- When consuming custom QML components, use their concrete type. Use `Item`
+  or `var` only when intentionally untyped.
+- Keep QML-imported `.js` helpers pure and cover them with Bun tests.
+- Capture targets belong to their owning host; keep the capture service generic.
+- Use `Config.curve`, `Config.durations`, and shared spacing, padding, color,
+  and radius tokens for new UI. Use `Easing.Linear` only for progress values.
+- Use `DirectScrollList` for new compact scroll panels; do not duplicate its
+  wheel, bounds, edge-stop, or overflow-indicator behavior.
 
 ## Performance
 
-- Keep the UI thread non-blocking: do not use blocking `FileView` reads/writes
-  after shell startup; prefer asynchronous, event-driven work.
-- Lazy-load and unload inactive panels with `Loader`; `visible: false` still
-  leaves bindings, timers, and models active.
-- Keep list delegates small. Use `reuseItems` only when delegate state lives in
-  the model/service, and pause timers/animations while delegates are pooled.
-- Do not animate geometry controlled by a view (`x`, `y`, width, or height) as
-  entries are inserted or removed. Reserve async content space up front and
-  use card-local visual feedback instead.
-- Load local images asynchronously and bound decode memory with `sourceSize`.
-  Avoid mipmaps, clipping, layers, and effects in delegates unless benchmarked.
-- Batch model/state updates and keep hot bindings simple. Avoid per-frame JS
-  and large whole-model replacements during bursts.
-- Prefer opaque, non-overlapping primitives. Use `visible: false` or unload
-  content that is not meant to render.
-- Measure before optimizing: use the notification bench, QML Profiler, and
-  temporary `QSG_RENDER_TIMING=1` / `QSG_RENDERER_DEBUG=render` diagnostics.
+- Prefer asynchronous, event-driven I/O after startup; do not add blocking UI
+  work.
+- Lazy-load inactive panels with `Loader`; `visible: false` leaves bindings,
+  timers, and models active.
+- Keep delegates small and pause pooled delegate timers/animations. Use
+  `reuseItems` only when state lives in the model/service.
+- Do not animate view-controlled geometry (`x`, `y`, width, height) as entries
+  change; reserve space and animate card-local feedback instead.
+- Load local images asynchronously with bounded `sourceSize`; avoid expensive
+  delegate effects unless benchmarked.
+- Batch state updates, keep hot bindings simple, and measure before optimizing.
 
-## NotificationV2 Rules
+## NotificationV2
 
 - `NotificationStore.qml` owns archive state, the `ScriptModel` timeline, popup
-  scheduling, and image cache ownership. Live notification objects stay owned by
+  scheduling, and image-cache state. Live notification objects remain owned by
   Quickshell while their records are open.
-- `NotificationData.qml` stays pure data shaping helper.
-- `NotificationLifecycle.qml` owns notification dismiss/expire/action/reply
-  operations.
-- `NotificationPopupQueue.qml` owns popup queue selection helpers.
-- Do not move image cache ownership into lifecycle/data helpers.
-- Keep action model roles type-stable; avoid nested QML object/list roles in
-  `ListModel` entries.
-- Use `ScriptModel` for timeline projections; records need stable unique `id`
-  values and all model changes must replace the records array.
-- Keep popup enter/leave and popup-change animations using `Config.curve`.
-- Timeout bar should follow popup content animation through shared parent, not
-  own separate swap animation.
+- `NotificationData.qml` shapes records and may request cache work from the
+  Store; it must not own cache state.
+- `NotificationLifecycle.qml` owns dismiss, expire, action, and reply
+  operations. `NotificationPopupQueue.qml` owns popup selection helpers.
+- Keep timeline records type-stable with unique `id` values; replace the
+  records array when updating `ScriptModel` projections.
+- Keep popup enter/leave and popup-change animations on the shared content
+  animation; the timeout bar must not animate swaps independently.
 
-## Notification Test Bench
+## Notification Bench
 
-- Use `nu dot_config/quickshell/utils/test-notifs.nu --img` for image-only notification cases.
-- Use `nu dot_config/quickshell/utils/test-notifs.nu --count 50 --delay 20` to stress sidebar scrolling.
-- Use `nu dot_config/quickshell/utils/quickshell-notif-bench.nu --delay 50` for Quickshell log-driven
-  image cache testing.
-- Bench must kill spawned Quickshell process group before exit.
-- Relevant image cache log lines contain `[NotificationV2] image cache wrote`.
+- Use `nu dot_config/quickshell/utils/test-notifs.nu --img` for image-only
+  cases.
+- Use `nu dot_config/quickshell/utils/test-notifs.nu --count 50 --delay 20` to
+  stress sidebar scrolling.
+- Use `nu dot_config/quickshell/utils/quickshell-notif-bench.nu --delay 50` for
+  image-cache testing; clean spawned Quickshell process groups on exit.

@@ -1,8 +1,10 @@
-import Quickshell
+pragma ComponentBehavior: Bound
 import QtQuick
+import qs.Bar
 import qs.Config
 
 Row {
+	id: mainRow
 
 	// Incremented on windows model changes to trigger binding re-evaluation
 	property int windowsRevision: 0
@@ -22,16 +24,16 @@ Row {
 
 	Connections {
 		function onDataChanged() {
-			windowsRevision++;
+			mainRow.windowsRevision++;
 		}
 		function onModelReset() {
-			windowsRevision++;
+			mainRow.windowsRevision++;
 		}
 		function onRowsInserted() {
-			windowsRevision++;
+			mainRow.windowsRevision++;
 		}
 		function onRowsRemoved() {
-			windowsRevision++;
+			mainRow.windowsRevision++;
 		}
 
 		target: NiriService.instance.windows
@@ -44,24 +46,16 @@ Row {
 		delegate: Rectangle {
 			id: rect
 
+			required property int id
+			required property int index
+			required property bool isFocused
 			readonly property real collapsedWidth: Config.sizes.extraLarge
 			readonly property bool empty: {
-				windowsRevision;
-				return isWorkspaceEmpty(model.id);
+				mainRow.windowsRevision;
+				return mainRow.isWorkspaceEmpty(rect.id);
 			}
 			readonly property real expandedWidth: Math.max(collapsedWidth, focusedContent.implicitWidth + Config.padding.extraSmall * 2)
-			readonly property bool focused: model.isFocused
-			readonly property real miniMapRevealProgress: {
-				if (!focused || empty)
-					return 0;
-
-				let span = expandedWidth - collapsedWidth;
-				if (span <= 0)
-					return 1;
-
-				return Math.max(0, Math.min(1, (width - collapsedWidth) / span));
-			}
-			readonly property bool showMiniMap: focused && !empty && miniMapRevealProgress > 0.35
+			readonly property bool focused: rect.isFocused
 
 			border.color: focused ? Qt.alpha(Config.colors.primary, 0.55) : empty ? Config.colors.surface1 : Config.colors.surface2
 			border.width: focused ? 2 : 1
@@ -81,23 +75,8 @@ Row {
 				id: focusedContent
 
 				anchors.centerIn: parent
-				opacity: rect.miniMapRevealProgress
-				scale: 0.92 + rect.miniMapRevealProgress * 0.08
 				spacing: Config.spacing.extraSmall - 1
 				visible: rect.focused && !rect.empty
-
-				Behavior on opacity {
-					NumberAnimation {
-						duration: Config.durations.fast
-						easing.type: Config.curve
-					}
-				}
-				Behavior on scale {
-					NumberAnimation {
-						duration: Config.durations.fast
-						easing.type: Config.curve
-					}
-				}
 
 				Rectangle {
 					color: "transparent"
@@ -110,7 +89,7 @@ Row {
 						color: Config.colors.primary
 						font.pointSize: 10
 						font.weight: 600
-						text: model.index
+						text: rect.index
 					}
 				}
 				WindowMiniMap {
@@ -127,14 +106,14 @@ Row {
 				color: rect.focused ? Config.colors.primary : rect.empty ? Config.colors.surface4 : Config.colors.fg
 				font.pointSize: 10
 				font.weight: rect.focused ? 600 : 500
-				text: model.index
+				text: rect.index
 				visible: !focusedContent.visible
 			}
 			MouseArea {
 				anchors.fill: parent
 				cursorShape: Qt.PointingHandCursor
 
-				onClicked: NiriService.instance.focusWorkspaceById(model.id)
+				onClicked: NiriService.instance.focusWorkspaceById(rect.id)
 			}
 		}
 	}

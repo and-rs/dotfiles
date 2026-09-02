@@ -100,7 +100,7 @@ Column {
 			Component.onCompleted: animationsReady = true
 
 			Rectangle {
-				color: headerHover.hovered ? Config.colors.primary : Config.colors.surface2
+				color: headerHover.hovered ? Qt.alpha(Config.colors.primary, 0.5) : Config.colors.surface2
 				height: Config.sizes.large + Config.padding.normal
 				radius: Config.radius.small
 				width: parent.width
@@ -142,7 +142,7 @@ Column {
 					}
 					Text {
 						anchors.verticalCenter: parent.verticalCenter
-						color: headerHover.hovered ? Config.colors.bg : Config.colors.fg
+						color: Config.colors.fg
 						elide: Text.ElideRight
 						font.pointSize: 9
 						font.weight: 600
@@ -159,7 +159,7 @@ Column {
 						MaterialIcon {
 							anchors.centerIn: parent
 							code: itemDelegate.isExpanded ? 0xE136 : 0xE13A
-							iconColor: headerHover.hovered ? Config.colors.bg : Config.colors.fg
+							iconColor: Config.colors.fg
 							iconSize: Config.sizes.small + 2
 							visible: itemDelegate.hasMenuEntries
 						}

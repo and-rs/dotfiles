@@ -17,14 +17,14 @@ Row {
 		font.pointSize: 10
 		font.weight: 500
 		maximumLineCount: 1
-		text: focusedWindow ? focusedWindow.title : ""
+		text: root.focusedWindow ? root.focusedWindow.title : ""
 		width: Math.min(implicitWidth, 250)
 	}
 	Text {
 		anchors.verticalCenter: parent.verticalCenter
-		color: Config.colors.surface4
+		color: Config.colors.surface5
 		font.pointSize: 10
 		font.weight: 500
-		text: focusedWindow ? focusedWindow.appId : ""
+		text: root.focusedWindow ? root.focusedWindow.appId : ""
 	}
 }

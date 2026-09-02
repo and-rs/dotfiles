@@ -1,13 +1,14 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
-import qs.Config
 import qs.Bar
+import qs.Config
 
 Item {
 	id: root
 
 	readonly property int columnGap: 2
 	readonly property var columns: NiriService.currentWorkspaceColumns
-	property real focusFlash: 0
 	readonly property var focusedWindow: NiriService.instance.focusedWindow
 	readonly property real layoutHeight: {
 		let maxHeight = 1;
@@ -17,13 +18,19 @@ Item {
 
 		return maxHeight;
 	}
+	readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
 	readonly property int mapHeight: Config.sizes.small + 2
 	readonly property int minColumnWidth: 8
 	readonly property int tileGap: 1
-	readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
 
 	function columnWidth(column) {
 		return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
+	}
+	function columnX(index) {
+		let x = 0;
+		for (let i = 0; i < index; i++)
+			x += columnWidth(columns[i]) + columnGap;
+		return x;
 	}
 	function isFocused(win) {
 		return focusedWindow && win.id === focusedWindow.id;
@@ -98,87 +105,52 @@ Item {
 
 		return heights;
 	}
+	function tileY(column, index) {
+		let heights = tileHeights(column);
+		let columnHeight = heights.reduce((total, height) => total + height, 0) + tileGap * Math.max(0, heights.length - 1);
+
+		let y = Math.round((mapHeight - columnHeight) / 2);
+		for (let i = 0; i < index; i++)
+			y += heights[i] + tileGap;
+
+		return y;
+	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	height: implicitHeight
+	visible: columns.length > 0
 	implicitHeight: mapHeight
 	implicitWidth: mapWidth()
-	visible: columns.length > 0
+	height: implicitHeight
 	width: implicitWidth
 
-	onColumnsChanged: canvas.requestPaint()
-	onFocusFlashChanged: canvas.requestPaint()
-	onFocusedWindowChanged: {
-		focusFlashAnimation.restart();
-		canvas.requestPaint();
-	}
-	onHeightChanged: canvas.requestPaint()
-	onWidthChanged: canvas.requestPaint()
+	Repeater {
+		model: root.columns
 
-	Canvas {
-		id: canvas
+		delegate: Item {
+			id: columnDelegate
 
-		anchors.fill: parent
-		antialiasing: true
+			required property int index
+			required property var modelData
 
-		onPaint: {
-			let ctx = getContext("2d");
-			ctx.clearRect(0, 0, width, height);
+			height: root.mapHeight
+			width: root.columnWidth(columnDelegate.modelData)
+			x: root.columnX(columnDelegate.index)
 
-			let x = 0;
-			for (let column of root.columns) {
-				let columnW = root.columnWidth(column);
-				let heights = root.tileHeights(column);
-				let columnH = 0;
+			Repeater {
+				model: columnDelegate.modelData
 
-				for (let i = 0; i < heights.length; i++)
-					columnH += heights[i];
-				columnH += root.tileGap * Math.max(0, heights.length - 1);
+				delegate: Rectangle {
+					required property int index
+					required property var modelData
 
-				let y = Math.round((root.mapHeight - columnH) / 2);
-				for (let i = 0; i < column.length; i++) {
-					let win = column[i];
-					let focused = root.isFocused(win);
-					let tileH = heights[i];
-
-					let flashInset = focused ? root.focusFlash : 0;
-					ctx.globalAlpha = focused ? 1 : 0.9;
-					ctx.fillStyle = focused ? Config.colors.primary : Config.colors.surface4;
-					ctx.beginPath();
-					ctx.roundedRect(x - flashInset, y - flashInset, columnW + flashInset * 2, tileH + flashInset * 2, root.tileRadius, root.tileRadius);
-					ctx.fill();
-
-					if (!focused) {
-						ctx.globalAlpha = 0.18;
-						ctx.strokeStyle = Config.colors.bg;
-						ctx.lineWidth = 1;
-						ctx.stroke();
-					}
-
-					if (focused && root.focusFlash > 0) {
-						ctx.globalAlpha = 0.22 * root.focusFlash;
-						ctx.strokeStyle = Config.colors.primary;
-						ctx.lineWidth = 1;
-						ctx.stroke();
-					}
-
-					y += tileH + root.tileGap;
+					color: root.isFocused(modelData) ? Config.colors.primary : Qt.alpha(Config.colors.primary, 0.3)
+					height: root.tileHeights(columnDelegate.modelData)[index]
+					width: columnDelegate.width
+					radius: root.tileRadius
+					x: 0
+					y: root.tileY(columnDelegate.modelData, index)
 				}
-
-				x += columnW + root.columnGap;
 			}
-
-			ctx.globalAlpha = 1;
 		}
-	}
-	NumberAnimation {
-		id: focusFlashAnimation
-
-		duration: Config.durations.instant
-		easing.type: Config.curve
-		from: 1
-		property: "focusFlash"
-		target: root
-		to: 0
 	}
 }

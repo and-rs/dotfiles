@@ -1,10 +1,4 @@
 fork = true
 
-[font]
-size = 13
-
-[font.normal]
-family = "MD IO Trial"
-
 [box-drawing]
 mode = "native"

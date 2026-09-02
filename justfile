@@ -9,6 +9,12 @@ qmlfmt:
 cppfmt:
   nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"
 
+# apply & restart quickshell
+AR:
+    chezmoi apply -v
+    try { quickshell kill }
+    ~/.config/quickshell/launch.sh
+
 apply:
     chezmoi apply -v
 
