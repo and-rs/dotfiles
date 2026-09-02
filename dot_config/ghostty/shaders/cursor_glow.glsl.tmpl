@@ -1,5 +1,6 @@
 {{- $c := index .palettes .theme -}}
-const vec4 COLOR = {{ template "vec4" $c.cursor }};
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+const vec4 COLOR = {{ output "nu" $paletteScript "vec4" $c.cursor }};
 const float DURATION = 0.26;
 const float GLOW_SIZE = 0.006;
 const float GLOW_INTENSITY = 0.9;

@@ -1,3 +1,0 @@
-{{- $h := trimPrefix "#" . -}}
-{{- $b := hexDecode $h -}}
-vec4({{ printf "%.6f" (divf (index $b 0) 255.0) }}, {{ printf "%.6f" (divf (index $b 1) 255.0) }}, {{ printf "%.6f" (divf (index $b 2) 255.0) }}, 1.0)

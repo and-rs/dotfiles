@@ -1,5 +1,8 @@
 {{- $c := index .palettes .theme -}}
-{{- template "palette-surfaces" $c -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+{{- range $name, $value := (output "nu" $paletteScript "surfaces" $c.bg $c.blue | fromJson) -}}
+  {{- $_ := set $c $name $value -}}
+{{- end -}}
 spawn-at-startup "awww-daemon"
 spawn-sh-at-startup "pgrep -x hypridle >/dev/null || hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"

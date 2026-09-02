@@ -1,6 +1,7 @@
 {{- $c := index .palettes .theme -}}
-const vec4 COLOR = {{ template "vec4" $c.cursor }};
-const vec4 COLOR_ACCENT = {{ template "vec4" $c.blue }};
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+const vec4 COLOR = {{ output "nu" $paletteScript "vec4" $c.cursor }};
+const vec4 COLOR_ACCENT = {{ output "nu" $paletteScript "vec4" $c.blue }};
 
 const float DURATION = 0.2; // In seconds
 const float DISTANCE_THRESHOLD = 3.5; // Maximum distance for trail effect
