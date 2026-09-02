@@ -116,8 +116,7 @@ Scope {
 	Process {
 		id: recProc
 
-		stderr: StdioCollector {
-		}
+		stderr: StdioCollector {}
 
 		onExited: code => {
 			if (root.status === root.statusRecording) {
@@ -130,8 +129,7 @@ Scope {
 
 		command: ["ffmpeg", "-y", "-i", root.currentFile, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "22", "-preset", "fast", root.currentFile.slice(0, -4) + "_web.mp4"]
 
-		stderr: StdioCollector {
-		}
+		stderr: StdioCollector {}
 
 		onExited: code => {
 			root.status = root.statusIdle;

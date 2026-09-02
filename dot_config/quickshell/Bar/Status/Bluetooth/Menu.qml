@@ -291,7 +291,6 @@ Column {
 	Process {
 		id: btToggleProc
 
-		stdout: StdioCollector {
-		}
+		stdout: StdioCollector {}
 	}
 }

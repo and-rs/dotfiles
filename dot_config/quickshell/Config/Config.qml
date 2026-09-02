@@ -32,30 +32,18 @@ Singleton {
 	JsonAdapter {
 		id: config
 
-		property Colors colors: Colors {
-		}
-		property Debug debug: Debug {
-		}
-		property Durations durations: Durations {
-		}
-		property NetworkPanel networkPanel: NetworkPanel {
-		}
-		property Notifications notifications: Notifications {
-		}
-		property Padding padding: Padding {
-		}
-		property Popup popup: Popup {
-		}
-		property Radius radius: Radius {
-		}
-		property Sidebar sidebar: Sidebar {
-		}
-		property Sizes sizes: Sizes {
-		}
-		property Spacing spacing: Spacing {
-		}
-		property Transparency transparency: Transparency {
-		}
+		property Colors colors: Colors {}
+		property Debug debug: Debug {}
+		property Durations durations: Durations {}
+		property NetworkPanel networkPanel: NetworkPanel {}
+		property Notifications notifications: Notifications {}
+		property Padding padding: Padding {}
+		property Popup popup: Popup {}
+		property Radius radius: Radius {}
+		property Sidebar sidebar: Sidebar {}
+		property Sizes sizes: Sizes {}
+		property Spacing spacing: Spacing {}
+		property Transparency transparency: Transparency {}
 	}
 
 	component Colors: JsonObject {

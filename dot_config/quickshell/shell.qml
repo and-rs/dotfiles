@@ -8,8 +8,7 @@ import qs.Osd
 Scope {
 	property int height: 32
 
-	Osd {
-	}
+	Osd {}
 	Bar {
 		mainHeight: height
 	}
