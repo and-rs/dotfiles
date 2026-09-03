@@ -5,8 +5,7 @@ description: Nushell syntax reference and common patterns. Load when writing, ed
 
 # Nushell Syntax Reference
 
-Official docs: https://www.nushell.sh/book/ Command reference:
-https://www.nushell.sh/commands/ Cookbook: https://www.nushell.sh/cookbook/
+Official docs: https://www.nushell.sh/book/ Command reference: https://www.nushell.sh/commands/ Cookbook: https://www.nushell.sh/cookbook/
 
 ## Variables
 
@@ -38,7 +37,9 @@ cmd | str trim
 
 No `$()` substitution — use `(expr)` inline or `let result = (cmd)`.
 
-Multiline expressions wrap in `()` — no bash `\` and no PowerShell backticks needed:
+Multiline expressions wrap in `()`:
+
+- BEWARE DO NOT USE BACKTICKS (`) OR BACKSLASHES (\)
 
 ```nu
 let result = (
@@ -46,6 +47,16 @@ let result = (
   | where type == dir
   | get name
   | str upcase
+)
+```
+
+or
+
+```nu
+(
+   gh workflow run workflow.yml
+   --ref branch
+   --field force_reconcile=true
 )
 ```
 
