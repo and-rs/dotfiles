@@ -6,6 +6,7 @@ alias g = git
 alias gc = git commit
 alias gl = git log --oneline -n 10
 alias gs = git status
+def gig [] { gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore }
 
 alias yz = yazi
 alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
@@ -33,6 +34,10 @@ alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 
 alias ff = fastfetch --logo-color-1 cyan --file $"($env.DOTS)/utils/ascii/spider2.txt"
 alias ffn = fastfetch --logo-color-1 red --file $"($env.DOTS)/utils/ascii/spider2.txt" --config neofetch
+
+def "oc sd" [s: string] {
+  opencode session delete $s
+}
 
 # --- KEEP THESE FUNCTIONS DEFINED HERE ---
 

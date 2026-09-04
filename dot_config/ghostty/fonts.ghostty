@@ -17,9 +17,9 @@ font-size = 13
 # adjust-box-thickness = 2
 # adjust-cell-height = 6
 
-font-family = CommitMono
-#font-family = MD IO Trial
-# font-family = Input
+#font-family = CommitMono
+font-family = MD IO Trial
+#font-family = Input
 adjust-cell-height = 12
 adjust-cursor-height = 12
 adjust-underline-position = 9
