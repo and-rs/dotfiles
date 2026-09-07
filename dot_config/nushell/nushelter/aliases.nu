@@ -15,10 +15,23 @@ alias md = table -t markdown
 alias c = clear --keep-scrollback
 
 def ls [--sortable (-s)] {
-  let size_width = (%ls --all | get size | each { into string | str length } | math max)
-  %ls --all | sort-by type | each {|line|
+  let results = (%ls --all)
+
+  if ($results | is-empty) {
+    return []
+  }
+
+  let size_width = ($results | get size | each { into string | str length } | math max)
+
+  $results | sort-by type | each {|line|
     return {
-      name: $line.name
+      name: (
+        if $line.type == "dir" {
+          $"(ansi blue)($line.name)"
+        } else {
+          $"(ansi white)($line.name)"
+        }
+      )
       size: (
         if $line.type == "dir" {
           $"(ansi blue)dir" | fill --alignment right --width $size_width

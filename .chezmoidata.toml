@@ -1,4 +1,4 @@
-theme = "neovim-light"
+theme = "tokyo-night-day"
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"
