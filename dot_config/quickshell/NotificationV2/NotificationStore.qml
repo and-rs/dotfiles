@@ -74,35 +74,11 @@ Singleton {
 			writer.destroy();
 		}
 	}
-	function cleanupCachedFile(path: string): void {
-		if (!path)
-			return;
-
-		const localPath = localImagePath(path);
-		if (!localPath || !localPath.startsWith(imageCachePrefix))
-			return;
-
-		Quickshell.execDetached({
-			command: ["rm", "-f", localPath]
-		});
-	}
-	function cleanupEntryAssets(entry: var): void {
-		if (!entry || !entry.closed)
-			return;
-
-		cleanupCachedFile(entry.cachedImage);
-		cleanupCachedFile(entry.cachedAppIcon);
-	}
+	// Async Image decoding can outlive a record replacement, so cache files are session-lifetime assets.
 	function cleanupImageCacheDirectory(): void {
 		Quickshell.execDetached({
 			command: ["sh", "-c", "rm -f \"$1\"*", "sh", imageCachePrefix]
 		});
-	}
-	function cleanupReplacedAssets(previousEntry: var, nextEntry: var): void {
-		if (previousEntry?.cachedImage && previousEntry.cachedImage !== nextEntry.cachedImage)
-			cleanupCachedFile(previousEntry.cachedImage);
-		if (previousEntry?.cachedAppIcon && previousEntry.cachedAppIcon !== nextEntry.cachedAppIcon)
-			cleanupCachedFile(previousEntry.cachedAppIcon);
 	}
 	function clear(): void {
 		const currentEntries = records;
@@ -121,7 +97,6 @@ Singleton {
 			delete connectedNotifications[entry.id];
 		}
 
-		cleanupImageCacheDirectory();
 	}
 	function clearPopup(id: int): void {
 		if (popupId !== id)
@@ -234,7 +209,6 @@ Singleton {
 			popupId = -1;
 		removeQueuedPopupId(id);
 		delete connectedNotifications[id];
-		cleanupReplacedAssets(entry, nextEntry);
 		if (wasActive)
 			activateNextPopup();
 	}
@@ -253,11 +227,9 @@ Singleton {
 		if (index === -1)
 			return;
 
-		const entry = records[index];
 		const nextEntries = records.slice();
 		nextEntries.splice(index, 1);
 		records = nextEntries;
-		cleanupEntryAssets(entry);
 		if (popupId === id)
 			popupId = -1;
 	}
@@ -295,7 +267,6 @@ Singleton {
 			const entry = nextEntries[nextEntries.length - 1];
 			removeQueuedPopupId(entry.id);
 			nextEntries.pop();
-			cleanupEntryAssets(entry);
 			if (entry.notification) {
 				removingIds[entry.id] = true;
 				NotificationLifecycle.dismiss(entry.notification);
@@ -316,8 +287,6 @@ Singleton {
 			entriesPrepending();
 			nextEntries.unshift(nextEntry);
 		} else {
-			const previousEntry = records[index];
-			cleanupReplacedAssets(previousEntry, nextEntry);
 			nextEntries[index] = nextEntry;
 		}
 

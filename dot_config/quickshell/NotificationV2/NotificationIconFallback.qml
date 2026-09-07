@@ -11,7 +11,8 @@ ClippingRectangle {
 	required property string appIcon
 	required property string fallbackText
 	readonly property bool hasNotificationImage: imageLooksLoadable(notificationImage)
-	readonly property bool imageReady: sourceImage.status === Image.Ready && sourceImage.implicitWidth > 2 && sourceImage.implicitHeight > 2
+	readonly property bool backgroundReady: backgroundImage.status === Image.Ready && backgroundImage.implicitWidth > 2 && backgroundImage.implicitHeight > 2
+	readonly property bool imageReady: foregroundImage.status === Image.Ready && foregroundImage.implicitWidth > 2 && foregroundImage.implicitHeight > 2
 	required property string notificationImage
 	property int size: 56
 
@@ -34,10 +35,10 @@ ClippingRectangle {
 		visible: !root.imageReady
 	}
 	Image {
-		id: sourceImage
+		id: backgroundImage
 
 		asynchronous: true
-		cache: false
+		cache: true
 		fillMode: root.hasNotificationImage ? Image.PreserveAspectCrop : Image.PreserveAspectFit
 		source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
 		sourceSize.height: root.size * 2
@@ -50,13 +51,15 @@ ClippingRectangle {
 		blur: 1
 		blurEnabled: root.hasNotificationImage
 		blurMax: 8
-		source: sourceImage
-		visible: root.imageReady && root.hasNotificationImage
+		source: backgroundImage
+		visible: root.backgroundReady && root.hasNotificationImage
 	}
 	Image {
+		id: foregroundImage
+
 		anchors.fill: parent
 		asynchronous: true
-		cache: false
+		cache: true
 		fillMode: root.hasNotificationImage ? Image.PreserveAspectFit : Image.PreserveAspectFit
 		source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
 		sourceSize.height: root.size * 2
