@@ -14,8 +14,28 @@ alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 alias md = table -t markdown
 alias c = clear --keep-scrollback
 
-def ls [--sortable (-s)] {
-  let results = (%ls --all)
+def ls [
+  --du (-d)
+  --long (-l)
+  --threads (-t)
+  --sortable (-s)
+  --mime-type (-m)
+  --directory (-D)
+  --full-paths (-f)
+  ...patterns: glob
+] {
+  let patterns = if ($patterns | is-empty) { ["."] } else { $patterns }
+  let results = (
+    %ls
+    --all
+    --du=$du
+    --long=$long
+    --threads=$threads
+    --directory=$directory
+    --mime-type=$mime_type
+    --full-paths=$full_paths
+    ...$patterns
+  )
 
   if ($results | is-empty) {
     return []

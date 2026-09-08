@@ -1,6 +1,6 @@
 const TUNING = {
   # HSL lightness offsets for surface1 through surface5.
-  surface_steps: [0.03 0.07 0.16 0.28 0.36]
+  surface_steps: [0.02 0.05 0.12 0.28 0.36]
 
   # Dark backgrounds need less accent tint than light backgrounds.
   dark_tint: {base: 0.03 slope: 0.2 maximum: 0.16}
