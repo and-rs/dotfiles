@@ -1,0 +1,62 @@
+{{- $c := index .palettes .theme -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+{{- range $name, $value := (output "nu" $paletteScript "surfaces" $c.bg $c.blue | fromJson) -}}
+  {{- $_ := set $c $name $value -}}
+{{- end -}}
+
+# Main background and text. Tmux uses colour0 as its background.
+theme[main_bg]="{{ $c.bg }}"
+theme[main_fg]="{{ $c.fg }}"
+theme[title]="{{ $c.fg }}"
+
+# Selection, shortcuts, and inactive text
+theme[hi_fg]="{{ $c.cyan }}"
+theme[selected_bg]="{{ $c.selection }}"
+theme[selected_fg]="{{ $c.fg }}"
+theme[inactive_fg]="{{ $c.surface3 }}"
+theme[proc_misc]="{{ $c.cyan }}"
+
+# Box borders and dividers
+theme[cpu_box]="{{ $c.blue }}"
+theme[mem_box]="{{ $c.blue }}"
+theme[net_box]="{{ $c.blue }}"
+theme[proc_box]="{{ $c.blue }}"
+theme[div_line]="{{ $c.surface3 }}"
+
+# Temperature and CPU graphs
+theme[temp_start]="{{ $c.green }}"
+theme[temp_mid]="{{ $c.yellow }}"
+theme[temp_end]="{{ $c.red }}"
+theme[cpu_start]="{{ $c.green }}"
+theme[cpu_mid]="{{ $c.yellow }}"
+theme[cpu_end]="{{ $c.red }}"
+
+# Memory and disk meters
+theme[free_start]="{{ $c.green }}"
+theme[free_mid]="{{ $c.cyan }}"
+theme[free_end]="{{ $c.blue }}"
+theme[cached_start]="{{ $c.blue }}"
+theme[cached_mid]="{{ $c.cyan }}"
+theme[cached_end]="{{ $c.magenta }}"
+theme[available_start]="{{ $c.cyan }}"
+theme[available_mid]="{{ $c.blue }}"
+theme[available_end]="{{ $c.magenta }}"
+theme[used_start]="{{ $c.yellow }}"
+theme[used_mid]="{{ $c.red }}"
+theme[used_end]="{{ $c.red }}"
+
+# Network graphs
+theme[download_start]="{{ $c.cyan }}"
+theme[download_mid]="{{ $c.blue }}"
+theme[download_end]="{{ $c.magenta }}"
+theme[upload_start]="{{ $c.green }}"
+theme[upload_mid]="{{ $c.yellow }}"
+theme[upload_end]="{{ $c.red }}"
+
+# Process following and paused-list states
+theme[proc_pause_bg]="{{ $c.yellow }}"
+theme[proc_follow_bg]="{{ $c.blue }}"
+theme[proc_banner_bg]="{{ $c.magenta }}"
+theme[proc_banner_fg]="{{ $c.bg }}"
+theme[followed_bg]="{{ $c.surface2 }}"
+theme[followed_fg]="{{ $c.cyan }}"
