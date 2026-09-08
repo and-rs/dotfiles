@@ -58,7 +58,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   vec4 cur = iCurrentCursor;
   vec4 prev = iPreviousCursor;
 
-  vec2 scalePos = vec2(2.0, 2.0) / r.y;
   vec2 scaleSize = vec2(2.0) / r.y;
 
   cur.xy = (cur.xy * 2.0 - r) / r.y;
@@ -66,10 +65,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   prev.xy = (prev.xy * 2.0 - r) / r.y;
   prev.zw *= scaleSize;
 
-  vec2 cCur = vec2(cur.x + cur.z * 0.5, cur.y - cur.w * 0.5);
-  vec2 cPrev = vec2(prev.x + prev.z * 0.5, prev.y - prev.w * 0.5);
+  vec2 cCur = cur.xy + vec2(cur.z, -cur.w) * 0.5;
+  vec2 cPrev = prev.xy + vec2(prev.z, -prev.w) * 0.5;
 
-  float dist = distance(cCur, cPrev);
+  vec2 delta = cCur - cPrev;
+  float dist = length(delta);
 
   vec2 offset = cur.zw * vec2(-0.5, 0.5);
   float sdfCur = sdBox(p - (cur.xy - offset), cur.zw * 0.5);
@@ -78,7 +78,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   float sdfTrail = 1e5;
 
   if (trailEnabled) {
-    vec2 delta = cCur - cPrev;
     float dir = step(0.0, delta.x * delta.y);
     float invDir = 1.0 - dir;
 

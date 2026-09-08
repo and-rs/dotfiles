@@ -14,7 +14,9 @@ window-padding-y = 0
 
 # Enabling this increases CPU usage
 custom-shader-animation = true
+custom-shader = shaders/cursor_ripple.glsl
 custom-shader = shaders/cursor_slash.glsl
+custom-shader = shaders/fire.glsl
 
 #--- KEYBINDS ---#
 keybind = super+ctrl+f=text:\x1bf

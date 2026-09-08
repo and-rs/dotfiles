@@ -1,0 +1,98 @@
+{{- $c := index .palettes .theme -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+
+const vec3 PARTICLE_COLOR = {{ output "nu" $paletteScript "vec4" $c.cursor }}.rgb;
+
+#define PARTICLES_ALPHA_MOD 0.9
+#define LAYERS_COUNT 6
+
+#define ANIMATION_SPEED 1.0
+#define MOVEMENT_SPEED 0.33
+#define MOVEMENT_DIRECTION vec2(0.7, 1.0)
+#define PARTICLE_SIZE 0.0025
+#define PARTICLE_SCALE vec2(0.5, 1.6)
+#define PARTICLE_SCALE_VAR vec2(0.25, 0.2)
+#define SPARK_INTENSITY 1.5
+#define SIZE_MOD 1.05
+
+const mat2 PARTICLE_ROTATION = mat2(0.644218, 0.764842, -0.764842, 0.644218);
+
+float hash1_2(in vec2 x) {
+  return fract(sin(dot(x, vec2(52.127, 61.2871))) * 521.582);
+}
+
+vec2 hash2_2(in vec2 x) {
+  return fract(sin(x * mat2(20.52, 24.1994, 70.291, 80.171)) * 492.194);
+}
+
+vec2 noise2_2(in vec2 uv) {
+  vec2 f = smoothstep(0.0, 1.0, fract(uv));
+  vec2 uv00 = floor(uv);
+  vec2 uv01 = uv00 + vec2(0.0, 1.0);
+  vec2 uv10 = uv00 + vec2(1.0, 0.0);
+  vec2 uv11 = uv00 + 1.0;
+  vec2 v00 = hash2_2(uv00);
+  vec2 v01 = hash2_2(uv01);
+  vec2 v10 = hash2_2(uv10);
+  vec2 v11 = hash2_2(uv11);
+  vec2 v0 = mix(v00, v01, f.y);
+  vec2 v1 = mix(v10, v11, f.y);
+  return mix(v0, v1, f.x);
+}
+
+vec2 voronoiPointFromRoot(in vec2 root, in vec2 cellHash, in float angle) {
+  vec2 point = cellHash - 0.5;
+  float s = sin(angle);
+  float c = cos(angle);
+  point = mat2(s, c, -c, s) * point * 0.66;
+  return point + root + 0.5;
+}
+
+float fireParticles(in vec2 uv, in vec2 originalUV) {
+  vec2 rootUV = floor(uv);
+  vec2 cellHash = hash2_2(rootUV);
+  float cellHash1 = hash1_2(rootUV);
+  float cellAngle = iTime * ANIMATION_SPEED * (cellHash1 - 0.5) * 2.0;
+  vec2 pointUV = voronoiPointFromRoot(rootUV, cellHash, cellAngle);
+  vec2 tempUV = uv + (noise2_2(uv * 2.0) - 0.5) * 0.1;
+  tempUV -= (noise2_2(uv * 3.0 + iTime) - 0.5) * 0.07;
+
+  vec2 particleScale = PARTICLE_SCALE + (cellHash - 0.5) * PARTICLE_SCALE_VAR;
+  float dist = length(PARTICLE_ROTATION * (tempUV - pointUV) * particleScale);
+  float particles = 0.0;
+  particles += (1.0 - smoothstep(PARTICLE_SIZE * 0.6, PARTICLE_SIZE * 3.0, dist)) * SPARK_INTENSITY;
+
+  float border = (cellHash1 - 0.5) * 2.0;
+  float disappear = 1.0 - smoothstep(border, border + 0.5, originalUV.y);
+  border = (hash1_2(rootUV + 0.214) - 1.8) * 0.7;
+  float appear = smoothstep(border, border + 0.4, originalUV.y);
+  return particles * disappear * appear;
+}
+
+float layeredParticles(in vec2 uv, in float sizeMod, in float alphaMod, in int layers) {
+  float particles = 0.0;
+  float size = 1.0;
+  float alpha = 1.0;
+  vec2 offset = vec2(0.0);
+  for (int i = 0; i < layers; i++) {
+    vec2 noiseOffset = (noise2_2(uv * size * 2.0 + 0.5) - 0.5) * 0.15;
+    vec2 bokehUV = uv * size + iTime * MOVEMENT_DIRECTION * MOVEMENT_SPEED + offset + noiseOffset;
+    particles += fireParticles(bokehUV, uv) * alpha;
+    offset += hash2_2(vec2(alpha, alpha)) * 10.0;
+    alpha *= alphaMod;
+    size *= sizeMod;
+  }
+  return particles;
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  vec2 uv = (2.0 * fragCoord - iResolution.xy) / iResolution.x;
+  uv *= 2.5;
+
+  float particles = layeredParticles(uv, SIZE_MOD, PARTICLES_ALPHA_MOD, LAYERS_COUNT);
+
+  vec2 termUV = fragCoord.xy / iResolution.xy;
+  vec4 terminalColor = texture(iChannel0, termUV);
+  float particleAlpha = clamp(particles, 0.0, 1.0);
+  fragColor = vec4(mix(terminalColor.rgb, PARTICLE_COLOR, particleAlpha), terminalColor.a);
+}

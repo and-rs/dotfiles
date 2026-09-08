@@ -5,7 +5,7 @@ const float CURSOR_WIDTH_CHANGE_THRESHOLD = 0.5; // Triggers ripple if cursor wi
 const float BLUR = 4.0; // Blur level in pixels
 const float ANIMATION_START_OFFSET = 0.0; // Start the ripple slightly progressed (0.0 - 1.0)
 
-{{- $c := index .palettes .theme -}}
+{{ $c := index .palettes .theme -}}
 {{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
 const vec4 COLOR = {{ output "nu" $paletteScript "vec4" $c.cursor }};
 
