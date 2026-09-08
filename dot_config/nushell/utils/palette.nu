@@ -6,6 +6,10 @@ const TUNING = {
   dark_tint: {base: 0.03 slope: 0.2 maximum: 0.16}
   light_tint: {base: 0.08 slope: 0.5 maximum: 0.35}
 
+  # Diff backgrounds need a visible tint without overpowering the text.
+  diff_tint: 0.35
+  diff_lightness_step: 0.08
+
   # Skip hue and saturation tinting for near-neutral backgrounds.
   achromatic_cutoff: 0.01
 
@@ -53,7 +57,7 @@ def rgb-to-hsl [rgb: list<float>] {
     $delta / ($max + $min)
   }
   let hue = if $max == $rgb.0 {
-    (($rgb.1 - $rgb.2) / $delta + (if $rgb.1 < $rgb.2 { 1 } else { 0 })) / 6
+    (($rgb.1 - $rgb.2) / $delta + (if $rgb.1 < $rgb.2 { 6 } else { 0 })) / 6
   } else if $max == $rgb.1 {
     (($rgb.2 - $rgb.0) / $delta + 2) / 6
   } else {
@@ -158,6 +162,34 @@ def surface-colors [bg: string accent: string] {
   }
 }
 
+def diff-background [bg_hsl: record bg_light: bool accent: string] {
+  let accent_hsl = (rgb-to-hsl (parse-color $accent))
+  let lightness = if $bg_light {
+    let value = $bg_hsl.l - $TUNING.diff_lightness_step
+    if $value < 0 { 0 } else { $value }
+  } else {
+    let value = $bg_hsl.l + $TUNING.diff_lightness_step
+    if $value > 1 { 1 } else { $value }
+  }
+  let saturation = $bg_hsl.s + ($accent_hsl.s - $bg_hsl.s) * $TUNING.diff_tint
+  let hsl = {
+    h: $accent_hsl.h
+    s: (if $saturation > 1 { 1 } else { $saturation })
+    l: $lightness
+  }
+  format-color (hsl-to-rgb $hsl)
+}
+
+def diff-backgrounds [bg: string red: string green: string] {
+  let bg_rgb = (parse-color $bg)
+  let bg_hsl = (rgb-to-hsl $bg_rgb)
+  let bg_light = (($bg_rgb.0 * $TUNING.luminance_weights.0) + ($bg_rgb.1 * $TUNING.luminance_weights.1) + ($bg_rgb.2 * $TUNING.luminance_weights.2)) > $TUNING.lightness_threshold
+  {
+    diff_red_bg: (diff-background $bg_hsl $bg_light $red)
+    diff_green_bg: (diff-background $bg_hsl $bg_light $green)
+  }
+}
+
 def color-vec4 [color: string] {
   let channels = (
     parse-color $color
@@ -167,9 +199,10 @@ def color-vec4 [color: string] {
   "vec4(" + $channels + ", 1.0)"
 }
 
-def main [mode: string color?: string accent?: string] {
+def main [mode: string color?: string accent?: string green?: string] {
   match $mode {
     'surfaces' => (surface-colors $color $accent | to json -r)
+    'diff-backgrounds' => (diff-backgrounds $color $accent $green | to json -r)
     'vec4' => (color-vec4 $color)
     _ => (error make {msg: $"unknown palette mode: ($mode)"})
   }

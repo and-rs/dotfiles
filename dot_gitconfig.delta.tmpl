@@ -1,0 +1,24 @@
+{{- $c := index .palettes .theme -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+{{- range $name, $value := (output "nu" $paletteScript "diff-backgrounds" $c.bg $c.red $c.green | fromJson) -}}
+  {{- $_ := set $c $name $value -}}
+{{- end -}}
+[delta "general"]
+    minus-style                   = red "{{ $c.diff_red_bg }}"
+    minus-non-emph-style          = red "{{ $c.diff_red_bg }}"
+    minus-empty-line-marker-style = red "{{ $c.diff_red_bg }}"
+    minus-emph-style              = red bold reverse "{{ $c.diff_red_bg }}"
+
+    plus-style                    = green "{{ $c.diff_green_bg }}"
+    plus-non-emph-style           = green "{{ $c.diff_green_bg }}"
+    plus-empty-line-marker-style  = green "{{ $c.diff_green_bg }}"
+    plus-emph-style               = green bold reverse "{{ $c.diff_green_bg }}"
+
+    line-numbers-minus-style      = red bold
+    line-numbers-plus-style       = green bold
+
+    whitespace-error-style        = reverse
+    hunk-header-decoration-style  = blue box
+    hunk-header-style             = line-number white
+    line-numbers-zero-style       = white
+    zero-style                    = white

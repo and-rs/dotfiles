@@ -3,6 +3,9 @@
 {{- range $name, $value := (output "nu" $paletteScript "surfaces" $c.bg $c.blue | fromJson) -}}
   {{- $_ := set $c $name $value -}}
 {{- end -}}
+{{- range $name, $value := (output "nu" $paletteScript "diff-backgrounds" $c.bg $c.red $c.green | fromJson) -}}
+  {{- $_ := set $c $name $value -}}
+{{- end -}}
 {
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
@@ -18,7 +21,9 @@
     "surface2": "{{ $c.surface2 }}",
     "surface3": "{{ $c.surface3 }}",
     "surface4": "{{ $c.surface4 }}",
-    "surface5": "{{ $c.surface5 }}"
+    "surface5": "{{ $c.surface5 }}",
+    "diffRedBg": "{{ $c.diff_red_bg }}",
+    "diffGreenBg": "{{ $c.diff_green_bg }}"
   },
   "theme": {
     "primary": "blue",
@@ -45,12 +50,12 @@
     "diffHunkHeader": "surface5",
     "diffHighlightAdded": "green",
     "diffHighlightRemoved": "red",
-    "diffAddedBg": "surface1",
-    "diffRemovedBg": "surface1",
+    "diffAddedBg": "diffGreenBg",
+    "diffRemovedBg": "diffRedBg",
     "diffContextBg": "surface1",
     "diffLineNumber": "surface4",
-    "diffAddedLineNumberBg": "surface1",
-    "diffRemovedLineNumberBg": "surface1",
+    "diffAddedLineNumberBg": "diffGreenBg",
+    "diffRemovedLineNumberBg": "diffRedBg",
 
     "markdownText": "fg",
     "markdownHeading": "magenta",

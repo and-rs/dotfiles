@@ -83,6 +83,10 @@ saturation toward their `blue` color so the surfaces retain their theme tint
 instead of becoming neutral gray. They do not need to be defined in
 `.chezmoidata.toml`.
 
+Diff backgrounds are generated automatically from each theme's `bg`, `red`,
+and `green` colors. They are used by OpenCode and Delta as subtle tinted
+backgrounds for removed and added lines, respectively.
+
 ## Notes
 
 - The repo is intentionally opinionated; it is optimized for a specific workflow, not for generic portability.
