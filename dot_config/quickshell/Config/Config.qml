@@ -25,9 +25,11 @@ Singleton {
 		id: configFile
 
 		adapter: config
-		blockLoading: true
-		path: Qt.resolvedUrl("Config.json")
 		printErrors: true
+		blockLoading: true
+		watchChanges: true
+		onFileChanged: reload()
+		path: Qt.resolvedUrl("Config.json")
 	}
 	JsonAdapter {
 		id: config

@@ -8,7 +8,7 @@ const TUNING = {
 
   # Diff backgrounds need a visible tint without overpowering the text.
   diff_tint: 0.35
-  diff_lightness_step: 0.08
+  diff_lightness_step: 0.06
 
   # Skip hue and saturation tinting for near-neutral backgrounds.
   achromatic_cutoff: 0.01

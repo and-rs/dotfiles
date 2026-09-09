@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Io
 import qs.Bar
@@ -58,7 +57,7 @@ Column {
 			anchors.right: parent.right
 			anchors.rightMargin: Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.isEnabled ? Config.colors.success : Config.colors.surface3
+			color: root.isEnabled ? Config.colors.success : Config.colors.surface4
 			font.pointSize: 9
 			font.weight: 500
 			text: root.isEnabled ? "On" : "Off"
@@ -74,7 +73,7 @@ Column {
 		}
 	}
 	Rectangle {
-		color: btScanHover.hovered ? Config.colors.surface2 : Config.colors.surface1
+		color: btScanHover.hovered ? Config.colors.surface3 : Config.colors.surface2
 		height: 28
 		radius: Config.radius.small
 		visible: root.isEnabled
@@ -117,7 +116,7 @@ Column {
 		width: parent.width
 
 		Rectangle {
-			color: Config.colors.surface2
+			color: Config.colors.surface3
 			height: 1
 			width: parent.width
 		}
@@ -153,7 +152,7 @@ Column {
 		}
 	}
 	Rectangle {
-		color: Config.colors.surface2
+		color: Config.colors.surface3
 		height: 1
 		visible: root.isEnabled
 		width: parent.width
@@ -184,7 +183,7 @@ Column {
 				delegate: Rectangle {
 					required property var modelData
 
-					color: Config.colors.surface2
+					color: Config.colors.surface3
 					height: modelData.connected ? 36 : 0
 					radius: Config.radius.small
 					visible: modelData.connected
@@ -243,7 +242,7 @@ Column {
 				delegate: Rectangle {
 					required property var modelData
 
-					color: Config.colors.surface1
+					color: Config.colors.surface2
 					height: !modelData.connected ? 36 : 0
 					radius: Config.radius.small
 					visible: !modelData.connected
@@ -262,7 +261,7 @@ Column {
 						anchors.right: parent.right
 						anchors.rightMargin: Config.padding.small
 						anchors.verticalCenter: parent.verticalCenter
-						color: modelData.paired ? Config.colors.surface4 : Config.colors.surface3
+						color: modelData.paired ? Config.colors.surface5 : Config.colors.surface4
 						font.pointSize: 8
 						text: modelData.paired ? "Paired" : "New"
 					}
