@@ -1,10 +1,17 @@
 #!/usr/bin/env -S nu -n
 
+def _spinner_interrupted [err: any] {
+  let message = ($err.msg? | default "" | str lowercase)
+  $message =~ "interrupt|sigint"
+}
+
 # Example
 # &spinner --msg "Listing files" -- sleep 2
 # Run an external command with a spinner and return its output.
 def main [
   --msg: string
+  --structured
+  --quiet-cancel
   ...argv: string
 ] {
   if ($argv | is-empty) {
@@ -33,21 +40,44 @@ def main [
     mut i = 0
     let frames = ["⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏"]
     mut result: any = null
-    loop {
-      let message = (try { job recv --timeout 80ms } catch { null })
-      if $message != null {
-        $result = $message
-        break
-      }
+    try {
+      loop {
+        let message = (
+          try { job recv --timeout 80ms } catch {|err|
+            if (_spinner_interrupted $err) {
+              error make {msg: $err.msg}
+            }
+            null
+          }
+        )
+        if $message != null {
+          $result = $message
+          break
+        }
 
-      let frame = ($frames | get ($i mod ($frames | length)))
-      print -e -n $"\r\u{1b}[2K(ansi reset)($frame) ($msg)"
-      $i = $i + 1
+        let frame = ($frames | get ($i mod ($frames | length)))
+        print -e -n $"\r\u{1b}[2K(ansi reset)($frame) ($msg)"
+        $i = $i + 1
+      }
+    } catch {|err|
+      try { job kill $job_id } catch { }
+      print -e -n "\r\u{1b}[2K"
+      if not $quiet_cancel {
+        print $"(ansi red)Loading task was canceled(ansi reset)"
+      }
+      if $structured {
+        return '{"cancelled":true}'
+      }
+      return
     }
     print -e -n "\r\u{1b}[2K"
     $result
   } else {
     do $execute
+  }
+
+  if $structured {
+    return ($result | to json -r)
   }
 
   if ($result.stderr | is-not-empty) {

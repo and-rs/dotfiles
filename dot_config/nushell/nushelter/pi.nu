@@ -1,3 +1,5 @@
+export def --wrapped "ai" [...args] { bun x --bun pi ...$args }
+
 def _ai_has_provider_auth [provider: string] {
   let auth_path = ($env.HOME | path join ".pi" "agent" "auth.json")
   if not ($auth_path | path exists) {
@@ -56,13 +58,23 @@ def _ai_run [label: string system_prompt: string model: string prompt: string] {
     error make {msg: "bun not found"}
   }
 
-  (
-    &spinner --msg $label --
+  let result = (
+    &spinner --structured --quiet-cancel --msg $label --
     bun x --bun pi -ns -nt -nbt --no-session
     --system-prompt $system_prompt
     --model $model
     -p $prompt
-  ) | str trim
+  )
+
+  let structured = (try { $result | from json } catch { null })
+  if ($structured != null) {
+    if ($structured.cancelled? | default false) {
+      return $structured
+    }
+    return ($structured.stdout | str trim)
+  }
+
+  $result | str trim
 }
 
 def _ai_summarize [
@@ -79,7 +91,15 @@ def _ai_summarize [
   _ai_run $label $system_prompt (_ai_summarize_model) (_ai_summarize_input $context $prompt)
 }
 
-export def "ai" [] { bun x --bun pi }
+def _ai_summarize_cancelled [err: any] {
+  let message = ($err.msg? | default "" | str lowercase)
+  $message =~ "interrupt|sigint|cancel"
+}
+
+def _ai_was_cancelled [value: any] {
+  try { $value.cancelled? | default false } catch { false }
+}
+
 export def "ai gs" [] {
   let staged = (git diff --staged | str trim)
   if ($staged | is-empty) {
@@ -95,8 +115,17 @@ export def "ai gs" [] {
   changes like READMEs, only a quick content description"
 
   mut msg = (
-    _ai_summarize --label "Summarizing" --context (&ai_git_status) --prompt $base_prompt
+    try {
+      _ai_summarize --label "Summarizing" --context (&ai_git_status) --prompt $base_prompt
+    } catch {|err|
+      if (_ai_summarize_cancelled $err) { return }
+      error make {msg: $err.msg}
+    }
   )
+
+  if (_ai_was_cancelled $msg) {
+    return
+  }
 
   loop {
     print ""
@@ -118,10 +147,21 @@ export def "ai gs" [] {
     diff.\n\nCurrent commit message:\n($msg)\n\nRequested change:\n($revision)"
 
     $msg = (
-      _ai_summarize
-      --label "Revising"
-      --context (&ai_git_status)
-      --prompt $revise_prompt
+      try {
+        (
+          _ai_summarize
+          --label "Revising"
+          --context (&ai_git_status)
+          --prompt $revise_prompt
+        )
+      } catch {|err|
+        if (_ai_summarize_cancelled $err) { return }
+        error make {msg: $err.msg}
+      }
     )
+
+    if (_ai_was_cancelled $msg) {
+      return
+    }
   }
 }

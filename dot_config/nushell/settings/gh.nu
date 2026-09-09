@@ -1,8 +1,7 @@
 def --env pin-gh [] {
   let user = "and-rs"
-  let docs = ($env.HOME | path join "Documents" | path expand)
-  let pwd = ($env.PWD | path expand)
-  let in_docs = ($pwd == $docs) or ($pwd | str starts-with $"($docs)/")
+  let docs: path = $"($env.HOME)/Documents"
+  let in_docs = ($env.PWD == $docs) or ($env.PWD | str starts-with $"($docs)/")
 
   if $in_docs {
     if ($env._GH_TOKEN_PINNED? | default "") == $user { return }
