@@ -291,15 +291,15 @@ binds {
     Mod+F12 allow-inhibiting=false hotkey-overlay-title="Take screenshot with Satty" {
         spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim -t ppm - | satty -f -"
     }
-    // Mod+Super+U {
-    //     spawn-sh "quickshell ipc call recorder toggle"
-    // }
-    // Mod+U allow-inhibiting=false {
-    //     screenshot
-    // }
-    // Mod+Shift+U allow-inhibiting=false {
-    //     screenshot-window
-    // }
+    Mod+Super+U {
+        spawn-sh "quickshell ipc call recorder toggle"
+    }
+    Mod+U allow-inhibiting=false {
+        screenshot
+    }
+    Mod+Shift+U allow-inhibiting=false {
+        screenshot-window
+    }
     Mod+Shift+F11 repeat=false {
         spawn-sh "nu -n -c 'source ~/.config/nushell/nushelter/screen.nu; display back'"
     }
