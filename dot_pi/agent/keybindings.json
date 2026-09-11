@@ -12,5 +12,6 @@
   "app.model.cycleBackward": ["f12"],
   "app.session.togglePath": ["alt+p"],
   "app.session.toggleNamedFilter": ["alt+n"],
-  "app.models.toggleProvider": ["alt+o"]
+  "app.models.toggleProvider": ["alt+o"],
+  "tui.input.tab": []
 }

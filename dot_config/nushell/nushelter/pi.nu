@@ -21,7 +21,7 @@ def _ai_summarize_model [] {
   }
 
   if (_ai_has_provider_auth "xai") {
-    return "xai/grok-4.5:off"
+    return "xai/grok-4.3:off"
   }
 
   if (_ai_has_provider_auth "openai-codex") or (_ai_has_provider_auth "openai") {

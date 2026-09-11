@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import registerApp from "./index.ts";
-import { READ_ONLY_MODEL_TOOL_NAMES } from "./read-only-profile.ts";
+import { DISCOVERY_TOOLS } from "./modes.ts";
 
 type EventHandler = (...args: unknown[]) => unknown;
 
-test("read-only profile exposes and restores only registered discovery tools", async () => {
+test("teach mode restores discovery tools on session start and tree", async () => {
   const registeredTools: string[] = [];
   const activeToolSets: string[][] = [];
   const eventHandlers = new Map<string, EventHandler[]>();
@@ -15,6 +15,9 @@ test("read-only profile exposes and restores only registered discovery tools", a
       registeredTools.push(tool.name);
     },
     registerCommand() {},
+    registerEntryRenderer() {},
+    registerShortcut() {},
+    appendEntry() {},
     setActiveTools(toolNames: string[]) {
       activeToolSets.push(toolNames);
     },
@@ -27,18 +30,19 @@ test("read-only profile exposes and restores only registered discovery tools", a
 
   registerApp(pi);
 
-  assert.deepEqual(registeredTools, [...READ_ONLY_MODEL_TOOL_NAMES]);
+  assert.deepEqual(registeredTools, [...DISCOVERY_TOOLS]);
 
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   const sessionTree = eventHandlers.get("session_tree")?.at(-1);
   assert.ok(sessionStart);
   assert.ok(sessionTree);
 
-  await sessionStart?.({}, {});
-  await sessionTree?.({}, {});
+  const ctx = {
+    hasUI: false,
+    sessionManager: { getEntries: () => [] },
+  };
+  await sessionStart?.({}, ctx);
+  await sessionTree?.({}, ctx);
 
-  assert.deepEqual(activeToolSets, [
-    [...READ_ONLY_MODEL_TOOL_NAMES],
-    [...READ_ONLY_MODEL_TOOL_NAMES],
-  ]);
+  assert.deepEqual(activeToolSets, [[...DISCOVERY_TOOLS], [...DISCOVERY_TOOLS]]);
 });
