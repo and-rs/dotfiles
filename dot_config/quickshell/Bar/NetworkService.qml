@@ -15,12 +15,13 @@ Singleton {
 	property string actionState: "idle"
 	property bool available: false
 	property string backend: "none"
-	readonly property string backendScript: Quickshell.shellDir + "/Bar/NetworkBackend.sh"
+	readonly property string backendScript: Quickshell.shellDir + "/ControlCenterV2/Content/Network/NetworkBackend.sh"
 	property var connectedNetwork: null
 	property string connectivity: "Unknown"
 	property string lastError: ""
 	property bool panelOpen: false
 	property string scanState: "idle"
+	property int _scanPolls: 0
 	property bool stale: false
 	property var wifiDevice: null
 	property bool wifiEnabled: false
@@ -46,6 +47,7 @@ Singleton {
 	function closePanel() {
 		panelOpen = false;
 		_scanRequested = false;
+		scanPollTimer.stop();
 	}
 	function complete(exitCode) {
 		const operation = _operation;
@@ -66,23 +68,36 @@ Singleton {
 
 		const result = NetworkModel.parseResult(output);
 		if (!result) {
-			fail(operation === "scan" ? "Wi-Fi scan failed" : "Network action failed");
+			fail(operation === "scan" || operation === "scan-request" || operation === "scan-results" ? "Wi-Fi scan failed" : "Network action failed");
 		} else if (!result.ok) {
 			lastError = result.error || "Network action failed";
 		} else {
 			lastError = "";
 			if (result.snapshot)
-				applySnapshot(result.snapshot, operation === "scan");
-			if (operation === "scan") {
+				applySnapshot(result.snapshot, operation === "scan" || operation === "scan-results");
+			if (operation === "scan" || operation === "scan-results") {
 				wifiNetworks = result.wifiNetworks.filter(function (network) {
 					return !connectedNetwork || network.name !== connectedNetwork.name;
 				});
 			}
 		}
 
-		if (operation === "scan")
+		if (operation === "scan-request") {
+			if (result && result.ok) {
+				_scanPolls = 0;
+				scanPollTimer.restart();
+			} else {
+				scanState = "idle";
+			}
+		} else if (operation === "scan-results") {
+			_scanPolls++;
+			if (_scanPolls >= 20 || !result || !result.ok) {
+				scanState = "idle";
+				scanPollTimer.stop();
+			}
+		} else if (operation === "scan") {
 			scanState = "idle";
-		else {
+		} else {
 			actionState = "idle";
 			actionNetworkId = "";
 			refresh();
@@ -130,7 +145,7 @@ Singleton {
 	function startScan() {
 		scanState = "scanning";
 		_scanRequested = false;
-		start("scan", []);
+		start("scan-request", []);
 	}
 	function toggleWifi(enabled) {
 		if (!wifiDevice || networkProcess.running)
@@ -141,6 +156,21 @@ Singleton {
 
 	Component.onCompleted: refresh()
 
+	Timer {
+		id: scanPollTimer
+
+		interval: 500
+		repeat: true
+
+		onTriggered: {
+			if (!root.panelOpen || root.scanState !== "scanning") {
+				stop();
+				return;
+			}
+			if (!networkProcess.running)
+				root.start("scan-results", []);
+		}
+	}
 	Timer {
 		interval: 3000
 		repeat: true

@@ -64,7 +64,7 @@ Column {
 	readonly property int actionListHeight: {
 		const count = root.actionRows.length;
 		if (count === 0)
-			return emptyLabel.implicitHeight;
+			return 0;
 		const height = count * 48 + Math.max(0, count - 1) * SC.Config.spacing.extraSmall;
 		return Math.min(height, SC.Config.networkPanel.listHeight);
 	}
@@ -195,6 +195,7 @@ Column {
 			selected: root.selectedItem === modelData || (root.selectedItem && root.selectedItem.id === modelData.id)
 
 			onClicked: root.selectItem(modelData)
+			onDoubleClicked: modelData.activate()
 		}
 	}
 	Item {
@@ -275,15 +276,6 @@ Column {
 
 						onClicked: root.triggerRow(modelData)
 					}
-				}
-				Text {
-					id: emptyLabel
-
-					anchors.centerIn: parent
-					color: SC.Config.colors.surface3
-					font.pointSize: 9
-					text: "No actions"
-					visible: actionModel.values.length === 0
 				}
 			}
 		}

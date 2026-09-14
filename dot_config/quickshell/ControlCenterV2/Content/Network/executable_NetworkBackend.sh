@@ -220,14 +220,23 @@ scan_nm() {
       SECURITY:*) security=$(sed -E 's/^[^:]*:[[:space:]]*//' <<<"$line") ;;
       BSSID:*) bssid=$(sed -E 's/^[^:]*:[[:space:]]*//' <<<"$line") ;;
     esac
-  done < <(LC_ALL=C nmcli -m multiline -f IN-USE,SSID,SIGNAL,SECURITY,BSSID device wifi list ifname "$device" --rescan yes 2>/dev/null || true)
+  done < <(LC_ALL=C nmcli -m multiline -f IN-USE,SSID,SIGNAL,SECURITY,BSSID device wifi list ifname "$device" --rescan no 2>/dev/null || true)
   flush
   jq -cn --argjson rows "$rows" '{kind: "result", ok: true, error: "", snapshot: null, wifiNetworks: $rows}'
 }
 
+scan_request_nm() {
+  local device=$1
+  if LC_ALL=C nmcli device wifi rescan ifname "$device" >/dev/null 2>&1; then
+    jq -cn '{kind: "result", ok: true, error: "", snapshot: null, wifiNetworks: []}'
+  else
+    jq -cn '{kind: "result", ok: false, error: "Wi-Fi scan request failed", snapshot: null, wifiNetworks: []}'
+  fi
+}
+
 scan_iwd() {
   local device=$1 output rows='[]' line parsed ssid signal security entry known_networks known=false
-  iwctl station "$device" scan >/dev/null 2>&1 || true
+  [[ ${2:-request} == request ]] && { iwctl station "$device" scan >/dev/null 2>&1 || true; }
   output=$(iwctl station "$device" get-networks rssi-dbms 2>/dev/null | sed -r 's/\x1B\[[0-9;]*[mK]//g' || true)
   known_networks=$(iwctl known-networks list 2>/dev/null | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -n -E 's/^  (.*[^[:space:]])[[:space:]]+(open|psk|8021x|wep)[[:space:]].*$/\1/p')
   while IFS= read -r line; do
@@ -254,7 +263,33 @@ scan() {
     [[ -n $device ]] && scan_nm "$device" || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
   elif have iwctl; then
     device=$(iwctl station list 2>/dev/null | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -n -E 's/^ *([^ ]+) +.*(connected|disconnected|connecting).*$/\1/p' | head -n 1)
-    [[ -n $device ]] && scan_iwd "$device" || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
+    [[ -n $device ]] && scan_iwd "$device" request || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
+  else
+    jq -cn '{kind: "result", ok: false, error: "No supported Wi-Fi backend", snapshot: null, wifiNetworks: []}'
+  fi
+}
+
+scan_request() {
+  local device
+  if nm_available; then
+    device=$(LC_ALL=C nmcli -t -e no -f DEVICE,TYPE device status 2>/dev/null | awk -F: '$2 == "wifi" {print $1; exit}')
+    [[ -n $device ]] && scan_request_nm "$device" || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
+  elif have iwctl; then
+    device=$(iwctl station list 2>/dev/null | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -n -E 's/^ *([^ ]+) +.*(connected|disconnected|connecting).*$/\1/p' | head -n 1)
+    [[ -n $device ]] && { iwctl station "$device" scan >/dev/null 2>&1 || true; jq -cn '{kind: "result", ok: true, error: "", snapshot: null, wifiNetworks: []}'; } || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
+  else
+    jq -cn '{kind: "result", ok: false, error: "No supported Wi-Fi backend", snapshot: null, wifiNetworks: []}'
+  fi
+}
+
+scan_results() {
+  local device
+  if nm_available; then
+    device=$(LC_ALL=C nmcli -t -e no -f DEVICE,TYPE device status 2>/dev/null | awk -F: '$2 == "wifi" {print $1; exit}')
+    [[ -n $device ]] && scan_nm "$device" || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
+  elif have iwctl; then
+    device=$(iwctl station list 2>/dev/null | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -n -E 's/^ *([^ ]+) +.*(connected|disconnected|connecting).*$/\1/p' | head -n 1)
+    [[ -n $device ]] && scan_iwd "$device" results || jq -cn '{kind: "result", ok: false, error: "No Wi-Fi device", snapshot: null, wifiNetworks: []}'
   else
     jq -cn '{kind: "result", ok: false, error: "No supported Wi-Fi backend", snapshot: null, wifiNetworks: []}'
   fi
@@ -290,6 +325,8 @@ action() {
 case "$operation" in
   status) status ;;
   scan) scan ;;
+  scan-request) scan_request ;;
+  scan-results) scan_results ;;
   action) action "${2:-}" "${3:-}" "${4:-}" ;;
   *) jq -cn '{kind: "result", ok: false, error: "Unknown network operation", snapshot: null}' ;;
 esac

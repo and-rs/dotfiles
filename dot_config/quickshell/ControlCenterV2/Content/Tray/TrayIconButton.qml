@@ -12,6 +12,7 @@ Rectangle {
 	required property bool selected
 
 	signal clicked
+	signal doubleClicked
 
 	border.color: root.selected ? SC.Config.colors.primary : "transparent"
 	border.width: 2
@@ -50,5 +51,6 @@ Rectangle {
 		hoverEnabled: true
 
 		onClicked: root.clicked()
+		onDoubleClicked: root.doubleClicked()
 	}
 }
