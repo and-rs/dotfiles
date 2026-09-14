@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import Quickshell
 import qs.Config as SC
@@ -76,7 +78,6 @@ Rectangle {
 			];
 		}
 		property string name: "network"
-
 		function close() {
 			root.close();
 		}

@@ -25,44 +25,28 @@ PopupWindow {
 			return batteryContentLoader.item.implicitHeight;
 		if (activeTab.id === "tray" && trayContentLoader.item)
 			return trayContentLoader.item.implicitHeight;
-		return activeTab.contentHeight;
-	}
-	readonly property int maximumContentHeight: {
-		let height = 0;
-		for (const tab of tabDefinitions)
-			height = Math.max(height, tab.maximumContentHeight);
-		return height;
+		return 0;
 	}
 	readonly property Item networkContent: networkContentLoader.item
 	required property bool open
 	property var pendingAction: null
 	property string selectedTab: "tray"
-
-	// Each tab must reserve enough height for its largest content state.
 	readonly property var tabDefinitions: [
 		{
 			id: "tray",
-			label: "Tray",
-			contentHeight: 400,
-			maximumContentHeight: 400
+			label: "Tray"
 		},
 		{
 			id: "bluetooth",
-			label: "Bluetooth",
-			contentHeight: 480,
-			maximumContentHeight: 480
+			label: "Bluetooth"
 		},
 		{
 			id: "network",
-			label: "Network",
-			contentHeight: 480,
-			maximumContentHeight: 480
+			label: "Network"
 		},
 		{
 			id: "battery",
-			label: "Battery",
-			contentHeight: 360,
-			maximumContentHeight: 360
+			label: "Battery"
 		}
 	]
 	readonly property Item trayContent: trayContentLoader.item
@@ -76,7 +60,7 @@ PopupWindow {
 		pendingActionTimer.restart();
 	}
 
-	anchor.adjustment: PopupAdjustment.Flip | PopupAdjustment.Slide
+	anchor.adjustment: PopupAdjustment.None
 	anchor.edges: Edges.Top
 	anchor.gravity: Edges.Bottom
 	anchor.item: anchorButton
@@ -108,7 +92,7 @@ PopupWindow {
 	Item {
 		id: frame
 
-		height: tabs.implicitHeight + popup.maximumContentHeight + SC.Config.padding.large * 2 + SC.Config.spacing.small
+		height: (popup.window.screen ? popup.window.screen.height : 0) - popup.window.height - SC.Config.popup.gap
 		width: SC.Config.networkPanel.width
 		x: 0
 		y: popup.window.height + SC.Config.popup.gap
@@ -150,13 +134,11 @@ PopupWindow {
 
 					spacing: SC.Config.spacing.extraSmall
 					width: parent.width
-
 					Repeater {
 						model: popup.tabDefinitions
 
 						delegate: TabButton {
 							required property var modelData
-
 							tab: modelData
 							width: (tabs.width - tabs.spacing * 3) / 4
 						}
@@ -180,7 +162,6 @@ PopupWindow {
 
 						active: (popup.open && popup.selectedTab === "tray") || popup.pendingAction !== null
 						anchors.fill: parent
-
 						sourceComponent: Component {
 							TrayContent.TrayContent {
 								deferAction: action => popup.deferAction(action)
@@ -192,7 +173,6 @@ PopupWindow {
 
 						active: popup.open && popup.selectedTab === "bluetooth"
 						anchors.fill: parent
-
 						sourceComponent: Component {
 							BluetoothContent.BluetoothContent {}
 						}
@@ -202,7 +182,6 @@ PopupWindow {
 
 						active: popup.open && popup.selectedTab === "network"
 						anchors.fill: parent
-
 						sourceComponent: Component {
 							NetworkContent.NetworkContent {}
 						}
@@ -212,7 +191,6 @@ PopupWindow {
 
 						active: popup.open && popup.selectedTab === "battery"
 						anchors.fill: parent
-
 						sourceComponent: Component {
 							BatteryContent.BatteryContent {}
 						}
