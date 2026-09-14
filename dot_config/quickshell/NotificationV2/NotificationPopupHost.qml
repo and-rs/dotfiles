@@ -3,7 +3,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Scope {
 	id: root
@@ -73,9 +73,9 @@ Scope {
 		color: "transparent"
 		exclusiveZone: 0
 		implicitHeight: popupFrame.implicitHeight
-		implicitWidth: Config.notifications.popupWidth
-		margins.right: Config.spacing.small
-		margins.top: Config.spacing.small
+		implicitWidth: SC.Config.notifications.popupWidth
+		margins.right: SC.Config.spacing.small
+		margins.top: SC.Config.spacing.small
 		visible: root.popupWindowVisible
 
 		Component.onCompleted: {
@@ -91,19 +91,19 @@ Scope {
 			height: popupCard.implicitHeight
 			implicitHeight: height
 			opacity: root.popupShown ? 1 : 0
-			width: Config.notifications.popupWidth
-			x: root.popupShown ? 0 : width + Config.spacing.small
+			width: SC.Config.notifications.popupWidth
+			x: root.popupShown ? 0 : width + SC.Config.spacing.small
 
 			Behavior on opacity {
 				NumberAnimation {
-					duration: Config.durations.extraFast
-					easing.type: Config.curve
+					duration: SC.Config.durations.extraFast
+					easing.type: SC.Config.curve
 				}
 			}
 			Behavior on x {
 				NumberAnimation {
-					duration: Config.durations.fast
-					easing.type: Config.curve
+					duration: SC.Config.durations.fast
+					easing.type: SC.Config.curve
 
 					onRunningChanged: {
 						if (!running && !root.popupShown) {
@@ -118,37 +118,37 @@ Scope {
 				id: popupSwapAnimation
 
 				NumberAnimation {
-					duration: Config.durations.instant
-					easing.type: Config.curve
+					duration: SC.Config.durations.instant
+					easing.type: SC.Config.curve
 					property: "contentOpacity"
 					target: root
 					to: 0
 				}
 				NumberAnimation {
-					duration: Config.durations.instant
-					easing.type: Config.curve
+					duration: SC.Config.durations.instant
+					easing.type: SC.Config.curve
 					property: "contentOffset"
 					target: root
-					to: -Config.spacing.normal
+					to: -SC.Config.spacing.normal
 				}
 				ScriptAction {
 					script: {
 						root.displayedNotification = root.pendingNotification;
 						root.pendingNotification = null;
-						root.contentOffset = Config.spacing.normal;
+						root.contentOffset = SC.Config.spacing.normal;
 					}
 				}
 				ParallelAnimation {
 					NumberAnimation {
-						duration: Config.durations.extraFast
-						easing.type: Config.curve
+						duration: SC.Config.durations.extraFast
+						easing.type: SC.Config.curve
 						property: "contentOpacity"
 						target: root
 						to: 1
 					}
 					NumberAnimation {
-						duration: Config.durations.extraFast
-						easing.type: Config.curve
+						duration: SC.Config.durations.extraFast
+						easing.type: SC.Config.curve
 						property: "contentOffset"
 						target: root
 						to: 0
@@ -167,7 +167,7 @@ Scope {
 					id: popupCard
 
 					bodyLineLimit: 4
-					bottomInset: timeoutBar.visible ? timeoutBar.height + Config.spacing.small : 0
+					bottomInset: timeoutBar.visible ? timeoutBar.height + SC.Config.spacing.small : 0
 					compact: true
 					entry: NotificationStore.getById(root.displayedNotificationId)
 					showInlineReply: false
@@ -193,11 +193,11 @@ Scope {
 					id: timeoutBar
 
 					anchors.bottom: popupCard.bottom
-					anchors.bottomMargin: popupCard.border.width + Config.padding.small
+					anchors.bottomMargin: popupCard.border.width + SC.Config.padding.small
 					anchors.left: parent.left
-					anchors.leftMargin: popupCard.border.width + Config.padding.small
+					anchors.leftMargin: popupCard.border.width + SC.Config.padding.small
 					anchors.right: parent.right
-					anchors.rightMargin: popupCard.border.width + Config.padding.small
+					anchors.rightMargin: popupCard.border.width + SC.Config.padding.small
 					durationMs: NotificationStore.popupDurationMs
 					notificationId: root.displayedNotificationId
 					running: root.popupShown

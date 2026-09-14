@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 PanelWindow {
 	id: root
@@ -12,7 +12,7 @@ PanelWindow {
 	required property bool open
 	readonly property real openPanelX: screen.width - panelWidth
 	property Component panel
-	property int panelWidth: Config.sidebar.width
+	property int panelWidth: SC.Config.sidebar.width
 	property string title: ""
 	required property PanelWindow window
 
@@ -70,7 +70,7 @@ PanelWindow {
 			id: panelFrame
 
 			border.width: 0
-			color: Config.colors.bg
+			color: SC.Config.colors.bg
 			height: parent.height
 			opacity: root.open ? 1 : 0
 			radius: 0
@@ -80,14 +80,14 @@ PanelWindow {
 
 			Behavior on opacity {
 				NumberAnimation {
-					duration: Config.durations.normal
-					easing.type: Config.curve
+					duration: SC.Config.durations.normal
+					easing.type: SC.Config.curve
 				}
 			}
 			Behavior on x {
 				NumberAnimation {
-					duration: Config.durations.normal
-					easing.type: Config.curve
+					duration: SC.Config.durations.normal
+					easing.type: SC.Config.curve
 
 					onRunningChanged: {
 						if (!running && !root.open)
@@ -102,7 +102,7 @@ PanelWindow {
 				anchors.bottom: parent.bottom
 				anchors.left: parent.left
 				anchors.top: parent.top
-				color: Config.colors.primary
+				color: SC.Config.colors.primary
 				width: 2
 			}
 			MouseArea {
@@ -113,17 +113,17 @@ PanelWindow {
 			}
 			Column {
 				anchors.fill: parent
-				anchors.margins: Config.padding.large
-				spacing: Config.spacing.normal
+				anchors.margins: SC.Config.padding.large
+				spacing: SC.Config.spacing.normal
 
 				Row {
-					spacing: Config.spacing.small
+					spacing: SC.Config.spacing.small
 					width: parent.width
 
 					Text {
-						color: Config.colors.fg
+						color: SC.Config.colors.fg
 						elide: Text.ElideRight
-						font.pixelSize: Config.sizes.large
+						font.pixelSize: SC.Config.sizes.large
 						font.weight: Font.Medium
 						text: root.title
 						textFormat: Text.PlainText
@@ -133,15 +133,15 @@ PanelWindow {
 					Rectangle {
 						id: closeButton
 
-						color: closeArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
+						color: closeArea.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface1
 						height: 24
-						radius: Config.radius.full
+						radius: SC.Config.radius.full
 						width: 24
 
 						MaterialIcon {
 							anchors.centerIn: parent
 							code: 0xE4F6
-							iconColor: closeArea.containsMouse ? Config.colors.bg : Config.colors.primary
+							iconColor: closeArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.primary
 							iconSize: 12
 						}
 						MouseArea {

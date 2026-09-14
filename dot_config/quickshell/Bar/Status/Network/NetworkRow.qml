@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Rectangle {
 	id: root
@@ -10,30 +10,30 @@ Rectangle {
 	required property var network
 	required property var panel
 
-	color: mouse.containsMouse ? Config.colors.surface2 : Config.colors.surface1
+	color: mouse.containsMouse ? SC.Config.colors.surface2 : SC.Config.colors.surface1
 	height: passwordArea.visible ? 98 : 48
-	radius: Config.radius.small
+	radius: SC.Config.radius.small
 	width: parent ? parent.width : 0
 
 	MaterialIcon {
 		id: signalIcon
 
 		anchors.left: parent.left
-		anchors.leftMargin: Config.padding.small
+		anchors.leftMargin: SC.Config.padding.small
 		anchors.top: parent.top
-		anchors.topMargin: Config.padding.small
+		anchors.topMargin: SC.Config.padding.small
 		centered: false
 		code: root.network.signalStrength > 0.75 ? 0xE4EA : root.network.signalStrength > 0.5 ? 0xE4EE : root.network.signalStrength > 0.25 ? 0xE4EC : 0xE4F0
-		iconColor: root.network.connected ? Config.colors.primary : Config.colors.surface4
+		iconColor: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.surface4
 		iconSize: 18
 	}
 	Text {
 		id: actionLabel
 
 		anchors.right: parent.right
-		anchors.rightMargin: Config.padding.small
+		anchors.rightMargin: SC.Config.padding.small
 		anchors.top: signalIcon.top
-		color: root.network.connected ? Config.colors.success : Config.colors.primary
+		color: root.network.connected ? SC.Config.colors.success : SC.Config.colors.primary
 		font.pointSize: 8
 		font.weight: 500
 		text: root.busy ? "…" : root.network.connected ? "Connected" : "Connect"
@@ -42,11 +42,11 @@ Rectangle {
 		id: networkName
 
 		anchors.left: signalIcon.right
-		anchors.leftMargin: Config.padding.small
+		anchors.leftMargin: SC.Config.padding.small
 		anchors.right: actionLabel.left
-		anchors.rightMargin: Config.padding.small
+		anchors.rightMargin: SC.Config.padding.small
 		anchors.top: signalIcon.top
-		color: root.network.connected ? Config.colors.primary : Config.colors.fg
+		color: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.fg
 		elide: Text.ElideRight
 		font.pointSize: 9
 		font.weight: root.network.connected ? 600 : 400
@@ -57,7 +57,7 @@ Rectangle {
 		anchors.right: networkName.right
 		anchors.top: networkName.bottom
 		anchors.topMargin: 1
-		color: Config.colors.surface5
+		color: SC.Config.colors.surface5
 		elide: Text.ElideRight
 		font.pointSize: 8
 		text: root.busy ? NetworkService.actionState + "…" : root.network.connected ? "Connected" : root.network.security + (root.network.known ? " · saved" : "")
@@ -83,7 +83,7 @@ Rectangle {
 	Text {
 		anchors.right: actionLabel.right
 		anchors.top: actionLabel.bottom
-		color: Config.colors.surface5
+		color: SC.Config.colors.surface5
 		font.pointSize: 8
 		font.weight: 500
 		text: "Forget"
@@ -91,7 +91,7 @@ Rectangle {
 
 		MouseArea {
 			anchors.fill: parent
-			anchors.margins: -Config.padding.small
+			anchors.margins: -SC.Config.padding.small
 			cursorShape: Qt.PointingHandCursor
 			enabled: NetworkService.actionState === "idle"
 
@@ -103,7 +103,7 @@ Rectangle {
 
 		anchors.bottom: parent.bottom
 		anchors.left: parent.left
-		anchors.margins: Config.padding.small
+		anchors.margins: SC.Config.padding.small
 		anchors.right: parent.right
 		height: visible ? 38 : 0
 		visible: root.panel.passwordNetwork && root.panel.passwordNetwork.id === root.network.id
@@ -116,9 +116,9 @@ Rectangle {
 
 			anchors.left: parent.left
 			anchors.right: submit.left
-			anchors.rightMargin: Config.padding.small
+			anchors.rightMargin: SC.Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: Config.colors.fg
+			color: SC.Config.colors.fg
 			echoMode: TextInput.Password
 			font.pointSize: 9
 			height: parent.height
@@ -134,14 +134,14 @@ Rectangle {
 
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.panel.passwordText.length > 0 ? Config.colors.primary : Config.colors.surface3
+			color: root.panel.passwordText.length > 0 ? SC.Config.colors.primary : SC.Config.colors.surface3
 			font.pointSize: 8
 			font.weight: 600
 			text: "CONNECT"
 
 			MouseArea {
 				anchors.fill: parent
-				anchors.margins: -Config.padding.small
+				anchors.margins: -SC.Config.padding.small
 				cursorShape: Qt.PointingHandCursor
 				enabled: root.panel.passwordText.length > 0
 

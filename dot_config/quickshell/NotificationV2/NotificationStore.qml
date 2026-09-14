@@ -2,7 +2,7 @@ pragma Singleton
 import Quickshell
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.NotificationV2
 
 Singleton {
@@ -263,7 +263,7 @@ Singleton {
 		NotificationLifecycle.sendInlineReply(notification, text);
 	}
 	function trimToLimit(nextEntries: var): var {
-		while (nextEntries.length > Config.notifications.historyLimit) {
+		while (nextEntries.length > SC.Config.notifications.historyLimit) {
 			const entry = nextEntries[nextEntries.length - 1];
 			removeQueuedPopupId(entry.id);
 			nextEntries.pop();

@@ -3,10 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Debug as Debug
-import qs.Sidebar
-import qs.NotificationV2 as NotificationsV2
 import qs.Bar.Status.Battery as BatteryStatus
 import qs.Bar.Status.Bluetooth as BluetoothStatus
 import qs.Bar.Status.Network as NetworkStatus
@@ -27,8 +25,7 @@ Item {
 		return batteryButton;
 	}
 	property string activeMenu: ""
-	property string activePanel: ""
-	readonly property real buttonHorizontalPadding: Config.spacing.small / 3
+	readonly property real buttonHorizontalPadding: SC.Config.spacing.small / 3
 	readonly property var debugTargets: [
 		{
 			name: "network",
@@ -57,35 +54,18 @@ Item {
 	]
 	required property PanelWindow window
 
-	function closeAll() {
-		closeMenus();
-		closePanels();
-	}
 	function closeMenus() {
 		if (activeMenu === "network")
 			NetworkService.closePanel();
 		activeMenu = "";
 	}
-	function closePanels() {
-		sidebarHost.finalizePendingRemovals();
-		activePanel = "";
-	}
 	function switchMenu(id) {
-		closePanels();
 		const nextMenu = activeMenu === id ? "" : id;
 		if (activeMenu === "network" && nextMenu !== "network")
 			NetworkService.closePanel();
 		activeMenu = nextMenu;
 		if (activeMenu === "network")
 			NetworkService.openPanel();
-	}
-	function switchPanel(id) {
-		closeMenus();
-		if (activePanel === id) {
-			closePanels();
-			return;
-		}
-		activePanel = id;
 	}
 
 	implicitHeight: buttons.implicitHeight
@@ -101,12 +81,6 @@ Item {
 			id: trayButton
 
 			controller: root
-		}
-		NotificationsV2.NotificationButton {
-			id: notificationsButton
-
-			controller: root
-			count: NotificationsV2.NotificationStore.count
 		}
 		BluetoothStatus.Button {
 			id: bluetoothButton
@@ -158,31 +132,12 @@ Item {
 		}
 	}
 	Loader {
-		active: Config.debug.enabled
+		active: SC.Config.debug.enabled
 
 		sourceComponent: Component {
 			Debug.Capture {
 				targets: root.debugTargets
 			}
 		}
-	}
-	SidebarHost {
-		id: sidebarHost
-
-		open: root.activePanel === "notifications"
-		title: "Notifications"
-		window: root.window
-
-		panel: Component {
-			NotificationsV2.NotificationSidebarActions {
-				onClearAllRequested: {
-					NotificationsV2.NotificationStore.clear();
-					root.closePanels();
-				}
-				onCloseRequested: notificationId => NotificationsV2.NotificationStore.removeNotification(notificationId)
-			}
-		}
-
-		onCloseRequested: root.closePanels()
 	}
 }

@@ -3,7 +3,7 @@ import Quickshell.Io
 import Quickshell
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Scope {
 	id: osdScope
@@ -64,7 +64,7 @@ Scope {
 	Timer {
 		id: hideTimer
 
-		interval: Config.durations.slow
+		interval: SC.Config.durations.slow
 
 		onTriggered: osdScope.visible = false
 	}
@@ -154,20 +154,20 @@ Scope {
 			}
 			Rectangle {
 				anchors.centerIn: parent
-				border.color: Config.colors.surface4
+				border.color: SC.Config.colors.surface4
 				border.width: 2
-				color: Config.colors.surface1
+				color: SC.Config.colors.surface1
 				height: 80
-				radius: Config.radius.normal
+				radius: SC.Config.radius.normal
 				width: 300
 
 				Column {
 					anchors.centerIn: parent
-					spacing: Config.spacing.small
+					spacing: SC.Config.spacing.small
 					width: 260
 
 					Row {
-						spacing: Config.spacing.small
+						spacing: SC.Config.spacing.small
 						width: parent.width
 
 						Rectangle {
@@ -179,38 +179,38 @@ Scope {
 								id: osdIcon
 
 								code: osdScope.iconCode
-								color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.fg
+								color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.fg
 							}
 						}
 						Text {
-							color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.fg
-							font.pixelSize: Config.sizes.normal
+							color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.fg
+							font.pixelSize: SC.Config.sizes.normal
 							font.weight: Font.Medium
 							text: osdScope.label + ": " + (osdScope.isMuted ? "Muted" : osdScope.currentValue + "%")
 						}
 					}
 					Rectangle {
-						color: Config.colors.bg
-						height: Config.spacing.small
-						radius: Config.radius.full
+						color: SC.Config.colors.bg
+						height: SC.Config.spacing.small
+						radius: SC.Config.radius.full
 						width: parent.width
 
 						Rectangle {
-							color: osdScope.isMuted ? Config.colors.surface2 : Config.colors.primary
+							color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.primary
 							height: parent.height
-							radius: Config.radius.full
+							radius: SC.Config.radius.full
 							// Fix: Divide by dynamic maxLimit (100 or 140)
 							width: parent.width * Math.min(osdScope.currentValue / osdScope.maxLimit, 1)
 
 							Behavior on color {
 								ColorAnimation {
-									duration: Config.durations.extraFast
+									duration: SC.Config.durations.extraFast
 								}
 							}
 							Behavior on width {
 								NumberAnimation {
-									duration: Config.durations.extraFast
-									easing.type: Config.curve
+									duration: SC.Config.durations.extraFast
+									easing.type: SC.Config.curve
 								}
 							}
 						}

@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 ListView {
 	id: root
@@ -24,14 +24,14 @@ ListView {
 
 	Rectangle {
 		anchors.right: root.right
-		anchors.rightMargin: Config.padding.micro / 2
-		color: Config.colors.surface5
-		height: Math.min(root.height, Math.max(Config.padding.large * 2, root.height * root.height / (root.maximumContentY() - root.minimumContentY() + root.height)))
+		anchors.rightMargin: SC.Config.padding.micro / 2
+		color: SC.Config.colors.surface5
+		height: Math.min(root.height, Math.max(SC.Config.padding.large * 2, root.height * root.height / (root.maximumContentY() - root.minimumContentY() + root.height)))
 		opacity: 0.8
 		parent: root
 		radius: width / 2
 		visible: root.scrollable
-		width: Config.padding.micro
+		width: SC.Config.padding.micro
 		y: {
 			const range = root.maximumContentY() - root.minimumContentY();
 			if (range <= 0)

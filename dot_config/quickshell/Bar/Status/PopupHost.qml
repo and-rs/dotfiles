@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 
 PopupWindow {
@@ -43,7 +43,7 @@ PopupWindow {
 	readonly property real panelWidth: panelWidthFor(panelMenu)
 	readonly property real panelX: panelXInHost - leftEdge
 	readonly property real panelXInHost: panelXFor(panelButton, panelMenu)
-	readonly property real panelY: window.height + Config.popup.gap
+	readonly property real panelY: window.height + SC.Config.popup.gap
 	required property bool popupVisible
 	readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + panelWidthFor("battery"), trayPanelXInHost + panelWidthFor("tray"), bluetoothPanelXInHost + panelWidthFor("bluetooth"), networkPanelXInHost + panelWidthFor("network"))
 	readonly property real stripX: -leftEdge
@@ -52,7 +52,7 @@ PopupWindow {
 	required property PanelWindow window
 
 	function panelWidthFor(menu: string): real {
-		return menu === "network" ? Config.networkPanel.width : Config.popup.width;
+		return menu === "network" ? SC.Config.networkPanel.width : SC.Config.popup.width;
 	}
 	function panelXFor(button: Item, menu: string): real {
 		return button.x - (panelWidthFor(menu) / 2) + (button.width / 2);
@@ -96,8 +96,8 @@ PopupWindow {
 	NumberAnimation {
 		id: openAnim
 
-		duration: Config.durations.instant
-		easing.type: Config.curve
+		duration: SC.Config.durations.instant
+		easing.type: SC.Config.curve
 		property: "opacity"
 		target: panelFrame
 		to: 1
@@ -105,8 +105,8 @@ PopupWindow {
 	NumberAnimation {
 		id: closeAnim
 
-		duration: Config.durations.instant
-		easing.type: Config.curve
+		duration: SC.Config.durations.instant
+		easing.type: SC.Config.curve
 		property: "opacity"
 		target: panelFrame
 		to: 0
@@ -161,7 +161,7 @@ PopupWindow {
 			border.width: 1
 			color: "transparent"
 			height: popup.window.height
-			visible: Config.popup.debug
+			visible: SC.Config.popup.debug
 			width: popup.hostItem.width
 			x: popup.stripX
 			y: 0
@@ -176,7 +176,7 @@ PopupWindow {
 				border.width: 1
 				color: "transparent"
 				height: modelData.height
-				visible: Config.popup.debug
+				visible: SC.Config.popup.debug
 				width: modelData.width
 				x: popup.stripX + modelData.x
 				y: modelData.y
@@ -185,7 +185,7 @@ PopupWindow {
 		Item {
 			id: panelFrame
 
-			height: contentColumn.implicitHeight + Config.padding.large * 2
+			height: contentColumn.implicitHeight + SC.Config.padding.large * 2
 			opacity: 1
 			width: popup.panelWidth
 			x: popup.panelX
@@ -193,26 +193,26 @@ PopupWindow {
 
 			Behavior on x {
 				NumberAnimation {
-					duration: Config.durations.instant
-					easing.type: Config.curve
+					duration: SC.Config.durations.instant
+					easing.type: SC.Config.curve
 				}
 			}
 
 			Rectangle {
 				anchors.fill: parent
-				border.color: Config.popup.debug ? "#ff4444" : Config.colors.surface4
-				border.width: Config.popup.borderWidth
-				color: Config.colors.bg
-				radius: Config.radius.normal
+				border.color: SC.Config.popup.debug ? "#ff4444" : SC.Config.colors.surface4
+				border.width: SC.Config.popup.borderWidth
+				color: SC.Config.colors.bg
+				radius: SC.Config.radius.normal
 			}
 			Column {
 				id: contentColumn
 
 				anchors.left: parent.left
-				anchors.margins: Config.padding.large
+				anchors.margins: SC.Config.padding.large
 				anchors.right: parent.right
 				anchors.top: parent.top
-				spacing: Config.spacing.small
+				spacing: SC.Config.spacing.small
 			}
 		}
 	}

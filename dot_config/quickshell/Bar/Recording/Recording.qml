@@ -2,18 +2,18 @@ import QtQuick
 import Quickshell
 import QtQuick.Effects
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Row {
 	id: recordingRoot
 
 	readonly property int iconCode: statusIcons[svc.status] || 0xE69C
-	readonly property color stateColor: statusColors[svc.status] || Config.colors.fg
+	readonly property color stateColor: statusColors[svc.status] || SC.Config.colors.fg
 	readonly property var statusColors: ({
-			[svc.statusSelect]: Config.colors.fg,
-			[svc.statusRecording]: Config.colors.destructive,
-			[svc.statusCompressPrompt]: Config.colors.secondary,
-			[svc.statusSaving]: Config.colors.primary
+			[svc.statusSelect]: SC.Config.colors.fg,
+			[svc.statusRecording]: SC.Config.colors.destructive,
+			[svc.statusCompressPrompt]: SC.Config.colors.secondary,
+			[svc.statusSaving]: SC.Config.colors.primary
 		})
 	readonly property var statusIcons: ({
 			[svc.statusSelect]: 0xE69C,
@@ -41,7 +41,7 @@ Row {
 	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 	visible: svc.status !== svc.statusIdle
 
 	RecordingService {
@@ -67,11 +67,11 @@ Row {
 				running: svc.status === svc.statusRecording
 
 				NumberAnimation {
-					duration: Config.durations.normal
+					duration: SC.Config.durations.normal
 					to: 0.5
 				}
 				NumberAnimation {
-					duration: Config.durations.normal
+					duration: SC.Config.durations.normal
 					to: 1.0
 				}
 			}
@@ -88,15 +88,15 @@ Row {
 
 			anchors.verticalCenter: parent.verticalCenter
 			clip: true
-			color: Config.colors.surface4
+			color: SC.Config.colors.surface4
 			height: 20
-			radius: Config.radius.small
+			radius: SC.Config.radius.small
 			width: label.paintedWidth + 16
 
 			Behavior on width {
 				NumberAnimation {
-					duration: Config.durations.normal
-					easing.type: Config.curve
+					duration: SC.Config.durations.normal
+					easing.type: SC.Config.curve
 				}
 			}
 
@@ -175,7 +175,7 @@ Row {
 				id: label
 
 				anchors.fill: parent
-				color: Config.colors.bg
+				color: SC.Config.colors.bg
 				font.pointSize: 10
 				font.weight: 700
 				horizontalAlignment: Text.AlignHCenter

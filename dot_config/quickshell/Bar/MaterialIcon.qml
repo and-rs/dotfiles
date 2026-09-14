@@ -1,11 +1,11 @@
 import QtQuick
-import qs.Config
+import qs.Config as SC
 
 Text {
 	property bool centered: true
 	property int code: 0
 	property string icon: ""
-	property color iconColor: Config.colors.fg
+	property color iconColor: SC.Config.colors.fg
 	property int iconSize: 16
 
 	anchors.horizontalCenter: centered ? parent.horizontalCenter : undefined

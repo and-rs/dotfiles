@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell.Widgets
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 ClippingRectangle {
 	id: root
@@ -21,15 +21,15 @@ ClippingRectangle {
 	}
 
 	border.width: 0
-	color: Config.colors.surface1
+	color: SC.Config.colors.surface1
 	height: size
-	radius: Config.radius.normal
+	radius: SC.Config.radius.normal
 	width: size
 
 	Text {
 		anchors.centerIn: parent
-		color: Config.colors.surface5
-		font.pixelSize: Config.sizes.extraLarge
+		color: SC.Config.colors.surface5
+		font.pixelSize: SC.Config.sizes.extraLarge
 		font.weight: Font.Bold
 		text: root.fallbackText
 		visible: !root.imageReady
@@ -68,7 +68,7 @@ ClippingRectangle {
 	}
 	Rectangle {
 		anchors.fill: parent
-		color: Qt.alpha(Config.colors.bg, 0.12)
+		color: Qt.alpha(SC.Config.colors.bg, 0.12)
 		visible: root.imageReady && root.hasNotificationImage
 	}
 }

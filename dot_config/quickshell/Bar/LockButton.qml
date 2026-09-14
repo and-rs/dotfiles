@@ -1,6 +1,6 @@
 import Quickshell
 import QtQuick
-import qs.Config
+import qs.Config as SC
 
 Rectangle {
 	id: lockButton
@@ -14,7 +14,7 @@ Rectangle {
 
 	MaterialIcon {
 		code: 0xE308
-		iconColor: Config.colors.surface4
+		iconColor: SC.Config.colors.surface4
 	}
 	MouseArea {
 		anchors.fill: parent

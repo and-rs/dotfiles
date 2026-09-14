@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell.Bluetooth
 import Quickshell.Io
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Column {
 	id: root
@@ -21,24 +21,24 @@ Column {
 	}
 	readonly property bool isEnabled: adapter && adapter.enabled
 
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 	width: parent ? parent.width : 0
 
 	Text {
-		color: Config.colors.fg
+		color: SC.Config.colors.fg
 		font.pointSize: 10
 		font.weight: 700
 		text: "Bluetooth"
 	}
 	Rectangle {
-		color: Config.colors.surface2
+		color: SC.Config.colors.surface2
 		height: 1
 		width: parent.width
 	}
 	Rectangle {
-		color: btToggleHover.hovered ? Config.colors.surface2 : Config.colors.surface1
+		color: btToggleHover.hovered ? SC.Config.colors.surface2 : SC.Config.colors.surface1
 		height: 28
-		radius: Config.radius.small
+		radius: SC.Config.radius.small
 		width: parent.width
 
 		HoverHandler {
@@ -46,18 +46,18 @@ Column {
 		}
 		Text {
 			anchors.left: parent.left
-			anchors.leftMargin: Config.padding.small
+			anchors.leftMargin: SC.Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: Config.colors.fg
+			color: SC.Config.colors.fg
 			font.pointSize: 9
 			font.weight: 500
 			text: "Power"
 		}
 		Text {
 			anchors.right: parent.right
-			anchors.rightMargin: Config.padding.small
+			anchors.rightMargin: SC.Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.isEnabled ? Config.colors.success : Config.colors.surface4
+			color: root.isEnabled ? SC.Config.colors.success : SC.Config.colors.surface4
 			font.pointSize: 9
 			font.weight: 500
 			text: root.isEnabled ? "On" : "Off"
@@ -73,9 +73,9 @@ Column {
 		}
 	}
 	Rectangle {
-		color: btScanHover.hovered ? Config.colors.surface3 : Config.colors.surface2
+		color: btScanHover.hovered ? SC.Config.colors.surface3 : SC.Config.colors.surface2
 		height: 28
-		radius: Config.radius.small
+		radius: SC.Config.radius.small
 		visible: root.isEnabled
 		width: parent.width
 
@@ -84,18 +84,18 @@ Column {
 		}
 		Text {
 			anchors.left: parent.left
-			anchors.leftMargin: Config.padding.small
+			anchors.leftMargin: SC.Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: Config.colors.fg
+			color: SC.Config.colors.fg
 			font.pointSize: 9
 			font.weight: 500
 			text: "Scanning"
 		}
 		Text {
 			anchors.right: parent.right
-			anchors.rightMargin: Config.padding.small
+			anchors.rightMargin: SC.Config.padding.small
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.adapter && root.adapter.discovering ? Config.colors.primary : Config.colors.surface3
+			color: root.adapter && root.adapter.discovering ? SC.Config.colors.primary : SC.Config.colors.surface3
 			font.pointSize: 9
 			font.weight: 500
 			text: root.adapter && root.adapter.discovering ? "On" : "Off"
@@ -111,40 +111,40 @@ Column {
 		}
 	}
 	Column {
-		spacing: Config.spacing.small
+		spacing: SC.Config.spacing.small
 		visible: root.adapter !== null && root.isEnabled
 		width: parent.width
 
 		Rectangle {
-			color: Config.colors.surface3
+			color: SC.Config.colors.surface3
 			height: 1
 			width: parent.width
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "Adapter"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.adapter ? root.adapter.name : ""
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "State"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.adapter ? BluetoothAdapterState.toString(root.adapter.state) : ""
@@ -152,13 +152,13 @@ Column {
 		}
 	}
 	Rectangle {
-		color: Config.colors.surface3
+		color: SC.Config.colors.surface3
 		height: 1
 		visible: root.isEnabled
 		width: parent.width
 	}
 	Text {
-		color: Config.colors.fg
+		color: SC.Config.colors.fg
 		font.pointSize: 9
 		font.weight: 700
 		text: "Connected"
@@ -174,7 +174,7 @@ Column {
 		Column {
 			id: connectedCol
 
-			spacing: Config.spacing.extraSmall
+			spacing: SC.Config.spacing.extraSmall
 			width: parent.width
 
 			Repeater {
@@ -183,26 +183,26 @@ Column {
 				delegate: Rectangle {
 					required property var modelData
 
-					color: Config.colors.surface3
+					color: SC.Config.colors.surface3
 					height: modelData.connected ? 36 : 0
-					radius: Config.radius.small
+					radius: SC.Config.radius.small
 					visible: modelData.connected
 					width: connectedCol.width
 
 					Text {
 						anchors.left: parent.left
-						anchors.leftMargin: Config.padding.small
+						anchors.leftMargin: SC.Config.padding.small
 						anchors.verticalCenter: parent.verticalCenter
-						color: Config.colors.primary
+						color: SC.Config.colors.primary
 						font.pointSize: 9
 						font.weight: 700
 						text: modelData.name || "Unknown"
 					}
 					Text {
 						anchors.right: parent.right
-						anchors.rightMargin: Config.padding.small
+						anchors.rightMargin: SC.Config.padding.small
 						anchors.verticalCenter: parent.verticalCenter
-						color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? Config.colors.destructive : Config.colors.fg) : Config.colors.success
+						color: modelData.batteryAvailable ? (modelData.battery < 0.2 ? SC.Config.colors.destructive : SC.Config.colors.fg) : SC.Config.colors.success
 						font.pointSize: 8
 						text: modelData.batteryAvailable ? Math.round(modelData.battery * 100) + "%" : "Connected"
 					}
@@ -217,7 +217,7 @@ Column {
 		}
 	}
 	Text {
-		color: Config.colors.fg
+		color: SC.Config.colors.fg
 		font.pointSize: 9
 		font.weight: 700
 		text: "Available"
@@ -233,7 +233,7 @@ Column {
 		Column {
 			id: availableCol
 
-			spacing: Config.spacing.extraSmall
+			spacing: SC.Config.spacing.extraSmall
 			width: parent.width
 
 			Repeater {
@@ -242,26 +242,26 @@ Column {
 				delegate: Rectangle {
 					required property var modelData
 
-					color: Config.colors.surface2
+					color: SC.Config.colors.surface2
 					height: !modelData.connected ? 36 : 0
-					radius: Config.radius.small
+					radius: SC.Config.radius.small
 					visible: !modelData.connected
 					width: availableCol.width
 
 					Text {
 						anchors.left: parent.left
-						anchors.leftMargin: Config.padding.small
+						anchors.leftMargin: SC.Config.padding.small
 						anchors.verticalCenter: parent.verticalCenter
-						color: Config.colors.fg
+						color: SC.Config.colors.fg
 						font.pointSize: 9
 						font.weight: 500
 						text: modelData.name || "Unknown"
 					}
 					Text {
 						anchors.right: parent.right
-						anchors.rightMargin: Config.padding.small
+						anchors.rightMargin: SC.Config.padding.small
 						anchors.verticalCenter: parent.verticalCenter
-						color: modelData.paired ? Config.colors.surface5 : Config.colors.surface4
+						color: modelData.paired ? SC.Config.colors.surface5 : SC.Config.colors.surface4
 						font.pointSize: 8
 						text: modelData.paired ? "Paired" : "New"
 					}
@@ -276,13 +276,13 @@ Column {
 		}
 	}
 	Text {
-		color: Config.colors.surface3
+		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: "Bluetooth is off"
 		visible: !root.isEnabled
 	}
 	Text {
-		color: Config.colors.surface3
+		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: "No devices found"
 		visible: root.isEnabled && (Bluetooth.devices.values ?? []).length === 0

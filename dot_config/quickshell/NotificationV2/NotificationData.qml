@@ -1,7 +1,7 @@
 pragma Singleton
 import Quickshell
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Singleton {
 	id: root
@@ -77,11 +77,11 @@ Singleton {
 	}
 	function popupDurationFromTimeout(expireTimeout: var): int {
 		if (expireTimeout === undefined || expireTimeout === null)
-			return Config.notifications.popupDuration;
+			return SC.Config.notifications.popupDuration;
 
 		const timeout = Number(expireTimeout);
 		if (!isFinite(timeout) || timeout < 0)
-			return Config.notifications.popupDuration;
+			return SC.Config.notifications.popupDuration;
 
 		return Math.max(0, Math.round(timeout));
 	}

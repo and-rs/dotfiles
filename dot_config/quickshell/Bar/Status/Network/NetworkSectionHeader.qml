@@ -1,9 +1,9 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Text {
-	color: Config.colors.surface4
+	color: SC.Config.colors.surface4
 	font.pointSize: 8
 	font.weight: 600
 	text: ""

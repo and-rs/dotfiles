@@ -1,7 +1,7 @@
 import Quickshell.Services.SystemTray
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 
 Rectangle {
@@ -20,7 +20,7 @@ Rectangle {
 		id: trayIcon
 
 		code: !trayRect.hasItems ? 0xECE0 : trayRect.active ? 0xE13C : 0xE136
-		iconColor: !trayRect.hasItems ? Config.colors.surface4 : trayRect.active ? Config.colors.destructive : Config.colors.fg
+		iconColor: !trayRect.hasItems ? SC.Config.colors.surface4 : trayRect.active ? SC.Config.colors.destructive : SC.Config.colors.fg
 		iconSize: 18
 	}
 	MouseArea {

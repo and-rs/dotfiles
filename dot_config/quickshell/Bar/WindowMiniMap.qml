@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Item {
 	id: root
@@ -18,10 +18,10 @@ Item {
 
 		return maxHeight;
 	}
-	readonly property int mapHeight: Config.sizes.small + 2
+	readonly property int mapHeight: SC.Config.sizes.small + 2
 	readonly property int minColumnWidth: 8
 	readonly property int tileGap: 1
-	readonly property int tileRadius: Math.max(1, Config.radius.small - 2)
+	readonly property int tileRadius: Math.max(1, SC.Config.radius.small - 2)
 
 	function columnWidth(column) {
 		return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
@@ -143,7 +143,7 @@ Item {
 					required property int index
 					required property var modelData
 
-					color: root.isFocused(modelData) ? Config.colors.primary : Qt.alpha(Config.colors.primary, 0.3)
+					color: root.isFocused(modelData) ? SC.Config.colors.primary : Qt.alpha(SC.Config.colors.primary, 0.3)
 					height: root.tileHeights(columnDelegate.modelData)[index]
 					radius: root.tileRadius
 					width: columnDelegate.width

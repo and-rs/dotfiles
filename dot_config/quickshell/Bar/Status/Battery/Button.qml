@@ -4,7 +4,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell.Services.UPower
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 
 Rectangle {
@@ -13,7 +13,7 @@ Rectangle {
 	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
 	required property Status.StatusMenus controller
 	readonly property var device: UPower.displayDevice
-	readonly property color fillColor: fillLevel < 0.2 ? Config.colors.destructive : charging ? Config.colors.success : Config.colors.fg
+	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? SC.Config.colors.success : SC.Config.colors.fg
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];
@@ -37,15 +37,15 @@ Rectangle {
 
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
-		spacing: Config.spacing.extraSmall
+		spacing: SC.Config.spacing.extraSmall
 
 		Row {
 			anchors.verticalCenter: parent.verticalCenter
-			padding: Config.padding.micro
+			padding: SC.Config.padding.micro
 			spacing: 6
 
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 10
 				font.weight: 600
 				height: batteryShell.height
@@ -58,11 +58,11 @@ Rectangle {
 					id: batteryShell
 
 					anchors.verticalCenter: parent.verticalCenter
-					border.color: Config.colors.surface2
+					border.color: SC.Config.colors.surface2
 					border.width: 2
-					color: Config.colors.surface2
+					color: SC.Config.colors.surface2
 					height: 15
-					radius: Config.radius.small
+					radius: SC.Config.radius.small
 					width: 28
 
 					Item {
@@ -73,7 +73,7 @@ Rectangle {
 						width: parent.width * fillLevel
 
 						Rectangle {
-							border.color: Config.colors.surface2
+							border.color: SC.Config.colors.surface2
 							border.width: 2
 							color: root.fillColor
 							height: batteryShell.height
@@ -84,10 +84,10 @@ Rectangle {
 				}
 				Rectangle {
 					anchors.verticalCenter: parent.verticalCenter
-					bottomRightRadius: Config.radius.small
-					color: Config.colors.surface2
+					bottomRightRadius: SC.Config.radius.small
+					color: SC.Config.colors.surface2
 					height: (batteryShell.height - (batteryShell.border.width / 2)) / 2
-					topRightRadius: Config.radius.small
+					topRightRadius: SC.Config.radius.small
 					width: 2.5
 				}
 			}
@@ -99,7 +99,7 @@ Rectangle {
 				MaterialIcon {
 					anchors.centerIn: parent
 					code: 0xE2DE
-					iconColor: Config.colors.success
+					iconColor: SC.Config.colors.success
 					iconSize: 14
 					opacity: charging ? 1 : 0
 				}

@@ -4,7 +4,7 @@ import Quickshell.Services.SystemTray
 import Quickshell
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 import IconValidation 1.0
 
@@ -32,7 +32,7 @@ Column {
 	}
 
 	spacing: 2
-	width: parent ? parent.width : Config.popup.width
+	width: parent ? parent.width : SC.Config.popup.width
 
 	IconValidator {
 		id: iconValidator
@@ -40,7 +40,7 @@ Column {
 	Timer {
 		id: actionTimer
 
-		interval: Config.durations.instant
+		interval: SC.Config.durations.instant
 		repeat: false
 
 		onTriggered: {
@@ -85,7 +85,7 @@ Column {
 
 				NumberAnimation {
 					duration: 75
-					easing.type: Config.curve
+					easing.type: SC.Config.curve
 				}
 			}
 			Behavior on opacity {
@@ -93,16 +93,16 @@ Column {
 
 				NumberAnimation {
 					duration: 75
-					easing.type: Config.curve
+					easing.type: SC.Config.curve
 				}
 			}
 
 			Component.onCompleted: animationsReady = true
 
 			Rectangle {
-				color: headerHover.hovered ? Qt.alpha(Config.colors.primary, 0.5) : Config.colors.surface2
-				height: Config.sizes.large + Config.padding.normal
-				radius: Config.radius.small
+				color: headerHover.hovered ? Qt.alpha(SC.Config.colors.primary, 0.5) : SC.Config.colors.surface2
+				height: SC.Config.sizes.large + SC.Config.padding.normal
+				radius: SC.Config.radius.small
 				width: parent.width
 
 				HoverHandler {
@@ -110,16 +110,16 @@ Column {
 				}
 				Row {
 					anchors.left: parent.left
-					anchors.leftMargin: Config.padding.small
+					anchors.leftMargin: SC.Config.padding.small
 					anchors.right: parent.right
-					anchors.rightMargin: Config.padding.small
+					anchors.rightMargin: SC.Config.padding.small
 					anchors.verticalCenter: parent.verticalCenter
-					spacing: Config.spacing.small
+					spacing: SC.Config.spacing.small
 
 					Item {
 						anchors.verticalCenter: parent.verticalCenter
-						height: Config.sizes.normal + 2
-						width: Config.sizes.normal + 2
+						height: SC.Config.sizes.normal + 2
+						width: SC.Config.sizes.normal + 2
 
 						Image {
 							id: headerIcon
@@ -135,32 +135,32 @@ Column {
 						MaterialIcon {
 							anchors.centerIn: parent
 							code: 0xE3E8
-							iconColor: Config.colors.fg
-							iconSize: Config.sizes.normal
+							iconColor: SC.Config.colors.fg
+							iconSize: SC.Config.sizes.normal
 							visible: headerIcon.status !== Image.Ready || !root.iconIsValid(itemDelegate.modelData.icon, headerIcon.sourceSize.width, headerIcon.sourceSize.height)
 						}
 					}
 					Text {
 						anchors.verticalCenter: parent.verticalCenter
-						color: Config.colors.fg
+						color: SC.Config.colors.fg
 						elide: Text.ElideRight
 						font.pointSize: 9
 						font.weight: 600
 						text: itemDelegate.modelData.title || itemDelegate.modelData.id || "Unknown"
-						width: parent.width - (Config.sizes.normal + 2) - chevronContainer.width - Config.spacing.small * 2
+						width: parent.width - (SC.Config.sizes.normal + 2) - chevronContainer.width - SC.Config.spacing.small * 2
 					}
 					Item {
 						id: chevronContainer
 
 						anchors.verticalCenter: parent.verticalCenter
-						height: Config.sizes.small + 2
-						width: itemDelegate.hasMenuEntries ? Config.sizes.small + 2 : 0
+						height: SC.Config.sizes.small + 2
+						width: itemDelegate.hasMenuEntries ? SC.Config.sizes.small + 2 : 0
 
 						MaterialIcon {
 							anchors.centerIn: parent
 							code: itemDelegate.isExpanded ? 0xE136 : 0xE13A
-							iconColor: Config.colors.fg
-							iconSize: Config.sizes.small + 2
+							iconColor: SC.Config.colors.fg
+							iconSize: SC.Config.sizes.small + 2
 							visible: itemDelegate.hasMenuEntries
 						}
 					}
@@ -215,9 +215,9 @@ Column {
 						required property int index
 						required property var modelData
 
-						color: entryHover.hovered && modelData.enabled ? Config.colors.surface2 : Config.colors.surface1
-						height: Config.sizes.large + Config.padding.extraSmall + 3
-						radius: Config.radius.small
+						color: entryHover.hovered && modelData.enabled ? SC.Config.colors.surface2 : SC.Config.colors.surface1
+						height: SC.Config.sizes.large + SC.Config.padding.extraSmall + 3
+						radius: SC.Config.radius.small
 						width: menuContent.width
 
 						HoverHandler {
@@ -225,56 +225,56 @@ Column {
 						}
 						Row {
 							anchors.left: parent.left
-							anchors.leftMargin: Config.padding.small
+							anchors.leftMargin: SC.Config.padding.small
 							anchors.right: parent.right
-							anchors.rightMargin: Config.padding.small
+							anchors.rightMargin: SC.Config.padding.small
 							anchors.verticalCenter: parent.verticalCenter
-							spacing: Config.spacing.small
+							spacing: SC.Config.spacing.small
 
 							Rectangle {
 								property bool hasButton: entryDelegate.modelData.buttonType !== QsMenuButtonType.None
 								property bool isChecked: entryDelegate.modelData.checkState === Qt.Checked
 
 								anchors.verticalCenter: parent.verticalCenter
-								border.color: Config.colors.surface3
+								border.color: SC.Config.colors.surface3
 								border.width: 2
-								color: isChecked ? Config.colors.primary : "transparent"
-								height: Config.sizes.small + 2
-								radius: entryDelegate.modelData.buttonType === QsMenuButtonType.RadioButton ? Config.radius.full : 3
+								color: isChecked ? SC.Config.colors.primary : "transparent"
+								height: SC.Config.sizes.small + 2
+								radius: entryDelegate.modelData.buttonType === QsMenuButtonType.RadioButton ? SC.Config.radius.full : 3
 								visible: hasButton
-								width: hasButton ? Config.sizes.small + 2 : 0
+								width: hasButton ? SC.Config.sizes.small + 2 : 0
 							}
 							Item {
 								anchors.verticalCenter: parent.verticalCenter
-								height: Config.sizes.small + 2
+								height: SC.Config.sizes.small + 2
 								visible: entryDelegate.modelData.icon !== undefined && entryDelegate.modelData.icon !== ""
-								width: visible ? Config.sizes.small + 2 : 0
+								width: visible ? SC.Config.sizes.small + 2 : 0
 
 								Image {
 									id: entryIcon
 
 									anchors.fill: parent
 									source: root.resolveIcon(entryDelegate.modelData.icon)
-									sourceSize.height: Config.sizes.normal
-									sourceSize.width: Config.sizes.normal
+									sourceSize.height: SC.Config.sizes.normal
+									sourceSize.width: SC.Config.sizes.normal
 									visible: status === Image.Ready && root.iconIsValid(entryDelegate.modelData.icon, sourceSize.width, sourceSize.height)
 								}
 								MaterialIcon {
 									anchors.centerIn: parent
 									code: 0xE3E8
-									iconColor: Config.colors.surface4
-									iconSize: Config.sizes.small
+									iconColor: SC.Config.colors.surface4
+									iconSize: SC.Config.sizes.small
 									visible: entryIcon.status !== Image.Ready || !root.iconIsValid(entryDelegate.modelData.icon, entryIcon.sourceSize.width, entryIcon.sourceSize.height)
 								}
 							}
 							Text {
 								anchors.verticalCenter: parent.verticalCenter
-								color: entryDelegate.modelData.enabled ? Config.colors.fg : Config.colors.surface3
+								color: entryDelegate.modelData.enabled ? SC.Config.colors.fg : SC.Config.colors.surface3
 								elide: Text.ElideRight
 								font.pointSize: 9
 								font.weight: 500
 								text: entryDelegate.modelData.text || ""
-								width: Math.min(implicitWidth, Config.popup.width - Config.padding.small * 4)
+								width: Math.min(implicitWidth, SC.Config.popup.width - SC.Config.padding.small * 4)
 							}
 						}
 						MouseArea {

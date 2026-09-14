@@ -5,8 +5,9 @@ import Quickshell.Wayland
 import QtQuick
 import qs.Bar
 import qs.Bar.Recording
-import qs.Bar.Status
-import qs.Config
+import qs.Config as SC
+import qs.ControlCenterV2
+import qs.NotificationV2
 
 Scope {
 	id: barScope
@@ -59,13 +60,13 @@ Scope {
 				Behavior on opacity {
 					NumberAnimation {
 						duration: 180
-						easing.type: Config.curve
+						easing.type: SC.Config.curve
 					}
 				}
 				Behavior on y {
 					NumberAnimation {
 						duration: 180
-						easing.type: Config.curve
+						easing.type: SC.Config.curve
 					}
 				}
 
@@ -73,7 +74,7 @@ Scope {
 					id: background
 
 					anchors.fill: parent
-					color: Config.colors.bg
+					color: SC.Config.colors.bg
 
 					Rectangle {
 						id: bottomBorder
@@ -81,13 +82,13 @@ Scope {
 						anchors.bottom: parent.bottom
 						anchors.left: parent.left
 						anchors.right: parent.right
-						color: Config.colors.surface1
+						color: SC.Config.colors.surface1
 						height: 2
 					}
 				}
 				Row {
-					padding: Config.padding.micro
-					spacing: Config.spacing.normal
+					padding: SC.Config.padding.micro
+					spacing: SC.Config.spacing.normal
 
 					Workspaces {}
 					WindowTitle {}
@@ -97,14 +98,14 @@ Scope {
 
 					anchors.right: parent.right
 					anchors.verticalCenter: parent.verticalCenter
-					rightPadding: Config.padding.large
-					spacing: Config.spacing.large
+					rightPadding: SC.Config.padding.large
+					spacing: SC.Config.spacing.large
 
 					Row {
 						id: buttons
 
 						anchors.verticalCenter: parent.verticalCenter
-						spacing: Config.spacing.small
+						spacing: SC.Config.spacing.small
 
 						Recording {}
 						Caffeine {
@@ -117,21 +118,22 @@ Scope {
 
 							window: main
 						}
+						NotificationButton {
+							window: main
+						}
 						Rectangle {
 							anchors.verticalCenter: parent.verticalCenter
-							color: Config.colors.surface2
-							height: Config.sizes.small
+							color: SC.Config.colors.surface2
+							height: SC.Config.sizes.small
 							width: 2
 						}
-						StatusMenus {
-							id: statusMenus
-
+						ControlCenterButton {
 							window: main
 						}
 					}
 					Text {
 						anchors.verticalCenter: parent.verticalCenter
-						color: Config.colors.fg
+						color: SC.Config.colors.fg
 						font.pointSize: 10
 						font.weight: 500
 						text: Time.format("ddd d MMM hh:mm")

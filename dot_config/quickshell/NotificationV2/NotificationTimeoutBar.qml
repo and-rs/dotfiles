@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Rectangle {
 	id: root
@@ -23,9 +23,9 @@ Rectangle {
 	}
 
 	clip: true
-	color: Config.colors.surface2
+	color: SC.Config.colors.surface2
 	height: visible ? 3 : 0
-	radius: Config.radius.small
+	radius: SC.Config.radius.small
 	visible: durationMs > 0
 
 	Component.onCompleted: restart()
@@ -48,15 +48,15 @@ Rectangle {
 			orientation: Gradient.Horizontal
 
 			GradientStop {
-				color: Config.colors.primary
+				color: SC.Config.colors.primary
 				position: 0.0
 			}
 			GradientStop {
-				color: Config.colors.primary
+				color: SC.Config.colors.primary
 				position: 0.7
 			}
 			GradientStop {
-				color: Qt.lighter(Config.colors.primary, 1.2)
+				color: Qt.lighter(SC.Config.colors.primary, 1.2)
 				position: 1.0
 			}
 		}

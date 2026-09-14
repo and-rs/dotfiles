@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Services.UPower
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Column {
 	id: root
@@ -55,143 +55,143 @@ Column {
 		PowerProfiles.profile = profile;
 	}
 
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 	width: parent ? parent.width : 0
 
 	Text {
-		color: Config.colors.fg
+		color: SC.Config.colors.fg
 		font.pointSize: 10
 		font.weight: 700
 		text: "Battery"
 	}
 	Rectangle {
-		color: Config.colors.surface2
+		color: SC.Config.colors.surface2
 		height: 1
 		width: parent.width
 	}
 	Text {
-		color: Config.colors.surface3
+		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: "No battery detected"
 		visible: !root.hasBattery
 	}
 	Text {
-		color: Config.colors.surface3
+		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: "Loading…"
 		visible: root.hasBattery && !root.ready
 	}
 	Column {
-		spacing: Config.spacing.small
+		spacing: SC.Config.spacing.small
 		visible: root.hasBattery && root.ready
 		width: parent.width
 
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "Charge"
 			}
 			Text {
-				color: root.percentInt < 20 ? Config.colors.destructive : Config.colors.fg
+				color: root.percentInt < 20 ? SC.Config.colors.destructive : SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 700
 				text: root.percentInt + "%"
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "State"
 			}
 			Text {
-				color: root.charging ? Config.colors.primary : root.discharging ? Config.colors.fg : Config.colors.surface4
+				color: root.charging ? SC.Config.colors.primary : root.discharging ? SC.Config.colors.fg : SC.Config.colors.surface4
 				font.pointSize: 9
 				font.weight: 600
 				text: UPowerDeviceState.toString(device.state)
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 			visible: root.charging || root.discharging
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: root.charging ? "Time to full" : "Time left"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.charging ? root.formatDuration(device.timeToFull) : root.formatDuration(device.timeToEmpty)
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 			visible: root.rateWatts > 0
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: root.charging ? "Charging rate" : "Drain"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.rateWatts.toFixed(1) + " W"
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "Energy"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.energyNow.toFixed(1) + " / " + root.energyCapacity.toFixed(1) + " Wh"
 			}
 		}
 		Row {
-			spacing: Config.spacing.small
+			spacing: SC.Config.spacing.small
 			visible: root.healthSupported
 
 			Text {
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pointSize: 9
 				text: "Health"
 			}
 			Text {
-				color: Config.colors.fg
+				color: SC.Config.colors.fg
 				font.pointSize: 9
 				font.weight: 600
 				text: root.healthPercent + "%"
 			}
 		}
 		Rectangle {
-			color: Config.colors.surface2
+			color: SC.Config.colors.surface2
 			height: 1
 			width: parent.width
 		}
 		Text {
-			color: Config.colors.fg
+			color: SC.Config.colors.fg
 			font.pointSize: 9
 			font.weight: 700
 			text: "Power Mode"
 		}
 		Column {
-			spacing: Config.spacing.extraSmall
+			spacing: SC.Config.spacing.extraSmall
 			width: parent.width
 
 			Repeater {
@@ -223,10 +223,10 @@ Column {
 					readonly property bool available: profileRow.modelData.available
 					required property var modelData
 
-					color: active ? Config.colors.primary : rowHover.hovered && available ? Config.colors.surface2 : Config.colors.surface1
+					color: active ? SC.Config.colors.primary : rowHover.hovered && available ? SC.Config.colors.surface2 : SC.Config.colors.surface1
 					height: 32
 					opacity: available ? 1 : 0.4
-					radius: Config.radius.small
+					radius: SC.Config.radius.small
 					width: parent.width
 
 					HoverHandler {
@@ -234,12 +234,12 @@ Column {
 					}
 					Row {
 						anchors.fill: parent
-						anchors.leftMargin: Config.padding.small
-						anchors.rightMargin: Config.padding.small
-						spacing: Config.spacing.small
+						anchors.leftMargin: SC.Config.padding.small
+						anchors.rightMargin: SC.Config.padding.small
+						spacing: SC.Config.spacing.small
 
 						Text {
-							color: active ? Config.colors.bg : Config.colors.fg
+							color: active ? SC.Config.colors.bg : SC.Config.colors.fg
 							font.family: "Phosphor-Bold"
 							font.pointSize: 12
 							height: parent.height
@@ -248,14 +248,14 @@ Column {
 							width: 16
 						}
 						Text {
-							color: active ? Config.colors.bg : Config.colors.fg
+							color: active ? SC.Config.colors.bg : SC.Config.colors.fg
 							elide: Text.ElideRight
 							font.pointSize: 9
 							font.weight: active ? 700 : 500
 							height: parent.height
 							text: profileRow.modelData.label
 							verticalAlignment: Text.AlignVCenter
-							width: parent.width - 16 - Config.spacing.small
+							width: parent.width - 16 - SC.Config.spacing.small
 						}
 					}
 					MouseArea {
@@ -269,7 +269,7 @@ Column {
 			}
 		}
 		Text {
-			color: Config.colors.surface4
+			color: SC.Config.colors.surface4
 			font.pointSize: 8
 			text: root.activeHold ? "Held by " + (root.activeHold.applicationId || "unknown") : ""
 			visible: root.activeHold !== null

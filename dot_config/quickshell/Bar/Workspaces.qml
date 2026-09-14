@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Row {
 	id: mainRow
@@ -20,7 +20,7 @@ Row {
 	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	spacing: Config.spacing.extraSmall - 3
+	spacing: SC.Config.spacing.extraSmall - 3
 
 	Connections {
 		function onDataChanged() {
@@ -49,25 +49,25 @@ Row {
 			required property int id
 			required property int index
 			required property bool isFocused
-			readonly property real collapsedWidth: Config.sizes.extraLarge
+			readonly property real collapsedWidth: SC.Config.sizes.extraLarge
 			readonly property bool empty: {
 				mainRow.windowsRevision;
 				return mainRow.isWorkspaceEmpty(rect.id);
 			}
-			readonly property real expandedWidth: Math.max(collapsedWidth, focusedContent.implicitWidth + Config.padding.extraSmall * 2)
+			readonly property real expandedWidth: Math.max(collapsedWidth, focusedContent.implicitWidth + SC.Config.padding.extraSmall * 2)
 			readonly property bool focused: rect.isFocused
 
-			border.color: focused ? Qt.alpha(Config.colors.primary, 0.55) : empty ? Config.colors.surface1 : Config.colors.surface2
+			border.color: focused ? Qt.alpha(SC.Config.colors.primary, 0.55) : empty ? SC.Config.colors.surface1 : SC.Config.colors.surface2
 			border.width: focused ? 2 : 1
-			color: focused ? Qt.alpha(Config.colors.primary, 0.12) : empty ? Config.colors.surface1 : Config.colors.surface2
-			height: Config.sizes.extraLarge
-			radius: Config.radius.small
+			color: focused ? Qt.alpha(SC.Config.colors.primary, 0.12) : empty ? SC.Config.colors.surface1 : SC.Config.colors.surface2
+			height: SC.Config.sizes.extraLarge
+			radius: SC.Config.radius.small
 			width: focused && !empty ? expandedWidth : collapsedWidth
 
 			Behavior on width {
 				NumberAnimation {
-					duration: Config.durations.fast
-					easing.type: Config.curve
+					duration: SC.Config.durations.fast
+					easing.type: SC.Config.curve
 				}
 			}
 
@@ -75,7 +75,7 @@ Row {
 				id: focusedContent
 
 				anchors.centerIn: parent
-				spacing: Config.spacing.extraSmall - 1
+				spacing: SC.Config.spacing.extraSmall - 1
 				visible: rect.focused && !rect.empty
 
 				Rectangle {
@@ -86,7 +86,7 @@ Row {
 					Text {
 						anchors.centerIn: parent
 						anchors.verticalCenterOffset: 0.5
-						color: Config.colors.primary
+						color: SC.Config.colors.primary
 						font.pointSize: 10
 						font.weight: 600
 						text: rect.index
@@ -103,7 +103,7 @@ Row {
 
 				anchors.centerIn: parent
 				anchors.verticalCenterOffset: 0.5
-				color: rect.focused ? Config.colors.primary : rect.empty ? Config.colors.surface4 : Config.colors.fg
+				color: rect.focused ? SC.Config.colors.primary : rect.empty ? SC.Config.colors.surface4 : SC.Config.colors.fg
 				font.pointSize: 10
 				font.weight: rect.focused ? 600 : 500
 				text: rect.index

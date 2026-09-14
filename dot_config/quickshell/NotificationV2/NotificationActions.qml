@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Column {
 	id: root
@@ -24,11 +24,11 @@ Column {
 	}
 
 	height: visible ? implicitHeight : 0
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 	visible: usable && (actionCount > 0 || hasInlineReply || showInlineReplyIndicator)
 
 	Flow {
-		spacing: Config.spacing.small
+		spacing: SC.Config.spacing.small
 		visible: root.actionCount > 0
 		width: parent.width
 
@@ -38,18 +38,18 @@ Column {
 			Rectangle {
 				required property int index
 
-				color: actionArea.containsMouse ? Config.colors.surface3 : Config.colors.surface1
-				implicitHeight: actionText.implicitHeight + Config.padding.small * 2
-				implicitWidth: actionText.implicitWidth + Config.padding.normal * 2
-				radius: Config.radius.normal
+				color: actionArea.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface1
+				implicitHeight: actionText.implicitHeight + SC.Config.padding.small * 2
+				implicitWidth: actionText.implicitWidth + SC.Config.padding.normal * 2
+				radius: SC.Config.radius.normal
 
 				Text {
 					id: actionText
 
 					anchors.centerIn: parent
-					color: actionArea.containsMouse ? Config.colors.bg : Config.colors.fg
+					color: actionArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.fg
 					elide: Text.ElideRight
-					font.pixelSize: Config.sizes.small
+					font.pixelSize: SC.Config.sizes.small
 					font.weight: Font.Medium
 					text: root.visibleActions[index]?.text ?? "Action"
 					textFormat: Text.PlainText
@@ -66,18 +66,18 @@ Column {
 		}
 	}
 	Rectangle {
-		color: Config.colors.surface1
-		implicitHeight: replyIndicatorText.implicitHeight + Config.padding.small * 2
-		implicitWidth: replyIndicatorText.implicitWidth + Config.padding.normal * 2
-		radius: Config.radius.normal
+		color: SC.Config.colors.surface1
+		implicitHeight: replyIndicatorText.implicitHeight + SC.Config.padding.small * 2
+		implicitWidth: replyIndicatorText.implicitWidth + SC.Config.padding.normal * 2
+		radius: SC.Config.radius.normal
 		visible: root.showInlineReplyIndicator
 
 		Text {
 			id: replyIndicatorText
 
 			anchors.centerIn: parent
-			color: Config.colors.surface4
-			font.pixelSize: Config.sizes.small
+			color: SC.Config.colors.surface4
+			font.pixelSize: SC.Config.sizes.small
 			font.weight: Font.Medium
 			text: "Reply in sidebar"
 			textFormat: Text.PlainText

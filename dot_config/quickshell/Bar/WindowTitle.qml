@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Row {
 	id: root
@@ -8,11 +8,11 @@ Row {
 	property var focusedWindow: NiriService.instance.focusedWindow
 
 	anchors.verticalCenter: parent.verticalCenter
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 
 	Text {
 		anchors.verticalCenter: parent.verticalCenter
-		color: Config.colors.fg
+		color: SC.Config.colors.fg
 		elide: Text.ElideRight
 		font.pointSize: 10
 		font.weight: 500
@@ -22,7 +22,7 @@ Row {
 	}
 	Text {
 		anchors.verticalCenter: parent.verticalCenter
-		color: Config.colors.surface5
+		color: SC.Config.colors.surface5
 		font.pointSize: 10
 		font.weight: 500
 		text: root.focusedWindow ? root.focusedWindow.appId : ""

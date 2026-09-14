@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Bluetooth
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 
 Rectangle {
@@ -31,10 +31,10 @@ Rectangle {
 	}
 	readonly property color iconColor: {
 		if (!isEnabled)
-			return Config.colors.surface4;
+			return SC.Config.colors.surface4;
 		if (hasConnectedDevice)
-			return Config.colors.primary;
-		return Config.colors.fg;
+			return SC.Config.colors.primary;
+		return SC.Config.colors.fg;
 	}
 	readonly property bool isEnabled: adapter && adapter.enabled
 

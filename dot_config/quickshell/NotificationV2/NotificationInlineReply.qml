@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Row {
 	id: root
@@ -16,15 +16,15 @@ Row {
 	}
 
 	height: visible ? implicitHeight : 0
-	spacing: Config.spacing.small
+	spacing: SC.Config.spacing.small
 	visible: !root.compact
 
 	Rectangle {
-		border.color: Config.colors.primary
+		border.color: SC.Config.colors.primary
 		border.width: replyInput.activeFocus ? 2 : 0
-		color: Config.colors.surface1
-		height: Math.max(32, replyInput.implicitHeight + Config.padding.small * 2)
-		radius: Config.radius.normal
+		color: SC.Config.colors.surface1
+		height: Math.max(32, replyInput.implicitHeight + SC.Config.padding.small * 2)
+		radius: SC.Config.radius.normal
 		width: parent.width - sendButton.width - parent.spacing
 
 		MouseArea {
@@ -39,18 +39,18 @@ Row {
 
 			activeFocusOnPress: true
 			anchors.left: parent.left
-			anchors.leftMargin: Config.padding.normal
+			anchors.leftMargin: SC.Config.padding.normal
 			anchors.right: parent.right
-			anchors.rightMargin: Config.padding.normal
+			anchors.rightMargin: SC.Config.padding.normal
 			anchors.verticalCenter: parent.verticalCenter
 			clip: true
-			color: Config.colors.fg
+			color: SC.Config.colors.fg
 			echoMode: TextInput.Normal
 			focus: visible
-			font.pixelSize: Config.sizes.small
+			font.pixelSize: SC.Config.sizes.small
 			inputMethodHints: Qt.ImhNoPredictiveText
-			selectedTextColor: Config.colors.bg
-			selectionColor: Config.colors.primary
+			selectedTextColor: SC.Config.colors.bg
+			selectionColor: SC.Config.colors.primary
 			text: ""
 			z: 1
 
@@ -58,7 +58,7 @@ Row {
 
 			Text {
 				anchors.fill: parent
-				color: Config.colors.surface4
+				color: SC.Config.colors.surface4
 				font.pixelSize: replyInput.font.pixelSize
 				text: root.placeholder
 				textFormat: Text.PlainText
@@ -78,18 +78,18 @@ Row {
 			replyInput.text = "";
 		}
 
-		color: sendArea.containsMouse && replyInput.text.trim() !== "" ? Config.colors.primary : Config.colors.surface2
+		color: sendArea.containsMouse && replyInput.text.trim() !== "" ? SC.Config.colors.primary : SC.Config.colors.surface2
 		height: 32
 		opacity: replyInput.text.trim() !== "" ? 1 : 0.6
-		radius: Config.radius.normal
-		width: Math.max(48, sendText.implicitWidth + Config.padding.normal * 2)
+		radius: SC.Config.radius.normal
+		width: Math.max(48, sendText.implicitWidth + SC.Config.padding.normal * 2)
 
 		Text {
 			id: sendText
 
 			anchors.centerIn: parent
-			color: sendArea.containsMouse && replyInput.text.trim() !== "" ? Config.colors.bg : Config.colors.fg
-			font.pixelSize: Config.sizes.small
+			color: sendArea.containsMouse && replyInput.text.trim() !== "" ? SC.Config.colors.bg : SC.Config.colors.fg
+			font.pixelSize: SC.Config.sizes.small
 			font.weight: Font.Medium
 			text: "Send"
 			textFormat: Text.PlainText

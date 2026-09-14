@@ -1,51 +1,81 @@
 import QtQuick
+import Quickshell
 import qs.Bar
-import qs.Config
-import qs.Bar.Status as Status
+import qs.Config as SC
+import qs.Sidebar
+import qs.NotificationV2
 
 Rectangle {
 	id: root
 
-	readonly property bool active: controller.activePanel === "notifications"
-	required property Status.StatusMenus controller
-	property int count: 0
-	readonly property bool hasNotifications: root.count > 0
-	readonly property real horizontalPadding: controller.buttonHorizontalPadding
+	readonly property bool hasNotifications: NotificationStore.count > 0
+	property bool open: false
+	required property PanelWindow window
 
+	function close() {
+		sidebarHost.finalizePendingRemovals();
+		open = false;
+	}
+	function toggle() {
+		if (open)
+			close();
+		else
+			open = true;
+	}
+
+	anchors.verticalCenter: parent.verticalCenter
 	color: "transparent"
-	height: controller.window.implicitHeight
-	width: controller.window.implicitHeight + horizontalPadding * 2
+	height: window.implicitHeight
+	width: window.implicitHeight
 
 	MaterialIcon {
-		anchors.centerIn: parent
 		code: root.hasNotifications ? 0xE5E8 : 0xE0CE
-		iconColor: root.active ? Config.colors.primary : root.hasNotifications ? Config.colors.fg : Config.colors.surface4
+		iconColor: root.open ? SC.Config.colors.primary : root.hasNotifications ? SC.Config.colors.fg : SC.Config.colors.surface4
 	}
 	Rectangle {
 		anchors.right: parent.right
-		anchors.rightMargin: Config.padding.micro
+		anchors.rightMargin: SC.Config.padding.micro
 		anchors.top: parent.top
-		anchors.topMargin: Config.padding.micro
-		color: Config.colors.destructive
+		anchors.topMargin: SC.Config.padding.micro
+		color: SC.Config.colors.destructive
 		height: 14
 		radius: 2
 		visible: root.hasNotifications
-		width: Math.max(10, badgeText.implicitWidth + Config.padding.micro * 2)
+		width: Math.max(10, badgeText.implicitWidth + SC.Config.padding.micro * 2)
 
 		Text {
 			id: badgeText
 
 			anchors.centerIn: parent
-			color: Config.colors.bg
-			font.pixelSize: Config.sizes.small
+			color: SC.Config.colors.bg
+			font.pixelSize: SC.Config.sizes.small
 			font.weight: Font.DemiBold
-			text: root.count > 99 ? "99+" : String(root.count)
+			text: NotificationStore.count > 99 ? "99+" : String(NotificationStore.count)
 			textFormat: Text.PlainText
 		}
 	}
 	MouseArea {
 		anchors.fill: parent
 
-		onClicked: controller.switchPanel("notifications")
+		onClicked: root.toggle()
+	}
+	SidebarHost {
+		id: sidebarHost
+
+		open: root.open
+		title: "Notifications"
+		window: root.window
+
+		panel: Component {
+			NotificationSidebarActions {
+				onClearAllRequested: {
+					NotificationStore.clear();
+					root.close();
+				}
+				onCloseRequested: notificationId => NotificationStore.removeNotification(notificationId)
+			}
+		}
+
+		onCloseRequested: root.close()
 	}
 }

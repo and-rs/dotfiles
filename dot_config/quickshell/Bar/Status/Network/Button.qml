@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 import qs.Bar.Status as Status
 
 Rectangle {
@@ -28,12 +28,12 @@ Rectangle {
 	}
 	readonly property color iconColor: {
 		if (connectedWiredNetwork)
-			return hasInternet ? Config.colors.fg : Config.colors.destructive;
+			return hasInternet ? SC.Config.colors.fg : SC.Config.colors.destructive;
 		if (!wifiEnabled || !connectedNetwork)
-			return Config.colors.surface4;
+			return SC.Config.colors.surface4;
 		if (!hasInternet)
-			return Config.colors.destructive;
-		return Config.colors.fg;
+			return SC.Config.colors.destructive;
+		return SC.Config.colors.fg;
 	}
 	readonly property bool showWifiGhost: !connectedWiredNetwork && wifiDevice !== null
 	readonly property real signalStrength: connectedNetwork ? connectedNetwork.signalStrength : 0
@@ -47,7 +47,7 @@ Rectangle {
 
 	MaterialIcon {
 		code: 0xE4EA
-		iconColor: Config.colors.surface4
+		iconColor: SC.Config.colors.surface4
 		iconSize: 16
 		opacity: 0.55
 		visible: network.showWifiGhost

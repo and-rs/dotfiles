@@ -1,12 +1,12 @@
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Item {
 	id: root
 
 	property bool clearingAll: false
-	readonly property int endInset: seamHeight + Config.padding.normal
+	readonly property int endInset: seamHeight + SC.Config.padding.normal
 	property var pendingRemovals: ({})
 	property int prependAnchorId: -1
 	property real prependAnchorOffset: 0
@@ -34,7 +34,7 @@ Item {
 
 		const nextRemovals = Object.assign({}, root.pendingRemovals);
 		nextRemovals[id] = {
-			deadline: Date.now() + Config.notifications.popupDuration
+			deadline: Date.now() + SC.Config.notifications.popupDuration
 		};
 		root.pendingRemovals = nextRemovals;
 		root.scheduleNextRemoval();
@@ -203,30 +203,30 @@ Item {
 	}
 	Column {
 		anchors.fill: parent
-		spacing: Config.spacing.normal
+		spacing: SC.Config.spacing.normal
 
 		Row {
-			spacing: Config.spacing.normal
+			spacing: SC.Config.spacing.normal
 			width: parent.width
 
 			Column {
 				anchors.verticalCenter: parent.verticalCenter
-				spacing: Config.spacing.extraSmall
+				spacing: SC.Config.spacing.extraSmall
 				width: parent.width - clearAllButton.implicitWidth - parent.spacing
 
 				Text {
-					color: Config.colors.fg
+					color: SC.Config.colors.fg
 					elide: Text.ElideRight
-					font.pixelSize: Config.sizes.normal
+					font.pixelSize: SC.Config.sizes.normal
 					font.weight: Font.Medium
 					text: NotificationStore.count === 1 ? "1 saved notification" : NotificationStore.count + " saved notifications"
 					textFormat: Text.PlainText
 					width: parent.width
 				}
 				Text {
-					color: Config.colors.surface4
+					color: SC.Config.colors.surface4
 					elide: Text.ElideRight
-					font.pixelSize: Config.sizes.small
+					font.pixelSize: SC.Config.sizes.small
 					text: NotificationStore.count > 0 ? "Saved in NotificationV2" : "All clear"
 					textFormat: Text.PlainText
 					width: parent.width
@@ -249,7 +249,7 @@ Item {
 			Timer {
 				id: clearAllTimer
 
-				interval: Config.durations.fast
+				interval: SC.Config.durations.fast
 				repeat: false
 
 				onTriggered: {
@@ -293,13 +293,13 @@ Item {
 				model: NotificationStore.entries
 				opacity: root.clearingAll ? 0 : 1
 				reuseItems: true
-				spacing: Config.spacing.extraSmall
+				spacing: SC.Config.spacing.extraSmall
 				visible: NotificationStore.count > 0
 
 				add: Transition {
 					NumberAnimation {
-						duration: Config.durations.fast
-						easing.type: Config.curve
+						duration: SC.Config.durations.fast
+						easing.type: SC.Config.curve
 						from: 0
 						property: "opacity"
 						to: 1
@@ -356,16 +356,16 @@ Item {
 						height: parent.height
 
 						sourceComponent: Rectangle {
-							color: Config.colors.surface1
+							color: SC.Config.colors.surface1
 							height: parent.height
 							opacity: 0
-							radius: Config.radius.normal
+							radius: SC.Config.radius.normal
 							width: parent.width
 
 							Behavior on opacity {
 								NumberAnimation {
-									duration: Config.durations.fast
-									easing.type: Config.curve
+									duration: SC.Config.durations.fast
+									easing.type: SC.Config.curve
 								}
 							}
 
@@ -375,16 +375,16 @@ Item {
 								id: undoContent
 
 								anchors.centerIn: parent
-								spacing: Config.spacing.small
-								width: parent.width - Config.padding.large * 2
+								spacing: SC.Config.spacing.small
+								width: parent.width - SC.Config.padding.large * 2
 
 								Row {
-									spacing: Config.spacing.small
+									spacing: SC.Config.spacing.small
 									width: parent.width
 
 									Text {
-										color: Config.colors.fg
-										font.pixelSize: Config.sizes.small
+										color: SC.Config.colors.fg
+										font.pixelSize: SC.Config.sizes.small
 										text: "Notification removed"
 										textFormat: Text.PlainText
 										verticalAlignment: Text.AlignVCenter
@@ -393,17 +393,17 @@ Item {
 									Rectangle {
 										id: undoButton
 
-										color: undoArea.containsMouse ? Config.colors.primary : Config.colors.surface2
-										height: undoLabel.implicitHeight + Config.padding.extraSmall * 2
-										radius: Config.radius.small
-										width: undoLabel.implicitWidth + Config.padding.normal * 2
+										color: undoArea.containsMouse ? SC.Config.colors.primary : SC.Config.colors.surface2
+										height: undoLabel.implicitHeight + SC.Config.padding.extraSmall * 2
+										radius: SC.Config.radius.small
+										width: undoLabel.implicitWidth + SC.Config.padding.normal * 2
 
 										Text {
 											id: undoLabel
 
 											anchors.centerIn: parent
-											color: undoArea.containsMouse ? Config.colors.bg : Config.colors.primary
-											font.pixelSize: Config.sizes.small
+											color: undoArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.primary
+											font.pixelSize: SC.Config.sizes.small
 											font.weight: Font.Medium
 											text: "Undo"
 											textFormat: Text.PlainText
@@ -419,13 +419,13 @@ Item {
 									}
 								}
 								Rectangle {
-									color: Config.colors.surface3
+									color: SC.Config.colors.surface3
 									height: 2
 									width: parent.width
 
 									Rectangle {
 										anchors.right: parent.right
-										color: Config.colors.primary
+										color: SC.Config.colors.primary
 										height: parent.height
 										width: parent.width
 
@@ -444,21 +444,21 @@ Item {
 				}
 				Behavior on opacity {
 					NumberAnimation {
-						duration: Config.durations.fast
-						easing.type: Config.curve
+						duration: SC.Config.durations.fast
+						easing.type: SC.Config.curve
 					}
 				}
 				remove: Transition {
 					ParallelAnimation {
 						NumberAnimation {
-							duration: Config.durations.fast
-							easing.type: Config.curve
+							duration: SC.Config.durations.fast
+							easing.type: SC.Config.curve
 							property: "opacity"
 							to: 0
 						}
 						NumberAnimation {
-							duration: Config.durations.fast
-							easing.type: Config.curve
+							duration: SC.Config.durations.fast
+							easing.type: SC.Config.curve
 							property: "scale"
 							to: 0.96
 						}
@@ -467,8 +467,8 @@ Item {
 			}
 			Text {
 				anchors.centerIn: parent
-				color: Config.colors.surface4
-				font.pixelSize: Config.sizes.normal
+				color: SC.Config.colors.surface4
+				font.pixelSize: SC.Config.sizes.normal
 				font.weight: Font.Medium
 				text: "No saved notifications"
 				textFormat: Text.PlainText
@@ -487,7 +487,7 @@ Item {
 					orientation: Gradient.Vertical
 
 					GradientStop {
-						color: Config.colors.bg
+						color: SC.Config.colors.bg
 						position: 0.0
 					}
 					GradientStop {
@@ -513,7 +513,7 @@ Item {
 						position: 0.0
 					}
 					GradientStop {
-						color: Config.colors.bg
+						color: SC.Config.colors.bg
 						position: 1.0
 					}
 				}
@@ -529,18 +529,18 @@ Item {
 		required property var onPress
 		property bool prominent: false
 
-		color: enabled ? Config.colors.surface1 : Config.colors.surface2
-		implicitHeight: labelText.implicitHeight + (prominent ? Config.padding.normal : Config.padding.small) * 2
-		implicitWidth: labelText.implicitWidth + (prominent ? Config.padding.large : Config.padding.normal) * 2
+		color: enabled ? SC.Config.colors.surface1 : SC.Config.colors.surface2
+		implicitHeight: labelText.implicitHeight + (prominent ? SC.Config.padding.normal : SC.Config.padding.small) * 2
+		implicitWidth: labelText.implicitWidth + (prominent ? SC.Config.padding.large : SC.Config.padding.normal) * 2
 		opacity: enabled ? 1 : 0.6
-		radius: Config.radius.normal
+		radius: SC.Config.radius.normal
 
 		Text {
 			id: labelText
 
 			anchors.centerIn: parent
-			color: Config.colors.fg
-			font.pixelSize: buttonRoot.prominent ? Config.sizes.normal : Config.sizes.small
+			color: SC.Config.colors.fg
+			font.pixelSize: buttonRoot.prominent ? SC.Config.sizes.normal : SC.Config.sizes.small
 			font.weight: Font.Medium
 			text: buttonRoot.label
 			textFormat: Text.PlainText

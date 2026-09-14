@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.Bar
-import qs.Config
+import qs.Config as SC
 
 Rectangle {
 	id: caffeine
@@ -21,7 +21,7 @@ Rectangle {
 		id: caffeineIcon
 
 		code: caffeine.isActive ? 0xE220 : 0xE224
-		iconColor: caffeine.isActive ? Config.colors.fg : Config.colors.surface4
+		iconColor: caffeine.isActive ? SC.Config.colors.fg : SC.Config.colors.surface4
 		iconSize: 16
 	}
 	MouseArea {
