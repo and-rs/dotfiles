@@ -261,7 +261,7 @@ scan() {
 }
 
 action() {
-  local name=${1:-} device=${2:-} ssid=${3:-} enabled=${3:-} password=""
+  local name=${1:-} device=${2:-} ssid=${3:-} enabled=${3:-}
   case "$name" in
     wifi-on)
       if nm_available; then LC_ALL=C nmcli radio wifi on >/dev/null 2>&1 && result true || result false "Unable to enable Wi-Fi"
@@ -278,28 +278,9 @@ action() {
       elif have iwctl; then iwctl station "$device" disconnect >/dev/null 2>&1 && result true || result false "Unable to disconnect"
       else result false "No supported Wi-Fi backend"; fi
       ;;
-    forget)
-      if nm_available; then LC_ALL=C nmcli connection delete id "$ssid" >/dev/null 2>&1 && result true || result false "Unable to forget network"
-      elif have iwctl; then iwctl known-networks "$ssid" forget >/dev/null 2>&1 && result true || result false "Unable to forget network"
-      else result false "No supported Wi-Fi backend"; fi
-      ;;
     connect)
-      if nm_available; then
-        IFS= read -r password || true
-        if [[ -z $password ]]; then
-          LC_ALL=C nmcli device wifi connect "$ssid" ifname "$device" >/dev/null 2>&1 && result true || result false "Unable to connect"
-        else
-          local uuid
-          uuid=$(uuidgen 2>/dev/null || printf 'quickshell-%s-%s' "$$" "$RANDOM")
-          LC_ALL=C nmcli connection add type wifi ifname "$device" con-name "$uuid" ssid "$ssid" wifi-sec.key-mgmt wpa-psk >/dev/null 2>&1 \
-            && printf 'set wifi-sec.psk %s\nsave\nquit\n' "$password" | LC_ALL=C nmcli connection edit "$uuid" >/dev/null 2>&1 \
-            && LC_ALL=C nmcli connection up uuid "$uuid" >/dev/null 2>&1 \
-            && result true || { LC_ALL=C nmcli connection delete uuid "$uuid" >/dev/null 2>&1 || true; result false "Unable to connect"; }
-        fi
-      elif have iwctl; then
-        # IWD has no non-argv passphrase interface. It can safely join open or
-        # already-provisioned networks; password entry stays disabled in QML.
-        iwctl station "$device" connect "$ssid" >/dev/null 2>&1 && result true || result false "IWD needs a saved passphrase"
+      if nm_available; then LC_ALL=C nmcli connection up id "$ssid" >/dev/null 2>&1 && result true || result false "Unable to connect"
+      elif have iwctl; then iwctl station "$device" connect "$ssid" >/dev/null 2>&1 && result true || result false "Unable to connect"
       else result false "No supported Wi-Fi backend"; fi
       ;;
     *) result false "Unknown network action" ;;

@@ -11,41 +11,14 @@ Column {
 	property alias debugHeroStatus: status
 	property alias debugHeroTitle: title
 	property alias debugNetworkList: networkList
+	readonly property var details: [root.detailText("INTERFACE", root.wifiDevice ? root.wifiDevice.name : root.wiredDevice ? root.wiredDevice.name : ""), root.detailText("SIGNAL", root.connectedNetwork ? Math.round(root.connectedNetwork.signalStrength * 100) + "%" : ""), root.detailText("SECURITY", root.connectedNetwork ? root.connectedNetwork.security : ""), root.detailText("ADAPTER", root.wifiDevice ? root.wifiDevice.address : ""), root.detailText("ETHERNET", root.wiredDevice && root.wiredDevice.hasLink ? root.wiredDevice.linkSpeed > 0 ? root.wiredDevice.linkSpeed + " Mbps" : "Connected" : ""), root.detailText("STATUS", NetworkService.connectivity)].filter(text => text !== "")
 	readonly property var knownNetworks: NetworkService.wifiNetworks.filter(network => network.known)
 	readonly property var otherNetworks: NetworkService.wifiNetworks.filter(network => !network.known)
-	property var passwordNetwork: null
-	property string passwordText: ""
 	readonly property var wifiDevice: NetworkService.wifiDevice
 	readonly property var wiredDevice: NetworkService.wiredDevice
 
-	readonly property var details: [
-		root.detailText("INTERFACE", root.wifiDevice ? root.wifiDevice.name : root.wiredDevice ? root.wiredDevice.name : ""),
-		root.detailText("SIGNAL", root.connectedNetwork ? Math.round(root.connectedNetwork.signalStrength * 100) + "%" : ""),
-		root.detailText("SECURITY", root.connectedNetwork ? root.connectedNetwork.security : ""),
-		root.detailText("ADAPTER", root.wifiDevice ? root.wifiDevice.address : ""),
-		root.detailText("ETHERNET", root.wiredDevice && root.wiredDevice.hasLink ? root.wiredDevice.linkSpeed > 0 ? root.wiredDevice.linkSpeed + " Mbps" : "Connected" : ""),
-		root.detailText("STATUS", NetworkService.connectivity)
-	].filter(text => text !== "")
-
-	function activateNetwork(network) {
-		if (!network)
-			return;
-		if (network.security === "Open" || NetworkService.backend === "iwctl") {
-			NetworkService.connect(network, "");
-			return;
-		}
-		passwordNetwork = network;
-		passwordText = "";
-	}
 	function detailText(label, value) {
 		return value ? label + "\n" + value : "";
-	}
-	function submitPassword() {
-		if (!passwordNetwork || passwordText.length === 0)
-			return;
-		NetworkService.connect(passwordNetwork, passwordText);
-		passwordText = "";
-		passwordNetwork = null;
 	}
 
 	spacing: SC.Config.spacing.small
@@ -57,8 +30,8 @@ Column {
 	Item {
 		id: hero
 
-		implicitHeight: Math.max(heroIcon.implicitHeight, title.implicitHeight + status.implicitHeight + SC.Config.padding.micro, wifiToggle.height)
 		height: implicitHeight
+		implicitHeight: Math.max(heroIcon.implicitHeight, title.implicitHeight + status.implicitHeight + SC.Config.padding.micro, wifiToggle.height)
 		width: parent.width
 
 		MaterialIcon {
@@ -224,7 +197,6 @@ Column {
 				required property var modelData
 
 				network: modelData
-				panel: root
 				width: ListView.view.width
 			}
 		}
@@ -244,7 +216,6 @@ Column {
 				required property var modelData
 
 				network: modelData
-				panel: root
 				width: ListView.view.width
 			}
 		}

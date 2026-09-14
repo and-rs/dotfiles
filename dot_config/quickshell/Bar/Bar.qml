@@ -122,11 +122,11 @@ Scope {
 							window: main
 						}
 						Rectangle {
+							anchors.verticalCenter: parent.verticalCenter
+							color: SC.Config.colors.surface2
+							height: SC.Config.sizes.small
 							// separator
 							width: 2
-							height: SC.Config.sizes.small
-							color: SC.Config.colors.surface2
-							anchors.verticalCenter: parent.verticalCenter
 						}
 						ControlCenterButton {
 							window: main
@@ -135,11 +135,11 @@ Scope {
 					Item {
 						id: timeSlot
 
-						width: implicitWidth
-						height: implicitHeight
-						implicitWidth: timeMetrics.width
-						implicitHeight: timeText.implicitHeight
 						anchors.verticalCenter: parent.verticalCenter
+						height: implicitHeight
+						implicitHeight: timeText.implicitHeight
+						implicitWidth: timeMetrics.width
+						width: implicitWidth
 
 						TextMetrics {
 							id: timeMetrics
@@ -148,7 +148,6 @@ Scope {
 							font: timeText.font
 							text: "Wed 31 May 23:59"
 						}
-
 						Text {
 							id: timeText
 

@@ -6,10 +6,7 @@ import qs.Config as SC
 Item {
 	id: root
 
-	readonly property var adapter: {
-		const adapters = Bluetooth.adapters.values ?? [];
-		return adapters.length > 0 ? adapters[0] : null;
-	}
+	readonly property var adapter: Bluetooth.defaultAdapter
 	readonly property bool connected: {
 		const devices = Bluetooth.devices.values ?? [];
 		for (let i = 0; i < devices.length; i++) {

@@ -7,12 +7,10 @@ Row {
 	id: root
 
 	readonly property int borderWidth: 2
-	readonly property var device: UPower.displayDevice
 	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
+	readonly property var device: UPower.displayDevice
 	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? SC.Config.colors.success : SC.Config.colors.fg
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
-	readonly property real percentage: device && device.ready ? device.percentage : 0
-
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];
 		for (let i = 0; i < devices.length; i++) {
@@ -21,6 +19,7 @@ Row {
 		}
 		return false;
 	}
+	readonly property real percentage: device && device.ready ? device.percentage : 0
 
 	anchors.verticalCenter: parent.verticalCenter
 	spacing: SC.Config.spacing.extraSmall
@@ -28,10 +27,10 @@ Row {
 
 	Text {
 		anchors.verticalCenter: parent.verticalCenter
-		text: String(Math.round(root.fillLevel * 100)) + "%"
 		color: SC.Config.colors.fg
 		font.pointSize: 10
 		font.weight: 600
+		text: String(Math.round(root.fillLevel * 100)) + "%"
 	}
 	Row {
 		anchors.verticalCenter: parent.verticalCenter
@@ -67,10 +66,10 @@ Row {
 			}
 			PhosphorFillIcon {
 				anchors.centerIn: parent
-				iconColor: SC.Config.colors.bg
-				opacity: root.charging ? 1 : 0
 				code: 0xE2DE
+				iconColor: SC.Config.colors.bg
 				iconSize: 9
+				opacity: root.charging ? 1 : 0
 
 				Behavior on opacity {
 					NumberAnimation {
@@ -83,10 +82,9 @@ Row {
 		Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			bottomRightRadius: SC.Config.radius.small
-			topRightRadius: SC.Config.radius.small
-
 			color: SC.Config.colors.surface3
 			height: (batteryShell.height - root.borderWidth / 2) / 2
+			topRightRadius: SC.Config.radius.small
 			width: 2.5
 		}
 	}

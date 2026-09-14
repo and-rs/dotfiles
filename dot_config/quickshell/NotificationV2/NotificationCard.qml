@@ -64,7 +64,7 @@ Rectangle {
 			}
 			Column {
 				spacing: SC.Config.spacing.extraSmall
-				width: parent.width - previewIcon.width - closeButtonLoader.width - activateButtonLoader.width - parent.spacing * (1 + (closeButtonLoader.active ? 1 : 0) + (activateButtonLoader.active ? 1 : 0))
+				width: parent.width - previewIcon.width - activateButtonLoader.width - parent.spacing * (1 + (activateButtonLoader.active ? 1 : 0))
 
 				Text {
 					color: SC.Config.colors.primary
@@ -112,33 +112,6 @@ Rectangle {
 						hoverEnabled: true
 
 						onClicked: root.activateRequested(root.notificationId)
-					}
-				}
-			}
-			Loader {
-				id: closeButtonLoader
-
-				active: root.showCloseButton
-				height: active ? 20 : 0
-				width: active ? 20 : 0
-
-				sourceComponent: Rectangle {
-					color: closeArea.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface1
-					radius: SC.Config.radius.full
-
-					MaterialIcon {
-						anchors.centerIn: parent
-						code: 0xE4F6
-						iconColor: closeArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.primary
-						iconSize: 10
-					}
-					MouseArea {
-						id: closeArea
-
-						anchors.fill: parent
-						hoverEnabled: true
-
-						onClicked: root.closeRequested(root.notificationId)
 					}
 				}
 			}

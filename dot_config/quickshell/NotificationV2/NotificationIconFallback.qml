@@ -9,9 +9,9 @@ ClippingRectangle {
 
 	readonly property string activeImage: notificationImage || appIcon
 	required property string appIcon
+	readonly property bool backgroundReady: backgroundImage.status === Image.Ready && backgroundImage.implicitWidth > 2 && backgroundImage.implicitHeight > 2
 	required property string fallbackText
 	readonly property bool hasNotificationImage: imageLooksLoadable(notificationImage)
-	readonly property bool backgroundReady: backgroundImage.status === Image.Ready && backgroundImage.implicitWidth > 2 && backgroundImage.implicitHeight > 2
 	readonly property bool imageReady: foregroundImage.status === Image.Ready && foregroundImage.implicitWidth > 2 && foregroundImage.implicitHeight > 2
 	required property string notificationImage
 	property int size: 56

@@ -6,147 +6,97 @@ Rectangle {
 	id: root
 
 	readonly property bool busy: NetworkService.actionNetworkId === network.id && NetworkService.actionState !== "idle"
-	readonly property bool canForget: network.known && !network.connected
+	readonly property bool canConnect: network.known && !network.connected
+	readonly property bool interactive: !busy && NetworkService.actionState === "idle" && (network.connected || canConnect)
 	required property var network
-	required property var panel
 
-	color: mouse.containsMouse ? SC.Config.colors.surface2 : SC.Config.colors.surface1
-	height: passwordArea.visible ? 98 : 48
+	color: root.interactive && mouse.containsMouse ? SC.Config.colors.surface2 : root.interactive ? SC.Config.colors.surface1 : SC.Config.colors.surface1
+	height: 48
 	radius: SC.Config.radius.small
 	width: parent ? parent.width : 0
 
-	MaterialIcon {
+	Item {
 		id: signalIcon
 
 		anchors.left: parent.left
 		anchors.leftMargin: SC.Config.padding.small
-		anchors.top: parent.top
-		anchors.topMargin: SC.Config.padding.small
-		centered: false
-		code: root.network.signalStrength > 0.75 ? 0xE4EA : root.network.signalStrength > 0.5 ? 0xE4EE : root.network.signalStrength > 0.25 ? 0xE4EC : 0xE4F0
-		iconColor: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.surface4
-		iconSize: 18
+		anchors.verticalCenter: parent.verticalCenter
+		height: signalFill.implicitHeight
+		width: signalFill.implicitWidth
+
+		MaterialIcon {
+			code: 0xE4EA
+			iconColor: SC.Config.colors.surface4
+			iconSize: 18
+			opacity: 0.55
+		}
+		MaterialIcon {
+			id: signalFill
+
+			code: root.network.signalStrength > 0.75 ? 0xE4EA : root.network.signalStrength > 0.5 ? 0xE4EE : root.network.signalStrength > 0.25 ? 0xE4EC : 0xE4F0
+			iconColor: SC.Config.colors.surface5
+			iconSize: 18
+		}
 	}
 	Text {
 		id: actionLabel
 
 		anchors.right: parent.right
 		anchors.rightMargin: SC.Config.padding.small
-		anchors.top: signalIcon.top
+		anchors.verticalCenter: parent.verticalCenter
 		color: root.network.connected ? SC.Config.colors.success : SC.Config.colors.primary
 		font.pointSize: 8
 		font.weight: Font.Medium
-		text: root.busy ? "…" : root.network.connected ? "Connected" : "Connect"
+		text: root.busy ? "…" : root.network.connected ? "Connected" : root.canConnect ? "Connect" : ""
 	}
-	Text {
-		id: networkName
+	Item {
+		id: labels
 
 		anchors.left: signalIcon.right
 		anchors.leftMargin: SC.Config.padding.small
 		anchors.right: actionLabel.left
 		anchors.rightMargin: SC.Config.padding.small
-		anchors.top: signalIcon.top
-		color: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.fg
-		elide: Text.ElideRight
-		font.pointSize: 9
-		font.weight: root.network.connected ? Font.DemiBold : Font.Normal
-		text: root.network.name
-	}
-	Text {
-		anchors.left: networkName.left
-		anchors.right: networkName.right
-		anchors.top: networkName.bottom
-		anchors.topMargin: 1
-		color: SC.Config.colors.surface5
-		elide: Text.ElideRight
-		font.pointSize: 8
-		text: root.busy ? NetworkService.actionState + "…" : root.network.connected ? "Connected" : root.network.security + (root.network.known ? " · saved" : "")
+		anchors.verticalCenter: parent.verticalCenter
+		height: networkName.implicitHeight + subtitle.implicitHeight + 1
+
+		Text {
+			id: networkName
+
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.top: parent.top
+			color: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.fg
+			elide: Text.ElideRight
+			font.pointSize: 9
+			font.weight: root.network.connected ? Font.DemiBold : Font.Normal
+			text: root.network.name
+		}
+		Text {
+			id: subtitle
+
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.top: networkName.bottom
+			anchors.topMargin: 1
+			color: SC.Config.colors.surface5
+			elide: Text.ElideRight
+			font.pointSize: 8
+			text: root.busy ? NetworkService.actionState + "…" : root.network.connected ? "Connected" : root.network.security + (root.network.known ? " · saved" : "")
+		}
 	}
 	MouseArea {
 		id: mouse
 
-		anchors.left: parent.left
-		anchors.right: parent.right
-		anchors.top: parent.top
-		cursorShape: Qt.PointingHandCursor
-		enabled: !root.busy && NetworkService.actionState === "idle"
-		height: 48
-		hoverEnabled: true
+		anchors.fill: parent
+		cursorShape: root.interactive ? Qt.PointingHandCursor : Qt.ArrowCursor
+		enabled: root.interactive
+		hoverEnabled: root.interactive
 
 		onClicked: {
 			if (root.network.connected)
 				NetworkService.disconnect();
 			else
-				root.panel.activateNetwork(root.network);
-		}
-	}
-	Text {
-		anchors.right: actionLabel.right
-		anchors.top: actionLabel.bottom
-		color: SC.Config.colors.surface5
-		font.pointSize: 8
-		font.weight: Font.Medium
-		text: "Forget"
-		visible: root.canForget
-
-		MouseArea {
-			anchors.fill: parent
-			anchors.margins: -SC.Config.padding.small
-			cursorShape: Qt.PointingHandCursor
-			enabled: NetworkService.actionState === "idle"
-
-			onClicked: NetworkService.forget(root.network)
-		}
-	}
-	Item {
-		id: passwordArea
-
-		anchors.bottom: parent.bottom
-		anchors.left: parent.left
-		anchors.margins: SC.Config.padding.small
-		anchors.right: parent.right
-		height: visible ? 38 : 0
-		visible: root.panel.passwordNetwork && root.panel.passwordNetwork.id === root.network.id
-
-		onVisibleChanged: if (visible)
-			passwordInput.forceActiveFocus()
-
-		TextInput {
-			id: passwordInput
-
-			anchors.left: parent.left
-			anchors.right: submit.left
-			anchors.rightMargin: SC.Config.padding.small
-			anchors.verticalCenter: parent.verticalCenter
-			color: SC.Config.colors.fg
-			echoMode: TextInput.Password
-			font.pointSize: 9
-			height: parent.height
-			passwordCharacter: "*"
-			selectByMouse: true
-			text: root.panel.passwordText
-
-			onAccepted: root.panel.submitPassword()
-			onTextChanged: root.panel.passwordText = text
-		}
-		Text {
-			id: submit
-
-			anchors.right: parent.right
-			anchors.verticalCenter: parent.verticalCenter
-			color: root.panel.passwordText.length > 0 ? SC.Config.colors.primary : SC.Config.colors.surface3
-			font.pointSize: 8
-			font.weight: Font.DemiBold
-			text: "CONNECT"
-
-			MouseArea {
-				anchors.fill: parent
-				anchors.margins: -SC.Config.padding.small
-				cursorShape: Qt.PointingHandCursor
-				enabled: root.panel.passwordText.length > 0
-
-				onClicked: root.panel.submitPassword()
-			}
+				NetworkService.connect(root.network);
 		}
 	}
 }

@@ -128,30 +128,7 @@ PanelWindow {
 						text: root.title
 						textFormat: Text.PlainText
 						verticalAlignment: Text.AlignVCenter
-						width: parent.width - closeButton.width - parent.spacing
-					}
-					Rectangle {
-						id: closeButton
-
-						color: closeArea.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface1
-						height: 24
-						radius: SC.Config.radius.full
-						width: 24
-
-						MaterialIcon {
-							anchors.centerIn: parent
-							code: 0xE4F6
-							iconColor: closeArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.primary
-							iconSize: 12
-						}
-						MouseArea {
-							id: closeArea
-
-							anchors.fill: parent
-							hoverEnabled: true
-
-							onClicked: root.closeRequested()
-						}
+						width: parent.width - parent.spacing
 					}
 				}
 				Loader {

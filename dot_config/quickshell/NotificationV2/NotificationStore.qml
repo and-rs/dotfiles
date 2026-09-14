@@ -96,7 +96,6 @@ Singleton {
 				delete removingIds[entry.id];
 			delete connectedNotifications[entry.id];
 		}
-
 	}
 	function clearPopup(id: int): void {
 		if (popupId !== id)

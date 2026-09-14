@@ -11,7 +11,6 @@ Singleton {
 	property string _operation: ""
 	property string _output: ""
 	property bool _scanRequested: false
-	property string _secret: ""
 	property string actionNetworkId: ""
 	property string actionState: "idle"
 	property bool available: false
@@ -89,12 +88,12 @@ Singleton {
 			refresh();
 		}
 	}
-	function connect(network, password) {
-		if (!network || !wifiDevice || networkProcess.running)
+	function connect(network) {
+		if (!network || !network.known || !wifiDevice || networkProcess.running)
 			return;
 		actionState = "connecting";
 		actionNetworkId = network.id;
-		start("action", ["connect", wifiDevice.name, network.name], password || "");
+		start("action", ["connect", wifiDevice.name, network.name]);
 	}
 	function disconnect() {
 		if (!wifiDevice || networkProcess.running)
@@ -106,13 +105,6 @@ Singleton {
 	function fail(message) {
 		stale = available;
 		lastError = message || "Network status unavailable";
-	}
-	function forget(network) {
-		if (!network || networkProcess.running)
-			return;
-		actionState = "forgetting";
-		actionNetworkId = network.id;
-		start("action", ["forget", wifiDevice ? wifiDevice.name : "", network.name]);
 	}
 	function openPanel() {
 		panelOpen = true;
@@ -129,10 +121,9 @@ Singleton {
 			return;
 		startScan();
 	}
-	function start(operation, args, secret) {
+	function start(operation, args) {
 		_operation = operation;
 		_output = "";
-		_secret = secret || "";
 		networkProcess.command = ["bash", backendScript, operation].concat(args || []);
 		networkProcess.running = true;
 	}
@@ -160,10 +151,6 @@ Singleton {
 	Process {
 		id: networkProcess
 
-		property string secret: ""
-
-		stdinEnabled: root._secret !== ""
-
 		stdout: StdioCollector {
 			waitForEnd: true
 
@@ -172,11 +159,6 @@ Singleton {
 
 		onExited: function (exitCode) {
 			root.complete(exitCode);
-		}
-		onStarted: {
-			if (root._secret !== "")
-				write(root._secret + "\n");
-			root._secret = "";
 		}
 	}
 }

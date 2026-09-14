@@ -7,8 +7,8 @@ import qs.Debug as Debug
 Rectangle {
 	id: root
 
-	required property PanelWindow window
 	property bool open: false
+	required property PanelWindow window
 
 	function close() {
 		open = false;
@@ -18,8 +18,8 @@ Rectangle {
 	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	border.width: 2
 	border.color: hover.hovered ? SC.Config.colors.surface3 : SC.Config.colors.bg
+	border.width: 2
 	color: "transparent"
 	height: window.implicitHeight - SC.Config.padding.small + 2
 	implicitWidth: content.implicitWidth + SC.Config.padding.small * 2
@@ -57,6 +57,7 @@ Rectangle {
 	QtObject {
 		id: networkDebugTarget
 
+		property Item item: popup.networkContent
 		property var items: {
 			const content = popup.networkContent;
 			return [
@@ -74,7 +75,6 @@ Rectangle {
 				}
 			];
 		}
-		property Item item: popup.networkContent
 		property string name: "network"
 
 		function close() {
