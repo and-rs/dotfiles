@@ -47,7 +47,7 @@ Row {
 				id: fillClip
 
 				anchors.fill: parent
-				anchors.margins: root.borderWidth
+				anchors.margins: root.borderWidth - 0.5
 				clip: true
 
 				Rectangle {
@@ -55,7 +55,6 @@ Row {
 					anchors.left: parent.left
 					anchors.top: parent.top
 					color: root.fillColor
-					radius: Math.max(0, SC.Config.radius.small - root.borderWidth)
 					width: parent.width * root.fillLevel
 				}
 			}
@@ -68,10 +67,10 @@ Row {
 			}
 			PhosphorFillIcon {
 				anchors.centerIn: parent
-				code: 0xE2DE
 				iconColor: SC.Config.colors.bg
-				iconSize: 10
 				opacity: root.charging ? 1 : 0
+				code: 0xE2DE
+				iconSize: 9
 
 				Behavior on opacity {
 					NumberAnimation {
@@ -84,9 +83,10 @@ Row {
 		Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			bottomRightRadius: SC.Config.radius.small
+			topRightRadius: SC.Config.radius.small
+
 			color: SC.Config.colors.surface3
 			height: (batteryShell.height - root.borderWidth / 2) / 2
-			topRightRadius: SC.Config.radius.small
 			width: 2.5
 		}
 	}

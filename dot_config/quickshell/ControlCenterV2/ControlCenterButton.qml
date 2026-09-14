@@ -7,10 +7,20 @@ Rectangle {
 	id: root
 
 	required property PanelWindow window
+	property bool open: false
+
+	function close() {
+		open = false;
+	}
+	function toggle() {
+		open = !open;
+	}
 
 	anchors.verticalCenter: parent.verticalCenter
-	color: hover.hovered ? SC.Config.colors.surface2 : SC.Config.colors.bg
-	height: window.implicitHeight - SC.Config.padding.micro
+	border.width: 2
+	border.color: hover.hovered ? SC.Config.colors.surface3 : SC.Config.colors.bg
+	color: "transparent"
+	height: window.implicitHeight - SC.Config.padding.small
 	implicitWidth: content.implicitWidth + SC.Config.padding.small * 2
 	radius: SC.Config.radius.small
 
@@ -31,5 +41,14 @@ Rectangle {
 	MouseArea {
 		anchors.fill: parent
 		cursorShape: Qt.PointingHandCursor
+
+		onClicked: root.toggle()
+	}
+	ControlCenterPopup {
+		anchorButton: root
+		open: root.open
+		window: root.window
+
+		onCloseRequested: root.close()
 	}
 }
