@@ -25,16 +25,12 @@ PopupWindow {
 	}
 	property bool keepAlive: false
 	property string lastActive: ""
-	readonly property real leftEdge: Math.min(0, batteryPanelXInHost, trayPanelXInHost, bluetoothPanelXInHost, networkPanelXInHost)
-	required property Item networkButton
-	readonly property real networkPanelXInHost: panelXFor(networkButton, "network")
+	readonly property real leftEdge: Math.min(0, batteryPanelXInHost, trayPanelXInHost, bluetoothPanelXInHost)
 	readonly property Item panelButton: {
 		if (panelMenu === "battery")
 			return batteryButton;
 		if (panelMenu === "bluetooth")
 			return bluetoothButton;
-		if (panelMenu === "network")
-			return networkButton;
 		if (panelMenu === "tray")
 			return trayButton;
 		return activeButton;
@@ -45,14 +41,14 @@ PopupWindow {
 	readonly property real panelXInHost: panelXFor(panelButton, panelMenu)
 	readonly property real panelY: window.height + SC.Config.popup.gap
 	required property bool popupVisible
-	readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + panelWidthFor("battery"), trayPanelXInHost + panelWidthFor("tray"), bluetoothPanelXInHost + panelWidthFor("bluetooth"), networkPanelXInHost + panelWidthFor("network"))
+	readonly property real rightEdge: Math.max(hostItem.width, batteryPanelXInHost + panelWidthFor("battery"), trayPanelXInHost + panelWidthFor("tray"), bluetoothPanelXInHost + panelWidthFor("bluetooth"))
 	readonly property real stripX: -leftEdge
 	required property Item trayButton
 	readonly property real trayPanelXInHost: panelXFor(trayButton, "tray")
 	required property PanelWindow window
 
 	function panelWidthFor(menu: string): real {
-		return menu === "network" ? SC.Config.networkPanel.width : SC.Config.popup.width;
+		return SC.Config.popup.width;
 	}
 	function panelXFor(button: Item, menu: string): real {
 		return button.x - (panelWidthFor(menu) / 2) + (button.width / 2);
@@ -148,14 +144,6 @@ PopupWindow {
 
 			onClicked: controller.switchMenu("bluetooth")
 		}
-		MouseArea {
-			height: networkButton.height
-			width: networkButton.width
-			x: popup.stripX + networkButton.x
-			y: networkButton.y
-
-			onClicked: controller.switchMenu("network")
-		}
 		Rectangle {
 			border.color: "#66ffcc00"
 			border.width: 1
@@ -167,7 +155,7 @@ PopupWindow {
 			y: 0
 		}
 		Repeater {
-			model: [batteryButton, trayButton, bluetoothButton, networkButton]
+			model: [batteryButton, trayButton, bluetoothButton]
 
 			delegate: Rectangle {
 				required property var modelData

@@ -18,6 +18,8 @@ These rules apply to `dot_config/quickshell/`.
 - Capture targets belong to their owning host; keep the capture service generic.
 - Import `qs.Config as SC` and access shared tokens through `SC.Config`. Use `SC.Config.curve`, durations, spacing, padding, colors, and radii; use `Easing.Linear` only for progress values.
 - Use `DirectScrollList` for new compact scroll panels; do not duplicate its wheel, bounds, edge-stop, or overflow-indicator behavior.
+- Use `LoaderIcon` beside in-progress feedback text; do not create other spinners.
+- Reserve `LoaderIcon` size in layout height so showing or hiding it does not shift siblings.
 
 ## Performance
 
@@ -40,3 +42,15 @@ These rules apply to `dot_config/quickshell/`.
 - Use `nu dot_config/quickshell/utils/test-notifs.nu --img` for image-only cases.
 - Use `nu dot_config/quickshell/utils/test-notifs.nu --count 50 --delay 20` to stress sidebar scrolling.
 - Use `nu dot_config/quickshell/utils/quickshell-notif-bench.nu --delay 50` for image-cache testing; clean spawned Quickshell process groups on exit.
+
+## Popups
+
+- Keep popup content inside its window.
+- Use `grabFocus` for outside clicks.
+- Sync popup close state with its button.
+- Animate one height value.
+- Avoid clipping animated content.
+
+## Verification
+
+- Do not run unrelated tests for UI-only changes.

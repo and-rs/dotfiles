@@ -99,7 +99,7 @@ Scope {
 					anchors.right: parent.right
 					anchors.verticalCenter: parent.verticalCenter
 					rightPadding: SC.Config.padding.large
-					spacing: SC.Config.spacing.large
+					spacing: SC.Config.spacing.normal
 
 					Row {
 						id: buttons
@@ -122,22 +122,42 @@ Scope {
 							window: main
 						}
 						Rectangle {
-							anchors.verticalCenter: parent.verticalCenter
-							color: SC.Config.colors.surface2
-							height: SC.Config.sizes.small
+							// separator
 							width: 2
+							height: SC.Config.sizes.small
+							color: SC.Config.colors.surface2
+							anchors.verticalCenter: parent.verticalCenter
 						}
 						ControlCenterButton {
 							window: main
 						}
 					}
-					Text {
+					Item {
+						id: timeSlot
+
+						width: implicitWidth
+						height: implicitHeight
+						implicitWidth: timeMetrics.width
+						implicitHeight: timeText.implicitHeight
 						anchors.verticalCenter: parent.verticalCenter
-						color: SC.Config.colors.fg
-						font.pointSize: 10
-						font.weight: 500
-						text: Time.format("ddd d MMM hh:mm")
-						width: 105
+
+						TextMetrics {
+							id: timeMetrics
+
+							// this is just a placeholder for width
+							font: timeText.font
+							text: "Wed 31 May 23:59"
+						}
+
+						Text {
+							id: timeText
+
+							anchors.centerIn: parent
+							color: SC.Config.colors.fg
+							font.pointSize: 10
+							font.weight: 500
+							text: Time.format("ddd d MMM hh:mm")
+						}
 					}
 				}
 			}

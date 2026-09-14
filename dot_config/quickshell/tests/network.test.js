@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import model from "../Bar/Status/Network/NetworkModel.js"
+import model from "../Bar/NetworkModel.js"
 
 describe("NetworkModel", () => {
   test("normalizes an NM snapshot into UI-safe primitives", () => {

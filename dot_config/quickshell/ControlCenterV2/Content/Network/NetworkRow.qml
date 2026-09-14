@@ -35,7 +35,7 @@ Rectangle {
 		anchors.top: signalIcon.top
 		color: root.network.connected ? SC.Config.colors.success : SC.Config.colors.primary
 		font.pointSize: 8
-		font.weight: 500
+		font.weight: Font.Medium
 		text: root.busy ? "…" : root.network.connected ? "Connected" : "Connect"
 	}
 	Text {
@@ -49,7 +49,7 @@ Rectangle {
 		color: root.network.connected ? SC.Config.colors.primary : SC.Config.colors.fg
 		elide: Text.ElideRight
 		font.pointSize: 9
-		font.weight: root.network.connected ? 600 : 400
+		font.weight: root.network.connected ? Font.DemiBold : Font.Normal
 		text: root.network.name
 	}
 	Text {
@@ -85,7 +85,7 @@ Rectangle {
 		anchors.top: actionLabel.bottom
 		color: SC.Config.colors.surface5
 		font.pointSize: 8
-		font.weight: 500
+		font.weight: Font.Medium
 		text: "Forget"
 		visible: root.canForget
 
@@ -136,7 +136,7 @@ Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			color: root.panel.passwordText.length > 0 ? SC.Config.colors.primary : SC.Config.colors.surface3
 			font.pointSize: 8
-			font.weight: 600
+			font.weight: Font.DemiBold
 			text: "CONNECT"
 
 			MouseArea {

@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import qs.Bar
 import qs.Config as SC
@@ -6,9 +8,11 @@ Column {
 	id: root
 
 	readonly property var connectedNetwork: NetworkService.connectedNetwork
-	property alias debugHeroStatus: heroStatus
-	property alias debugHeroTitle: heroTitle
+	property alias debugHeroStatus: status
+	property alias debugHeroTitle: title
 	property alias debugNetworkList: networkList
+	readonly property var knownNetworks: NetworkService.wifiNetworks.filter(network => network.known)
+	readonly property var otherNetworks: NetworkService.wifiNetworks.filter(network => !network.known)
 	property var passwordNetwork: null
 	property string passwordText: ""
 	readonly property var wifiDevice: NetworkService.wifiDevice
@@ -24,9 +28,6 @@ Column {
 		passwordNetwork = network;
 		passwordText = "";
 	}
-	function detailText(label, value) {
-		return value ? label + "\n" + value : "";
-	}
 	function submitPassword() {
 		if (!passwordNetwork || passwordText.length === 0)
 			return;
@@ -35,11 +36,16 @@ Column {
 		passwordNetwork = null;
 	}
 
-	spacing: SC.Config.spacing.normal
+	spacing: SC.Config.spacing.small
 	width: parent ? parent.width : SC.Config.networkPanel.width - SC.Config.padding.large * 2
 
+	Component.onCompleted: NetworkService.openPanel()
+	Component.onDestruction: NetworkService.closePanel()
+
 	Item {
-		implicitHeight: Math.max(heroIcon.implicitHeight, heroTitle.implicitHeight + heroStatus.implicitHeight + SC.Config.padding.micro, wifiToggle.implicitHeight)
+		id: hero
+
+		implicitHeight: 48
 		width: parent.width
 
 		MaterialIcon {
@@ -53,31 +59,31 @@ Column {
 			iconSize: 30
 		}
 		Text {
-			id: heroTitle
+			id: title
 
 			anchors.left: heroIcon.right
 			anchors.leftMargin: SC.Config.spacing.normal
 			anchors.right: wifiToggle.left
 			anchors.rightMargin: SC.Config.spacing.normal
 			anchors.verticalCenter: parent.verticalCenter
-			anchors.verticalCenterOffset: -(heroStatus.implicitHeight + SC.Config.padding.micro) / 2
+			anchors.verticalCenterOffset: -(status.implicitHeight + SC.Config.padding.micro) / 2
 			color: SC.Config.colors.fg
 			elide: Text.ElideRight
 			font.pointSize: 12
-			font.weight: 600
+			font.weight: Font.DemiBold
 			text: !NetworkService.available ? "Network unavailable" : root.connectedNetwork ? root.connectedNetwork.name : root.wiredDevice && root.wiredDevice.hasLink ? "Ethernet" : root.wifiDevice ? "Wi-Fi" : "No network device"
 		}
 		Text {
-			id: heroStatus
+			id: status
 
-			anchors.left: heroTitle.left
-			anchors.right: heroTitle.right
-			anchors.top: heroTitle.bottom
+			anchors.left: title.left
+			anchors.right: title.right
+			anchors.top: title.bottom
 			anchors.topMargin: SC.Config.padding.micro
 			color: NetworkService.stale ? SC.Config.colors.destructive : SC.Config.colors.surface5
 			elide: Text.ElideRight
 			font.pointSize: 8
-			font.weight: 500
+			font.weight: Font.Medium
 			text: (NetworkService.stale ? "STALE · " : "") + NetworkService.connectivity.toUpperCase() + " · " + NetworkService.backend.toUpperCase()
 		}
 		Rectangle {
@@ -113,107 +119,97 @@ Column {
 		height: 1
 		width: parent.width
 	}
-	Grid {
-		columnSpacing: SC.Config.spacing.large
-		columns: 3
-		rowSpacing: SC.Config.spacing.normal
-		width: parent.width
-
-		Repeater {
-			model: [root.detailText("INTERFACE", root.wifiDevice ? root.wifiDevice.name : root.wiredDevice ? root.wiredDevice.name : ""), root.detailText("SIGNAL", root.connectedNetwork ? Math.round(root.connectedNetwork.signalStrength * 100) + "%" : ""), root.detailText("SECURITY", root.connectedNetwork ? root.connectedNetwork.security : ""), root.detailText("ADAPTER", root.wifiDevice ? root.wifiDevice.address : ""), root.detailText("ETHERNET", root.wiredDevice && root.wiredDevice.hasLink ? root.wiredDevice.linkSpeed > 0 ? root.wiredDevice.linkSpeed + " Mbps" : "Connected" : ""), root.detailText("STATUS", NetworkService.connectivity)]
-
-			delegate: Text {
-				required property string modelData
-
-				color: SC.Config.colors.surface5
-				font.pointSize: 8
-				font.weight: 500
-				text: modelData
-				visible: text !== ""
-				width: (parent.width - parent.columnSpacing * 2) / 3
-			}
-		}
-	}
-	Rectangle {
-		color: SC.Config.colors.surface2
-		height: 1
-		visible: root.wifiDevice !== null && NetworkService.wifiEnabled
-		width: parent.width
-	}
 	Item {
-		height: visible ? 22 : 0
+		height: visible ? Math.max(scanHeader.implicitHeight, scanLabel.implicitHeight, scanLoader.iconSize) : 0
 		visible: root.wifiDevice !== null && NetworkService.wifiEnabled
 		width: parent.width
 
 		NetworkSectionHeader {
+			id: scanHeader
+
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			text: NetworkService.scanState === "scanning" ? "SCANNING WI-FI" : "WI-FI NETWORKS"
 		}
-		Text {
+		Row {
+			id: scanAction
+
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
-			color: SC.Config.colors.primary
-			font.pointSize: 8
-			font.weight: 600
-			text: NetworkService.scanState === "scanning" ? "SCANNING" : "REFRESH"
+			spacing: SC.Config.spacing.extraSmall
 
-			MouseArea {
-				anchors.fill: parent
-				anchors.margins: -SC.Config.padding.small
-				cursorShape: Qt.PointingHandCursor
-				enabled: NetworkService.scanState !== "scanning" && NetworkService.actionState === "idle"
+			LoaderIcon {
+				id: scanLoader
 
-				onClicked: NetworkService.scan()
+				anchors.verticalCenter: parent.verticalCenter
+				centered: false
+				visible: NetworkService.scanState === "scanning"
+			}
+			Text {
+				id: scanLabel
+
+				anchors.verticalCenter: parent.verticalCenter
+				color: SC.Config.colors.primary
+				font.pointSize: 8
+				font.weight: Font.DemiBold
+				text: NetworkService.scanState === "scanning" ? "SCANNING" : "REFRESH"
+
+				MouseArea {
+					anchors.fill: parent
+					anchors.margins: -SC.Config.padding.small
+					cursorShape: Qt.PointingHandCursor
+					enabled: NetworkService.scanState !== "scanning" && NetworkService.actionState === "idle"
+
+					onClicked: NetworkService.scan()
+				}
 			}
 		}
 	}
-	DirectScrollList {
+	Column {
 		id: networkList
 
-		clip: true
-		height: Math.min(contentHeight, SC.Config.networkPanel.listHeight)
-		model: root.wifiDevice && NetworkService.wifiEnabled ? NetworkService.wifiNetworks : []
 		spacing: SC.Config.spacing.extraSmall
+		visible: root.wifiDevice !== null && NetworkService.wifiEnabled
 		width: parent.width
 
-		delegate: Item {
-			readonly property bool firstKnown: modelData.known && (index === 0 || !NetworkService.wifiNetworks[index - 1].known)
-			readonly property bool firstOther: !modelData.known && (index === 0 || NetworkService.wifiNetworks[index - 1].known)
-			required property int index
-			required property var modelData
+		DirectScrollList {
+			clip: true
+			height: visible ? Math.min(contentHeight, root.otherNetworks.length > 0 ? SC.Config.networkPanel.listHeight / 2 : SC.Config.networkPanel.listHeight) : 0
+			model: root.knownNetworks
+			spacing: SC.Config.spacing.extraSmall
+			visible: root.knownNetworks.length > 0
+			width: parent.width
 
-			height: rowColumn.implicitHeight
-			width: ListView.view.width
+			delegate: NetworkRow {
+				required property var modelData
 
-			Column {
-				id: rowColumn
+				network: modelData
+				panel: root
+				width: ListView.view.width
+			}
+		}
+		DirectScrollList {
+			clip: true
+			height: visible ? Math.min(contentHeight, root.knownNetworks.length > 0 ? SC.Config.networkPanel.listHeight / 2 : SC.Config.networkPanel.listHeight) : 0
+			model: root.otherNetworks
+			spacing: SC.Config.spacing.extraSmall
+			visible: root.otherNetworks.length > 0
+			width: parent.width
 
-				spacing: SC.Config.spacing.extraSmall
-				width: parent.width
+			delegate: NetworkRow {
+				required property var modelData
 
-				NetworkSectionHeader {
-					text: parent.parent.firstKnown ? "KNOWN NETWORKS" : parent.parent.firstOther ? "OTHER NETWORKS" : ""
-					visible: text !== ""
-				}
-				NetworkRow {
-					network: modelData
-					panel: root
-					width: parent.width
-				}
+				network: modelData
+				panel: root
+				width: ListView.view.width
 			}
 		}
 	}
 	Text {
-		color: SC.Config.colors.surface3
+		color: NetworkService.lastError !== "" ? SC.Config.colors.destructive : SC.Config.colors.surface3
 		font.pointSize: 9
-		text: root.wifiDevice === null ? "No Wi-Fi device found" : !NetworkService.wifiEnabled ? "Wi-Fi is disabled" : NetworkService.scanState === "idle" && NetworkService.wifiNetworks.length === 0 ? "No networks found" : ""
-		visible: text !== ""
-	}
-	Text {
-		color: SC.Config.colors.destructive
-		font.pointSize: 8
-		text: NetworkService.lastError
+		maximumLineCount: 2
+		text: NetworkService.lastError || (root.wifiDevice === null ? "No Wi-Fi device found" : !NetworkService.wifiEnabled ? "Wi-Fi is disabled" : NetworkService.scanState === "idle" && NetworkService.wifiNetworks.length === 0 ? "No networks found" : "")
 		visible: text !== ""
 		width: parent.width
 		wrapMode: Text.Wrap

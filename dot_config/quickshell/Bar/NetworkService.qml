@@ -3,7 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "Status/Network/NetworkModel.js" as NetworkModel
+import "NetworkModel.js" as NetworkModel
 
 Singleton {
 	id: root
@@ -16,7 +16,7 @@ Singleton {
 	property string actionState: "idle"
 	property bool available: false
 	property string backend: "none"
-	readonly property string backendScript: Quickshell.shellDir + "/Bar/Status/Network/NetworkBackend.sh"
+	readonly property string backendScript: Quickshell.shellDir + "/Bar/NetworkBackend.sh"
 	property var connectedNetwork: null
 	property string connectivity: "Unknown"
 	property string lastError: ""

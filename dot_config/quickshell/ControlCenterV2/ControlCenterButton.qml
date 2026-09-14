@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Config as SC
 import qs.ControlCenterV2.ButtonIndicators
+import qs.Debug as Debug
 
 Rectangle {
 	id: root
@@ -20,7 +21,7 @@ Rectangle {
 	border.width: 2
 	border.color: hover.hovered ? SC.Config.colors.surface3 : SC.Config.colors.bg
 	color: "transparent"
-	height: window.implicitHeight - SC.Config.padding.small
+	height: window.implicitHeight - SC.Config.padding.small + 2
 	implicitWidth: content.implicitWidth + SC.Config.padding.small * 2
 	radius: SC.Config.radius.small
 
@@ -45,10 +46,52 @@ Rectangle {
 		onClicked: root.toggle()
 	}
 	ControlCenterPopup {
+		id: popup
+
 		anchorButton: root
 		open: root.open
 		window: root.window
 
 		onCloseRequested: root.close()
+	}
+	QtObject {
+		id: networkDebugTarget
+
+		property var items: {
+			const content = popup.networkContent;
+			return [
+				{
+					name: "hero-title",
+					item: content ? content.debugHeroTitle : null
+				},
+				{
+					name: "hero-status",
+					item: content ? content.debugHeroStatus : null
+				},
+				{
+					name: "network-list",
+					item: content ? content.debugNetworkList : null
+				}
+			];
+		}
+		property Item item: popup.networkContent
+		property string name: "network"
+
+		function close() {
+			root.close();
+		}
+		function open() {
+			popup.selectedTab = "network";
+			root.open = true;
+		}
+	}
+	Loader {
+		active: SC.Config.debug.enabled
+
+		sourceComponent: Component {
+			Debug.Capture {
+				targets: [networkDebugTarget]
+			}
+		}
 	}
 }
