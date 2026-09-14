@@ -6,6 +6,10 @@ function string(value) {
   return value === undefined || value === null ? "" : String(value)
 }
 
+function mac(value) {
+  return string(value).replace(/\\/g, "")
+}
+
 function signal(value) {
   var parsed = Number(value)
   if (!isFinite(parsed)) return 0
@@ -23,7 +27,7 @@ function device(value, type) {
     name: string(value.name),
     type: type,
     state: string(value.state || "unknown").toLowerCase(),
-    address: string(value.address),
+    address: mac(value.address),
     hasLink: !!value.hasLink,
     linkSpeed: Math.max(0, Math.round(Number(value.linkSpeed) || 0)),
     network: network(value.network)
@@ -38,8 +42,8 @@ function network(value) {
     known: !!value.known,
     security: string(value.security || "Unknown"),
     signalStrength: signal(value.signalStrength),
-    bssid: string(value.bssid),
-    id: string(value.id || value.bssid || value.name)
+    bssid: mac(value.bssid),
+    id: string(value.id || mac(value.bssid) || value.name)
   }
 }
 

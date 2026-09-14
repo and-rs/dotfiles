@@ -12,7 +12,7 @@ describe("NetworkModel", () => {
       wifiDevice: {
         name: "wlan0",
         state: "connected",
-        address: "aa:bb:cc:dd:ee:ff",
+        address: "aa\\:bb\\:cc\\:dd\\:ee\\:ff",
         hasLink: true,
         network: { name: "Cafe: Upstairs", connected: true, known: true, security: "WPA2", signalStrength: 1.4 }
       },
@@ -24,6 +24,7 @@ describe("NetworkModel", () => {
       ]
     })
 
+    expect(value.wifiDevice.address).toBe("aa:bb:cc:dd:ee:ff")
     expect(value.wifiDevice.network.name).toBe("Cafe: Upstairs")
     expect(value.wifiDevice.network.signalStrength).toBe(1)
     expect(value.wiredDevice.linkSpeed).toBe(0)

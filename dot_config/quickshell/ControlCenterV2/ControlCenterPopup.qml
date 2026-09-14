@@ -31,8 +31,8 @@ PopupWindow {
 		{
 			id: "network",
 			label: "Network",
-			contentHeight: 400,
-			maximumContentHeight: 400
+			contentHeight: 480,
+			maximumContentHeight: 480
 		},
 		{
 			id: "battery",
