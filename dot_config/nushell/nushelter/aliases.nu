@@ -68,6 +68,10 @@ alias lt = eza -lhaT --no-permissions --no-user --no-time --git-ignore
 alias ff = fastfetch --logo-color-1 cyan --file $"($env.DOTS)/utils/ascii/spider2.txt"
 alias ffn = fastfetch --logo-color-1 red --file $"($env.DOTS)/utils/ascii/spider2.txt" --config neofetch
 
+def --wrapped "oc" [...args] {
+  OPENCODE_ENABLE_EXA=1 opencode ...$args
+}
+
 def "oc sd" [s: string] {
   opencode session delete $s
 }
