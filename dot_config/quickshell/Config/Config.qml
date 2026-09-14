@@ -109,11 +109,11 @@ Singleton {
 		property int width
 	}
 	component Sizes: JsonObject {
-		property int extraLarge
-		property int extraSmall
-		property int large
-		property int normal
-		property int small
+		property int extraLarge: 24
+		property int extraSmall: 8
+		property int large: 20
+		property int normal: 16
+		property int small: 12
 	}
 	component Spacing: JsonObject {
 		property int extraLarge
