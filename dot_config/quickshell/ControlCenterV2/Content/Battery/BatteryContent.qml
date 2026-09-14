@@ -73,7 +73,7 @@ Column {
 			anchors.verticalCenter: parent.verticalCenter
 			centered: false
 			code: !root.hasBattery ? 0xE0BE : root.charging ? 0xE2DE : root.percentInt < 20 ? 0xE0C8 : root.percentInt < 50 ? 0xE0C6 : root.percentInt < 80 ? 0xE0C2 : 0xE0C0
-			iconColor: !root.hasBattery || !root.ready ? SC.Config.colors.surface4 : root.percentInt < 20 ? SC.Config.colors.destructive : root.charging ? SC.Config.colors.primary : SC.Config.colors.surface4
+			iconColor: !root.hasBattery || !root.ready ? SC.Config.colors.surface5 : root.percentInt < 20 ? SC.Config.colors.destructive : root.charging ? SC.Config.colors.primary : SC.Config.colors.surface5
 			iconSize: 30
 		}
 		Text {

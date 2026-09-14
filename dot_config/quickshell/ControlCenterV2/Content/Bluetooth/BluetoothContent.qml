@@ -77,7 +77,7 @@ Column {
 			anchors.verticalCenter: parent.verticalCenter
 			centered: false
 			code: root.enabled ? root.connectedDevice ? 0xE0DC : 0xE0DA : 0xE0DE
-			iconColor: root.connectedDevice ? SC.Config.colors.primary : SC.Config.colors.surface4
+			iconColor: root.connectedDevice ? SC.Config.colors.primary : SC.Config.colors.surface5
 			iconSize: 30
 		}
 		Text {

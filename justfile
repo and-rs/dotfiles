@@ -16,7 +16,7 @@ AR:
     ~/.config/quickshell/launch.sh
 
 apply:
-    chezmoi apply
+    chezmoi apply -v
 
 diff:
     chezmoi diff

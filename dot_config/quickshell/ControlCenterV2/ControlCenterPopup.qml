@@ -223,9 +223,10 @@ PopupWindow {
 	}
 
 	component TabButton: Rectangle {
+		id: tabButton
 		required property var tab
 
-		color: popup.selectedTab === tab.id ? SC.Config.colors.surface3 : SC.Config.colors.surface1
+		color: popup.selectedTab === tab.id ? SC.Config.colors.surface5 : SC.Config.colors.surface1
 		height: label.implicitHeight + SC.Config.padding.small * 2
 		radius: SC.Config.radius.small
 
@@ -233,7 +234,7 @@ PopupWindow {
 			id: label
 
 			anchors.centerIn: parent
-			color: SC.Config.colors.fg
+			color: popup.selectedTab === tabButton.tab.id ? SC.Config.colors.bg : SC.Config.colors.fg
 			font.pointSize: 9
 			font.weight: Font.DemiBold
 			text: parent.tab.label

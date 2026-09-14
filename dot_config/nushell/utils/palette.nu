@@ -1,13 +1,13 @@
 const TUNING = {
   # HSL lightness offsets for surface1 through surface5.
-  surface_steps: [0.02 0.04 0.12 0.28 0.38]
+  surface_steps: [0.02 0.04 0.14 0.32 0.56]
 
   # Dark backgrounds need less accent tint than light backgrounds.
   dark_tint: {base: 0.03 slope: 0.2 maximum: 0.16}
   light_tint: {base: 0.05 slope: 0.3 maximum: 0.30}
 
   # Diff backgrounds need a visible tint without overpowering the text.
-  diff_tint: 0.35
+  diff_tint: 0.25
   diff_lightness_step: 0.06
 
   # Skip hue and saturation tinting for near-neutral backgrounds.
