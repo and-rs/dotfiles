@@ -13,7 +13,7 @@ Rectangle {
 	required property PanelWindow window
 
 	function close() {
-		popup.dismiss();
+		open = false;
 	}
 	function toggle() {
 		if (open)
