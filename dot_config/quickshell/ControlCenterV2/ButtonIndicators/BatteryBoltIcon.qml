@@ -7,7 +7,7 @@ Shape {
 
 	readonly property string glyph: String.fromCodePoint(0xE2DE)
 	readonly property int iconSize: 12
-	readonly property real outline: 2
+	readonly property real outline: 1.5
 	readonly property rect tight: metrics.tightBoundingRect(root.glyph)
 
 	preferredRendererType: Shape.CurveRenderer
@@ -32,7 +32,7 @@ Shape {
 			font.pointSize: root.iconSize
 			text: root.glyph
 			x: (root.width - root.tight.width) / 2 - root.tight.x
-			y: root.height / (root.iconSize * 2)
+			y: 0
 		}
 	}
 }

@@ -1,7 +1,7 @@
 import QtQuick
 import qs.Config as SC
 
-QtObject {
+Item {
 	id: root
 
 	required property var swapContent
