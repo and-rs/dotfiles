@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell.Services.UPower
-import qs.Bar
 import qs.Config as SC
 
 Row {
@@ -64,11 +63,8 @@ Row {
 				color: "transparent"
 				radius: SC.Config.radius.small
 			}
-			PhosphorFillIcon {
-				anchors.centerIn: parent
-				code: 0xE2DE
-				iconColor: SC.Config.colors.bg
-				iconSize: 9
+			BatteryBoltIcon {
+				anchors.fill: parent
 				opacity: root.charging ? 1 : 0
 
 				Behavior on opacity {

@@ -1,4 +1,4 @@
-theme = "tokyo-night-day"
+theme = "github-light"
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"
@@ -79,3 +79,19 @@ selection = "#2a2a2a"
 black = "#282828"
 white = "#dfdfe0"
 bright_black = "#484848"
+
+[palettes.github-light]
+fg = "#1f2328"
+blue = "#0969da"
+magenta = "#8250df"
+red = "#cf222e"
+green = "#1a7f37"
+yellow = "#9a6700"
+cyan = "#1b7c83"
+bg = "#ffffff"
+cursor = "#1f2328"
+cursor_text = "#ffffff"
+selection = "#d0d7de"
+black = "#f6f8fa"
+white = "#1f2328"
+bright_black = "#656d76"
