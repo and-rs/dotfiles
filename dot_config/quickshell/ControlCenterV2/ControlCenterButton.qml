@@ -13,10 +13,13 @@ Rectangle {
 	required property PanelWindow window
 
 	function close() {
-		open = false;
+		popup.dismiss();
 	}
 	function toggle() {
-		open = !open;
+		if (open)
+			popup.dismiss();
+		else
+			open = true;
 	}
 
 	anchors.verticalCenter: parent.verticalCenter

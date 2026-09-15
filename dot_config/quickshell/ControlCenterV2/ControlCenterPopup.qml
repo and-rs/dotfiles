@@ -11,7 +11,7 @@ import qs.ControlCenterV2.Content.Tray as TrayContent
 PopupWindow {
 	id: popup
 
-	readonly property var activeTab: tabDefinitions.find(tab => tab.id === selectedTab) || tabDefinitions[0]
+	readonly property var activeTab: tabDefinitions.find(tab => tab.id === contentTab) || tabDefinitions[0]
 	required property Item anchorButton
 	readonly property Item batteryContent: batteryContentLoader.item
 	readonly property Item bluetoothContent: bluetoothContentLoader.item
@@ -27,6 +27,9 @@ PopupWindow {
 			return trayContentLoader.item.implicitHeight;
 		return 0;
 	}
+	property string contentTab: "tray"
+	property bool closeNotified: false
+	property bool leaving: false
 	readonly property Item networkContent: networkContentLoader.item
 	required property bool open
 	property var pendingAction: null
@@ -56,8 +59,20 @@ PopupWindow {
 
 	function deferAction(action) {
 		popup.pendingAction = action;
-		popup.closeRequested();
-		pendingActionTimer.restart();
+		popup.dismiss();
+	}
+	function dismiss() {
+		if (popup.leaving)
+			return;
+		popup.closeNotified = false;
+		popup.leaving = true;
+		animations.hide();
+	}
+	function selectTab(id) {
+		if (id === selectedTab)
+			return;
+		selectedTab = id;
+		animations.switchContent();
 	}
 
 	anchor.adjustment: PopupAdjustment.None
@@ -68,25 +83,43 @@ PopupWindow {
 	grabFocus: true
 	implicitHeight: frame.y + frame.height
 	implicitWidth: frame.width
-	visible: open
+	visible: open || leaving
 
+	onContentHeightChanged: {
+		if (!open)
+			return;
+		animations.updateContentHeight(contentHeight);
+	}
+	onOpenChanged: {
+		if (open) {
+			closeNotified = false;
+			contentTab = selectedTab;
+			leaving = false;
+			animations.show(contentHeight);
+		} else if (!leaving && visible) {
+			dismiss();
+		}
+	}
 	onVisibleChanged: {
-		if (!visible)
+		if (!visible && !closeNotified) {
+			closeNotified = true;
 			closeRequested();
+		}
 	}
 
-	Timer {
-		id: pendingActionTimer
+	ControlCenterAnimations {
+		id: animations
 
-		interval: SC.Config.durations.instant
-		repeat: false
+		swapContent: () => popup.contentTab = popup.selectedTab
 
-		onTriggered: {
-			if (!popup.pendingAction)
-				return;
+		onLeaveFinished: {
 			const action = popup.pendingAction;
-			action();
 			popup.pendingAction = null;
+			popup.closeNotified = true;
+			popup.closeRequested();
+			popup.leaving = false;
+			if (action)
+				action();
 		}
 	}
 	Item {
@@ -100,7 +133,7 @@ PopupWindow {
 		MouseArea {
 			anchors.fill: parent
 
-			onClicked: popup.closeRequested()
+			onClicked: popup.dismiss()
 		}
 		MouseArea {
 			height: popup.anchorButton.height
@@ -108,7 +141,7 @@ PopupWindow {
 			x: (frame.width - width) / 2
 			y: -frame.y
 
-			onClicked: popup.closeRequested()
+			onClicked: popup.dismiss()
 		}
 		Rectangle {
 			id: card
@@ -119,6 +152,7 @@ PopupWindow {
 			border.width: SC.Config.popup.borderWidth
 			color: SC.Config.colors.bg
 			height: tabs.implicitHeight + contentViewport.height + SC.Config.padding.large * 2 + SC.Config.spacing.small
+			opacity: animations.cardOpacity
 			radius: SC.Config.radius.normal
 
 			MouseArea {
@@ -147,20 +181,14 @@ PopupWindow {
 				Item {
 					id: contentViewport
 
-					height: popup.contentHeight
+					height: animations.contentHeight
+					opacity: animations.contentOpacity
 					width: parent.width
-
-					Behavior on height {
-						NumberAnimation {
-							duration: SC.Config.durations.normal
-							easing.type: SC.Config.curve
-						}
-					}
 
 					Loader {
 						id: trayContentLoader
 
-						active: (popup.open && popup.selectedTab === "tray") || popup.pendingAction !== null
+						active: (popup.open || popup.leaving) && popup.contentTab === "tray"
 						anchors.fill: parent
 						sourceComponent: Component {
 							TrayContent.TrayContent {
@@ -171,7 +199,7 @@ PopupWindow {
 					Loader {
 						id: bluetoothContentLoader
 
-						active: popup.open && popup.selectedTab === "bluetooth"
+						active: (popup.open || popup.leaving) && popup.contentTab === "bluetooth"
 						anchors.fill: parent
 						sourceComponent: Component {
 							BluetoothContent.BluetoothContent {}
@@ -180,7 +208,7 @@ PopupWindow {
 					Loader {
 						id: networkContentLoader
 
-						active: popup.open && popup.selectedTab === "network"
+						active: (popup.open || popup.leaving) && popup.contentTab === "network"
 						anchors.fill: parent
 						sourceComponent: Component {
 							NetworkContent.NetworkContent {}
@@ -189,7 +217,7 @@ PopupWindow {
 					Loader {
 						id: batteryContentLoader
 
-						active: popup.open && popup.selectedTab === "battery"
+						active: (popup.open || popup.leaving) && popup.contentTab === "battery"
 						anchors.fill: parent
 						sourceComponent: Component {
 							BatteryContent.BatteryContent {}
@@ -221,7 +249,7 @@ PopupWindow {
 			anchors.fill: parent
 			cursorShape: Qt.PointingHandCursor
 
-			onClicked: popup.selectedTab = parent.tab.id
+			onClicked: popup.selectTab(parent.tab.id)
 		}
 	}
 }
