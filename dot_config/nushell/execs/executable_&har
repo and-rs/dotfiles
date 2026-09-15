@@ -1,0 +1,42 @@
+#!/usr/bin/env -S nu -n
+
+export def main [
+  --force (-f)
+  file: string
+  out?: string
+] {
+  (
+    open $file
+    | from json | get log | get entries
+    | each {|line|
+      let asset = (
+        $line.request.url
+        | parse --regex '(?i)\.(?<type>js|png|css|ico|woff2)(?:[?#]|$)'
+        | get -o type | first
+      )
+
+      if ($asset | is-not-empty) {
+        {
+          skipped: $asset
+          time: $line.startedDateTime?
+          req: {
+            method: $line.request.method
+            url: $line.request.url
+          }
+          res: {
+            status: $line.response.status
+            redirectURL: $line.response.redirectURL?
+          }
+        }
+      } else {
+        {
+          time: $line.startedDateTime?
+          req: $line.request
+          res: $line.response
+          initiator: $line._initiator?
+          error: $line._error?
+        }
+      }
+    }
+  ) | to json | save --force=$force (if ($out | is-empty) { "refined.json" } else $out)
+}

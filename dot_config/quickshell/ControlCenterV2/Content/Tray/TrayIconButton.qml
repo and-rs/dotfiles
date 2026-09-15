@@ -16,7 +16,7 @@ Rectangle {
 
 	border.color: root.selected ? SC.Config.colors.primary : "transparent"
 	border.width: 2
-	color: mouse.containsMouse ? SC.Config.colors.surface2 : SC.Config.colors.surface1
+	color: mouse.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface3
 	height: 40
 	radius: SC.Config.radius.small
 	width: 40
@@ -39,8 +39,8 @@ Rectangle {
 	MaterialIcon {
 		anchors.centerIn: parent
 		code: 0xE3E8
-		iconColor: SC.Config.colors.surface4
-		iconSize: SC.Config.sizes.normal
+		iconColor: SC.Config.colors.surface5
+		iconSize: SC.Config.sizes.large
 		visible: trayIcon.status !== Image.Ready || !root.iconValid
 	}
 	MouseArea {
