@@ -1,4 +1,4 @@
-font-size = 13
+font-size = 12
 #adjust-font-baseline = 0
 #adjust-underline-thickness = 1
 #adjust-underline-position = 2
@@ -17,6 +17,7 @@ font-size = 13
 # adjust-box-thickness = 2
 # adjust-cell-height = 6
 
+font-family = Maple Mono
 #font-family = CommitMono
 #font-family = MD IO Trial
 #font-family = Input
@@ -24,7 +25,7 @@ adjust-cell-height = 13
 adjust-cursor-height = 13
 adjust-underline-position = 9
 adjust-underline-thickness = 0
-#freetype-load-flags = light
+freetype-load-flags = hinting,force-autohint
 
 # font-family = Rec Mono Linear
 # font-family-bold = Rec Mono Linear
@@ -34,10 +35,10 @@ adjust-underline-thickness = 0
 # font-style-italic = Italic
 # font-style-bold-italic = Bold Italic
 
-font-family = Monaspace Neon
-font-family-bold = Monaspace Neon
-font-family-italic = Monaspace Argon
-font-family-bold-italic = Monaspace Argon
-font-style-bold = Bold
-font-style-italic = Italic
-font-style-bold-italic = Bold Italic
+#font-family = Monaspace Neon
+#font-family-bold = Monaspace Neon
+#font-family-italic = Monaspace Argon
+#font-family-bold-italic = Monaspace Argon
+#font-style-bold = Bold
+#font-style-italic = Italic
+#font-style-bold-italic = Bold Italic

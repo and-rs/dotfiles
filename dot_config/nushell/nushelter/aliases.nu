@@ -6,6 +6,8 @@ alias g = git
 alias gc = git commit
 alias gl = git log --oneline -n 10
 alias gs = git status
+alias loadenv = open .env | from toml | load-env
+
 def gig [] { gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore }
 
 alias yz = yazi
@@ -13,6 +15,7 @@ alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 
 alias md = table -t markdown
 alias c = clear --keep-scrollback
+def --env loadenv [] { open .env | from toml | load-env }
 
 def ls [
   --du (-d)
