@@ -5,10 +5,13 @@ import qs.Config as SC
 Row {
 	id: root
 
+	readonly property string boltBorderColor: Qt.alpha(SC.Config.colors.fg, 0.9)
+	readonly property string borderColor: SC.Config.colors.surface3
+
 	readonly property int borderWidth: 2
 	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
 	readonly property var device: UPower.displayDevice
-	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? SC.Config.colors.success : SC.Config.colors.fg
+	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? Qt.alpha(SC.Config.colors.success, 0.6) : SC.Config.colors.fg
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];
@@ -58,7 +61,7 @@ Row {
 			}
 			Rectangle {
 				anchors.fill: parent
-				border.color: SC.Config.colors.surface3
+				border.color: root.borderColor
 				border.width: root.borderWidth
 				color: "transparent"
 				radius: SC.Config.radius.small
@@ -66,6 +69,7 @@ Row {
 			BatteryBoltIcon {
 				anchors.fill: parent
 				opacity: root.charging ? 1 : 0
+				borderColor: root.boltBorderColor
 
 				Behavior on opacity {
 					NumberAnimation {
@@ -78,7 +82,7 @@ Row {
 		Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			bottomRightRadius: SC.Config.radius.small
-			color: SC.Config.colors.surface3
+			color: root.borderColor
 			height: (batteryShell.height - root.borderWidth / 2) / 2
 			topRightRadius: SC.Config.radius.small
 			width: 2.5

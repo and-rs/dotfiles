@@ -1,6 +1,6 @@
 const TUNING = {
   # HSL lightness offsets for surface1 through surface5.
-  surface_steps: [0.02 0.04 0.14 0.32 0.56]
+  surface_steps: [0.04 0.08 0.16 0.32 0.64]
 
   # Dark backgrounds need less accent tint than light backgrounds.
   dark_tint: {base: 0.03 slope: 0.2 maximum: 0.16}
@@ -11,7 +11,7 @@ const TUNING = {
   diff_lightness_step: 0.06
 
   # Skip hue and saturation tinting for near-neutral backgrounds.
-  achromatic_cutoff: 0.01
+  achromatic_cutoff: 1.01
 
   # Rec. 709 RGB weights and the light/dark split point.
   luminance_weights: [0.2126 0.7152 0.0722]
