@@ -5,13 +5,15 @@ import qs.Config as SC
 Row {
 	id: root
 
-	readonly property string boltBorderColor: Qt.alpha(SC.Config.colors.fg, 0.9)
+	readonly property string boltBorderColor: Qt.alpha(SC.Config.colors.fg, 0.7)
 	readonly property string borderColor: SC.Config.colors.surface3
+	readonly property string chargingColor: Qt.alpha(Qt.lighter(SC.Config.colors.success, 1.6), 0.6)
+	//readonly property string chargingColor: SC.Config.colors.success
 
 	readonly property int borderWidth: 2
 	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
 	readonly property var device: UPower.displayDevice
-	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? Qt.alpha(SC.Config.colors.success, 0.6) : SC.Config.colors.fg
+	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? chargingColor : SC.Config.colors.fg
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];

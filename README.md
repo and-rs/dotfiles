@@ -63,8 +63,7 @@ chezmoi apply
 
 ## Switching themes
 
-Themes are swappable palettes selected by the `theme` value in `.chezmoidata.toml`.
-Change it to any palette name, then apply the configuration:
+Themes are swappable palettes selected by the `theme` value in `.chezmoidata.toml`. Change it to any palette name, then apply the configuration:
 
 ```toml
 theme = "tokyo-night"
@@ -74,18 +73,9 @@ theme = "tokyo-night"
 just apply
 ```
 
-Each palette defines its colors, including `bg`. The `surface1` through
-`surface5` colors are generated automatically by adjusting the HSL lightness of
-`bg` in nonlinear steps: 3%, 9%, 17%, 26%, and 36%. `surface1` is closest to
-`bg`, while `surface5` is farthest away. Dark backgrounds become lighter and
-light backgrounds become darker. Non-neutral palettes gently pull hue and
-saturation toward their `blue` color so the surfaces retain their theme tint
-instead of becoming neutral gray. They do not need to be defined in
-`.chezmoidata.toml`.
+Each palette defines its colors in `.chezmoidata.toml`.
 
-Diff backgrounds are generated automatically from each theme's `bg`, `red`,
-and `green` colors. They are used by OpenCode and Delta as subtle tinted
-backgrounds for removed and added lines, respectively.
+Diff backgrounds are generated automatically from each theme's `bg`, `red`, and `green` colors.
 
 ## Notes
 

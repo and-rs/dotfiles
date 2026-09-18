@@ -15,8 +15,8 @@ size = 12.5
 offset = { y = 9, x = 0 }
 glyph_offset = { y = 3, x = 0 }
 
-# normal = { family = "MD IO Trial"}
-normal = { family = "Maple Mono"}
+normal = { family = "MD IO Trial"}
+# normal = { family = "Maple Mono"}
 
 # normal = { family = "Rec Mono Linear" }
 # bold = { family = "Rec Mono Linear" }

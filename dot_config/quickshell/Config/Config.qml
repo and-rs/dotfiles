@@ -56,6 +56,7 @@ Singleton {
 		property string primary
 		property string secondary
 		property string success
+		property string surface0
 		property string surface1
 		property string surface2
 		property string surface3

@@ -1,0 +1,70 @@
+#!/usr/bin/env -S nu -n
+
+const API_URL = "https://api.typesafe.ai/v1/systemone"
+
+def evaluate-file [filename: path, api_key: string] {
+  let content = try {
+    open --raw $filename | decode utf-8
+  } catch {
+    return {filename: $filename test_probability: null error: "not valid UTF-8"}
+  }
+
+  let request = {
+    model: "jev-latest"
+    state: $content
+    questions: {
+      is_test_file: {
+        type: noul
+        instructions: "Does this source file contain tests, test fixtures, or test snapshots?"
+        criteria: {
+          "true": "Runnable tests, test helpers, fixtures, or snapshots used to verify software behavior."
+          "false": "Application code, configuration, documentation, or unrelated data."
+        }
+      }
+    }
+  }
+
+  let response = try {
+    (
+      http post $API_URL
+      --content-type application/json
+      --headers {Authorization: $"Bearer ($api_key)"}
+      --max-time 30sec
+      $request
+    )
+  } catch {|error|
+    return {filename: $filename test_probability: null error: $error.msg}
+  }
+
+  {
+    filename: $filename
+    test_probability: $response.answers.is_test_file.noul
+    error: null
+  }
+}
+
+def main [directory: path = "."] {
+  let directory = ($directory | path expand)
+  if not ($directory | path exists) or (($directory | path type) != dir) {
+    error make {msg: $"not a directory: ($directory)"}
+  }
+
+  let key_path = ($env.HOME | path join ".ssh" "jev")
+  if not ($key_path | path exists) {
+    error make {msg: $"TypeSafe API key not found: ($key_path)"}
+  }
+
+  let api_key = (open --raw $key_path | str trim)
+  if ($api_key | is-empty) {
+    error make {msg: $"TypeSafe API key is empty: ($key_path)"}
+  }
+
+  let selected = (
+    ^fd --type file --hidden --exclude .git . $directory
+    | fzf --multi --prompt="jev files > "
+    | lines
+  )
+
+  let results = ($selected | each {|filename| evaluate-file $filename $api_key })
+  $results | to json
+}
