@@ -5,15 +5,32 @@ import qs.Config as SC
 Row {
 	id: root
 
-	readonly property string boltBorderColor: Qt.alpha(SC.Config.colors.fg, 0.7)
 	readonly property string borderColor: SC.Config.colors.surface3
-	readonly property string chargingColor: Qt.alpha(Qt.lighter(SC.Config.colors.success, 1.6), 0.6)
-	//readonly property string chargingColor: SC.Config.colors.success
 
 	readonly property int borderWidth: 2
-	readonly property bool charging: device && device.ready && (device.state === UPowerDeviceState.Charging || device.state === UPowerDeviceState.PendingCharge)
+
+	readonly property bool charging: {
+		if (!device || !device.ready)
+			return false;
+		const state = device.state;
+		return state === UPowerDeviceState.Charging || state === UPowerDeviceState.PendingCharge;
+	}
 	readonly property var device: UPower.displayDevice
-	readonly property color fillColor: fillLevel < 0.2 ? SC.Config.colors.destructive : charging ? chargingColor : SC.Config.colors.fg
+
+	readonly property color fillColor: {
+		if (fillLevel < 0.2)
+			return SC.Config.colors.destructive;
+		if (!charging)
+			return SC.Config.colors.fg;
+		const success = Qt.color(SC.Config.colors.success);
+		if (Qt.color(SC.Config.colors.bg).hslLightness < 0.5)
+			return success;
+		const saturation = Math.min(1, success.hslSaturation * 1.08);
+		const lightness = Math.min(1, success.hslLightness + 0.15);
+		return Qt.hsla(success.hslHue, saturation, lightness, 1);
+	}
+
+	readonly property real percentage: device && device.ready ? device.percentage : 0
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];
@@ -23,7 +40,6 @@ Row {
 		}
 		return false;
 	}
-	readonly property real percentage: device && device.ready ? device.percentage : 0
 
 	anchors.verticalCenter: parent.verticalCenter
 	spacing: SC.Config.spacing.extraSmall
@@ -71,7 +87,6 @@ Row {
 			BatteryBoltIcon {
 				anchors.fill: parent
 				opacity: root.charging ? 1 : 0
-				borderColor: root.boltBorderColor
 
 				Behavior on opacity {
 					NumberAnimation {

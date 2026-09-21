@@ -1,0 +1,205 @@
+#!/usr/bin/env -S nu -n
+
+def repo-root [] {
+  let result = (git rev-parse --show-toplevel | complete)
+  if $result.exit_code != 0 {
+    error make {msg: "Not in a git repository"}
+  }
+
+  let root = ($result.stdout | str trim)
+  if ($root | is-empty) {
+    error make {msg: "Could not resolve the Git worktree"}
+  }
+
+  realpath $root | str trim
+}
+
+def state-path [root: string] {
+  let state_home = ($env.XDG_STATE_HOME? | default ($env.HOME | path join ".local" "state"))
+  let key = ($root | hash sha256 | into string | str trim)
+  $state_home | path join "opencode" "quickfix" $"($key).json"
+}
+
+def open-quickfix [entries: list] {
+  if ($entries | is-empty) {
+    error make {msg: "Quickfix list is empty"}
+  }
+
+  let json = ($entries | to json -r)
+  let set_list = ("call setqflist(" + $json + ", 'r')")
+  run-external $env.EDITOR "-c" $set_list "-c" "cfirst" "-c" "copen" "-c" "wincmd p"
+}
+
+def git-complete [root: string, args: list<string>] {
+  git -C $root ...$args | complete
+}
+
+def diff-hunks [root: string, filename: string, diff: string] {
+  let pattern = '^@@ -(?P<old_start>[0-9]+)(?:,(?P<old_count>[0-9]+))? \+(?P<new_start>[0-9]+)(?:,(?P<new_count>[0-9]+))? @@(?P<context>.*)$'
+  let lines = ($diff | lines)
+  mut entries = []
+
+  for line in $lines {
+    let matches = ($line | parse --regex $pattern)
+    if ($matches | is-empty) {
+      continue
+    }
+
+    let hunk = ($matches | get 0)
+    let old_count = if (($hunk.old_count? | default "") | is-empty) {
+      1
+    } else {
+      $hunk.old_count | into int
+    }
+    let new_count = if (($hunk.new_count? | default "") | is-empty) {
+      1
+    } else {
+      $hunk.new_count | into int
+    }
+    let new_start = ($hunk.new_start | into int)
+    let line_number = if $new_start < 1 { 1 } else { $new_start }
+    let summary = $"unstaged +($new_count)/-($old_count)"
+
+    $entries ++= [{
+      filename: ($root | path join $filename)
+      lnum: $line_number
+      col: 1
+      text: $summary
+    }]
+  }
+
+  $entries
+}
+
+def tracked-paths [root: string] {
+  let result = (git-complete $root [
+    "diff"
+    "--name-only"
+    "-z"
+    "--no-ext-diff"
+    "--no-textconv"
+    "--"
+  ])
+  if $result.exit_code != 0 {
+    error make {msg: ($result.stderr | str trim)}
+  }
+
+  $result.stdout
+  | split row (char nul)
+  | where {|path| not ($path | is-empty) }
+}
+
+def untracked-paths [root: string] {
+  let result = (git-complete $root [
+    "ls-files"
+    "--others"
+    "--exclude-standard"
+    "-z"
+  ])
+  if $result.exit_code != 0 {
+    error make {msg: ($result.stderr | str trim)}
+  }
+
+  $result.stdout
+  | split row (char nul)
+  | where {|path| not ($path | is-empty) }
+}
+
+def tracked-entries [root: string] {
+  mut entries = []
+  for filename in (tracked-paths $root) {
+    let result = (git-complete $root [
+      "diff"
+      "--unified=0"
+      "--no-color"
+      "--no-ext-diff"
+      "--no-textconv"
+      "--"
+      $filename
+    ])
+    if $result.exit_code != 0 {
+      error make {msg: ($result.stderr | str trim)}
+    }
+
+    $entries ++= (diff-hunks $root $filename $result.stdout)
+  }
+
+  $entries
+}
+
+def untracked-entries [root: string] {
+  mut entries = []
+  for filename in (untracked-paths $root) {
+    let absolute = ($root | path join $filename)
+    let result = (git-complete $root [
+      "diff"
+      "--no-index"
+      "--unified=0"
+      "--no-color"
+      "--no-ext-diff"
+      "--no-textconv"
+      "--"
+      "/dev/null"
+      $absolute
+    ])
+    if $result.exit_code > 1 {
+      error make {msg: ($result.stderr | str trim)}
+    }
+
+    $entries ++= (diff-hunks $root $filename $result.stdout)
+  }
+
+  $entries
+}
+
+def unstaged [] {
+  let root = (repo-root)
+  let entries = [
+    ...(tracked-entries $root)
+    ...(untracked-entries $root)
+  ]
+
+  if ($entries | is-empty) {
+    print "No unstaged diff hunks."
+    return
+  }
+
+  open-quickfix $entries
+}
+
+def model [] {
+  let root = (repo-root)
+  let state_file = (state-path $root)
+  if not ($state_file | path exists) {
+    error make {msg: "No model quickfix list has been stored for this worktree"}
+  }
+
+  let state = (
+    try { open $state_file } catch {|error|
+      error make {msg: $"Could not read model quickfix state: ($error.msg)"}
+    }
+  )
+  if $state.worktree != $root {
+    error make {msg: "Model quickfix state belongs to a different worktree"}
+  }
+
+  open-quickfix $state.entries
+}
+
+def main [mode: string = "model"] {
+  try {
+    if $mode == "model" {
+      model
+    } else if $mode == "diff" {
+      unstaged
+    } else {
+      error make {msg: $"Unsupported quickfix mode: ($mode)"}
+    }
+  } catch {|error|
+    let message = ($error.msg? | default ($error | into string))
+    print $"qf failed: ($message)"
+    print "Press Enter to close."
+    input
+    exit 1
+  }
+}

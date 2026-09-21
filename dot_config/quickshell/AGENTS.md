@@ -1,3 +1,22 @@
+# HARD RULES
+
+These override every later section. Follow them in all new and edited QML.
+
+## Readability
+
+- No ternaries. Use if/return blocks.
+- No oneliners. Split bindings, conditions, and returns across lines.
+- Do not alias `SC.Config.*` into a shorter property just to rename it. Read the token at the use site. Store a local only when you transform it or branch on it.
+
+## Group related values and pass them down
+
+This is the highest-priority layout rule.
+
+- Keep a family of values together on the owner (colors with colors, sizes with sizes). Do not scatter the same family across siblings, children, and inline bindings.
+- Derive once in that group. Pass results into children as properties.
+- Children must not re-read `SC.Config.colors` (or re-derive the same color) for values the parent already owns.
+- Duplicate token reads in a parent/child tree are a bug: group on the parent and pass down.
+
 # Quickshell Agent Notes
 
 These rules apply to `dot_config/quickshell/`.
@@ -15,7 +34,6 @@ These rules apply to `dot_config/quickshell/`.
 - Under `ComponentBehavior: Bound`, declare Repeater inputs as required properties; in nested delegates, qualify outer values via the outer delegate's id.
 - When consuming custom QML components, use their concrete type. Use `Item` or `var` only when intentionally untyped.
 - Keep QML-imported `.js` helpers pure and cover them with Bun tests.
-- Capture targets belong to their owning host; keep the capture service generic.
 - Import `qs.Config as SC` and access shared tokens through `SC.Config`. Use `SC.Config.curve`, durations, spacing, padding, colors, and radii; use `Easing.Linear` only for progress values.
 - Use `DirectScrollList` for new compact scroll panels; do not duplicate its wheel, bounds, edge-stop, or overflow-indicator behavior.
 - Use `LoaderIcon` beside in-progress feedback text; do not create other spinners.
@@ -23,25 +41,10 @@ These rules apply to `dot_config/quickshell/`.
 
 ## Performance
 
-- Prefer asynchronous, event-driven I/O after startup; do not add blocking UI work.
 - Lazy-load inactive panels with `Loader`; `visible: false` leaves bindings, timers, and models active.
 - Keep delegates small and pause pooled delegate timers/animations. Use `reuseItems` only when state lives in the model/service.
 - Do not animate view-controlled geometry (`x`, `y`, width, height) as entries change; reserve space and animate card-local feedback instead.
 - Load local images asynchronously with bounded `sourceSize`; avoid expensive delegate effects unless benchmarked.
-
-## NotificationV2
-
-- `NotificationStore.qml` owns archive state, the `ScriptModel` timeline, popup scheduling, and image-cache state. Live notification objects remain owned by Quickshell while their records are open.
-- `NotificationData.qml` shapes records and may request cache work from the Store; it must not own cache state.
-- `NotificationLifecycle.qml` owns dismiss, expire, action, and reply operations. `NotificationPopupQueue.qml` owns popup selection helpers.
-- Keep timeline records type-stable with unique `id` values; replace the records array when updating `ScriptModel` projections.
-- Keep popup enter/leave and popup-change animations on the shared content animation; the timeout bar must not animate swaps independently.
-
-## Notification Bench
-
-- Use `nu dot_config/quickshell/utils/test-notifs.nu --img` for image-only cases.
-- Use `nu dot_config/quickshell/utils/test-notifs.nu --count 50 --delay 20` to stress sidebar scrolling.
-- Use `nu dot_config/quickshell/utils/quickshell-notif-bench.nu --delay 50` for image-cache testing; clean spawned Quickshell process groups on exit.
 
 ## Popups
 

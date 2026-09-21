@@ -1,4 +1,6 @@
-import { realpath, readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { homedir } from "node:os";
 import path from "node:path";
 import { tool, type Plugin, type ToolContext } from "@opencode-ai/plugin";
 import { z } from "zod";
@@ -28,7 +30,13 @@ export interface QuickfixEntry {
 
 export interface PreparedQuickfix {
   entries: QuickfixEntry[];
-  paths: string[];
+  worktree: string;
+}
+
+export interface QuickfixState {
+  worktree: string;
+  entries: QuickfixEntry[];
+  updated_at: string;
 }
 
 function isInside(root: string, target: string): boolean {
@@ -109,83 +117,64 @@ export async function prepareQuickfix(
 
   return {
     entries,
-    paths: entries.map((entry) => path.relative(root, entry.filename)),
+    worktree: root,
   };
 }
 
-function vimString(value: string): string {
-  return `'${value.replaceAll("'", "''")}'`;
+function statePath(worktree: string): string {
+  const stateHome =
+    process.env.XDG_STATE_HOME ?? path.join(homedir(), ".local", "state");
+  const key = createHash("sha256").update(worktree).digest("hex");
+  return path.join(stateHome, "opencode", "quickfix", `${key}.json`);
 }
 
-export function buildSetQuickfixExpression(entries: QuickfixEntry[]): string {
-  const json = vimString(JSON.stringify(entries));
-  return `setqflist(json_decode(${json}), 'r')`;
-}
-
-export function buildOpenQuickfixExpression(): string {
-  return "execute('cfirst | copen | wincmd p')";
-}
-
-export function buildNvimArgs(server: string, expression: string): string[] {
-  return ["--server", server, "--remote-expr", expression];
-}
-
-async function runRemoteExpression(
-  server: string,
-  expression: string,
-): Promise<void> {
-  let child: Bun.Subprocess;
-  try {
-    child = Bun.spawn(["nvim", ...buildNvimArgs(server, expression)], {
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    throw new Error(`Could not start the nvim client: ${message}`);
-  }
-
-  const [exitCode, _stdout, stderr] = await Promise.all([
-    child.exited,
-    new Response(child.stdout).text(),
-    new Response(child.stderr).text(),
-  ]);
-  if (exitCode !== 0) {
-    throw new Error(stderr.trim() || `nvim remote expression failed (${exitCode})`);
-  }
-}
-
-async function openQuickfix(
-  server: string,
+async function saveQuickfixState(
+  worktree: string,
   entries: QuickfixEntry[],
-): Promise<void> {
-  await runRemoteExpression(server, buildSetQuickfixExpression(entries));
-  await runRemoteExpression(server, buildOpenQuickfixExpression());
+): Promise<string> {
+  const target = statePath(worktree);
+  const temporary = `${target}.${process.pid}.${randomUUID()}.tmp`;
+  const state: QuickfixState = {
+    worktree,
+    entries,
+    updated_at: new Date().toISOString(),
+  };
+
+  await mkdir(path.dirname(target), { recursive: true });
+  try {
+    await writeFile(temporary, `${JSON.stringify(state)}\n`, {
+      encoding: "utf8",
+      mode: 0o600,
+    });
+    await rename(temporary, target);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+  return target;
 }
 
 export default (async () => ({
   tool: {
-    "quickfix-open": tool({
+    "quickfix-model": tool({
       description:
-        "Validate source locations and open them in the active Neovim server's quickfix list. Requires NVIM.",
+        "Validate source locations and store them as the latest model quickfix list for this worktree. Open it with the tmux quickfix binding.",
       args: quickfixArgsSchema,
       execute: async (args, context) => {
-        const server = process.env.NVIM?.trim();
-        if (!server) {
-          throw new Error(
-            "No active Neovim server found. Start OpenCode from a terminal inside Neovim so NVIM is available.",
-          );
-        }
-
         const prepared = await prepareQuickfix(context, args.locations);
-        await openQuickfix(server, prepared.entries);
+        const savedPath = await saveQuickfixState(
+          prepared.worktree,
+          prepared.entries,
+        );
 
         return {
-          title: "Quickfix opened",
-          output: `Opened ${prepared.entries.length} location${prepared.entries.length === 1 ? "" : "s"} in Neovim quickfix.`,
+          title: "Quickfix state stored",
+          output: `Stored ${prepared.entries.length} location${prepared.entries.length === 1 ? "" : "s"}. Open the model quickfix list with the tmux quickfix binding.`,
           metadata: {
-            server,
-            paths: prepared.paths,
+            statePath: savedPath,
+            worktree: prepared.worktree,
+            paths: prepared.entries.map((entry) =>
+              path.relative(prepared.worktree, entry.filename),
+            ),
           },
         };
       },

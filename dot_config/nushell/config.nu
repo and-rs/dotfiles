@@ -11,6 +11,31 @@ $env.PATH ++= [
   $"($env.HOME)/.config/nushell/forgit/helpers"
 ]
 
+export-env {
+  # Bob owns the active Neovim version through `bob use`.
+  let bob_nvim = ($env.HOME | path join ".local" "share" "bob" "nvim-bin" "nvim")
+
+  if not (which bob | is-empty) and ($bob_nvim | path exists) {
+    $env.config.buffer_editor = [$bob_nvim]
+    $env.EDITOR = $bob_nvim
+    $env.VISUAL = $bob_nvim
+    $env.SUDO_EDITOR = $bob_nvim
+    $env.MANPAGER = $"($bob_nvim) +Man!"
+  } else if not (which nvim | is-empty) {
+    $env.config.buffer_editor = "nvim"
+    $env.EDITOR = "nvim"
+    $env.VISUAL = "nvim"
+    $env.SUDO_EDITOR = "nvim"
+    $env.MANPAGER = "nvim +Man!"
+  } else {
+    $env.config.buffer_editor = "vim"
+    $env.EDITOR = "vim"
+    $env.VISUAL = "vim"
+    $env.SUDO_EDITOR = "vim"
+    $env.MANPAGER = "vim +Man!"
+  }
+}
+
 if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
   exec tmux -u new -s work -A -D
 }
@@ -42,29 +67,6 @@ export-env {
   let node_extra_ca = "/usr/local/share/ca-certificates/ocpamacaroot1.crt"
   if ($node_extra_ca | path exists) {
     $env.NODE_EXTRA_CA_CERTS = $node_extra_ca
-  }
-
-  # Bob owns the active Neovim version through `bob use`.
-  let bob_nvim = ($env.HOME | path join ".local" "share" "bob" "nvim-bin" "nvim")
-
-  if not (which bob | is-empty) and ($bob_nvim | path exists) {
-    $env.config.buffer_editor = [$bob_nvim]
-    $env.EDITOR = $bob_nvim
-    $env.VISUAL = $bob_nvim
-    $env.SUDO_EDITOR = $bob_nvim
-    $env.MANPAGER = $"($bob_nvim) +Man!"
-  } else if not (which nvim | is-empty) {
-    $env.config.buffer_editor = "nvim"
-    $env.EDITOR = "nvim"
-    $env.VISUAL = "nvim"
-    $env.SUDO_EDITOR = "nvim"
-    $env.MANPAGER = "nvim +Man!"
-  } else {
-    $env.config.buffer_editor = "vim"
-    $env.EDITOR = "vim"
-    $env.VISUAL = "vim"
-    $env.SUDO_EDITOR = "vim"
-    $env.MANPAGER = "vim +Man!"
   }
 
   $env.LS_COLORS = "di=34:ln=36:ex=32:fi=0:pi=33:so=35:bd=33;01:cd=33;01:or=31;01:mi=31:*.tar=31:*.gz=31:*.zip=31:*.bz2=31:*.xz=31:*.7z=31:*.rar=31:*.zst=31:*.jpg=35:*.jpeg=35:*.png=35:*.gif=35:*.svg=35:*.mp4=35:*.mkv=35:*.mov=35:*.mp3=33:*.flac=33:*.wav=33"

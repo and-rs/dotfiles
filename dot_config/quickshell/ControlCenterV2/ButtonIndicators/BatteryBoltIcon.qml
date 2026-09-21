@@ -5,11 +5,17 @@ import qs.Config as SC
 Shape {
 	id: root
 
-	required property string borderColor
 	readonly property int iconSize: 14
 	readonly property real outline: 1.8
 	readonly property string glyph: String.fromCodePoint(0xE2DE)
 	readonly property rect tight: metrics.tightBoundingRect(root.glyph)
+
+	function token(light) {
+		const bg = Qt.color(SC.Config.colors.bg);
+		const fg = Qt.color(SC.Config.colors.fg);
+		const bgIsLight = bg.hslLightness >= fg.hslLightness;
+		return light === bgIsLight ? bg : fg;
+	}
 
 	preferredRendererType: Shape.CurveRenderer
 
@@ -22,18 +28,18 @@ Shape {
 
 	ShapePath {
 		capStyle: ShapePath.RoundCap
-		fillColor: Qt.alpha(SC.Config.colors.bg, 0.9)
+		fillColor: Qt.alpha(root.token(true), 0.9)
 		fillRule: ShapePath.WindingFill
 		joinStyle: ShapePath.RoundJoin
-		strokeColor: root.borderColor
+		strokeColor: root.token(false)
 		strokeWidth: root.outline
 
 		PathText {
 			font.family: "Phosphor-Fill"
 			font.pointSize: root.iconSize
 			text: root.glyph
-			x: (root.width - root.tight.width) / 2 - root.tight.x
-			y: root.tight.y / (root.iconSize + root.outline)
+			x: 7
+			y: -1
 		}
 	}
 }

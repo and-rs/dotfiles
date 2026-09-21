@@ -7,7 +7,6 @@ quit-after-last-window-closed = true
 window-padding-balance = true
 confirm-close-surface = false
 adjust-cursor-thickness = 3
-window-decoration = none
 adjust-icon-height = 8
 window-padding-x = 1
 window-padding-y = 0
