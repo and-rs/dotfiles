@@ -1,5 +1,33 @@
 export def --wrapped "ai" [...args] { bun x --bun pi ...$args }
 
+export def "ai bootstrap" [manifest: path extensions_dir: path] {
+  let agent_dir = (
+    $env.PI_CODING_AGENT_DIR?
+    | default ($env.HOME | path join ".pi" "agent")
+    | path expand
+  )
+  let settings_path = ($agent_dir | path join "settings.json")
+  mkdir $agent_dir
+
+  let settings = if ($settings_path | path exists) {
+    open $settings_path
+  } else {
+    {}
+  }
+  $settings | upsert npmCommand ["bun"] | save --force $settings_path
+
+  bun install --cwd $extensions_dir --frozen-lockfile
+
+  let packages = (
+    open $manifest
+    | get --optional piBootstrap.packages
+    | default []
+  )
+  for package in $packages {
+    bun x --bun pi install $package
+  }
+}
+
 def _ai_has_provider_auth [provider: string] {
   let auth_path = ($env.HOME | path join ".pi" "agent" "auth.json")
   if not ($auth_path | path exists) {

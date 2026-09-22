@@ -22,11 +22,11 @@ export const DISCOVERY_TOOLS = [
 
 const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write"] as const;
 
-const WORKSPACE = `Stay in the current working directory.
-Do not search parent dirs, $HOME, or absolute paths outside cwd unless the user asks.
-Prefer ls, find, grep, then read. Stop when you can answer.
-Do not repeat a failed or empty search with a near-identical query.
-Use web_search only for current external docs, then web_fetch that URL.`;
+const WORKSPACE = `Stay in the current working directory. Do not search parent
+dirs, $HOME, or absolute paths outside cwd unless the user asks. Prefer ls,
+find, grep, then read. Stop when you can answer. Do not repeat a failed or
+empty search with a near-identical query. Use web_search only for current
+external docs, then web_fetch that URL.`;
 
 const ENTRY = "agent-mode";
 
@@ -48,6 +48,7 @@ function toolsFor(mode: Mode): string[] {
 
 let cycle: CycleMode = "plan";
 let overlay: "teach" | null = null;
+let sessionStarted = false;
 const modeListeners = new Set<() => void>();
 
 function isCycle(value: unknown): value is CycleMode {
@@ -79,6 +80,7 @@ export function getMode(): Mode {
 export function resetModes(): void {
   cycle = "plan";
   overlay = null;
+  sessionStarted = false;
 }
 
 export function onModeChange(listener: () => void): () => void {
@@ -120,7 +122,10 @@ export function registerModes(pi: ExtensionAPI): void {
   }
 
   pi.on("session_start", (_event, ctx) => {
-    restore(ctx);
+    if (!sessionStarted) {
+      sessionStarted = true;
+      restore(ctx);
+    }
     apply();
   });
 

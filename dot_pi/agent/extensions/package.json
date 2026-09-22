@@ -7,6 +7,9 @@
     "skills": ["../skills"],
     "themes": ["../themes"]
   },
+  "piBootstrap": {
+    "packages": ["npm:pi-permission-system@0.8.0"]
+  },
   "scripts": {
     "fmt": "biome check --write .",
     "lint": "biome check .",

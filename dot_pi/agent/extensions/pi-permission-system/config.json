@@ -1,17 +1,5 @@
 {
-  "permission": {
-    "*": "allow",
-    "path": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "allow"
-    },
-    "external_directory": "ask",
-    "bash": {
-      "*": "allow",
-      "rm -rf *": "deny",
-      "sudo *": "ask"
-    }
-  }
+  "enabled": true,
+  "debug": false,
+  "yoloMode": false
 }

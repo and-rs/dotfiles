@@ -65,6 +65,31 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
   };
 }
 
+test("secret paths are blocked before file access", async () => {
+  const { eventHandlers } = createPi();
+  const guard = eventHandlers.get("tool_call")?.at(-1);
+  assert.ok(guard);
+
+  for (const toolName of ["read", "grep", "find", "write", "edit", "ls"]) {
+    const result = await guard?.({
+      toolName,
+      input: { path: `nested/.env.local` },
+    });
+    assert.deepEqual(result, {
+      block: true,
+      reason: "Access to .env files is denied.",
+    });
+  }
+  const bash = await guard?.({
+    toolName: "bash",
+    input: { command: "cat nested/.env" },
+  });
+  assert.deepEqual(bash, {
+    block: true,
+    reason: "Access to .env files is denied.",
+  });
+});
+
 test("new session defaults to plan discovery tools", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = createPi();
 
@@ -96,6 +121,28 @@ test("alt+m cycles plan and build only", async () => {
     entries.map((entry) => entry.name),
     ["build", "plan"],
   );
+});
+
+test("a later session_start does not reset an active build mode", async () => {
+  const { activeToolSets, eventHandlers, shortcuts } = createPi();
+  const sessionStart = eventHandlers.get("session_start")?.at(-1);
+  await sessionStart?.({}, emptyCtx);
+
+  shortcuts.get("alt+m")?.handler();
+  await sessionStart?.(
+    {},
+    {
+      hasUI: false,
+      sessionManager: {
+        getEntries: () => [
+          { type: "custom", customType: "agent-mode", data: { name: "plan" } },
+        ],
+      },
+    },
+  );
+
+  assert.equal(getMode(), "build");
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
 });
 
 test("restore ignores persisted teach and keeps plan", async () => {

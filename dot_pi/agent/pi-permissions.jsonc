@@ -1,0 +1,59 @@
+{
+  "defaultPolicy": {
+    "tools": "allow",
+    "bash": "allow",
+    "mcp": "ask",
+    "skills": "ask",
+    "special": "ask"
+  },
+  "tools": {
+    "read": "allow",
+    "read:*.env": "deny",
+    "read:*.env.*": "deny",
+    "read:**/.env": "deny",
+    "read:**/.env.*": "deny",
+    "grep": "allow",
+    "grep:*.env": "deny",
+    "grep:*.env.*": "deny",
+    "grep:**/.env": "deny",
+    "grep:**/.env.*": "deny",
+    "find": "allow",
+    "find:*.env": "deny",
+    "find:*.env.*": "deny",
+    "find:**/.env": "deny",
+    "find:**/.env.*": "deny",
+    "write": "allow",
+    "write:*.env": "deny",
+    "write:*.env.*": "deny",
+    "write:**/.env": "deny",
+    "write:**/.env.*": "deny",
+    "edit": "allow",
+    "edit:*.env": "deny",
+    "edit:*.env.*": "deny",
+    "edit:**/.env": "deny",
+    "edit:**/.env.*": "deny",
+    "ls": "allow",
+    "ls:*.env": "deny",
+    "ls:*.env.*": "deny",
+    "ls:**/.env": "deny",
+    "ls:**/.env.*": "deny"
+  },
+  "bash": {
+    "*": "allow",
+    "*gh workflow run*": "deny",
+    "*git commit*": "deny",
+    "*git push*": "deny",
+    "*cat *.env*": "deny",
+    "*.env": "deny",
+    "*.env.*": "deny"
+  },
+  "mcp": {
+    "*": "ask"
+  },
+  "skills": {
+    "*": "ask"
+  },
+  "special": {
+    "external_directory": "ask"
+  }
+}
