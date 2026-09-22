@@ -20,7 +20,7 @@ modify_font strikethrough_position 22px
 
 font_size 12
 modify_font baseline 0
-modify_font cell_height +1
+modify_font cell_height +2
 modify_font underline_position 2.2
 modify_font underline_thickness 0.6
 

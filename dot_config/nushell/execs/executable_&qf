@@ -22,7 +22,7 @@ def state-path [root: string] {
 
 def open-quickfix [entries: list] {
   if ($entries | is-empty) {
-    error make {msg: "Quickfix list is empty"}
+    error make {msg: "The quickfix list is empty"}
   }
 
   let json = ($entries | to json -r)
@@ -160,8 +160,7 @@ def unstaged [] {
   ]
 
   if ($entries | is-empty) {
-    print "No unstaged diff hunks."
-    return
+    error make {msg: "No unstaged changes or untracked files were found"}
   }
 
   open-quickfix $entries
@@ -171,7 +170,7 @@ def model [] {
   let root = (repo-root)
   let state_file = (state-path $root)
   if not ($state_file | path exists) {
-    error make {msg: "No model quickfix list has been stored for this worktree"}
+    error make {msg: "No model quickfix list has been stored for this repository"}
   }
 
   let state = (
@@ -180,7 +179,7 @@ def model [] {
     }
   )
   if $state.worktree != $root {
-    error make {msg: "Model quickfix state belongs to a different worktree"}
+    error make {msg: "The stored quickfix list belongs to a different repository"}
   }
 
   open-quickfix $state.entries
@@ -196,8 +195,10 @@ def main [mode: string = "model"] {
       error make {msg: $"Unsupported quickfix mode: ($mode)"}
     }
   } catch {|error|
-    let message = ($error.msg? | default ($error | into string))
-    print $"qf failed: ($message)"
+    let message = ($error.msg? | default "An unexpected quickfix error occurred")
+    print ""
+    print $"Quickfix: ($message)"
+    print ""
     print "Press Enter to close."
     input
     exit 1
