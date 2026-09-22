@@ -10,8 +10,6 @@
     Ask one clarifying question ONLY when answer changes material recommendation. Make it concrete and choice-bearing. Otherwise proceed with conditional guidance
   </decision-and-scope>
   <exploration-output>
-    Use quickfix-handoff for code locations, oriented toward human EDITS. Generate only after discovery; it must be final tool call. Regenerate after later reads
-    With quickfix-handoff, do not repeat locations, commands, literals, or long identifiers in prose. Refer by role or responsibility
     For security or privacy guidance, identify primary authoritative reference and state security property or threat
   </exploration-output>
   <implementation-guidance>

@@ -30,7 +30,11 @@ test("teach mode restores discovery tools on session start and tree", async () =
 
   registerApp(pi);
 
-  assert.deepEqual(registeredTools, [...DISCOVERY_TOOLS]);
+  assert.deepEqual(registeredTools, [
+    "read-image",
+    "exa-search",
+    "web-fetch",
+  ]);
 
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   const sessionTree = eventHandlers.get("session_tree")?.at(-1);

@@ -10,11 +10,10 @@ export const MODES = ["teach", "plan", "build"] as const;
 export type Mode = (typeof MODES)[number];
 
 export const DISCOVERY_TOOLS = [
-  "code-overview",
-  "code-search",
-  "code-files",
-  "code-view",
-  "quickfix-handoff",
+  "read",
+  "grep",
+  "find",
+  "ls",
   "read-image",
   "exa-search",
   "web-fetch",
@@ -22,13 +21,9 @@ export const DISCOVERY_TOOLS = [
 
 const BUILD_TOOLS = [
   ...DISCOVERY_TOOLS,
-  "read",
   "bash",
   "edit",
   "write",
-  "grep",
-  "find",
-  "ls",
 ] as const;
 
 const ENTRY = "agent-mode";
