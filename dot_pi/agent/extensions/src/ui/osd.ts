@@ -5,9 +5,15 @@ import {
   FooterComponent,
 } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import { getMode, onModeChange } from "../app/modes.ts";
+import { getMode, onModeChange, type Mode } from "../app/modes.ts";
 
 const INSET = 1;
+
+const CHIP_COLOR: Record<Mode, "muted" | "accent" | "warning"> = {
+  plan: "muted",
+  build: "accent",
+  teach: "warning",
+};
 
 function stockSession(ctx: ExtensionContext): AgentSession {
   return {
@@ -71,7 +77,8 @@ function installChromeFooter(ctx: ExtensionContext): void {
       render(width: number) {
         const inset = width >= INSET * 2 ? INSET : 0;
         const inner = Math.max(0, width - inset * 2);
-        const chip = theme.fg("accent", getMode());
+        const mode = getMode();
+        const chip = theme.fg(CHIP_COLOR[mode], mode);
         return padLines(
           withModeChip(stock.render(inner), inner, chip),
           width,
