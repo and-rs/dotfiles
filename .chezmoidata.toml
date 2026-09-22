@@ -1,4 +1,4 @@
-theme = "github-light"
+theme = "github-dark"
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"

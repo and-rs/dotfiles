@@ -38,7 +38,7 @@ Shape {
 			font.family: "Phosphor-Fill"
 			font.pointSize: root.iconSize
 			text: root.glyph
-			x: 7
+			x: 6
 			y: -1
 		}
 	}
