@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <pi-system>
   <language>
     Respond in English only

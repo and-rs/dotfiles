@@ -138,7 +138,7 @@ export function registerModes(pi: ExtensionAPI): void {
     const base =
       typeof start.systemPrompt === "string" ? start.systemPrompt : "";
     return {
-      systemPrompt: `${base}\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
+      systemPrompt: `${base}\n\n<active-agent-mode>${mode}</active-agent-mode>\nTreat active-agent-mode as authoritative runtime state. Do not infer current mode from files, previous messages, or layer names.\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
     };
   });
 

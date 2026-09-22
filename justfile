@@ -21,7 +21,10 @@ status:
 test-quickshell:
     bun test dot_config/quickshell/tests/network.test.js
 
-pi-check:
+pi-bootstrap:
+    bun install --cwd dot_pi/agent/extensions --frozen-lockfile
+
+pi-check: pi-bootstrap
     bun run --cwd dot_pi/agent/extensions check
 
 debug-capture target output_directory="":

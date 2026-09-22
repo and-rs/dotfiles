@@ -130,6 +130,10 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
     | undefined;
 
   assert.match(result?.systemPrompt ?? "", /^base\n\n/);
+  assert.match(
+    result?.systemPrompt ?? "",
+    /<active-agent-mode>plan<\/active-agent-mode>/,
+  );
   assert.match(result?.systemPrompt ?? "", /<plan>/);
   assert.match(
     result?.systemPrompt ?? "",
@@ -151,6 +155,10 @@ test("before_agent_start appends layers when options are missing", async () => {
   )) as { systemPrompt?: string } | undefined;
 
   assert.match(result?.systemPrompt ?? "", /^base\n\n/);
+  assert.match(
+    result?.systemPrompt ?? "",
+    /<active-agent-mode>plan<\/active-agent-mode>/,
+  );
   assert.match(result?.systemPrompt ?? "", /<plan>/);
   assert.match(
     result?.systemPrompt ?? "",
