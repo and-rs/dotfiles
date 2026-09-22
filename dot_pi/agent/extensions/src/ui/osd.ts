@@ -1,26 +1,66 @@
-import type {
-  ExtensionAPI,
-  ExtensionContext,
+import {
+  type AgentSession,
+  type ExtensionAPI,
+  type ExtensionContext,
+  FooterComponent,
 } from "@earendil-works/pi-coding-agent";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+
+const INSET = 1;
+
+function stockSession(ctx: ExtensionContext): AgentSession {
+  return {
+    get state() {
+      return { model: ctx.model, thinkingLevel: ctx.thinkingLevel };
+    },
+    get sessionManager() {
+      return ctx.sessionManager;
+    },
+    getContextUsage: () => ctx.getContextUsage(),
+    modelRuntime: {
+      isUsingOAuth: () => false,
+      isUsingSubscription: () => false,
+    },
+  } as unknown as AgentSession;
+}
+
+function padLines(lines: string[], width: number, inset: number): string[] {
+  const inner = Math.max(0, width - inset * 2);
+  const left = " ".repeat(inset);
+  return lines.map((line) => {
+    const text = truncateToWidth(line, inner);
+    const right = " ".repeat(Math.max(0, inner - visibleWidth(text)) + inset);
+    return `${left}${text}${right}`;
+  });
+}
 
 function installChromeFooter(ctx: ExtensionContext): void {
   if (!ctx.hasUI) return;
   ctx.ui.setFooter((tui, _, footerData) => {
+    const stock = new FooterComponent(stockSession(ctx), footerData);
     const unsubBranch = footerData.onBranchChange(() => tui.requestRender());
     return {
       dispose: () => {
         unsubBranch();
+        stock.dispose();
       },
-      invalidate() {},
-      render() {
-        return ["hello"];
+      invalidate() {
+        stock.invalidate();
+      },
+      render(width: number) {
+        const inset = width >= INSET * 2 ? INSET : 0;
+        const inner = Math.max(0, width - inset * 2);
+        return padLines(stock.render(inner), width, inset);
       },
     };
   });
 }
 
-// export function registerAppUi(pi: ExtensionAPI): void {
-//   pi.on("session_start", async (_event, ctx) => {
-//     installChromeFooter(ctx);
-//   });
-// }
+export default function registerAppUi(pi: ExtensionAPI): void {
+  pi.on("session_start", (_event, ctx) => {
+    installChromeFooter(ctx);
+  });
+  pi.on("session_shutdown", (_event, ctx) => {
+    if (ctx.hasUI) ctx.ui.setFooter(undefined);
+  });
+}

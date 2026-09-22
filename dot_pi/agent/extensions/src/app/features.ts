@@ -6,6 +6,7 @@
   import registerWebDocsFeature from "../features/web-docs/index.ts";
   import registerSidecarCommand from "../features/sidecar/index.ts";
   import registerEditorEvents from "../ui/editor/editor.ts";
+  import registerAppUi from "../ui/osd.ts";
 
   type FeatureRegistrar = (pi: ExtensionAPI) => void;
 
@@ -15,6 +16,7 @@
      registerCodeViewFeature,
      registerQuickfixHandoffFeature,
      registerEditorEvents,
+     registerAppUi,
      registerReadImageFeature,
      registerWebDocsFeature,
   ];
