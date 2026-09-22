@@ -22,7 +22,7 @@ test-quickshell:
     bun test dot_config/quickshell/tests/network.test.js
 
 pi-bootstrap:
-    bun install --cwd dot_pi/agent/extensions --frozen-lockfile
+    use dot_config/nushell/nushelter/pi.nu *; ai bootstrap dot_pi/agent/extensions/package.json dot_pi/agent/extensions
 
 pi-check: pi-bootstrap
     bun run --cwd dot_pi/agent/extensions check
