@@ -176,7 +176,7 @@ export function registerModes(pi: ExtensionAPI): void {
     },
   });
 
-  pi.registerShortcut("tab", {
+  pi.registerShortcut("alt+m", {
     description: "Cycle plan / build",
     handler: () => {
       if (overlay) {

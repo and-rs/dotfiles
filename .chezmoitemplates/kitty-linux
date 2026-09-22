@@ -7,8 +7,6 @@ text_composition_strategy legacy
 confirm_os_window_close 0
 cursor_blink_interval 0
 window_margin_width 0 0
-# disable_ligatures always
-# background_opacity 0.85
 
 enable_audio_bell no
 dim_opacity 1.0
@@ -20,7 +18,7 @@ modify_font strikethrough_position 22px
 
 font_size 12
 modify_font baseline 0
-modify_font cell_height +2
+modify_font cell_height +1
 modify_font underline_position 2.2
 modify_font underline_thickness 0.6
 

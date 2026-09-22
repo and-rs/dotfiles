@@ -76,19 +76,19 @@ test("new session defaults to plan discovery tools", async () => {
   assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
 });
 
-test("tab cycles plan and build only", async () => {
+test("alt+m cycles plan and build only", async () => {
   const { activeToolSets, entries, eventHandlers, shortcuts } = createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.({}, emptyCtx);
 
-  const tab = shortcuts.get("tab");
-  assert.ok(tab);
-  tab.handler();
+  const cycle = shortcuts.get("alt+m");
+  assert.ok(cycle);
+  cycle.handler();
   assert.equal(getMode(), "build");
   assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.deepEqual(entries.at(-1), { name: "build" });
 
-  tab.handler();
+  cycle.handler();
   assert.equal(getMode(), "plan");
   assert.deepEqual(
     entries.map((entry) => entry.name),
@@ -185,15 +185,15 @@ test("/teach sends one coaching turn then restores cycle mode", async () => {
   assert.equal(getMode(), "plan");
 });
 
-test("tab during teach restores cycle without advancing", async () => {
+test("alt+m during teach restores cycle without advancing", async () => {
   const { commands, entries, eventHandlers, shortcuts } = createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
-  const tab = shortcuts.get("tab");
+  const cycle = shortcuts.get("alt+m");
   const teach = commands.get("teach");
-  assert.ok(tab);
+  assert.ok(cycle);
   assert.ok(teach);
 
-  tab.handler();
+  cycle.handler();
   assert.equal(getMode(), "build");
 
   await teach.handler("why is this layered", {
@@ -202,7 +202,7 @@ test("tab during teach restores cycle without advancing", async () => {
   });
   assert.equal(getMode(), "teach");
 
-  tab.handler();
+  cycle.handler();
   assert.equal(getMode(), "build");
   assert.deepEqual(
     entries.map((entry) => entry.name),

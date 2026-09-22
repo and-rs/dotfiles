@@ -4,14 +4,13 @@
   "tui.editor.deleteCharForward": ["delete", "ctrl+d"],
   "tui.select.up": ["up", "ctrl+p"],
   "tui.select.down": ["down", "ctrl+n"],
-  "app.interrupt": ["ctrl+s"],
+  "app.interrupt": ["escape", "ctrl+s"],
   "app.editor.external": ["ctrl+o"],
-  "app.exit": [],
   "app.tools.expand": ["ctrl+g"],
   "app.model.cycleForward": ["f11"],
   "app.model.cycleBackward": ["f12"],
+  "app.model.select": ["ctrl+l"],
   "app.session.togglePath": ["alt+p"],
   "app.session.toggleNamedFilter": ["alt+n"],
-  "app.models.toggleProvider": ["alt+o"],
-  "tui.input.tab": []
+  "app.models.toggleProvider": ["alt+o"]
 }

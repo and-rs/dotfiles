@@ -100,6 +100,10 @@ def _ai_was_cancelled [value: any] {
   try { $value.cancelled? | default false } catch { false }
 }
 
+export def "air" [] {
+  ai -r
+}
+
 export def "ai gs" [] {
   let staged = (git diff --staged | str trim)
   if ($staged | is-empty) {
