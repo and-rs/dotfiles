@@ -5,6 +5,7 @@ import {
   FooterComponent,
 } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { getMode, onModeChange } from "../app/modes.ts";
 
 const INSET = 1;
 
@@ -34,14 +35,34 @@ function padLines(lines: string[], width: number, inset: number): string[] {
   });
 }
 
+function withModeChip(
+  lines: string[],
+  inner: number,
+  chip: string,
+): string[] {
+  if (inner <= 0) return lines;
+  const chipText =
+    visibleWidth(chip) > inner ? truncateToWidth(chip, inner) : chip;
+  const chipWidth = visibleWidth(chipText);
+  if (lines.length === 0) return [chipText];
+  const [pwd, ...rest] = lines;
+  const gapMin = 1;
+  const pwdBudget = Math.max(0, inner - chipWidth - gapMin);
+  const pwdText = truncateToWidth(pwd, pwdBudget);
+  const gap = Math.max(gapMin, inner - visibleWidth(pwdText) - chipWidth);
+  return [`${pwdText}${" ".repeat(gap)}${chipText}`, ...rest];
+}
+
 function installChromeFooter(ctx: ExtensionContext): void {
   if (!ctx.hasUI) return;
-  ctx.ui.setFooter((tui, _, footerData) => {
+  ctx.ui.setFooter((tui, theme, footerData) => {
     const stock = new FooterComponent(stockSession(ctx), footerData);
     const unsubBranch = footerData.onBranchChange(() => tui.requestRender());
+    const unsubMode = onModeChange(() => tui.requestRender());
     return {
       dispose: () => {
         unsubBranch();
+        unsubMode();
         stock.dispose();
       },
       invalidate() {
@@ -50,7 +71,12 @@ function installChromeFooter(ctx: ExtensionContext): void {
       render(width: number) {
         const inset = width >= INSET * 2 ? INSET : 0;
         const inner = Math.max(0, width - inset * 2);
-        return padLines(stock.render(inner), width, inset);
+        const chip = theme.fg("accent", getMode());
+        return padLines(
+          withModeChip(stock.render(inner), inner, chip),
+          width,
+          inset,
+        );
       },
     };
   });

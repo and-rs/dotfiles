@@ -48,22 +48,33 @@ function toolsFor(mode: Mode): string[] {
   return mode === "build" ? [...BUILD_TOOLS] : [...DISCOVERY_TOOLS];
 }
 
+let mode: Mode = "teach";
+const modeListeners = new Set<() => void>();
+
 function isMode(value: unknown): value is Mode {
   return MODES.some((mode) => mode === value);
 }
 
-export function registerModes(pi: ExtensionAPI): void {
-  let mode: Mode = "teach";
+export function getMode(): Mode {
+  return mode;
+}
 
-  function apply(ctx?: ExtensionContext): void {
+export function onModeChange(listener: () => void): () => void {
+  modeListeners.add(listener);
+  return () => {
+    modeListeners.delete(listener);
+  };
+}
+
+export function registerModes(pi: ExtensionAPI): void {
+  function apply(): void {
     pi.setActiveTools(toolsFor(mode));
-    if (!ctx?.hasUI) return;
-    ctx.ui.setStatus("mode", ctx.ui.theme.fg("accent", mode));
+    for (const listener of modeListeners) listener();
   }
 
-  function setMode(next: Mode, ctx?: ExtensionContext): void {
+  function setMode(next: Mode): void {
     mode = next;
-    apply(ctx);
+    apply();
     pi.appendEntry(ENTRY, { name: mode });
   }
 
@@ -82,11 +93,11 @@ export function registerModes(pi: ExtensionAPI): void {
 
   pi.on("session_start", (_event, ctx) => {
     restore(ctx);
-    apply(ctx);
+    apply();
   });
 
-  pi.on("session_tree", (_event, ctx) => {
-    apply(ctx);
+  pi.on("session_tree", () => {
+    apply();
   });
 
   pi.on("before_agent_start", (event) => ({
@@ -95,9 +106,9 @@ export function registerModes(pi: ExtensionAPI): void {
 
   pi.registerShortcut("tab", {
     description: "Cycle teach / plan / build",
-    handler: (ctx) => {
+    handler: () => {
       const index = MODES.indexOf(mode);
-      setMode(MODES[(index + 1) % MODES.length], ctx);
+      setMode(MODES[(index + 1) % MODES.length]);
     },
   });
 }
