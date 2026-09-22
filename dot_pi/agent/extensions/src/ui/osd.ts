@@ -15,10 +15,10 @@ const CHIP_COLOR: Record<Mode, "accent" | "error" | "warning"> = {
   teach: "warning",
 };
 
-function stockSession(ctx: ExtensionContext): AgentSession {
+function stockSession(ctx: ExtensionContext, pi: ExtensionAPI): AgentSession {
   return {
     get state() {
-      return { model: ctx.model, thinkingLevel: "off" };
+      return { model: ctx.model, thinkingLevel: pi.getThinkingLevel() };
     },
     get sessionManager() {
       return ctx.sessionManager;
@@ -57,10 +57,10 @@ function withModeChip(lines: string[], inner: number, chip: string): string[] {
   return [`${pwdText}${" ".repeat(gap)}${chipText}`, ...rest];
 }
 
-function installChromeFooter(ctx: ExtensionContext): void {
+function installChromeFooter(ctx: ExtensionContext, pi: ExtensionAPI): void {
   if (!ctx.hasUI) return;
   ctx.ui.setFooter((tui, theme, footerData) => {
-    const stock = new FooterComponent(stockSession(ctx), footerData);
+    const stock = new FooterComponent(stockSession(ctx, pi), footerData);
     const unsubBranch = footerData.onBranchChange(() => tui.requestRender());
     const unsubMode = onModeChange(() => tui.requestRender());
     return {
@@ -77,14 +77,19 @@ function installChromeFooter(ctx: ExtensionContext): void {
         if (width >= INSET * 2) inset = INSET;
         const inner = Math.max(0, width - inset * 2);
         const mode = getMode();
+        const thinkingLevel = pi.getThinkingLevel();
+        let thinkingText: string = thinkingLevel;
+        if (thinkingLevel === "off") thinkingText = "thinking off";
+        const colorThinking = theme.getThinkingBorderColor(thinkingLevel);
+        const lines = stock
+          .render(inner)
+          .map((line) =>
+            line.replace(thinkingText, colorThinking(thinkingText)),
+          );
         const chip = theme.inverse(
           theme.fg(CHIP_COLOR[mode], theme.bold(` ${mode} `)),
         );
-        return padLines(
-          withModeChip(stock.render(inner), inner, chip),
-          width,
-          inset,
-        );
+        return padLines(withModeChip(lines, inner, chip), width, inset);
       },
     };
   });
@@ -92,7 +97,7 @@ function installChromeFooter(ctx: ExtensionContext): void {
 
 export default function registerAppUi(pi: ExtensionAPI): void {
   pi.on("session_start", (_event, ctx) => {
-    installChromeFooter(ctx);
+    installChromeFooter(ctx, pi);
   });
   pi.on("session_shutdown", (_event, ctx) => {
     if (ctx.hasUI) ctx.ui.setFooter(undefined);
