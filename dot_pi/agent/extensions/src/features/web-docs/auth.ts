@@ -108,5 +108,6 @@ export function formatExaSource(
   kind: ExaKeyKind,
   source: "auth" | "env",
 ): string {
-  return source === "auth" ? AUTH_PATH : `${ENV_KEYS[kind]} env`;
+  if (source === "auth") return AUTH_PATH;
+  return `${ENV_KEYS[kind]} env`;
 }

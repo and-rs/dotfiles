@@ -29,7 +29,9 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
     registerCommand(name: string, spec: { handler: EventHandler }) {
       commands.set(name, spec);
     },
-    registerEntryRenderer() {},
+    registerEntryRenderer() {
+      return undefined;
+    },
     registerShortcut(name: string, spec: { handler: () => void }) {
       shortcuts.set(name, spec);
     },
@@ -206,7 +208,7 @@ test("alt+m during teach restores cycle without advancing", async () => {
 
   await teach.handler("why is this layered", {
     isIdle: () => true,
-    ui: { notify: () => {} },
+    ui: { notify: () => undefined },
   });
   assert.equal(getMode(), "teach");
 

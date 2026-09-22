@@ -5,14 +5,13 @@ import { clampMaxBytes, formatBytes, loadImage } from "./image.ts";
 import type { ImageInfo, ReadImageParams } from "./types.ts";
 
 function formatInfo(info: ImageInfo): string {
-  const dimensions =
-    info.width && info.height
-      ? `${info.width}x${info.height}`
-      : "dimensions unknown";
-  const warning =
-    info.modelSupportsImages === false
-      ? "\n[Warning: current model does not advertise image input support.]"
-      : "";
+  let dimensions = "dimensions unknown";
+  if (info.width && info.height) dimensions = `${info.width}x${info.height}`;
+  let warning = "";
+  if (info.modelSupportsImages === false) {
+    warning =
+      "\n[Warning: current model does not advertise image input support.]";
+  }
   return `Read image file [${info.mimeType}] ${dimensions}, ${formatBytes(info.bytes)}\n${info.path}${warning}`;
 }
 
@@ -79,17 +78,16 @@ export default function registerReadImageFeature(pi: ExtensionAPI): void {
     renderResult(result, _, theme) {
       const info = result.details as ImageInfo | undefined;
       if (!info) return new Text(theme.fg("warning", "No image details"), 0, 0);
-      const dimensions =
-        info.width && info.height
-          ? `${info.width}x${info.height}`
-          : "unknown size";
+      let dimensions = "unknown size";
+      if (info.width && info.height)
+        dimensions = `${info.width}x${info.height}`;
 
       const summary = `${info.mimeType} · ${dimensions} · ${formatBytes(info.bytes)} · attached to model`;
 
-      const warning =
-        info.modelSupportsImages === false
-          ? `\n${theme.fg("warning", "Current model may not support image input")}`
-          : "";
+      let warning = "";
+      if (info.modelSupportsImages === false) {
+        warning = `\n${theme.fg("warning", "Current model may not support image input")}`;
+      }
 
       const pathLine = `\n${theme.fg("muted", info.path)}`;
       return new Text(

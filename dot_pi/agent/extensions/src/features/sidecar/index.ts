@@ -30,7 +30,7 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
         }
         return [theme.fg("success", store)];
       },
-      invalidate: () => {},
+      invalidate: () => undefined,
     };
     const mdContent = new Markdown(
       `${theme.fg("success", "Asked Sidecar: ")}${data.question}\n${data.answer}`,
@@ -92,8 +92,8 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
         }
         pi.appendEntry("sidecar", { question, answer });
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "unknown error";
+        let message = "unknown error";
+        if (error instanceof Error) message = error.message;
         ctx.ui.notify(`Sidecar question failed: ${message}`, "error");
       } finally {
         ctx.ui.setWidget("sidecar-loader", undefined);

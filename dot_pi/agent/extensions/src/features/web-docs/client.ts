@@ -108,14 +108,10 @@ function isoDaysAgo(days: number): string {
 }
 
 function recencyToPublishedDate(recency: Recency): string {
-  const days =
-    recency === "day"
-      ? 1
-      : recency === "week"
-        ? 7
-        : recency === "month"
-          ? 30
-          : 365;
+  let days = 365;
+  if (recency === "day") days = 1;
+  else if (recency === "week") days = 7;
+  else if (recency === "month") days = 30;
   return isoDaysAgo(days);
 }
 
@@ -143,7 +139,8 @@ async function exaPost<T>(
   signal?: AbortSignal,
 ): Promise<T> {
   const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
-  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  let combined = timeout;
+  if (signal) combined = AbortSignal.any([signal, timeout]);
   const res = await fetch(`${EXA_API}${path}`, {
     method: "POST",
     headers: {
@@ -175,7 +172,8 @@ export async function computeExaUsageSummary(apiKey: string): Promise<string> {
     `${ADMIN_BASE}/api-keys`,
     apiKey,
   );
-  const apiKeys = Array.isArray(list.apiKeys) ? list.apiKeys : [];
+  let apiKeys: NonNullable<ListApiKeysResponse["apiKeys"]> = [];
+  if (Array.isArray(list.apiKeys)) apiKeys = list.apiKeys;
   if (apiKeys.length === 0) return "EXA no-api-keys";
   const startDate = encodeURIComponent(isoDaysAgo(30));
   const totals = await Promise.all(
@@ -184,14 +182,18 @@ export async function computeExaUsageSummary(apiKey: string): Promise<string> {
         `${ADMIN_BASE}/api-keys/${item.id}/usage?start_date=${startDate}`,
         apiKey,
       );
-      return typeof usage.total_cost_usd === "number"
-        ? usage.total_cost_usd
-        : 0;
+      let totalCost = 0;
+      if (typeof usage.total_cost_usd === "number") {
+        totalCost = usage.total_cost_usd;
+      }
+      return totalCost;
     }),
   );
   const totalCost = totals.reduce((sum, value) => sum + value, 0);
   const overBudget = apiKeys.some((item) => item.isOverBudget);
-  return `EXA 30d ${fmtUsd(totalCost)} · keys ${apiKeys.length}${overBudget ? " · over-budget" : ""}`;
+  let budgetLabel = "";
+  if (overBudget) budgetLabel = " · over-budget";
+  return `EXA 30d ${fmtUsd(totalCost)} · keys ${apiKeys.length}${budgetLabel}`;
 }
 
 export type SearchParams = {
@@ -245,7 +247,8 @@ export async function runExaSearch(
     body,
     signal,
   );
-  const results = Array.isArray(response.results) ? response.results : [];
+  let results: ExaResult[] = [];
+  if (Array.isArray(response.results)) results = response.results;
   const meta: { costUsd?: number; searchTimeMs?: number } = {};
   if (typeof response.costDollars?.total === "number") {
     meta.costUsd = response.costDollars.total;
@@ -306,7 +309,8 @@ export async function runExaContents(
     body,
     signal,
   );
-  const results = Array.isArray(response.results) ? response.results : [];
+  let results: ExaResult[] = [];
+  if (Array.isArray(response.results)) results = response.results;
 
   let truncCount = 0;
   const blocks: string[] = [];
@@ -335,10 +339,8 @@ export async function runExaContents(
     blocks.push(lines.join("\n"));
   }
 
-  const raw =
-    results.length === 0
-      ? `No content for: ${params.urls.join(" ")}`
-      : `Fetch: ${results.length} page(s)\n\n${blocks.join("\n\n---\n\n")}`;
+  let raw = `Fetch: ${results.length} page(s)\n\n${blocks.join("\n\n---\n\n")}`;
+  if (results.length === 0) raw = `No content for: ${params.urls.join(" ")}`;
   const trimmed = await clampToolText(raw);
 
   const outcome: FetchOutcome = {
@@ -363,18 +365,26 @@ function buildSearchText(
   meta: { costUsd?: number; searchTimeMs?: number },
 ): string {
   if (results.length === 0) return `No results for: ${params.query}`;
+  let category = null;
+  if (params.category) category = `Category: ${params.category}`;
+  let recency = null;
+  if (params.recency) recency = `Recency: ${params.recency}`;
+  let domains = null;
+  if (params.includeDomains?.length)
+    domains = `Include: ${params.includeDomains.join(", ")}`;
+  let searchTime = null;
+  if (typeof meta.searchTimeMs === "number")
+    searchTime = `Time: ${Math.round(meta.searchTimeMs)}ms`;
+  let cost = null;
+  if (typeof meta.costUsd === "number") cost = `Cost: ${fmtUsd(meta.costUsd)}`;
   const header = [
     `Query: ${params.query}`,
     `Type: ${params.type}`,
-    params.category ? `Category: ${params.category}` : null,
-    params.recency ? `Recency: ${params.recency}` : null,
-    params.includeDomains?.length
-      ? `Include: ${params.includeDomains.join(", ")}`
-      : null,
-    typeof meta.searchTimeMs === "number"
-      ? `Time: ${Math.round(meta.searchTimeMs)}ms`
-      : null,
-    typeof meta.costUsd === "number" ? `Cost: ${fmtUsd(meta.costUsd)}` : null,
+    category,
+    recency,
+    domains,
+    searchTime,
+    cost,
     "",
   ]
     .filter((line) => line !== null)
@@ -426,7 +436,9 @@ export async function clampToolText(
 
 export function parseUrlList(value: string | string[] | undefined): string[] {
   if (!value) return [];
-  const raw = Array.isArray(value) ? value : value.split(/[\s,]+/);
+  let raw: string[];
+  if (Array.isArray(value)) raw = value;
+  else raw = value.split(/[\s,]+/);
   const urls: string[] = [];
   for (const item of raw) {
     const trimmed = item.trim();
@@ -455,5 +467,6 @@ export function parseDomainList(
         .replace(/\/$/, ""),
     )
     .filter(Boolean);
-  return list.length ? list : undefined;
+  if (list.length) return list;
+  return undefined;
 }

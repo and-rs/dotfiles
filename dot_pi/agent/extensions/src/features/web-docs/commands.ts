@@ -87,26 +87,22 @@ export function registerWebDocsCommands(pi: ExtensionAPI): void {
             "info",
           );
         } catch (error) {
-          const message =
-            error instanceof Error ? error.message : "unknown error";
+          let message = "unknown error";
+          if (error instanceof Error) message = error.message;
           return ctx.ui.notify(`Exa usage unavailable: ${message}`, "error");
         }
       }
       if (action === "logout") {
         const cleared = await clearExaKey("api");
-        return ctx.ui.notify(
-          cleared ? "Removed stored Exa key" : "No stored Exa key",
-          "info",
-        );
+        let message = "No stored Exa key";
+        if (cleared) message = "Removed stored Exa key";
+        return ctx.ui.notify(message, "info");
       }
       if (action === "service-logout") {
         const cleared = await clearExaKey("service");
-        return ctx.ui.notify(
-          cleared
-            ? "Removed stored Exa service key"
-            : "No stored Exa service key",
-          "info",
-        );
+        let message = "No stored Exa service key";
+        if (cleared) message = "Removed stored Exa service key";
+        return ctx.ui.notify(message, "info");
       }
       ctx.ui.notify(
         "Usage: /exa [login|status|logout|service-login|service-status|service-logout|usage]",

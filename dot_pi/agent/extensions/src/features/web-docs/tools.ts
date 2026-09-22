@@ -13,6 +13,7 @@ import {
   parseDomainList,
   parseUrlList,
   RECENCY,
+  type Recency,
   runExaContents,
   runExaSearch,
   SEARCH_TYPES,
@@ -69,7 +70,9 @@ function chrome(
 ): Text {
   const bar = metaBar(theme, fields);
   const body = accentLines(theme, below);
-  return new Text(body ? `${bar}\n${body}` : bar, 0, 0);
+  let text = bar;
+  if (body) text = `${bar}\n${body}`;
+  return new Text(text, 0, 0);
 }
 
 function fmtMs(ms: number | undefined): string | null {
@@ -117,30 +120,25 @@ function searchArgFields(
   theme: Theme,
   args: SearchArgs,
 ): Array<string | null | undefined> {
-  const includeDomains = parseDomainList(
-    Array.isArray(args.includeDomains)
-      ? (args.includeDomains as string[])
-      : undefined,
-  );
-  const excludeDomains = parseDomainList(
-    Array.isArray(args.excludeDomains)
-      ? (args.excludeDomains as string[])
-      : undefined,
-  );
-  const type =
-    typeof args.type === "string" && isSearchType(args.type)
-      ? args.type
-      : "auto";
-  const n =
-    typeof args.numResults === "number" ? `n=${args.numResults}` : "n=5";
-  const recency =
-    typeof args.recency === "string" && isRecency(args.recency)
-      ? args.recency
-      : null;
-  const category =
-    typeof args.category === "string" && args.category.trim()
-      ? args.category.trim()
-      : null;
+  let includeDomains: string[] | undefined;
+  if (Array.isArray(args.includeDomains)) {
+    includeDomains = parseDomainList(args.includeDomains as string[]);
+  }
+  let excludeDomains: string[] | undefined;
+  if (Array.isArray(args.excludeDomains)) {
+    excludeDomains = parseDomainList(args.excludeDomains as string[]);
+  }
+  let type = "auto";
+  if (typeof args.type === "string" && isSearchType(args.type))
+    type = args.type;
+  let n = "n=5";
+  if (typeof args.numResults === "number") n = `n=${args.numResults}`;
+  let recency: string | null = null;
+  if (typeof args.recency === "string" && isRecency(args.recency))
+    recency = args.recency;
+  let category: string | null = null;
+  if (typeof args.category === "string" && args.category.trim())
+    category = args.category.trim();
   return [
     theme.fg("toolTitle", theme.bold("web_search")),
     type,
@@ -152,9 +150,9 @@ function searchArgFields(
 }
 
 function searchQueryLine(args: SearchArgs): string | null {
-  return typeof args.query === "string" && args.query.trim()
-    ? args.query.trim()
-    : null;
+  if (typeof args.query === "string" && args.query.trim())
+    return args.query.trim();
+  return null;
 }
 
 function parseFetchUrls(args: FetchArgs): string[] {
@@ -172,18 +170,14 @@ function fetchArgFields(
   args: FetchArgs,
   urlCount: number,
 ): Array<string | null | undefined> {
-  const age =
-    typeof args.maxAgeHours === "number" ? `age<=${args.maxAgeHours}h` : null;
-  const sub =
-    typeof args.subpages === "number" && args.subpages > 0
-      ? `sub=${args.subpages}`
-      : null;
-  return [
-    theme.fg("toolTitle", theme.bold("web_fetch")),
-    urlCount ? `${urlCount} urls` : null,
-    age,
-    sub,
-  ];
+  let age: string | null = null;
+  if (typeof args.maxAgeHours === "number") age = `age<=${args.maxAgeHours}h`;
+  let sub: string | null = null;
+  if (typeof args.subpages === "number" && args.subpages > 0)
+    sub = `sub=${args.subpages}`;
+  let urlLabel: string | null = null;
+  if (urlCount !== 0) urlLabel = `${urlCount} urls`;
+  return [theme.fg("toolTitle", theme.bold("web_fetch")), urlLabel, age, sub];
 }
 
 export function returnRawWebTools() {
@@ -274,16 +268,18 @@ export function returnRawWebTools() {
           throw new Error("No Exa API key. Use /exa login or set EXA_API_KEY.");
         }
         const rawType = params.type ?? "auto";
-        const type: SearchType = isSearchType(rawType) ? rawType : "auto";
-        const numResults =
-          typeof params.numResults === "number" ? params.numResults : 5;
+        let type: SearchType = "auto";
+        if (isSearchType(rawType)) type = rawType;
+        let numResults = 5;
+        if (typeof params.numResults === "number")
+          numResults = params.numResults;
         const includeDomains = parseDomainList(params.includeDomains);
         const excludeDomains = parseDomainList(params.excludeDomains);
         const rawRecency = params.recency;
-        const recency =
-          typeof rawRecency === "string" && isRecency(rawRecency)
-            ? rawRecency
-            : undefined;
+        let recency: Recency | undefined;
+        if (typeof rawRecency === "string" && isRecency(rawRecency)) {
+          recency = rawRecency;
+        }
 
         const searchParams: SearchParams = {
           query: params.query,
@@ -327,11 +323,9 @@ export function returnRawWebTools() {
       },
       renderCall(args, theme) {
         const query = searchQueryLine(args);
-        return chrome(
-          theme,
-          searchArgFields(theme, args),
-          query ? [query] : [],
-        );
+        const queryLines: string[] = [];
+        if (query) queryLines.push(query);
+        return chrome(theme, searchArgFields(theme, args), queryLines);
       },
       renderResult(result, { isPartial }, theme, context) {
         const args = (context?.args ?? {}) as SearchArgs;
@@ -348,14 +342,16 @@ export function returnRawWebTools() {
         const query = details?.query?.trim() || searchQueryLine(args) || null;
         const base = searchArgFields(theme, {
           ...args,
-          type: details?.urls ? args.type : args.type,
+          type: args.type,
         });
 
+        const queryLines: string[] = [];
+        if (query) queryLines.push(query);
         if (isPartial) {
           return chrome(
             theme,
             [...base, theme.fg("warning", "searching…")],
-            query ? [query] : [],
+            queryLines,
           );
         }
 
@@ -367,22 +363,31 @@ export function returnRawWebTools() {
               theme.fg("error", "fail"),
               theme.fg("error", shortFail(resultText(result))),
             ],
-            query ? [query] : [],
+            queryLines,
           );
         }
 
         const urls = details?.urls ?? [];
         const hostCount = details?.hosts?.length ?? uniqueHosts(urls).length;
-        const outcome =
-          urls.length === 0
-            ? [theme.fg("warning", "0 hits"), theme.fg("warning", "empty")]
-            : [
-                theme.fg("success", `${urls.length} hits`),
-                hostCount ? `${hostCount} hosts` : null,
-                fmtMs(details?.searchTimeMs ?? undefined),
-                fmtCost(details?.costUsd ?? undefined),
-                details?.truncated ? "trunc" : null,
-              ];
+        let outcome: Array<string | null>;
+        if (urls.length === 0) {
+          outcome = [
+            theme.fg("warning", "0 hits"),
+            theme.fg("warning", "empty"),
+          ];
+        } else {
+          let hosts: string | null = null;
+          if (hostCount > 0) hosts = `${hostCount} hosts`;
+          let trunc: string | null = null;
+          if (details?.truncated) trunc = "trunc";
+          outcome = [
+            theme.fg("success", `${urls.length} hits`),
+            hosts,
+            fmtMs(details?.searchTimeMs ?? undefined),
+            fmtCost(details?.costUsd ?? undefined),
+            trunc,
+          ];
+        }
 
         return chrome(theme, [...base, ...outcome], urls.map(displayUrl));
       },
@@ -453,18 +458,20 @@ export function returnRawWebTools() {
         if (!resolved.key) {
           throw new Error("No Exa API key. Use /exa login or set EXA_API_KEY.");
         }
-        const fromArray = Array.isArray(params.urls) ? params.urls : [];
-        const fromAlias =
-          typeof params.url === "string" ? parseUrlList(params.url) : [];
+        let fromArray: string[] = [];
+        if (Array.isArray(params.urls)) fromArray = params.urls;
+        let fromAlias: string[] = [];
+        if (typeof params.url === "string")
+          fromAlias = parseUrlList(params.url);
         const urls = [...fromArray, ...fromAlias];
         if (urls.length === 0) throw new Error("Provide url or urls.");
         for (const item of urls) {
           if (!URL.canParse(item)) throw new Error(`Invalid URL: ${item}`);
         }
-        const maxCharacters =
-          typeof params.maxCharacters === "number"
-            ? params.maxCharacters
-            : 5000;
+        let maxCharacters = 5000;
+        if (typeof params.maxCharacters === "number") {
+          maxCharacters = params.maxCharacters;
+        }
         const fetchParams: FetchParams = { urls, maxCharacters };
         if (typeof params.maxAgeHours === "number") {
           fetchParams.maxAgeHours = params.maxAgeHours;
@@ -542,13 +549,14 @@ export function returnRawWebTools() {
 
         const ok = details?.okCount ?? urls.length;
         const trunc = details?.truncCount ?? 0;
-        const outcome =
-          ok === 0
-            ? [theme.fg("warning", "ok 0"), theme.fg("warning", "empty")]
-            : [
-                theme.fg("success", `ok ${ok}`),
-                trunc > 0 ? `trunc ${trunc}` : null,
-              ];
+        let outcome: Array<string | null>;
+        if (ok === 0) {
+          outcome = [theme.fg("warning", "ok 0"), theme.fg("warning", "empty")];
+        } else {
+          let truncText: string | null = null;
+          if (trunc > 0) truncText = `trunc ${trunc}`;
+          outcome = [theme.fg("success", `ok ${ok}`), truncText];
+        }
 
         return chrome(theme, [...base, ...outcome], urls.map(displayUrl));
       },

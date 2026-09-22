@@ -59,30 +59,36 @@ export default class StyledEditor extends CustomEditor {
     if (width === 1) return this.borderColor(left);
 
     const innerWidth = width - 2;
-    const content = indicator
-      ? truncateToWidth(indicator, innerWidth) +
-        horizontal.repeat(Math.max(0, innerWidth - visibleWidth(indicator)))
-      : horizontal.repeat(innerWidth);
+    let content = horizontal.repeat(innerWidth);
+    if (indicator) {
+      content =
+        truncateToWidth(indicator, innerWidth) +
+        horizontal.repeat(Math.max(0, innerWidth - visibleWidth(indicator)));
+    }
     return this.borderColor(`${left}${content}${right}`);
   }
 
   private renderTopBorder(width: number, scrollOffset: number): string {
+    let indicator: string | undefined;
+    if (scrollOffset > 0) indicator = ` ↑ ${scrollOffset} more `;
     return this.renderBorder(
       width,
       this.borderChars.tl,
       this.borderChars.th,
       this.borderChars.tr,
-      scrollOffset > 0 ? ` ↑ ${scrollOffset} more ` : undefined,
+      indicator,
     );
   }
 
   private renderBottomBorder(width: number, linesBelow: number): string {
+    let indicator: string | undefined;
+    if (linesBelow > 0) indicator = ` ↓ ${linesBelow} more `;
     return this.renderBorder(
       width,
       this.borderChars.bl,
       this.borderChars.bh,
       this.borderChars.br,
-      linesBelow > 0 ? ` ↓ ${linesBelow} more ` : undefined,
+      indicator,
     );
   }
 
@@ -102,17 +108,23 @@ export default class StyledEditor extends CustomEditor {
 
   override render(width: number): string[] {
     // This will fail fast. If internal api changes, please fix accordingly, no graceful fail UI.
-    const editor = !this.hasValidatedInternals
-      ? validateEditorRenderInternals(this)
-      : (this as unknown as EditorRenderInternals);
+    let editor: EditorRenderInternals;
+    if (!this.hasValidatedInternals) {
+      editor = validateEditorRenderInternals(this);
+    } else {
+      editor = this as unknown as EditorRenderInternals;
+    }
 
     const frameWidth = Math.max(0, width - 2);
     const maxPadding = Math.max(0, Math.floor((frameWidth - 1) / 2));
     const paddingX = Math.min(editor.paddingX, maxPadding);
     const contentWidth = Math.max(1, frameWidth - paddingX * 2);
     const prefixWidth = visibleWidth(this.prefix);
-    const gutter = contentWidth > prefixWidth ? prefixWidth : 0;
-    const layoutWidth = Math.max(1, contentWidth - gutter - (paddingX ? 0 : 1));
+    let gutter = 0;
+    if (contentWidth > prefixWidth) gutter = prefixWidth;
+    let padding = 1;
+    if (paddingX) padding = 0;
+    const layoutWidth = Math.max(1, contentWidth - gutter - padding);
     editor.lastWidth = layoutWidth;
     const layoutLines = editor.layoutText(layoutWidth);
 
@@ -148,8 +160,8 @@ export default class StyledEditor extends CustomEditor {
     const result: string[] = [];
     const leftPadding = " ".repeat(paddingX);
     const rightPadding = leftPadding;
-    const prefixText =
-      gutter === 0 ? "" : this.uiTheme.fg("mdHeading", this.prefix);
+    let prefixText = "";
+    if (gutter !== 0) prefixText = this.uiTheme.fg("mdHeading", this.prefix);
     const lineBudget = contentWidth - gutter;
 
     result.push(this.renderTopBorder(width, editor.scrollOffset));
@@ -165,7 +177,8 @@ export default class StyledEditor extends CustomEditor {
       if (layoutLine.hasCursor && layoutLine.cursorPos !== undefined) {
         const before = displayText.slice(0, layoutLine.cursorPos);
         const after = displayText.slice(layoutLine.cursorPos);
-        const marker = this.focused ? CURSOR_MARKER : "";
+        let marker = "";
+        if (this.focused) marker = CURSOR_MARKER;
         if (after.length > 0) {
           const firstGrapheme =
             [...editor.segment(after, "grapheme")][0]?.segment ?? "";

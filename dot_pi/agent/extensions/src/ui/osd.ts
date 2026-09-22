@@ -43,8 +43,8 @@ function padLines(lines: string[], width: number, inset: number): string[] {
 
 function withModeChip(lines: string[], inner: number, chip: string): string[] {
   if (inner <= 0) return lines;
-  const chipText =
-    visibleWidth(chip) > inner ? truncateToWidth(chip, inner) : chip;
+  let chipText = chip;
+  if (visibleWidth(chip) > inner) chipText = truncateToWidth(chip, inner);
   const chipWidth = visibleWidth(chipText);
   if (lines.length === 0) return [chipText];
   const pwd = lines[0];
@@ -73,7 +73,8 @@ function installChromeFooter(ctx: ExtensionContext): void {
         stock.invalidate();
       },
       render(width: number) {
-        const inset = width >= INSET * 2 ? INSET : 0;
+        let inset = 0;
+        if (width >= INSET * 2) inset = INSET;
         const inner = Math.max(0, width - inset * 2);
         const mode = getMode();
         const chip = theme.inverse(
