@@ -1,12 +1,8 @@
-import { Text } from "@earendil-works/pi-tui";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { clampMaxBytes, formatBytes, loadImage } from "./image.ts";
 import type { ImageInfo, ReadImageParams } from "./types.ts";
-
-interface ToolContext {
-  model?: { input?: string[] };
-}
 
 function formatInfo(info: ImageInfo): string {
   const dimensions =
@@ -52,12 +48,15 @@ export default function registerReadImageFeature(pi: ExtensionAPI): void {
       params: ReadImageParams,
       _signal,
       _onUpdate,
-      ctx?: ToolContext,
+      ctx,
     ) => {
       const maxBytes = clampMaxBytes(params.maxBytes);
       const { buffer, info } = await loadImage(params.path, maxBytes);
-      const modelSupportsImages = ctx?.model?.input?.includes("image");
-      const details: ImageInfo = { ...info, modelSupportsImages };
+      const modelSupportsImages = ctx.model?.input?.includes("image");
+      const details: ImageInfo = { ...info };
+      if (modelSupportsImages !== undefined) {
+        details.modelSupportsImages = modelSupportsImages;
+      }
       return {
         content: [
           { type: "text", text: formatInfo(details) },

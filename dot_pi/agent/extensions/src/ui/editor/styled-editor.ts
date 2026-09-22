@@ -7,7 +7,7 @@ import {
   visibleWidth,
 } from "@earendil-works/pi-tui";
 import {
-  EditorRenderInternals,
+  type EditorRenderInternals,
   validateEditorRenderInternals,
   validateLayoutLines,
 } from "./validate-styled-editor";
@@ -26,13 +26,16 @@ export default class StyledEditor extends CustomEditor {
     lh: "┃",
   };
 
+  private uiTheme: Theme;
+
   constructor(
     tui: ConstructorParameters<typeof CustomEditor>[0],
     editorTheme: ConstructorParameters<typeof CustomEditor>[1],
     keybindings: ConstructorParameters<typeof CustomEditor>[2],
-    private uiTheme: Theme,
+    uiTheme: Theme,
   ) {
     super(tui, editorTheme, keybindings);
+    this.uiTheme = uiTheme;
   }
 
   private leadingForLine(
@@ -152,7 +155,8 @@ export default class StyledEditor extends CustomEditor {
     result.push(this.renderTopBorder(width, editor.scrollOffset));
 
     for (let i = 0; i < visibleLines.length; i++) {
-      const layoutLine = visibleLines[i]!;
+      const layoutLine = visibleLines[i];
+      if (!layoutLine) continue;
       const lineIndex = editor.scrollOffset + i;
       const leading = this.leadingForLine(lineIndex, gutter, prefixText);
       let displayText = layoutLine.text;

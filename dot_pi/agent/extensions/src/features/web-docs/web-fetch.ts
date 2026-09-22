@@ -1,12 +1,12 @@
+import { normalizeWhitespaceText, parseHtmlDocument } from "./html.ts";
 import {
   assertPublicHttpUrl,
   defaultFetchHeaders,
   fetchPublicUrl,
   readResponseTextCapped,
 } from "./network.ts";
-import { normalizeWhitespaceText, parseHtmlDocument } from "./html.ts";
-import { MAX_FETCH_BYTES, type FetchMode } from "./types.ts";
 import { truncate } from "./shared.ts";
+import { type FetchMode, MAX_FETCH_BYTES } from "./types.ts";
 
 export async function fetchUrlContent(
   url: string,

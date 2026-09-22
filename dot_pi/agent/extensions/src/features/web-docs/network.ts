@@ -4,15 +4,36 @@ import { MAX_FETCH_BYTES, MAX_REDIRECTS, USER_AGENT } from "./types.ts";
 
 function isPrivateIPv4(address: string): boolean {
   const parts = address.split(".").map((part) => Number.parseInt(part, 10));
-  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return true;
-  const [a, b] = parts;
-  return a === 0 || a === 10 || a === 127 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
+  if (
+    parts.length !== 4 ||
+    parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)
+  )
+    return true;
+  const a = parts[0];
+  const b = parts[1];
+  if (a === undefined || b === undefined) return true;
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    a >= 224
+  );
 }
 
 function isPrivateIPv6(address: string): boolean {
   const normalized = address.toLowerCase();
-  if (normalized.startsWith("::ffff:")) return isPrivateIPv4(normalized.slice(7));
-  return normalized === "::" || normalized === "::1" || normalized.startsWith("fc") || normalized.startsWith("fd") || normalized.startsWith("fe80:");
+  if (normalized.startsWith("::ffff:"))
+    return isPrivateIPv4(normalized.slice(7));
+  return (
+    normalized === "::" ||
+    normalized === "::1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe80:")
+  );
 }
 
 function isPrivateAddress(address: string): boolean {
@@ -24,20 +45,33 @@ function isPrivateAddress(address: string): boolean {
 
 export async function assertPublicHttpUrl(urlText: string): Promise<void> {
   const url = new URL(urlText);
-  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error(`Unsupported URL protocol: ${url.protocol}. Use http or https.`);
+  if (url.protocol !== "http:" && url.protocol !== "https:")
+    throw new Error(
+      `Unsupported URL protocol: ${url.protocol}. Use http or https.`,
+    );
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (hostname === "localhost" || hostname.endsWith(".localhost")) throw new Error(`Blocked local URL host: ${url.hostname}`);
+  if (hostname === "localhost" || hostname.endsWith(".localhost"))
+    throw new Error(`Blocked local URL host: ${url.hostname}`);
   if (isIP(hostname)) {
-    if (isPrivateAddress(hostname)) throw new Error(`Blocked private URL host: ${url.hostname}`);
+    if (isPrivateAddress(hostname))
+      throw new Error(`Blocked private URL host: ${url.hostname}`);
     return;
   }
   const addresses = await lookup(hostname, { all: true, verbatim: true });
-  if (addresses.length === 0 || addresses.some((entry) => isPrivateAddress(entry.address))) {
-    throw new Error(`Blocked URL host resolving to private address: ${url.hostname}`);
+  if (
+    addresses.length === 0 ||
+    addresses.some((entry) => isPrivateAddress(entry.address))
+  ) {
+    throw new Error(
+      `Blocked URL host resolving to private address: ${url.hostname}`,
+    );
   }
 }
 
-export async function fetchPublicUrl(url: string, init: RequestInit): Promise<Response> {
+export async function fetchPublicUrl(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
   let currentUrl = url;
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount++) {
     await assertPublicHttpUrl(currentUrl);
@@ -50,7 +84,10 @@ export async function fetchPublicUrl(url: string, init: RequestInit): Promise<Re
   throw new Error(`Too many redirects fetching URL: ${url}`);
 }
 
-export async function readResponseTextCapped(response: Response, maxBytes: number = MAX_FETCH_BYTES): Promise<{ text: string; truncated: boolean }> {
+export async function readResponseTextCapped(
+  response: Response,
+  maxBytes: number = MAX_FETCH_BYTES,
+): Promise<{ text: string; truncated: boolean }> {
   if (!response.body) return { text: "", truncated: false };
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -77,7 +114,8 @@ export async function readResponseTextCapped(response: Response, maxBytes: numbe
 
 export function defaultFetchHeaders(): HeadersInit {
   return {
-    Accept: "text/html,application/xhtml+xml,application/json,text/plain;q=0.9,*/*;q=0.8",
+    Accept:
+      "text/html,application/xhtml+xml,application/json,text/plain;q=0.9,*/*;q=0.8",
     "User-Agent": USER_AGENT,
   };
 }

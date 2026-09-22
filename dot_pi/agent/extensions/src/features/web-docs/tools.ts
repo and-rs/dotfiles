@@ -1,17 +1,17 @@
+import { defineTool } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
-import { resolveExaKey } from "./lib/exa-auth.ts";
 import { buildSearchText, runExaSearch, summarizeUrlHost } from "./exa.ts";
-import { fetchUrlContent } from "./web-fetch.ts";
+import { resolveExaKey } from "./lib/exa-auth.ts";
+import { isFetchMode, isSearchType } from "./shared.ts";
 import {
-  FETCH_MODES,
-  SEARCH_TYPES,
   type ExaSearchResult,
+  FETCH_MODES,
   type FetchMode,
+  SEARCH_TYPES,
   type SearchType,
 } from "./types.ts";
-import { isFetchMode, isSearchType } from "./shared.ts";
-import { defineTool } from "@earendil-works/pi-coding-agent";
+import { fetchUrlContent } from "./web-fetch.ts";
 
 export function returnRawWebTools() {
   return [
@@ -66,7 +66,8 @@ export function returnRawWebTools() {
         const resolved = await resolveExaKey("api");
         if (!resolved.key)
           throw new Error("No Exa API key. Use /exa login or set EXA_API_KEY.");
-        const type = isSearchType(params.type ?? "") ? params.type : "auto";
+        const rawType = params.type ?? "auto";
+        const type = isSearchType(rawType) ? rawType : "auto";
         const numResults =
           typeof params.numResults === "number" ? params.numResults : 5;
         const results = await runExaSearch(
@@ -96,7 +97,7 @@ export function returnRawWebTools() {
           0,
         );
       },
-      renderResult(result, { _, isPartial }, theme) {
+      renderResult(result, { isPartial }, theme) {
         if (isPartial)
           return new Text(theme.fg("warning", "Searching..."), 0, 0);
 
@@ -107,11 +108,9 @@ export function returnRawWebTools() {
         const results = details?.results ?? [];
 
         const first = results[0];
-
-        const summary =
-          results.length === 0
-            ? "0 results"
-            : `${results.length} result${results.length === 1 ? "" : "s"} · ${summarizeUrlHost(first.url)}`;
+        const summary = !first
+          ? "0 results"
+          : `${results.length} result${results.length === 1 ? "" : "s"} · ${summarizeUrlHost(first.url)}`;
 
         return new Text(theme.fg("success", summary), 0, 0);
       },
@@ -157,7 +156,8 @@ export function returnRawWebTools() {
       execute: async (_toolCallId, params, signal) => {
         if (!URL.canParse(params.url))
           throw new Error(`Invalid URL: ${params.url}`);
-        const mode = isFetchMode(params.mode ?? "") ? params.mode : "markdown";
+        const rawMode = params.mode ?? "markdown";
+        const mode = isFetchMode(rawMode) ? rawMode : "markdown";
         const maxCharacters =
           typeof params.maxCharacters === "number"
             ? params.maxCharacters

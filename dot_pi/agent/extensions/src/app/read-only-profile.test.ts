@@ -66,11 +66,7 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
 test("new session defaults to plan discovery tools", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = createPi();
 
-  assert.deepEqual(registeredTools, [
-    "read-image",
-    "exa-search",
-    "web-fetch",
-  ]);
+  assert.deepEqual(registeredTools, ["read-image", "exa-search", "web-fetch"]);
 
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   assert.ok(sessionStart);
@@ -139,7 +135,9 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
     result?.systemPrompt ?? "",
     /Stay in the current working directory/,
   );
-  assert.deepEqual(event.systemPromptOptions.selectedTools, [...DISCOVERY_TOOLS]);
+  assert.deepEqual(event.systemPromptOptions.selectedTools, [
+    ...DISCOVERY_TOOLS,
+  ]);
   assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
   assert.equal(event.systemPrompt, "base");
 });
@@ -147,10 +145,10 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
 test("before_agent_start appends layers when options are missing", async () => {
   const { eventHandlers } = createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
-  const result = (await eventHandlers
-    .get("before_agent_start")
-    ?.at(-1)
-    ?.({ systemPrompt: "base" }, {})) as { systemPrompt?: string } | undefined;
+  const result = (await eventHandlers.get("before_agent_start")?.at(-1)?.(
+    { systemPrompt: "base" },
+    {},
+  )) as { systemPrompt?: string } | undefined;
 
   assert.match(result?.systemPrompt ?? "", /^base\n\n/);
   assert.match(result?.systemPrompt ?? "", /<plan>/);
@@ -249,8 +247,5 @@ test("/teach without a question or while busy does not send", async () => {
 
   assert.deepEqual(sent, []);
   assert.equal(getMode(), "plan");
-  assert.deepEqual(notifies, [
-    "Usage: /teach <question>",
-    "Agent is busy",
-  ]);
+  assert.deepEqual(notifies, ["Usage: /teach <question>", "Agent is busy"]);
 });

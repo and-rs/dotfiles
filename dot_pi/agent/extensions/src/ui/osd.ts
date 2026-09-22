@@ -5,7 +5,7 @@ import {
   FooterComponent,
 } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import { getMode, onModeChange, type Mode } from "../app/modes.ts";
+import { getMode, type Mode, onModeChange } from "../app/modes.ts";
 
 const INSET = 1;
 
@@ -18,7 +18,7 @@ const CHIP_COLOR: Record<Mode, "accent" | "error" | "warning"> = {
 function stockSession(ctx: ExtensionContext): AgentSession {
   return {
     get state() {
-      return { model: ctx.model, thinkingLevel: ctx.thinkingLevel };
+      return { model: ctx.model, thinkingLevel: "off" };
     },
     get sessionManager() {
       return ctx.sessionManager;
@@ -41,17 +41,15 @@ function padLines(lines: string[], width: number, inset: number): string[] {
   });
 }
 
-function withModeChip(
-  lines: string[],
-  inner: number,
-  chip: string,
-): string[] {
+function withModeChip(lines: string[], inner: number, chip: string): string[] {
   if (inner <= 0) return lines;
   const chipText =
     visibleWidth(chip) > inner ? truncateToWidth(chip, inner) : chip;
   const chipWidth = visibleWidth(chipText);
   if (lines.length === 0) return [chipText];
-  const [pwd, ...rest] = lines;
+  const pwd = lines[0];
+  if (pwd === undefined) return [chipText];
+  const rest = lines.slice(1);
   const gapMin = 1;
   const pwdBudget = Math.max(0, inner - chipWidth - gapMin);
   const pwdText = truncateToWidth(pwd, pwdBudget);
@@ -78,7 +76,9 @@ function installChromeFooter(ctx: ExtensionContext): void {
         const inset = width >= INSET * 2 ? INSET : 0;
         const inner = Math.max(0, width - inset * 2);
         const mode = getMode();
-        const chip = theme.inverse(theme.fg(CHIP_COLOR[mode], theme.bold(` ${mode} `)));
+        const chip = theme.inverse(
+          theme.fg(CHIP_COLOR[mode], theme.bold(` ${mode} `)),
+        );
         return padLines(
           withModeChip(stock.render(inner), inner, chip),
           width,

@@ -9,12 +9,6 @@ qmlfmt:
 cppfmt:
   nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"
 
-# apply & restart quickshell
-AR:
-    chezmoi apply -v
-    try { quickshell kill }
-    ~/.config/quickshell/launch.sh
-
 apply:
     chezmoi apply -v --no-pager
 
@@ -26,6 +20,9 @@ status:
 
 test-quickshell:
     bun test dot_config/quickshell/tests/network.test.js
+
+pi-check:
+    bun run --cwd dot_pi/agent/extensions check
 
 debug-capture target output_directory="":
     ./dot_config/quickshell/utils/debug-capture.sh "{{ target }}" "{{ output_directory }}"

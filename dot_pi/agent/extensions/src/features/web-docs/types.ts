@@ -1,4 +1,11 @@
-export const SEARCH_TYPES = ["auto", "fast", "instant", "deep-lite", "deep", "deep-reasoning"] as const;
+export const SEARCH_TYPES = [
+  "auto",
+  "fast",
+  "instant",
+  "deep-lite",
+  "deep",
+  "deep-reasoning",
+] as const;
 export const FETCH_MODES = ["markdown", "text", "html"] as const;
 
 export const USER_AGENT = "pi-web-docs-extension/0.1";

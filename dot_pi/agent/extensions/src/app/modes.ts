@@ -6,8 +6,8 @@ import type {
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 
-export const CYCLE = ["plan", "build"] as const;
-export type CycleMode = (typeof CYCLE)[number];
+const CYCLE = ["plan", "build"] as const;
+type CycleMode = (typeof CYCLE)[number];
 export type Mode = CycleMode | "teach";
 
 export const DISCOVERY_TOOLS = [
@@ -20,12 +20,7 @@ export const DISCOVERY_TOOLS = [
   "web-fetch",
 ] as const;
 
-const BUILD_TOOLS = [
-  ...DISCOVERY_TOOLS,
-  "bash",
-  "edit",
-  "write",
-] as const;
+const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write"] as const;
 
 const WORKSPACE = `Stay in the current working directory.
 Do not search parent dirs, $HOME, or absolute paths outside cwd unless the user asks.
@@ -189,7 +184,9 @@ export function registerModes(pi: ExtensionAPI): void {
         return;
       }
       const index = CYCLE.indexOf(cycle);
-      setCycle(CYCLE[(index + 1) % CYCLE.length]);
+      const next = CYCLE[(index + 1) % CYCLE.length];
+      if (!next) return;
+      setCycle(next);
     },
   });
 }

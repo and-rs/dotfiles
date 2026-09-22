@@ -1,12 +1,12 @@
 import {
+  type CreateAgentSessionResult,
   createAgentSession,
+  type ExtensionAPI,
   getMarkdownTheme,
   ModelRuntime,
   SessionManager,
-  type ExtensionAPI,
-  type CreateAgentSessionResult,
 } from "@earendil-works/pi-coding-agent";
-import { Box, Markdown, Component } from "@earendil-works/pi-tui";
+import { Box, type Component, Markdown } from "@earendil-works/pi-tui";
 import { returnRawWebTools } from "../web-docs/tools";
 
 export default function registerSidecarCommand(pi: ExtensionAPI): void {
@@ -60,11 +60,14 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
       "Make a question to the sidecar without getting into the context.",
 
     handler: async (args, ctx) => {
-      let result: CreateAgentSessionResult;
+      let result: CreateAgentSessionResult | undefined;
       try {
         const question = args.trim();
         if (question.length < 1) {
           throw Error("Type your message");
+        }
+        if (!ctx.model) {
+          throw Error("No model");
         }
         ctx.ui.setWidget("sidecar-loader", ["Sidecar thinking..."]);
         const modelRuntime = await ModelRuntime.create();

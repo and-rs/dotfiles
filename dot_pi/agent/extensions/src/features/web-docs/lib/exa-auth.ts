@@ -8,9 +8,9 @@ const exec = promisify(execCallback);
 
 export const AUTH_PATH = join(homedir(), ".pi", "agent", "auth.json");
 
-export type AuthRecord = Record<string, unknown>;
+type AuthRecord = Record<string, unknown>;
 
-export type ApiKeyEntry = {
+type ApiKeyEntry = {
   type?: string;
   key?: string;
 };
@@ -32,7 +32,7 @@ const ENV_KEYS: Record<ExaKeyKind, string> = {
   service: "EXA_SERVICE_KEY",
 };
 
-export async function readAuthFile(): Promise<AuthRecord> {
+async function readAuthFile(): Promise<AuthRecord> {
   try {
     const raw = await readFile(AUTH_PATH, "utf8");
     const parsed = JSON.parse(raw) as unknown;
@@ -49,13 +49,15 @@ export async function readAuthFile(): Promise<AuthRecord> {
   }
 }
 
-export async function writeAuthFile(data: AuthRecord): Promise<void> {
+async function writeAuthFile(data: AuthRecord): Promise<void> {
   await mkdir(dirname(AUTH_PATH), { recursive: true, mode: 0o700 });
-  await writeFile(AUTH_PATH, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
+  await writeFile(AUTH_PATH, `${JSON.stringify(data, null, 2)}\n`, {
+    mode: 0o600,
+  });
   await chmod(AUTH_PATH, 0o600);
 }
 
-export async function resolveStoredKeyValue(value: string): Promise<string> {
+async function resolveStoredKeyValue(value: string): Promise<string> {
   const trimmed = value.trim();
   if (!trimmed) {
     return "";
@@ -77,7 +79,9 @@ export async function resolveStoredKeyValue(value: string): Promise<string> {
   return trimmed;
 }
 
-export async function getStoredExaEntry(kind: ExaKeyKind): Promise<ApiKeyEntry | null> {
+async function getStoredExaEntry(
+  kind: ExaKeyKind,
+): Promise<ApiKeyEntry | null> {
   const auth = await readAuthFile();
   const entry = auth[AUTH_KEYS[kind]] as ApiKeyEntry | undefined;
   if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
@@ -103,7 +107,6 @@ export async function resolveExaKey(kind: ExaKeyKind): Promise<ResolvedExaKey> {
   return { key: null, source: null };
 }
 
-
 export async function saveExaKey(kind: ExaKeyKind, key: string): Promise<void> {
   const auth = await readAuthFile();
   auth[AUTH_KEYS[kind]] = { type: "api_key", key: key.trim() };
@@ -120,6 +123,9 @@ export async function clearExaKey(kind: ExaKeyKind): Promise<boolean> {
   return true;
 }
 
-export function formatExaSource(kind: ExaKeyKind, source: "auth" | "env"): string {
+export function formatExaSource(
+  kind: ExaKeyKind,
+  source: "auth" | "env",
+): string {
   return source === "auth" ? AUTH_PATH : `${ENV_KEYS[kind]} env`;
 }
