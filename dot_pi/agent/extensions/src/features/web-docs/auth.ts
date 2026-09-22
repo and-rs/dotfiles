@@ -1,12 +1,8 @@
-import { exec as execCallback } from "node:child_process";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { promisify } from "node:util";
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
-const exec = promisify(execCallback);
-
-export const AUTH_PATH = join(homedir(), ".pi", "agent", "auth.json");
+export const AUTH_PATH = join(getAgentDir(), "auth.json");
 
 type AuthRecord = Record<string, unknown>;
 
@@ -55,15 +51,9 @@ async function writeAuthFile(data: AuthRecord): Promise<void> {
   await chmod(AUTH_PATH, 0o600);
 }
 
-async function resolveStoredKeyValue(value: string): Promise<string> {
+function resolveStoredKeyValue(value: string): string {
   const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("!")) {
-    const command = trimmed.slice(1).trim();
-    if (!command) return "";
-    const { stdout } = await exec(command, { shell: "/bin/sh" });
-    return stdout.trim();
-  }
+  if (!trimmed || trimmed.startsWith("!")) return "";
   if (/^[A-Z][A-Z0-9_]*$/.test(trimmed) && process.env[trimmed]) {
     return process.env[trimmed]?.trim() ?? "";
   }
@@ -82,7 +72,7 @@ async function getStoredExaEntry(
 export async function resolveExaKey(kind: ExaKeyKind): Promise<ResolvedExaKey> {
   const stored = await getStoredExaEntry(kind);
   if (stored?.type === "api_key" && typeof stored.key === "string") {
-    const resolved = await resolveStoredKeyValue(stored.key);
+    const resolved = resolveStoredKeyValue(stored.key);
     if (resolved) return { key: resolved, source: "auth" };
   }
   const envKey = process.env[ENV_KEYS[kind]]?.trim();

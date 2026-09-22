@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
-import type {
-  ExtensionAPI,
-  ExtensionContext,
+import {
+  type ExtensionAPI,
+  type ExtensionContext,
+  getAgentDir,
 } from "@earendil-works/pi-coding-agent";
 
 const CYCLE = ["plan", "build"] as const;
@@ -31,7 +31,7 @@ external docs, then web_fetch that URL.`;
 const ENTRY = "agent-mode";
 
 function loadLayer(mode: Mode): string {
-  const path = join(homedir(), ".pi", "agent", "layers", `${mode}.md`);
+  const path = join(getAgentDir(), "layers", `${mode}.md`);
   return readFileSync(path, "utf8").trim();
 }
 

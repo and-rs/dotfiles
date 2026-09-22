@@ -25,8 +25,11 @@ function stockSession(ctx: ExtensionContext, pi: ExtensionAPI): AgentSession {
     },
     getContextUsage: () => ctx.getContextUsage(),
     modelRuntime: {
-      isUsingOAuth: () => false,
-      isUsingSubscription: () => false,
+      isUsingOAuth: (provider: string) => {
+        const model = ctx.model;
+        if (!model || model.provider !== provider) return false;
+        return ctx.modelRegistry.isUsingOAuth(model);
+      },
     },
   } as unknown as AgentSession;
 }
