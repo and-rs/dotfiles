@@ -9,9 +9,9 @@ import { getMode, onModeChange, type Mode } from "../app/modes.ts";
 
 const INSET = 1;
 
-const CHIP_COLOR: Record<Mode, "muted" | "accent" | "warning"> = {
-  plan: "muted",
-  build: "accent",
+const CHIP_COLOR: Record<Mode, "accent" | "error" | "warning"> = {
+  plan: "accent",
+  build: "error",
   teach: "warning",
 };
 
@@ -78,7 +78,7 @@ function installChromeFooter(ctx: ExtensionContext): void {
         const inset = width >= INSET * 2 ? INSET : 0;
         const inner = Math.max(0, width - inset * 2);
         const mode = getMode();
-        const chip = theme.fg(CHIP_COLOR[mode], mode);
+        const chip = theme.inverse(theme.fg(CHIP_COLOR[mode], theme.bold(` ${mode} `)));
         return padLines(
           withModeChip(stock.render(inner), inner, chip),
           width,
