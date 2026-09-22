@@ -151,36 +151,52 @@ function renderStockFooter(
 
   let modelName = "no-model";
   if (model) modelName = model.id;
+  const thinkingLevel = pi.getThinkingLevel();
+  let thinkingText: string = thinkingLevel;
+  if (thinkingLevel === "off") thinkingText = "thinking off";
   let rightSideWithoutProvider = modelName;
   if (model?.reasoning) {
-    const thinkingLevel = pi.getThinkingLevel();
-    let thinkingText: string = thinkingLevel;
-    if (thinkingLevel === "off") thinkingText = "thinking off";
-    rightSideWithoutProvider = `${modelName} • ${thinkingText}`;
+    rightSideWithoutProvider = `${thinkingText} • ${modelName}`;
   }
   let rightSide = rightSideWithoutProvider;
+  let showProvider = false;
   if (footerData.getAvailableProviderCount() > 1 && model) {
     rightSide = `(${model.provider}) ${rightSideWithoutProvider}`;
+    showProvider = true;
     if (statsLeftWidth + 2 + visibleWidth(rightSide) > width) {
       rightSide = rightSideWithoutProvider;
+      showProvider = false;
     }
   }
   const rightSideWidth = visibleWidth(rightSide);
   const availableForRight = width - statsLeftWidth - 2;
-  let statsLine = statsLeft;
-  if (statsLeftWidth + 2 + rightSideWidth <= width) {
-    statsLine = `${statsLeft}${" ".repeat(width - statsLeftWidth - rightSideWidth)}${rightSide}`;
-  } else if (availableForRight > 0) {
-    const truncatedRight = truncateToWidth(rightSide, availableForRight, "");
-    statsLine = `${statsLeft}${" ".repeat(Math.max(0, width - statsLeftWidth - visibleWidth(truncatedRight)))}${truncatedRight}`;
+  let styledRightSide = theme.fg("dim", rightSide);
+  if (model?.reasoning) {
+    const colorThinking = theme.getThinkingBorderColor(thinkingLevel);
+    let providerPrefix = "";
+    if (showProvider) providerPrefix = `(${model.provider}) `;
+    const styledProvider = theme.fg("dim", providerPrefix);
+    const styledThinking = colorThinking(thinkingText);
+    const styledSeparator = theme.fg("dim", " • ");
+    const styledModel = theme.fg("userMessageText", modelName);
+    styledRightSide = `${styledProvider}${styledThinking}${styledSeparator}${styledModel}`;
   }
 
   const dimStatsLeft = theme.fg("dim", statsLeft);
-  const dimRemainder = theme.fg("dim", statsLine.slice(statsLeft.length));
   const lines = [
     truncateToWidth(theme.fg("dim", pwd), width, theme.fg("dim", "...")),
-    dimStatsLeft + dimRemainder,
+    dimStatsLeft,
   ];
+  if (statsLeftWidth + 2 + rightSideWidth <= width) {
+    lines[1] = `${dimStatsLeft}${" ".repeat(width - statsLeftWidth - rightSideWidth)}${styledRightSide}`;
+  } else if (availableForRight > 0) {
+    const truncatedRight = truncateToWidth(
+      styledRightSide,
+      availableForRight,
+      "",
+    );
+    lines[1] = `${dimStatsLeft}${" ".repeat(Math.max(0, width - statsLeftWidth - visibleWidth(truncatedRight)))}${truncatedRight}`;
+  }
   const statuses = footerData.getExtensionStatuses();
   if (statuses.size > 0) {
     const statusLine = Array.from(statuses.entries())
@@ -231,13 +247,7 @@ function installChromeFooter(ctx: ExtensionContext, pi: ExtensionAPI): void {
         if (width >= INSET * 2) inset = INSET;
         const inner = Math.max(0, width - inset * 2);
         const mode = getMode();
-        const thinkingLevel = pi.getThinkingLevel();
-        let thinkingText: string = thinkingLevel;
-        if (thinkingLevel === "off") thinkingText = "thinking off";
-        const colorThinking = theme.getThinkingBorderColor(thinkingLevel);
-        const lines = renderStockFooter(ctx, pi, theme, footerData, inner).map(
-          (line) => line.replace(thinkingText, colorThinking(thinkingText)),
-        );
+        const lines = renderStockFooter(ctx, pi, theme, footerData, inner);
         const chip = theme.inverse(
           theme.fg(CHIP_COLOR[mode], theme.bold(` ${mode} `)),
         );
