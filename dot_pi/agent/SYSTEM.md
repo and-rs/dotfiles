@@ -45,6 +45,7 @@
   </caveman-full>
   <tool-usage>
     Use read-image for image files
-    Use exa-search before web-fetch for external documentation
+    Stay in cwd. Prefer ls, find, grep, then read. Stop when you can answer
+    Use exa-search only for current external docs, then web-fetch that URL
   </tool-usage>
 </pi-system>

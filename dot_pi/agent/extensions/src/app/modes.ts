@@ -6,8 +6,9 @@ import type {
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 
-export const MODES = ["teach", "plan", "build"] as const;
-export type Mode = (typeof MODES)[number];
+export const CYCLE = ["plan", "build"] as const;
+export type CycleMode = (typeof CYCLE)[number];
+export type Mode = CycleMode | "teach";
 
 export const DISCOVERY_TOOLS = [
   "read",
@@ -26,6 +27,12 @@ const BUILD_TOOLS = [
   "write",
 ] as const;
 
+const WORKSPACE = `Stay in the current working directory.
+Do not search parent dirs, $HOME, or absolute paths outside cwd unless the user asks.
+Prefer ls, find, grep, then read. Stop when you can answer.
+Do not repeat a failed or empty search with a near-identical query.
+Use exa-search only for current external docs, then web-fetch that URL.`;
+
 const ENTRY = "agent-mode";
 
 function loadLayer(mode: Mode): string {
@@ -40,18 +47,43 @@ const LAYERS: Record<Mode, string> = {
 };
 
 function toolsFor(mode: Mode): string[] {
-  return mode === "build" ? [...BUILD_TOOLS] : [...DISCOVERY_TOOLS];
+  if (mode === "build") return [...BUILD_TOOLS];
+  return [...DISCOVERY_TOOLS];
 }
 
-let mode: Mode = "teach";
+let cycle: CycleMode = "plan";
+let overlay: "teach" | null = null;
 const modeListeners = new Set<() => void>();
 
-function isMode(value: unknown): value is Mode {
-  return MODES.some((mode) => mode === value);
+function isCycle(value: unknown): value is CycleMode {
+  return CYCLE.some((name) => name === value);
 }
 
+function modeNameFromEntry(entry: unknown): unknown {
+  if (!entry || typeof entry !== "object") return undefined;
+  if (!("type" in entry) || entry.type !== "custom") return undefined;
+  if (!("customType" in entry) || entry.customType !== ENTRY) return undefined;
+  if (!("data" in entry) || !entry.data || typeof entry.data !== "object") {
+    return undefined;
+  }
+  if (!("name" in entry.data)) return undefined;
+  return entry.data.name;
+}
+
+type AgentStartEvent = {
+  systemPrompt?: unknown;
+  systemPromptOptions?: { selectedTools?: string[] };
+};
+
 export function getMode(): Mode {
-  return mode;
+  if (overlay) return overlay;
+  return cycle;
+}
+
+/** Test helper. Resets cycle/overlay without touching a session. */
+export function resetModes(): void {
+  cycle = "plan";
+  overlay = null;
 }
 
 export function onModeChange(listener: () => void): () => void {
@@ -63,27 +95,33 @@ export function onModeChange(listener: () => void): () => void {
 
 export function registerModes(pi: ExtensionAPI): void {
   function apply(): void {
-    pi.setActiveTools(toolsFor(mode));
+    pi.setActiveTools(toolsFor(getMode()));
     for (const listener of modeListeners) listener();
   }
 
-  function setMode(next: Mode): void {
-    mode = next;
+  function dropOverlay(): void {
+    if (!overlay) return;
+    overlay = null;
     apply();
-    pi.appendEntry(ENTRY, { name: mode });
+  }
+
+  function setCycle(next: CycleMode): void {
+    overlay = null;
+    cycle = next;
+    apply();
+    pi.appendEntry(ENTRY, { name: cycle });
   }
 
   function restore(ctx: ExtensionContext): void {
+    overlay = null;
+    cycle = "plan";
     const entries = ctx.sessionManager.getEntries();
-    const last = [...entries]
-      .reverse()
-      .find(
-        (entry) =>
-          entry.type === "custom" &&
-          "customType" in entry &&
-          entry.customType === ENTRY,
-      ) as { data?: { name?: unknown } } | undefined;
-    if (isMode(last?.data?.name)) mode = last.data.name;
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const name = modeNameFromEntry(entries[i]);
+      if (!isCycle(name)) continue;
+      cycle = name;
+      return;
+    }
   }
 
   pi.on("session_start", (_event, ctx) => {
@@ -95,15 +133,63 @@ export function registerModes(pi: ExtensionAPI): void {
     apply();
   });
 
-  pi.on("before_agent_start", (event) => ({
-    systemPrompt: `${event.systemPrompt}\n\n${LAYERS[mode]}`,
-  }));
+  pi.on("before_agent_start", (event) => {
+    apply();
+    const mode = getMode();
+    const start = event as AgentStartEvent;
+    if (start.systemPromptOptions) {
+      start.systemPromptOptions.selectedTools = toolsFor(mode);
+    }
+    const base =
+      typeof start.systemPrompt === "string" ? start.systemPrompt : "";
+    return {
+      systemPrompt: `${base}\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
+    };
+  });
+
+  pi.on("agent_settled", () => {
+    dropOverlay();
+  });
+
+  pi.registerCommand("teach", {
+    description: "One-shot coaching turn. Does not implement.",
+    handler: async (args, ctx) => {
+      const question = args.trim();
+      if (!question) {
+        ctx.ui.notify("Usage: /teach <question>", "warning");
+        return;
+      }
+      if (!ctx.isIdle()) {
+        ctx.ui.notify("Agent is busy", "warning");
+        return;
+      }
+      overlay = "teach";
+      apply();
+
+      const abort = (): void => {
+        if (overlay !== "teach") return;
+        overlay = null;
+        apply();
+        ctx.ui.notify("Teach send failed", "warning");
+      };
+
+      try {
+        await Promise.resolve(pi.sendUserMessage(question));
+      } catch {
+        abort();
+      }
+    },
+  });
 
   pi.registerShortcut("tab", {
-    description: "Cycle teach / plan / build",
+    description: "Cycle plan / build",
     handler: () => {
-      const index = MODES.indexOf(mode);
-      setMode(MODES[(index + 1) % MODES.length]);
+      if (overlay) {
+        dropOverlay();
+        return;
+      }
+      const index = CYCLE.indexOf(cycle);
+      setCycle(CYCLE[(index + 1) % CYCLE.length]);
     },
   });
 }

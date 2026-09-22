@@ -1,32 +1,32 @@
 # pi agent todo
 
+## tools
+
+- [x] drop custom explore kit (code-overview, code-search, code-files, code-view)
+- [x] drop quickfix-handoff
+- [x] teach/plan: read, grep, find, ls, read-image, exa-search, web-fetch
+- [x] build adds: bash, edit, write
+- [x] mode tool gate: setActiveTools must attach stock names or teach/plan have no filesystem tools
+- [x] inspect apply timing: session_start, session_tree, tab cycle, before_agent_start
+- [x] inject mode layer via systemPromptOptions.sections; do not replace whole systemPrompt
+
 ## path + explore
 
-- [ ] shared path resolver for all explore tools
-- [ ] cwd free; outside cwd needs permission gate
-- [ ] session allowlist of roots (not per-file spam)
-- [ ] cover: code-view, code-search, code-files, code-overview, read-image, quickfix
-- [ ] after that: drop stock read/grep/find/ls from build active set
-- [ ] note: bash still bypasses path policy
-
-## permissions ui
-
-- [ ] find proper pi questions / prompt extension for the gate
+- [x] cwd + path + bash: @gotgenes/pi-permission-system (external_directory ask)
+- [x] doom loops: pi-anti-doom-loop
+- [x] defaultTools includes grep, find, ls
+- [x] workspace section: stay in cwd, local-first, stop on hit
 
 ## exa
 
 - [ ] calibrate exa-search by search kind (docs vs broad vs domain-locked)
 - [ ] tune defaults: type, numResults, includeDomains habits
-
-## quickfix
-
-- [ ] stop clipboard/command paste as the main path
-- [ ] reach neovim more directly (rpc / server / socket / open API — decide)
+- [ ] make the tool details for exa-search and web-fetch be more verbose
 
 ## footer / chrome
 
-- [ ] fit footer info around mode indicator
-- [ ] left/right padding to match bordered input box
+- [x] fit footer info around mode indicator
+- [x] left/right padding to match bordered input box
 
 ## keybinds
 
@@ -34,6 +34,7 @@
 - [ ] must not fight shift+tab thinking level
 - [ ] pick free chord; update modes.ts + keybindings.json
 - [ ] tui.input.tab already cleared — verify full conflict matrix
+- [ ] add keybind to refresh scroll back to the bottom
 
 ## sounds
 
@@ -41,14 +42,6 @@
 - [ ] reuse nvim ekhos palette (success/ready/chime etc)
 - [ ] path: nvim/ekhos + lua/config/ekhos.lua
 - [ ] decide: play wav from pi ext vs thin bridge to existing player
-
-## mode tool gate bug
-
-- [ ] repro: UI status shows build, model only gets discovery tools
-- [ ] write/edit/bash/read/grep/find/ls missing from model tool list in build
-- [ ] inspect setActiveTools vs core stock tool names/registration
-- [ ] check apply timing: session_start, session_tree, tab cycle, before_agent_start
-- [ ] fix: build must actually expose mutation tools or status is a lie
 
 ## sessions (nushell)
 

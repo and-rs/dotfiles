@@ -1,4 +1,4 @@
-import { CustomEditor } from "@earendil-works/pi-coding-agent";
+import { CustomEditor, type Theme } from "@earendil-works/pi-coding-agent";
 import {
   CURSOR_MARKER,
   getKeybindings,
@@ -14,6 +14,7 @@ import {
 
 export default class StyledEditor extends CustomEditor {
   private hasValidatedInternals: boolean = false;
+  private prefix = " β ";
   private borderChars = {
     tl: "┏",
     th: "━",
@@ -24,6 +25,25 @@ export default class StyledEditor extends CustomEditor {
     bl: "┗",
     lh: "┃",
   };
+
+  constructor(
+    tui: ConstructorParameters<typeof CustomEditor>[0],
+    editorTheme: ConstructorParameters<typeof CustomEditor>[1],
+    keybindings: ConstructorParameters<typeof CustomEditor>[2],
+    private uiTheme: Theme,
+  ) {
+    super(tui, editorTheme, keybindings);
+  }
+
+  private leadingForLine(
+    lineIndex: number,
+    gutter: number,
+    prefixText: string,
+  ): string {
+    if (gutter === 0) return "";
+    if (lineIndex === 0) return prefixText;
+    return " ".repeat(gutter);
+  }
 
   private renderBorder(
     width: number,
@@ -38,9 +58,7 @@ export default class StyledEditor extends CustomEditor {
     const innerWidth = width - 2;
     const content = indicator
       ? truncateToWidth(indicator, innerWidth) +
-        horizontal.repeat(
-          Math.max(0, innerWidth - visibleWidth(indicator)),
-        )
+        horizontal.repeat(Math.max(0, innerWidth - visibleWidth(indicator)))
       : horizontal.repeat(innerWidth);
     return this.borderColor(`${left}${content}${right}`);
   }
@@ -89,7 +107,9 @@ export default class StyledEditor extends CustomEditor {
     const maxPadding = Math.max(0, Math.floor((frameWidth - 1) / 2));
     const paddingX = Math.min(editor.paddingX, maxPadding);
     const contentWidth = Math.max(1, frameWidth - paddingX * 2);
-    const layoutWidth = Math.max(1, contentWidth - (paddingX ? 0 : 1));
+    const prefixWidth = visibleWidth(this.prefix);
+    const gutter = contentWidth > prefixWidth ? prefixWidth : 0;
+    const layoutWidth = Math.max(1, contentWidth - gutter - (paddingX ? 0 : 1));
     editor.lastWidth = layoutWidth;
     const layoutLines = editor.layoutText(layoutWidth);
 
@@ -125,10 +145,16 @@ export default class StyledEditor extends CustomEditor {
     const result: string[] = [];
     const leftPadding = " ".repeat(paddingX);
     const rightPadding = leftPadding;
+    const prefixText =
+      gutter === 0 ? "" : this.uiTheme.fg("mdHeading", this.prefix);
+    const lineBudget = contentWidth - gutter;
 
     result.push(this.renderTopBorder(width, editor.scrollOffset));
 
-    for (const layoutLine of visibleLines) {
+    for (let i = 0; i < visibleLines.length; i++) {
+      const layoutLine = visibleLines[i]!;
+      const lineIndex = editor.scrollOffset + i;
+      const leading = this.leadingForLine(lineIndex, gutter, prefixText);
       let displayText = layoutLine.text;
       let lineVisibleWidth = visibleWidth(layoutLine.text);
       let cursorInPadding = false;
@@ -144,19 +170,18 @@ export default class StyledEditor extends CustomEditor {
         } else {
           displayText = `${before}${marker}\x1b[7m \x1b[0m`;
           lineVisibleWidth += 1;
-          cursorInPadding = lineVisibleWidth > contentWidth && paddingX > 0;
+          cursorInPadding = lineVisibleWidth > lineBudget && paddingX > 0;
         }
       }
 
-      const padding = " ".repeat(Math.max(0, contentWidth - lineVisibleWidth));
-      const lineRightPadding = cursorInPadding
-        ? rightPadding.slice(1)
-        : rightPadding;
+      const padding = " ".repeat(Math.max(0, lineBudget - lineVisibleWidth));
+      let lineRightPadding = rightPadding;
+      if (cursorInPadding) lineRightPadding = rightPadding.slice(1);
       result.push(
         this.renderContentLine(
           width,
-          `${leftPadding}${displayText}${padding}${lineRightPadding}`,
-            frameWidth,
+          `${leftPadding}${leading}${displayText}${padding}${lineRightPadding}`,
+          frameWidth,
         ),
       );
     }
@@ -174,7 +199,7 @@ export default class StyledEditor extends CustomEditor {
           this.renderContentLine(
             width,
             `${leftPadding}${line}${linePadding}${rightPadding}`,
-          frameWidth,
+            frameWidth,
           ),
         );
       }
@@ -188,18 +213,20 @@ export default class StyledEditor extends CustomEditor {
     const keybindings = getKeybindings();
 
     if (editor.autocompleteState && editor.autocompleteList) {
-      const direction = matchesKey(data, "ctrl+p")
-        ? "tui.select.up"
-        : matchesKey(data, "ctrl+n")
-          ? "tui.select.down"
-          : keybindings.matches(data, "tui.select.up")
-            ? "tui.select.up"
-            : keybindings.matches(data, "tui.select.down")
-              ? "tui.select.down"
-              : undefined;
+      let selectInput: string | undefined;
+      if (
+        matchesKey(data, "ctrl+p") ||
+        keybindings.matches(data, "tui.select.up")
+      ) {
+        selectInput = "\x1b[A";
+      } else if (
+        matchesKey(data, "ctrl+n") ||
+        keybindings.matches(data, "tui.select.down")
+      ) {
+        selectInput = "\x1b[B";
+      }
 
-      if (direction) {
-        const selectInput = direction === "tui.select.up" ? "\x1b[A" : "\x1b[B";
+      if (selectInput) {
         editor.autocompleteList.handleInput(selectInput);
         return;
       }

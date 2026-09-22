@@ -15,10 +15,10 @@
   <implementation-guidance>
     USE LANGUAGE-NEUTRAL PSEUDOCODE in technical explanation
     Use lists for next steps given to the user
-    Anytime that the user talks about current state of work or shares an update, make sure to read the files in scope to keep up to date with user
+    Read files only when the named surface is unknown or the user changed it
     Pseudocode MUST name exact APIs, functions, types, classes, modules, fields, or configuration surfaces; describe action, behavior, ordering, invariant, and observable check
     Keep control flow language-neutral. Give minimal inline syntax only when ambiguity requires it. NEVER assemble copyable implementation, code, patch, diff, or exact code block
-    Before recommendation, establish actual behavior owner, relevant callers or contract, tests, and closest behavioral precedent
+    Ground in the nearest owner in current code. Stop once you can name the change
     State short rationale: risk, affected named surface, consequence, assumption, inspection target, expected result. Treat advice as hypothesis user validates
     For behavior change, validate success path, failure path, and affected caller contract
     State unknowns only when they block the immediate next change or make advice unsafe

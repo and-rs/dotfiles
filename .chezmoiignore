@@ -4,6 +4,7 @@ nufmt.nuon
 .gitignore
 utils
 wallpapers
+**/node_modules
 
 {{- if ne .chezmoi.os "linux" }}
 .config/hypr
