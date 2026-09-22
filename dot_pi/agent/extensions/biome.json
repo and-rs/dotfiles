@@ -28,29 +28,44 @@
     "rules": {
       "preset": "recommended",
       "suspicious": {
-        "noExplicitAny": "error"
+        "noExplicitAny": "error",
+        "noImportCycles": "error",
+        "noImplicitAnyLet": "error",
+        "noEmptyInterface": "error",
+        "noEmptyBlockStatements": "error"
       },
       "style": {
         "noNonNullAssertion": "error",
-        "useImportType": "error",
         "useAsConstAssertion": "error",
+        "useCollapsedElseIf": "error",
         "noParameterAssign": "error",
-        "noNamespace": "error"
+        "useCollapsedIf": "error",
+        "noUselessElse": "error",
+        "useImportType": "error",
+        "noNamespace": "error",
+        "noTernary": "error"
       },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
-        "noUnusedFunctionParameters": "error"
+        "noUnusedFunctionParameters": "error",
+        "noInnerDeclarations": "error",
+        "noInvalidUseBeforeDeclaration": "error",
+        "noUndeclaredDependencies": "error",
+        "noUndeclaredVariables": "error"
       },
       "complexity": {
         "noBannedTypes": "error"
       },
       "performance": {
-        "noBarrelFile": "error"
+        "noBarrelFile": "error",
+        "noReExportAll": "error"
       },
       "nursery": {
+        "useNullishCoalescing": "error",
         "noFloatingPromises": "error",
-        "noMisusedPromises": "error"
+        "noMisusedPromises": "error",
+        "useExpect": "error"
       }
     }
   }
