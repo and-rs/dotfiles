@@ -1,2 +1,0 @@
-- The repository `justfile` defines the Pi checks, including `pi-check`.
-- `pi-check` must pass before every commit; always follow Biome rules, never modify them, and do not use ternaries.
