@@ -1,12 +1,12 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { computeExaUsageSummary } from "./exa.ts";
 import {
   AUTH_PATH,
   clearExaKey,
   formatExaSource,
   resolveExaKey,
   saveExaKey,
-} from "./lib/exa-auth.ts";
+} from "./auth.ts";
+import { computeExaUsageSummary } from "./client.ts";
 
 export function registerWebDocsCommands(pi: ExtensionAPI): void {
   pi.registerCommand("exa", {

@@ -42,9 +42,7 @@ async function readAuthFile(): Promise<AuthRecord> {
     return parsed as AuthRecord;
   } catch (error) {
     const nodeError = error as NodeJS.ErrnoException;
-    if (nodeError.code === "ENOENT") {
-      return {};
-    }
+    if (nodeError.code === "ENOENT") return {};
     throw error;
   }
 }
@@ -59,23 +57,16 @@ async function writeAuthFile(data: AuthRecord): Promise<void> {
 
 async function resolveStoredKeyValue(value: string): Promise<string> {
   const trimmed = value.trim();
-  if (!trimmed) {
-    return "";
-  }
-
+  if (!trimmed) return "";
   if (trimmed.startsWith("!")) {
     const command = trimmed.slice(1).trim();
-    if (!command) {
-      return "";
-    }
+    if (!command) return "";
     const { stdout } = await exec(command, { shell: "/bin/sh" });
     return stdout.trim();
   }
-
   if (/^[A-Z][A-Z0-9_]*$/.test(trimmed) && process.env[trimmed]) {
     return process.env[trimmed]?.trim() ?? "";
   }
-
   return trimmed;
 }
 
@@ -84,9 +75,7 @@ async function getStoredExaEntry(
 ): Promise<ApiKeyEntry | null> {
   const auth = await readAuthFile();
   const entry = auth[AUTH_KEYS[kind]] as ApiKeyEntry | undefined;
-  if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-    return null;
-  }
+  if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
   return entry;
 }
 
@@ -94,16 +83,10 @@ export async function resolveExaKey(kind: ExaKeyKind): Promise<ResolvedExaKey> {
   const stored = await getStoredExaEntry(kind);
   if (stored?.type === "api_key" && typeof stored.key === "string") {
     const resolved = await resolveStoredKeyValue(stored.key);
-    if (resolved) {
-      return { key: resolved, source: "auth" };
-    }
+    if (resolved) return { key: resolved, source: "auth" };
   }
-
   const envKey = process.env[ENV_KEYS[kind]]?.trim();
-  if (envKey) {
-    return { key: envKey, source: "env" };
-  }
-
+  if (envKey) return { key: envKey, source: "env" };
   return { key: null, source: null };
 }
 
@@ -115,9 +98,7 @@ export async function saveExaKey(kind: ExaKeyKind, key: string): Promise<void> {
 
 export async function clearExaKey(kind: ExaKeyKind): Promise<boolean> {
   const auth = await readAuthFile();
-  if (!(AUTH_KEYS[kind] in auth)) {
-    return false;
-  }
+  if (!(AUTH_KEYS[kind] in auth)) return false;
   delete auth[AUTH_KEYS[kind]];
   await writeAuthFile(auth);
   return true;

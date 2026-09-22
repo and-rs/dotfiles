@@ -16,8 +16,8 @@ export const DISCOVERY_TOOLS = [
   "find",
   "ls",
   "read-image",
-  "exa-search",
-  "web-fetch",
+  "web_search",
+  "web_fetch",
 ] as const;
 
 const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write"] as const;
@@ -26,7 +26,7 @@ const WORKSPACE = `Stay in the current working directory.
 Do not search parent dirs, $HOME, or absolute paths outside cwd unless the user asks.
 Prefer ls, find, grep, then read. Stop when you can answer.
 Do not repeat a failed or empty search with a near-identical query.
-Use exa-search only for current external docs, then web-fetch that URL.`;
+Use web_search only for current external docs, then web_fetch that URL.`;
 
 const ENTRY = "agent-mode";
 

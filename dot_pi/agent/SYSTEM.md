@@ -46,6 +46,6 @@
   <tool-usage>
     Use read-image for image files
     Stay in cwd. Prefer ls, find, grep, then read. Stop when you can answer
-    Use exa-search only for current external docs, then web-fetch that URL
+    Use web_search only for current external docs, then web_fetch that URL
   </tool-usage>
 </pi-system>

@@ -66,7 +66,7 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
 test("new session defaults to plan discovery tools", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = createPi();
 
-  assert.deepEqual(registeredTools, ["read-image", "exa-search", "web-fetch"]);
+  assert.deepEqual(registeredTools, ["read-image", "web_search", "web_fetch"]);
 
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   assert.ok(sessionStart);

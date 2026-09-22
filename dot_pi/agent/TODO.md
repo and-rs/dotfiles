@@ -4,7 +4,7 @@
 
 - [x] drop custom explore kit (code-overview, code-search, code-files, code-view)
 - [x] drop quickfix-handoff
-- [x] teach/plan: read, grep, find, ls, read-image, exa-search, web-fetch
+- [x] teach/plan: read, grep, find, ls, read-image, web_search, web_fetch
 - [x] build adds: bash, edit, write
 - [x] mode tool gate: setActiveTools must attach stock names or teach/plan have no filesystem tools
 - [x] inspect apply timing: session_start, session_tree, tab cycle, before_agent_start
@@ -19,9 +19,10 @@
 
 ## exa
 
-- [ ] calibrate exa-search by search kind (docs vs broad vs domain-locked)
-- [ ] tune defaults: type, numResults, includeDomains habits
-- [ ] make the tool details for exa-search and web-fetch be more verbose
+- [x] slim web-docs: Exa search + contents, drop local HTML stack
+- [x] rename tools to web_search / web_fetch
+- [x] category + recency + richer tool chrome (│ / ▕)
+- [ ] multi-key rotation if rate limits bite
 
 ## footer / chrome
 

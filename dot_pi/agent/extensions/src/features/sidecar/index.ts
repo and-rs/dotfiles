@@ -79,7 +79,7 @@ export default function registerSidecarCommand(pi: ExtensionAPI): void {
           agentDir: ctx.cwd,
           thinkingLevel: "medium",
           sessionManager: SessionManager.inMemory(ctx.cwd),
-          tools: ["web-fetch", "exa-search"],
+          tools: ["web_fetch", "web_search"],
           customTools,
         });
         if (!result.session) {
