@@ -6,7 +6,7 @@ import { DISCOVERY_TOOLS, getMode, resetModes } from "./modes.ts";
 
 type EventHandler = (...args: unknown[]) => unknown;
 
-const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write"];
+const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write", "quickfix"];
 
 const emptyCtx = {
   hasUI: false,
@@ -93,7 +93,12 @@ test("secret paths are blocked before file access", async () => {
 test("new session defaults to plan discovery tools", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = createPi();
 
-  assert.deepEqual(registeredTools, ["read-image", "web_search", "web_fetch"]);
+  assert.deepEqual(registeredTools, [
+    "read-image",
+    "quickfix",
+    "web_search",
+    "web_fetch",
+  ]);
 
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   assert.ok(sessionStart);

@@ -1,4 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import registerQuickfix from "../features/quickfix/index.ts";
 import registerReadImageFeature from "../features/read-image/index.ts";
 import registerSidecarCommand from "../features/sidecar/index.ts";
 import registerWebDocsFeature from "../features/web-docs/index.ts";
@@ -12,6 +13,7 @@ const FEATURES: FeatureRegistrar[] = [
   registerEditorEvents,
   registerAppUi,
   registerReadImageFeature,
+  registerQuickfix,
   registerWebDocsFeature,
 ];
 

@@ -187,8 +187,14 @@ window-rule {
         proportion 0.82
     }
     background-effect {
-        blur false
+        blur true
     }
+}
+blur {
+    passes 2
+    offset 6
+    noise 0.08
+    saturation 0.7
 }
 window-rule {
     match app-id="kitty"

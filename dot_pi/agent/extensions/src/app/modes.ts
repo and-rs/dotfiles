@@ -20,7 +20,13 @@ export const DISCOVERY_TOOLS = [
   "web_fetch",
 ] as const;
 
-const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write"] as const;
+const BUILD_TOOLS = [
+  ...DISCOVERY_TOOLS,
+  "bash",
+  "edit",
+  "write",
+  "quickfix",
+] as const;
 
 const WORKSPACE = `Stay in the current working directory. Do not search parent
 dirs, $HOME, or absolute paths outside cwd unless the user asks. Prefer ls,
