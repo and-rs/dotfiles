@@ -13,6 +13,13 @@ const emptyCtx = {
   sessionManager: { getEntries: () => [] },
 };
 
+function idleShortcutCtx(notify: (message: string) => void = () => undefined) {
+  return {
+    isIdle: () => true,
+    ui: { notify },
+  };
+}
+
 function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
   resetModes();
   const registeredTools: string[] = [];
@@ -21,7 +28,7 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
   const entries: Array<{ name?: string }> = [];
   const commands = new Map<string, { handler: EventHandler }>();
   const eventHandlers = new Map<string, EventHandler[]>();
-  const shortcuts = new Map<string, { handler: () => void }>();
+  const shortcuts = new Map<string, { handler: EventHandler }>();
   const pi = {
     registerTool(tool: { name: string }) {
       registeredTools.push(tool.name);
@@ -32,7 +39,7 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
     registerEntryRenderer() {
       return undefined;
     },
-    registerShortcut(name: string, spec: { handler: () => void }) {
+    registerShortcut(name: string, spec: { handler: EventHandler }) {
       shortcuts.set(name, spec);
     },
     appendEntry(_type: string, data: { name?: string }) {
@@ -115,12 +122,12 @@ test("alt+m cycles plan and build only", async () => {
 
   const cycle = shortcuts.get("alt+m");
   assert.ok(cycle);
-  cycle.handler();
+  cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "build");
   assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.deepEqual(entries.at(-1), { name: "build" });
 
-  cycle.handler();
+  cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "plan");
   assert.deepEqual(
     entries.map((entry) => entry.name),
@@ -128,12 +135,28 @@ test("alt+m cycles plan and build only", async () => {
   );
 });
 
+test("alt+m keeps the committed mode while the agent is busy", async () => {
+  const { eventHandlers, shortcuts } = createPi();
+  await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
+
+  const cycle = shortcuts.get("alt+m");
+  assert.ok(cycle);
+  const notifies: string[] = [];
+  cycle.handler({
+    isIdle: () => false,
+    ui: { notify: (message: string) => notifies.push(message) },
+  });
+
+  assert.equal(getMode(), "plan");
+  assert.deepEqual(notifies, ["Agent is busy"]);
+});
+
 test("a later session_start does not reset an active build mode", async () => {
   const { activeToolSets, eventHandlers, shortcuts } = createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.({}, emptyCtx);
 
-  shortcuts.get("alt+m")?.handler();
+  shortcuts.get("alt+m")?.handler(idleShortcutCtx());
   await sessionStart?.(
     {},
     {
@@ -193,9 +216,6 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
     result?.systemPrompt ?? "",
     /Stay in the current working directory/,
   );
-  assert.deepEqual(event.systemPromptOptions.selectedTools, [
-    ...DISCOVERY_TOOLS,
-  ]);
   assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
   assert.equal(event.systemPrompt, "base");
 });
@@ -255,7 +275,7 @@ test("alt+m during teach restores cycle without advancing", async () => {
   assert.ok(cycle);
   assert.ok(teach);
 
-  cycle.handler();
+  cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "build");
 
   await teach.handler("why is this layered", {
@@ -264,7 +284,7 @@ test("alt+m during teach restores cycle without advancing", async () => {
   });
   assert.equal(getMode(), "teach");
 
-  cycle.handler();
+  cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "build");
   assert.deepEqual(
     entries.map((entry) => entry.name),

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  type BeforeAgentStartEvent,
   type ExtensionAPI,
   type ExtensionContext,
   getAgentDir,
@@ -72,11 +73,6 @@ function modeNameFromEntry(entry: unknown): unknown {
   return entry.data.name;
 }
 
-type AgentStartEvent = {
-  systemPrompt?: unknown;
-  systemPromptOptions?: { selectedTools?: string[] };
-};
-
 export function getMode(): Mode {
   if (overlay) return overlay;
   return cycle;
@@ -97,21 +93,25 @@ export function onModeChange(listener: () => void): () => void {
 }
 
 export function registerModes(pi: ExtensionAPI): void {
-  function apply(): void {
-    pi.setActiveTools(toolsFor(getMode()));
+  function apply(mode: Mode): void {
+    pi.setActiveTools(toolsFor(mode));
     for (const listener of modeListeners) listener();
+  }
+
+  function applyCurrentMode(): void {
+    apply(getMode());
   }
 
   function dropOverlay(): void {
     if (!overlay) return;
     overlay = null;
-    apply();
+    applyCurrentMode();
   }
 
   function setCycle(next: CycleMode): void {
     overlay = null;
     cycle = next;
-    apply();
+    applyCurrentMode();
     pi.appendEntry(ENTRY, { name: cycle });
   }
 
@@ -132,24 +132,14 @@ export function registerModes(pi: ExtensionAPI): void {
       sessionStarted = true;
       restore(ctx);
     }
-    apply();
-  });
-
-  pi.on("session_tree", () => {
-    apply();
+    applyCurrentMode();
   });
 
   pi.on("before_agent_start", (event) => {
-    apply();
     const mode = getMode();
-    const start = event as AgentStartEvent;
-    if (start.systemPromptOptions) {
-      start.systemPromptOptions.selectedTools = toolsFor(mode);
-    }
-    let base = "";
-    if (typeof start.systemPrompt === "string") base = start.systemPrompt;
+    const start = event as BeforeAgentStartEvent;
     return {
-      systemPrompt: `${base}\n\n<active-agent-mode>${mode}</active-agent-mode>\nTreat active-agent-mode as authoritative runtime state. Do not infer current mode from files, previous messages, or layer names.\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
+      systemPrompt: `${start.systemPrompt}\n\n<active-agent-mode>${mode}</active-agent-mode>\nTreat active-agent-mode as authoritative runtime state. Do not infer current mode from files, previous messages, or layer names.\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
     };
   });
 
@@ -170,12 +160,12 @@ export function registerModes(pi: ExtensionAPI): void {
         return;
       }
       overlay = "teach";
-      apply();
+      applyCurrentMode();
 
       const abort = (): void => {
         if (overlay !== "teach") return;
         overlay = null;
-        apply();
+        applyCurrentMode();
         ctx.ui.notify("Teach send failed", "warning");
       };
 
@@ -189,7 +179,11 @@ export function registerModes(pi: ExtensionAPI): void {
 
   pi.registerShortcut("alt+m", {
     description: "Cycle plan / build",
-    handler: () => {
+    handler: (ctx) => {
+      if (!ctx.isIdle()) {
+        ctx.ui.notify("Agent is busy", "warning");
+        return;
+      }
       if (overlay) {
         dropOverlay();
         return;
