@@ -8,9 +8,13 @@ confirm_os_window_close 0
 cursor_blink_interval 0
 window_margin_width 0 0
 
-enable_audio_bell no
+close_on_child_death yes
+startup_session none
+
 dim_opacity 1.0
+enable_audio_bell no
 background_opacity 0.8
+padding_fill_strategy neighboring_cell
 
 modify_font strikethrough_thickness 1px
 modify_font strikethrough_position 22px
@@ -21,7 +25,8 @@ font_size 12
 modify_font baseline 0
 modify_font cell_height +1
 modify_font underline_position 2.2
-modify_font underline_thickness 0.6
+modify_font underline_thickness 1
+undercurl_style thick-sparse
 
 font_family MD IO Trial
 
