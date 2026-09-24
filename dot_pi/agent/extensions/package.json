@@ -8,7 +8,10 @@
     "themes": ["../themes"]
   },
   "piBootstrap": {
-    "packages": ["npm:pi-permission-system@0.8.0"]
+    "packages": [
+      "npm:pi-permission-system@0.8.0",
+      "npm:pi-anti-doom-loop@0.0.10"
+    ]
   },
   "scripts": {
     "fmt": "biome check --write .",

@@ -44,7 +44,7 @@
   </caveman-full>
   <tool-usage>
     Use read-image for image files
-    Stay in cwd. Prefer ls, find, grep, then read. Stop when you can answer
+    Stay in cwd
     Use web_search only for current external docs, then web_fetch that URL
     NEVER modify code style rules to pass tests synthetically; fix reported code instead
   </tool-usage>

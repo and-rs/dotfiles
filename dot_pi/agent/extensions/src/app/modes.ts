@@ -29,11 +29,18 @@ const BUILD_TOOLS = [
   "quickfix",
 ] as const;
 
+const MUTATING_TOOLS = new Set([
+  "bash",
+  "edit",
+  "write",
+  "quickfix",
+  "powershell",
+]);
+
 const WORKSPACE = `Stay in the current working directory. Do not search parent
-dirs, $HOME, or absolute paths outside cwd unless the user asks. Prefer ls,
-find, grep, then read. Stop when you can answer. Do not repeat a failed or
-empty search with a near-identical query. Use web_search only for current
-external docs, then web_fetch that URL.`;
+dirs, $HOME, or absolute paths outside cwd unless the user asks. Do not repeat a
+failed or empty search with a near-identical query. Use web_search only for
+current external docs, then web_fetch that URL.`;
 
 const ENTRY = "agent-mode";
 
@@ -48,9 +55,22 @@ const LAYERS: Record<Mode, string> = {
   build: loadLayer("build"),
 };
 
-function toolsFor(mode: Mode): string[] {
-  if (mode === "build") return [...BUILD_TOOLS];
-  return [...DISCOVERY_TOOLS];
+function schemaTools(): string[] {
+  return [...BUILD_TOOLS];
+}
+
+function blockMutatingTool(
+  toolName: string,
+): { block: true; reason: string } | undefined {
+  if (getMode() === "build") return undefined;
+  if (!MUTATING_TOOLS.has(toolName)) return undefined;
+  if (getMode() === "teach") {
+    return { block: true, reason: "Teach does not implement." };
+  }
+  return {
+    block: true,
+    reason: "Plan mode is read-only. Switch to build to edit.",
+  };
 }
 
 let cycle: CycleMode = "plan";
@@ -93,13 +113,13 @@ export function onModeChange(listener: () => void): () => void {
 }
 
 export function registerModes(pi: ExtensionAPI): void {
-  function apply(mode: Mode): void {
-    pi.setActiveTools(toolsFor(mode));
+  function apply(): void {
+    pi.setActiveTools(schemaTools());
     for (const listener of modeListeners) listener();
   }
 
   function applyCurrentMode(): void {
-    apply(getMode());
+    apply();
   }
 
   function dropOverlay(): void {
@@ -136,11 +156,16 @@ export function registerModes(pi: ExtensionAPI): void {
   });
 
   pi.on("before_agent_start", (event) => {
+    applyCurrentMode();
     const mode = getMode();
     const start = event as BeforeAgentStartEvent;
     return {
       systemPrompt: `${start.systemPrompt}\n\n<active-agent-mode>${mode}</active-agent-mode>\nTreat active-agent-mode as authoritative runtime state. Do not infer current mode from files, previous messages, or layer names.\n\n${LAYERS[mode]}\n\n${WORKSPACE}`,
     };
+  });
+
+  pi.on("tool_call", (event) => {
+    return blockMutatingTool(event.toolName);
   });
 
   pi.on("agent_settled", () => {

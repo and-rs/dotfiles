@@ -20,6 +20,20 @@ function idleShortcutCtx(notify: (message: string) => void = () => undefined) {
   };
 }
 
+async function emitToolCall(
+  eventHandlers: Map<string, EventHandler[]>,
+  event: { toolName: string; input: Record<string, unknown> },
+) {
+  const handlers = eventHandlers.get("tool_call") ?? [];
+  for (const handler of handlers) {
+    const result = await handler(event);
+    if (result && typeof result === "object" && "block" in result) {
+      return result;
+    }
+  }
+  return undefined;
+}
+
 function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
   resetModes();
   const registeredTools: string[] = [];
@@ -74,11 +88,9 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
 
 test("secret paths are blocked before file access", async () => {
   const { eventHandlers } = createPi();
-  const guard = eventHandlers.get("tool_call")?.at(-1);
-  assert.ok(guard);
 
   for (const toolName of ["read", "grep", "find", "write", "edit", "ls"]) {
-    const result = await guard?.({
+    const result = await emitToolCall(eventHandlers, {
       toolName,
       input: { path: `nested/.env.local` },
     });
@@ -87,7 +99,7 @@ test("secret paths are blocked before file access", async () => {
       reason: "Access to .env files is denied.",
     });
   }
-  const bash = await guard?.({
+  const bash = await emitToolCall(eventHandlers, {
     toolName: "bash",
     input: { command: "cat nested/.env" },
   });
@@ -97,7 +109,7 @@ test("secret paths are blocked before file access", async () => {
   });
 });
 
-test("new session defaults to plan discovery tools", async () => {
+test("new session keeps write tools in the schema and defaults to plan", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = createPi();
 
   assert.deepEqual(registeredTools, [
@@ -112,7 +124,7 @@ test("new session defaults to plan discovery tools", async () => {
   await sessionStart?.({}, emptyCtx);
 
   assert.equal(getMode(), "plan");
-  assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
 });
 
 test("alt+m cycles plan and build only", async () => {
@@ -129,10 +141,44 @@ test("alt+m cycles plan and build only", async () => {
 
   cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "plan");
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.deepEqual(
     entries.map((entry) => entry.name),
     ["build", "plan"],
   );
+});
+
+test("plan blocks mutating tools without removing them from the schema", async () => {
+  const { activeToolSets, eventHandlers } = createPi();
+  await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
+
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  const blocked = await emitToolCall(eventHandlers, {
+    toolName: "edit",
+    input: { path: "flash.tmux" },
+  });
+  assert.deepEqual(blocked, {
+    block: true,
+    reason: "Plan mode is read-only. Switch to build to edit.",
+  });
+  const allowed = await emitToolCall(eventHandlers, {
+    toolName: "read",
+    input: { path: "flash.tmux" },
+  });
+  assert.equal(allowed, undefined);
+});
+
+test("build allows mutating tools", async () => {
+  const { eventHandlers, shortcuts } = createPi();
+  await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
+  shortcuts.get("alt+m")?.handler(idleShortcutCtx());
+
+  assert.equal(getMode(), "build");
+  const result = await emitToolCall(eventHandlers, {
+    toolName: "edit",
+    input: { path: "flash.tmux" },
+  });
+  assert.equal(result, undefined);
 });
 
 test("alt+m keeps the committed mode while the agent is busy", async () => {
@@ -216,7 +262,7 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
     result?.systemPrompt ?? "",
     /Stay in the current working directory/,
   );
-  assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.equal(event.systemPrompt, "base");
 });
 
@@ -240,6 +286,32 @@ test("before_agent_start appends layers when options are missing", async () => {
   );
 });
 
+test("before_agent_start in build re-applies write tools", async () => {
+  const { activeToolSets, eventHandlers, shortcuts } = createPi();
+  await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
+  shortcuts.get("alt+m")?.handler(idleShortcutCtx());
+
+  const result = (await eventHandlers.get("before_agent_start")?.at(-1)?.(
+    {
+      systemPrompt: "base",
+      systemPromptOptions: {
+        selectedTools: ["read", "grep"],
+      },
+    },
+    {},
+  )) as { systemPrompt?: string } | undefined;
+
+  assert.equal(getMode(), "build");
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.match(
+    result?.systemPrompt ?? "",
+    /<active-agent-mode>build<\/active-agent-mode>/,
+  );
+  assert.match(result?.systemPrompt ?? "", /<build>/);
+  assert.doesNotMatch(result?.systemPrompt ?? "", /You cannot edit/);
+  assert.doesNotMatch(result?.systemPrompt ?? "", /<plan>/);
+});
+
 test("/teach sends one coaching turn then restores cycle mode", async () => {
   const { activeToolSets, commands, eventHandlers, sent } = createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
@@ -254,7 +326,7 @@ test("/teach sends one coaching turn then restores cycle mode", async () => {
 
   assert.equal(getMode(), "teach");
   assert.deepEqual(sent, ["why is this layered"]);
-  assert.deepEqual(activeToolSets.at(-1), [...DISCOVERY_TOOLS]);
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.deepEqual(notifies, []);
 
   const result = (await eventHandlers.get("before_agent_start")?.at(-1)?.(

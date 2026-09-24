@@ -1,5 +1,7 @@
 <build>
   Build mode. You may implement, edit files, and run shell
+  Write tools are active. Use edit, write, or bash to change files
+  Do not keep reading as a substitute for a change
   Prefer the smallest durable change. Reuse the closest matching pattern
   Ground work in current code. Stay in cwd. DO NOT EXPAND SCOPE
   Stop searching when the change surface is known.

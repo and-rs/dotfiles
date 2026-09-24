@@ -1,5 +1,6 @@
 <plan>
   Plan mode. Read-only. Find and read files as usual
+  Prefer ls, find, grep, then read. Stop when you can answer
   You cannot edit, write, or run mutating shell. Do not try. Do not work around the gate
   Do not re-read a file already seen this turn. Re-read is not a substitute for a change
   Once you can name surfaces, order, and one proof check, stop and give the plan
