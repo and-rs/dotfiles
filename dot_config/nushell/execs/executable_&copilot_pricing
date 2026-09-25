@@ -1,0 +1,95 @@
+#!/usr/bin/env -S nu -n
+
+def main [] {
+  let url = "https://docs.github.com/api/article/body?pathname=/en/copilot/reference/copilot-billing/models-and-pricing"
+  let markdown = (http get $url)
+  mut in_pricing = false
+  mut provider = ""
+  mut headers = []
+  mut rows = []
+
+  for line in ($markdown | lines) {
+    if $line == "## Pricing tables" {
+      $in_pricing = true
+      continue
+    }
+    if not $in_pricing {
+      continue
+    }
+    if ($line | str starts-with "## ") and not ($line | str starts-with "### ") {
+      break
+    }
+    if ($line | str starts-with "### ") {
+      $provider = ($line | str replace --regex '^### ' '')
+      $headers = []
+      continue
+    }
+    if not ($line | str trim | str starts-with "|") {
+      continue
+    }
+
+    let cells = (
+      $line
+      | str trim
+      | str trim --char "|"
+      | split row "|"
+      | each {|cell| $cell | str trim }
+    )
+    if ($cells | all {|cell| $cell == "" }) {
+      continue
+    }
+    if ($cells | all {|cell| $cell =~ '^:?-+:?$' }) {
+      continue
+    }
+    if ($headers | is-empty) {
+      $headers = $cells
+      continue
+    }
+
+    let base = {
+      Provider: $provider
+      Model: ""
+      Output: ""
+      "Release status": ""
+      Category: ""
+      Tier: ""
+      "Threshold (input tokens)": ""
+      Input: ""
+      "Cached input": ""
+      "Cache write": ""
+    }
+    let row = (
+      $headers
+      | enumerate
+      | reduce --fold $base {|column record|
+        let value = ($cells | get --optional $column.index | default "")
+        $record | upsert $column.item $value
+      }
+    )
+    $rows = ($rows | append $row)
+  }
+
+  if ($rows | is-empty) {
+    error make {msg: "No Copilot pricing rows found in GitHub documentation response"}
+  }
+
+  $rows
+  | upsert Output {|row| $row.Output | str replace '$' '' | into float }
+  | upsert "Cache write" {|row|
+    match $row."Cache write" {
+      "Not applicable" => "!"
+      "" => "!"
+      _ => $row."Cache write"
+    }
+  }
+  | upsert "Threshold (input tokens)" {|row|
+    match $row."Threshold (input tokens)" {
+      "Not applicable" => "!"
+      "" => "!"
+      _ => $row."Threshold (input tokens)"
+    }
+  }
+  | sort-by Output
+  | reject Category Tier "Release status"
+  | to csv
+}
