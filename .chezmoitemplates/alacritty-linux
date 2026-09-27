@@ -11,13 +11,14 @@ shell = "nu"
 style = { blinking = "Never" }
 
 [font]
-size = 12
+size = 13
 offset = { y = 9, x = 0 }
 glyph_offset = { y = 5, x = 0 }
 
 # normal = { family = "MD IO Trial"}
-normal = { family = "Maple Mono"}
+#normal = { family = "Maple Mono"}
 # normal = { family = "Input"}
+normal = { family = "CommitMono"}
 
 # normal = { family = "Rec Mono Linear" }
 # bold = { family = "Rec Mono Linear" }
@@ -27,6 +28,7 @@ normal = { family = "Maple Mono"}
 [window]
 title = "Terminalino"
 dynamic_padding = true
+opacity = 0.7
 
 [window.padding]
 x = 0

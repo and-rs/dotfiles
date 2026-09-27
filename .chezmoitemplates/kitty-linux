@@ -3,7 +3,7 @@ shell nu
 #--- GENERAL ---#
 
 include ./themes/current.conf
-text_composition_strategy legacy
+text_composition_strategy platform
 confirm_os_window_close 0
 cursor_blink_interval 0
 window_margin_width 0 0
@@ -21,21 +21,23 @@ modify_font strikethrough_position 22px
 
 #--- FONTS ---#
 
-font_size 12
-modify_font baseline 0
-modify_font cell_height +1
+font_size 13.5
+modify_font baseline +1
+modify_font cell_height +2
 modify_font underline_position 2.2
 modify_font underline_thickness 1
 undercurl_style thick-sparse
 
-font_family MD IO Trial
+#font_family Input
+font_family CommitMono
+#font_family MD IO Trial
+#font_family Rec Mono Duotone
 
-# font_family Rec Mono Duotone
-# font_family family="Maple Mono NL"
-# font_features MapleMonoNL-Regular +cv01 +calt
-# font_features MapleMonoNL-Italic +cv01 +calt
-# font_features MapleMonoNL-SemiBold +cv01 +calt
-# font_features MapleMonoNL-SemiBoldItalic +cv01 +calt
+#font_family family="Maple Mono NL"
+#font_features MapleMonoNL-Regular +cv01 +calt
+#font_features MapleMonoNL-Italic +cv01 +calt
+#font_features MapleMonoNL-SemiBold +cv01 +calt
+#font_features MapleMonoNL-SemiBoldItalic +cv01 +calt
 
 #--- CURSOR ANIMATION ---#
 cursor_trail 1

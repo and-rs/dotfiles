@@ -69,7 +69,7 @@ input {
 }
 layout {
     always-center-single-column true
-    gaps 10
+    gaps 6
     background-color "transparent"
     tab-indicator {
         off
@@ -322,7 +322,7 @@ binds {
         spawn-sh "~/.config/hypr/hyprlock-launch"
     }
     Mod+Return repeat=false {
-        spawn "alacritty"
+        spawn "ghostty"
     }
     Mod+Q {
         close-window
