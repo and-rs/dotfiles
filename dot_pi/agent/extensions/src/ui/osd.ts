@@ -88,14 +88,7 @@ function renderStockFooter(
   } else if (model?.contextWindow !== undefined) {
     contextWindow = model.contextWindow;
   }
-  let contextPercentValue = 0;
-  if (contextUsage?.percent !== undefined && contextUsage.percent !== null) {
-    contextPercentValue = contextUsage.percent;
-  }
-  let contextPercent = "?";
-  if (contextUsage?.percent !== null) {
-    contextPercent = contextPercentValue.toFixed(1);
-  }
+  const contextPercentValue = contextUsage?.percent;
 
   let pwd = formatCwdForFooter(
     ctx.sessionManager.getCwd(),
@@ -107,35 +100,75 @@ function renderStockFooter(
   if (sessionName) pwd = `${pwd} • ${sessionName}`;
 
   const statsParts: string[] = [];
-  if (totalInput) statsParts.push(`↑${formatTokens(totalInput)}`);
-  if (totalOutput) statsParts.push(`↓${formatTokens(totalOutput)}`);
-  if (totalCacheRead) statsParts.push(`R${formatTokens(totalCacheRead)}`);
-  if (totalCacheWrite) statsParts.push(`W${formatTokens(totalCacheWrite)}`);
+  if (totalInput) {
+    statsParts.push(
+      `${theme.fg("success", "↑")}${theme.fg("dim", formatTokens(totalInput))}`,
+    );
+  }
+  if (totalOutput) {
+    statsParts.push(
+      `${theme.fg("accent", "↓")}${theme.fg("dim", formatTokens(totalOutput))}`,
+    );
+  }
+  if (totalCacheRead) {
+    statsParts.push(
+      `${theme.fg("syntaxKeyword", "R")}${theme.fg("dim", formatTokens(totalCacheRead))}`,
+    );
+  }
+  if (totalCacheWrite) {
+    statsParts.push(
+      `${theme.fg("syntaxKeyword", "W")}${theme.fg("dim", formatTokens(totalCacheWrite))}`,
+    );
+  }
   if (
     (totalCacheRead > 0 || totalCacheWrite > 0) &&
     latestCacheHitRate !== undefined
   ) {
-    statsParts.push(`CH${latestCacheHitRate.toFixed(1)}%`);
+    statsParts.push(
+      `${theme.fg("syntaxKeyword", "CH")}${theme.fg("dim", `${latestCacheHitRate.toFixed(1)}%`)}`,
+    );
   }
   let usingOAuth = false;
   if (model) usingOAuth = ctx.modelRegistry.isUsingOAuth(model);
   if (totalCost || usingOAuth) {
     let subscriptionSuffix = "";
     if (usingOAuth) subscriptionSuffix = " (oauth)";
-    statsParts.push(`$${totalCost.toFixed(3)}${subscriptionSuffix}`);
+    statsParts.push(
+      theme.fg("dim", `$${totalCost.toFixed(3)}${subscriptionSuffix}`),
+    );
   }
 
-  let contextPercentDisplay = `?/${formatTokens(contextWindow)}`;
-  if (contextPercent !== "?") {
-    contextPercentDisplay = `${contextPercent}%/${formatTokens(contextWindow)}`;
+  let contextPercent = "?";
+  if (contextPercentValue !== undefined && contextPercentValue !== null) {
+    contextPercent = contextPercentValue.toFixed(1);
   }
-  let contextPercentStr = contextPercentDisplay;
-  if (contextPercentValue > 90) {
-    contextPercentStr = theme.fg("error", contextPercentDisplay);
-  } else if (contextPercentValue > 70) {
-    contextPercentStr = theme.fg("warning", contextPercentDisplay);
+  let styledContextPercent = theme.fg("dim", `${contextPercent}%`);
+  if (contextPercentValue !== undefined && contextPercentValue !== null) {
+    if (contextPercentValue > 90) {
+      styledContextPercent = theme.fg("error", `${contextPercent}%`);
+    } else if (contextPercentValue > 70) {
+      styledContextPercent = theme.fg("warning", `${contextPercent}%`);
+    }
   }
-  statsParts.push(contextPercentStr);
+
+  let contextTokens = "?";
+  let hasContextTokens = false;
+  if (contextUsage?.tokens !== undefined && contextUsage.tokens !== null) {
+    contextTokens = formatTokens(contextUsage.tokens);
+    hasContextTokens = true;
+  }
+  let styledContextTokens = theme.fg("dim", contextTokens);
+  if (
+    hasContextTokens &&
+    contextPercentValue !== undefined &&
+    contextPercentValue !== null &&
+    contextPercentValue >= 25
+  ) {
+    styledContextTokens = theme.fg("error", contextTokens);
+  }
+  statsParts.push(
+    `${theme.fg("dim", "CTX ")}${styledContextPercent}${theme.fg("dim", " • ")}${styledContextTokens}${theme.fg("dim", `/${formatTokens(contextWindow)}`)}`,
+  );
   if (process.env.PI_EXPERIMENTAL === "1") {
     statsParts.push(
       `${theme.fg("dim", "•")} ${theme.bold(theme.fg("warning", "xp"))}`,
@@ -182,20 +215,19 @@ function renderStockFooter(
     styledRightSide = `${styledProvider}${styledThinking}${styledSeparator}${styledModel}`;
   }
 
-  const dimStatsLeft = theme.fg("dim", statsLeft);
   const lines = [
     truncateToWidth(theme.fg("dim", pwd), width, theme.fg("dim", "...")),
-    dimStatsLeft,
+    statsLeft,
   ];
   if (statsLeftWidth + 2 + rightSideWidth <= width) {
-    lines[1] = `${dimStatsLeft}${" ".repeat(width - statsLeftWidth - rightSideWidth)}${styledRightSide}`;
+    lines[1] = `${statsLeft}${" ".repeat(width - statsLeftWidth - rightSideWidth)}${styledRightSide}`;
   } else if (availableForRight > 0) {
     const truncatedRight = truncateToWidth(
       styledRightSide,
       availableForRight,
       "",
     );
-    lines[1] = `${dimStatsLeft}${" ".repeat(Math.max(0, width - statsLeftWidth - visibleWidth(truncatedRight)))}${truncatedRight}`;
+    lines[1] = `${statsLeft}${" ".repeat(Math.max(0, width - statsLeftWidth - visibleWidth(truncatedRight)))}${truncatedRight}`;
   }
   const statuses = footerData.getExtensionStatuses();
   if (statuses.size > 0) {
