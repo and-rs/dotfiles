@@ -11,12 +11,17 @@ font-feature = +ss03
 font-style-bold = Regular
 font-style-italic = Regular
 font-style-bold-italic = Regular
-font-codepoint-map = U+2014=CommitMono
 adjust-underline-thickness = 1
 adjust-underline-position = 6
 adjust-box-thickness = 1
 adjust-cell-height = 6
+adjust-cursor-height = 6
+# emdash
+font-codepoint-map = U+2014=CommitMono
+# β π Δ λ
+font-codepoint-map = U+03B2,U+03C0,U+0394,U+03BB=Monaspace Krypton Medium
 
+#font-family = JetBrains Mono
 #font-family = Maple Mono
 #font-family = CommitMono
 #font-family = Input
