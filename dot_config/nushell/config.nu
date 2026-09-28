@@ -14,7 +14,6 @@ $env.PATH ++= [
 export-env {
   # Bob owns the active Neovim version through `bob use`.
   let bob_nvim = ($env.HOME | path join ".local" "share" "bob" "nvim-bin" "nvim")
-
   if not (which bob | is-empty) and ($bob_nvim | path exists) {
     $env.config.buffer_editor = [$bob_nvim]
     $env.EDITOR = $bob_nvim
@@ -36,17 +35,8 @@ export-env {
   }
 }
 
-if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
-  exec tmux -u new -s work -A -D
-}
-
-# custom oh-my-posh setup & misc
-source settings/prompt.nu
-source settings/theme.nu
-source settings/keybinds.nu
 source settings/gh.nu
 
-# Options
 export-env {
   $env.path = ($env.path | uniq)
   $env.config.history = {
@@ -59,16 +49,13 @@ export-env {
   $env.config.completions.quick = false
   $env.config.completions.partial = false
   # $env.config.table.mode = "markdown"
-
   $env.XDG_CONFIG_HOME = $"($env.HOME)/.config"
   $env.TOPIARY_CONFIG_FILE = ($env.XDG_CONFIG_HOME | path join topiary languages.ncl)
   $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary queries)
-
   let node_extra_ca = "/usr/local/share/ca-certificates/ocpamacaroot1.crt"
   if ($node_extra_ca | path exists) {
     $env.NODE_EXTRA_CA_CERTS = $node_extra_ca
   }
-
   $env.LS_COLORS = "di=34:ln=36:ex=32:fi=0:pi=33:so=35:bd=33;01:cd=33;01:or=31;01:mi=31:*.tar=31:*.gz=31:*.zip=31:*.bz2=31:*.xz=31:*.7z=31:*.rar=31:*.zst=31:*.jpg=35:*.jpeg=35:*.png=35:*.gif=35:*.svg=35:*.mp4=35:*.mkv=35:*.mov=35:*.mp3=33:*.flac=33:*.wav=33"
   $env.DOTS = $"($env.HOME)/Vault/personal/dotfiles/"
   $env.FZF_DEFAULT_OPTS = [
@@ -79,7 +66,6 @@ export-env {
     "--marker=':'"
     "--gutter=' '"
   ] | str join " "
-
   let zoxide_opts = [
     $env.FZF_DEFAULT_OPTS
     "--prompt='ZI > '"
@@ -87,10 +73,8 @@ export-env {
     "--border=none"
     "--preview=''"
   ] | str join " "
-
   $env.YAZI_ZOXIDE_OPTS = [$zoxide_opts "--padding=0,0,0,1"] | str join " "
   $env._ZO_FZF_OPTS = [$zoxide_opts "--padding=1,0,0,1"] | str join " "
-
   $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []
   $env.config.hooks.env_change.PWD ++= [
     {||
@@ -102,6 +86,16 @@ export-env {
   ]
 }
 
+if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
+  exec tmux -u new -s alpha -A -D
+}
+
+# custom oh-my-posh setup & misc
+source settings/prompt.nu
+source settings/theme.nu
+source settings/keybinds.nu
+
+# Options
 source nushelter/clip.nu # 1st because it's a dep
 source nushelter/aliases.nu
 source nushelter/grit.nu

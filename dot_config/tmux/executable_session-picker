@@ -1,0 +1,18 @@
+#!/usr/bin/env -S nu -n
+
+let selection = (
+  tmux list-sessions -F '#{session_name}'
+  | fzf
+  --reverse
+  --prompt='Session > '
+  --preview='tmux list-windows -t {} -F "#{window_index} #{window_name}  #{pane_current_path}"'
+  --preview-window='bottom,50%,border-top'
+  | complete
+)
+
+if $selection.exit_code != 0 { exit 0 }
+
+let session = ($selection.stdout | str trim)
+if ($session | is-empty) { exit 0 }
+
+tmux switch-client -t $session
