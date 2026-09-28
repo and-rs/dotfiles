@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import registerApp from "./index.ts";
@@ -34,7 +36,9 @@ async function emitToolCall(
   return undefined;
 }
 
-function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
+async function createPi(opts?: {
+  sendUserMessage?: (text: string) => unknown;
+}) {
   resetModes();
   const registeredTools: string[] = [];
   const activeToolSets: string[][] = [];
@@ -49,6 +53,12 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
     },
     registerCommand(name: string, spec: { handler: EventHandler }) {
       commands.set(name, spec);
+    },
+    registerProvider() {
+      return undefined;
+    },
+    unregisterProvider() {
+      return undefined;
     },
     registerEntryRenderer() {
       return undefined;
@@ -73,7 +83,20 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
     },
   } as unknown as ExtensionAPI;
 
-  registerApp(pi);
+  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
+  process.env.PI_CODING_AGENT_DIR = join(
+    tmpdir(),
+    `pi-read-only-profile-${process.pid}`,
+  );
+  try {
+    await registerApp(pi);
+  } finally {
+    if (previousAgentDir === undefined) {
+      delete process.env.PI_CODING_AGENT_DIR;
+    } else {
+      process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    }
+  }
 
   return {
     registeredTools,
@@ -87,7 +110,7 @@ function createPi(opts?: { sendUserMessage?: (text: string) => unknown }) {
 }
 
 test("secret paths are blocked before file access", async () => {
-  const { eventHandlers } = createPi();
+  const { eventHandlers } = await createPi();
 
   for (const toolName of ["read", "grep", "find", "write", "edit", "ls"]) {
     const result = await emitToolCall(eventHandlers, {
@@ -110,7 +133,7 @@ test("secret paths are blocked before file access", async () => {
 });
 
 test("new session keeps write tools in the schema and defaults to plan", async () => {
-  const { registeredTools, activeToolSets, eventHandlers } = createPi();
+  const { registeredTools, activeToolSets, eventHandlers } = await createPi();
 
   assert.deepEqual(registeredTools, [
     "read-image",
@@ -128,7 +151,8 @@ test("new session keeps write tools in the schema and defaults to plan", async (
 });
 
 test("alt+m cycles plan and build only", async () => {
-  const { activeToolSets, entries, eventHandlers, shortcuts } = createPi();
+  const { activeToolSets, entries, eventHandlers, shortcuts } =
+    await createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.({}, emptyCtx);
 
@@ -149,7 +173,7 @@ test("alt+m cycles plan and build only", async () => {
 });
 
 test("plan blocks mutating tools without removing them from the schema", async () => {
-  const { activeToolSets, eventHandlers } = createPi();
+  const { activeToolSets, eventHandlers } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
 
   assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
@@ -169,7 +193,7 @@ test("plan blocks mutating tools without removing them from the schema", async (
 });
 
 test("build allows mutating tools", async () => {
-  const { eventHandlers, shortcuts } = createPi();
+  const { eventHandlers, shortcuts } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   shortcuts.get("alt+m")?.handler(idleShortcutCtx());
 
@@ -182,7 +206,7 @@ test("build allows mutating tools", async () => {
 });
 
 test("alt+m keeps the committed mode while the agent is busy", async () => {
-  const { eventHandlers, shortcuts } = createPi();
+  const { eventHandlers, shortcuts } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
 
   const cycle = shortcuts.get("alt+m");
@@ -198,7 +222,7 @@ test("alt+m keeps the committed mode while the agent is busy", async () => {
 });
 
 test("a later session_start does not reset an active build mode", async () => {
-  const { activeToolSets, eventHandlers, shortcuts } = createPi();
+  const { activeToolSets, eventHandlers, shortcuts } = await createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.({}, emptyCtx);
 
@@ -220,7 +244,7 @@ test("a later session_start does not reset an active build mode", async () => {
 });
 
 test("restore ignores persisted teach and keeps plan", async () => {
-  const { eventHandlers } = createPi();
+  const { eventHandlers } = await createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.(
     {},
@@ -237,7 +261,7 @@ test("restore ignores persisted teach and keeps plan", async () => {
 });
 
 test("before_agent_start uses plan layer without replacing the prompt", async () => {
-  const { activeToolSets, eventHandlers } = createPi();
+  const { activeToolSets, eventHandlers } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   const beforeAgentStart = eventHandlers.get("before_agent_start")?.at(-1);
   assert.ok(beforeAgentStart);
@@ -267,7 +291,7 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
 });
 
 test("before_agent_start appends layers when options are missing", async () => {
-  const { eventHandlers } = createPi();
+  const { eventHandlers } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   const result = (await eventHandlers.get("before_agent_start")?.at(-1)?.(
     { systemPrompt: "base" },
@@ -287,7 +311,7 @@ test("before_agent_start appends layers when options are missing", async () => {
 });
 
 test("before_agent_start in build re-applies write tools", async () => {
-  const { activeToolSets, eventHandlers, shortcuts } = createPi();
+  const { activeToolSets, eventHandlers, shortcuts } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   shortcuts.get("alt+m")?.handler(idleShortcutCtx());
 
@@ -313,7 +337,7 @@ test("before_agent_start in build re-applies write tools", async () => {
 });
 
 test("/teach sends one coaching turn then restores cycle mode", async () => {
-  const { activeToolSets, commands, eventHandlers, sent } = createPi();
+  const { activeToolSets, commands, eventHandlers, sent } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
 
   const teach = commands.get("teach");
@@ -340,7 +364,7 @@ test("/teach sends one coaching turn then restores cycle mode", async () => {
 });
 
 test("alt+m during teach restores cycle without advancing", async () => {
-  const { commands, entries, eventHandlers, shortcuts } = createPi();
+  const { commands, entries, eventHandlers, shortcuts } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   const cycle = shortcuts.get("alt+m");
   const teach = commands.get("teach");
@@ -365,7 +389,7 @@ test("alt+m during teach restores cycle without advancing", async () => {
 });
 
 test("/teach send failure restores cycle", async () => {
-  const { commands, eventHandlers } = createPi({
+  const { commands, eventHandlers } = await createPi({
     sendUserMessage: () => {
       throw new Error("nope");
     },
@@ -384,7 +408,7 @@ test("/teach send failure restores cycle", async () => {
 });
 
 test("/teach without a question or while busy does not send", async () => {
-  const { commands, sent } = createPi();
+  const { commands, sent } = await createPi();
   const teach = commands.get("teach");
   assert.ok(teach);
   const notifies: string[] = [];

@@ -1,31 +1,31 @@
-font-size = 13
+font-size = 14
 #adjust-font-baseline = 0
 #adjust-underline-thickness = 1
 #adjust-underline-position = 2
 
 # always use TTF version
-# font-family = OCR-X TTF
-# font-feature = +ss02
-# font-feature = +ss04
-# font-feature = +ss03
-# font-style-bold = Regular
-# font-style-italic = Regular
-# font-style-bold-italic = Regular
-# font-codepoint-map = U+0024=Hermit
-# adjust-underline-thickness = 1
-# adjust-underline-position = 6
-# adjust-box-thickness = 2
-# adjust-cell-height = 6
+font-family = OCR-X TTF
+font-feature = +ss02
+font-feature = +ss04
+font-feature = +ss03
+font-style-bold = Regular
+font-style-italic = Regular
+font-style-bold-italic = Regular
+font-codepoint-map = U+2014=CommitMono
+adjust-underline-thickness = 1
+adjust-underline-position = 6
+adjust-box-thickness = 1
+adjust-cell-height = 6
 
 #font-family = Maple Mono
 #font-family = CommitMono
 #font-family = Input
-font-family = MD IO Trial
-adjust-cell-height = 13
-adjust-cursor-height = 13
-adjust-underline-position = 9
-adjust-underline-thickness = 0
-freetype-load-flags = hinting,force-autohint
+# font-family = MD IO Trial
+# adjust-cell-height = 13
+# adjust-cursor-height = 13
+# adjust-underline-position = 9
+# adjust-underline-thickness = 0
+# freetype-load-flags = hinting,force-autohint
 
 #font-family = Rec Mono Linear
 #font-family-bold = Rec Mono Linear
