@@ -6,6 +6,7 @@ import {
   type ExtensionContext,
   getAgentDir,
 } from "@earendil-works/pi-coding-agent";
+import { isSafePlanBashCommand } from "./bash-safety.ts";
 
 const CYCLE = ["plan", "build"] as const;
 type CycleMode = (typeof CYCLE)[number];
@@ -21,6 +22,8 @@ export const DISCOVERY_TOOLS = [
   "web_fetch",
 ] as const;
 
+const PLAN_TOOLS = [...DISCOVERY_TOOLS, "bash", "quickfix"] as const;
+
 const BUILD_TOOLS = [
   ...DISCOVERY_TOOLS,
   "bash",
@@ -29,13 +32,9 @@ const BUILD_TOOLS = [
   "quickfix",
 ] as const;
 
-const MUTATING_TOOLS = new Set([
-  "bash",
-  "edit",
-  "write",
-  "quickfix",
-  "powershell",
-]);
+const TEACH_TOOLS = [...DISCOVERY_TOOLS, "quickfix"] as const;
+
+const MUTATING_TOOLS = new Set(["edit", "write", "powershell"]);
 
 const WORKSPACE = `Stay in the current working directory. Do not search parent
 dirs, $HOME, or absolute paths outside cwd unless the user asks. Do not repeat a
@@ -55,16 +54,34 @@ const LAYERS: Record<Mode, string> = {
   build: loadLayer("build"),
 };
 
-function schemaTools(): string[] {
-  return [...BUILD_TOOLS];
+function schemaTools(mode: Mode): string[] {
+  if (mode === "build") return [...BUILD_TOOLS];
+  if (mode === "plan") return [...PLAN_TOOLS];
+  return [...TEACH_TOOLS];
 }
 
-function blockMutatingTool(
+function blockToolCall(
   toolName: string,
+  input: Record<string, unknown>,
 ): { block: true; reason: string } | undefined {
-  if (getMode() === "build") return undefined;
+  const mode = getMode();
+  if (mode === "build" || toolName === "quickfix") return undefined;
+
+  if (toolName === "bash") {
+    if (mode === "plan" && isSafePlanBashCommand(input.command)) {
+      return undefined;
+    }
+    if (mode === "teach") {
+      return { block: true, reason: "Teach does not use bash." };
+    }
+    return {
+      block: true,
+      reason: "Plan mode allows only safe, read-only bash commands.",
+    };
+  }
+
   if (!MUTATING_TOOLS.has(toolName)) return undefined;
-  if (getMode() === "teach") {
+  if (mode === "teach") {
     return { block: true, reason: "Teach does not implement." };
   }
   return {
@@ -75,7 +92,6 @@ function blockMutatingTool(
 
 let cycle: CycleMode = "plan";
 let overlay: "teach" | null = null;
-let sessionStarted = false;
 const modeListeners = new Set<() => void>();
 
 function isCycle(value: unknown): value is CycleMode {
@@ -102,7 +118,6 @@ export function getMode(): Mode {
 export function resetModes(): void {
   cycle = "plan";
   overlay = null;
-  sessionStarted = false;
 }
 
 export function onModeChange(listener: () => void): () => void {
@@ -114,7 +129,7 @@ export function onModeChange(listener: () => void): () => void {
 
 export function registerModes(pi: ExtensionAPI): void {
   function apply(): void {
-    pi.setActiveTools(schemaTools());
+    pi.setActiveTools(schemaTools(getMode()));
     for (const listener of modeListeners) listener();
   }
 
@@ -148,10 +163,12 @@ export function registerModes(pi: ExtensionAPI): void {
   }
 
   pi.on("session_start", (_event, ctx) => {
-    if (!sessionStarted) {
-      sessionStarted = true;
-      restore(ctx);
-    }
+    restore(ctx);
+    applyCurrentMode();
+  });
+
+  pi.on("session_tree", (_event, ctx) => {
+    restore(ctx);
     applyCurrentMode();
   });
 
@@ -165,7 +182,7 @@ export function registerModes(pi: ExtensionAPI): void {
   });
 
   pi.on("tool_call", (event) => {
-    return blockMutatingTool(event.toolName);
+    return blockToolCall(event.toolName, event.input);
   });
 
   pi.on("agent_settled", () => {

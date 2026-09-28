@@ -8,7 +8,9 @@ import { DISCOVERY_TOOLS, getMode, resetModes } from "./modes.ts";
 
 type EventHandler = (...args: unknown[]) => unknown;
 
+const PLAN_TOOLS = [...DISCOVERY_TOOLS, "bash", "quickfix"];
 const BUILD_TOOLS = [...DISCOVERY_TOOLS, "bash", "edit", "write", "quickfix"];
+const TEACH_TOOLS = [...DISCOVERY_TOOLS, "quickfix"];
 
 const emptyCtx = {
   hasUI: false,
@@ -132,7 +134,7 @@ test("secret paths are blocked before file access", async () => {
   });
 });
 
-test("new session keeps write tools in the schema and defaults to plan", async () => {
+test("new session starts in plan with read-only tools and quickfix", async () => {
   const { registeredTools, activeToolSets, eventHandlers } = await createPi();
 
   assert.deepEqual(registeredTools, [
@@ -147,7 +149,7 @@ test("new session keeps write tools in the schema and defaults to plan", async (
   await sessionStart?.({}, emptyCtx);
 
   assert.equal(getMode(), "plan");
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
 });
 
 test("alt+m cycles plan and build only", async () => {
@@ -165,18 +167,18 @@ test("alt+m cycles plan and build only", async () => {
 
   cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "plan");
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
   assert.deepEqual(
     entries.map((entry) => entry.name),
     ["build", "plan"],
   );
 });
 
-test("plan blocks mutating tools without removing them from the schema", async () => {
+test("plan hides file mutation tools but allows quickfix and safe bash", async () => {
   const { activeToolSets, eventHandlers } = await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
 
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
   const blocked = await emitToolCall(eventHandlers, {
     toolName: "edit",
     input: { path: "flash.tmux" },
@@ -185,11 +187,32 @@ test("plan blocks mutating tools without removing them from the schema", async (
     block: true,
     reason: "Plan mode is read-only. Switch to build to edit.",
   });
-  const allowed = await emitToolCall(eventHandlers, {
-    toolName: "read",
-    input: { path: "flash.tmux" },
+  const blockedWrite = await emitToolCall(eventHandlers, {
+    toolName: "write",
+    input: { path: "flash.tmux", content: "x" },
   });
-  assert.equal(allowed, undefined);
+  assert.deepEqual(blockedWrite, {
+    block: true,
+    reason: "Plan mode is read-only. Switch to build to edit.",
+  });
+  const safeBash = await emitToolCall(eventHandlers, {
+    toolName: "bash",
+    input: { command: "git status --short" },
+  });
+  assert.equal(safeBash, undefined);
+  const unsafeBash = await emitToolCall(eventHandlers, {
+    toolName: "bash",
+    input: { command: "git status && touch marker" },
+  });
+  assert.deepEqual(unsafeBash, {
+    block: true,
+    reason: "Plan mode allows only safe, read-only bash commands.",
+  });
+  const quickfix = await emitToolCall(eventHandlers, {
+    toolName: "quickfix",
+    input: { locations: [{ path: "flash.tmux", line: 1, reason: "Inspect" }] },
+  });
+  assert.equal(quickfix, undefined);
 });
 
 test("build allows mutating tools", async () => {
@@ -221,7 +244,7 @@ test("alt+m keeps the committed mode while the agent is busy", async () => {
   assert.deepEqual(notifies, ["Agent is busy"]);
 });
 
-test("a later session_start does not reset an active build mode", async () => {
+test("session_start restores the selected session's persisted mode", async () => {
   const { activeToolSets, eventHandlers, shortcuts } = await createPi();
   const sessionStart = eventHandlers.get("session_start")?.at(-1);
   await sessionStart?.({}, emptyCtx);
@@ -239,8 +262,30 @@ test("a later session_start does not reset an active build mode", async () => {
     },
   );
 
+  assert.equal(getMode(), "plan");
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
+});
+
+test("session_tree restores the selected branch's persisted mode", async () => {
+  const { activeToolSets, eventHandlers, shortcuts } = await createPi();
+  await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
+  shortcuts.get("alt+m")?.handler(idleShortcutCtx());
   assert.equal(getMode(), "build");
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+
+  await eventHandlers.get("session_tree")?.at(-1)?.(
+    {},
+    {
+      hasUI: false,
+      sessionManager: {
+        getEntries: () => [
+          { type: "custom", customType: "agent-mode", data: { name: "plan" } },
+        ],
+      },
+    },
+  );
+
+  assert.equal(getMode(), "plan");
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
 });
 
 test("restore ignores persisted teach and keeps plan", async () => {
@@ -286,7 +331,7 @@ test("before_agent_start uses plan layer without replacing the prompt", async ()
     result?.systemPrompt ?? "",
     /Stay in the current working directory/,
   );
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.deepEqual(activeToolSets.at(-1), PLAN_TOOLS);
   assert.equal(event.systemPrompt, "base");
 });
 
@@ -350,8 +395,24 @@ test("/teach sends one coaching turn then restores cycle mode", async () => {
 
   assert.equal(getMode(), "teach");
   assert.deepEqual(sent, ["why is this layered"]);
-  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
+  assert.deepEqual(activeToolSets.at(-1), TEACH_TOOLS);
   assert.deepEqual(notifies, []);
+  assert.equal(
+    await emitToolCall(eventHandlers, {
+      toolName: "quickfix",
+      input: {
+        locations: [{ path: "flash.tmux", line: 1, reason: "Inspect" }],
+      },
+    }),
+    undefined,
+  );
+  assert.deepEqual(
+    await emitToolCall(eventHandlers, {
+      toolName: "bash",
+      input: { command: "pwd" },
+    }),
+    { block: true, reason: "Teach does not use bash." },
+  );
 
   const result = (await eventHandlers.get("before_agent_start")?.at(-1)?.(
     { systemPrompt: "base", systemPromptOptions: {} },
@@ -364,7 +425,8 @@ test("/teach sends one coaching turn then restores cycle mode", async () => {
 });
 
 test("alt+m during teach restores cycle without advancing", async () => {
-  const { commands, entries, eventHandlers, shortcuts } = await createPi();
+  const { activeToolSets, commands, entries, eventHandlers, shortcuts } =
+    await createPi();
   await eventHandlers.get("session_start")?.at(-1)?.({}, emptyCtx);
   const cycle = shortcuts.get("alt+m");
   const teach = commands.get("teach");
@@ -382,6 +444,7 @@ test("alt+m during teach restores cycle without advancing", async () => {
 
   cycle.handler(idleShortcutCtx());
   assert.equal(getMode(), "build");
+  assert.deepEqual(activeToolSets.at(-1), BUILD_TOOLS);
   assert.deepEqual(
     entries.map((entry) => entry.name),
     ["build"],
