@@ -1,4 +1,4 @@
-theme = "github-light"
+theme = "mfd-lumon"
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"
@@ -112,22 +112,6 @@ black = "#161b22"
 white = "#e6edf3"
 bright_black = "#8b949e"
 
-[palettes.oxocarbon-light]
-fg = "#525252"
-blue = "#0f62fe"
-magenta = "#be95ff"
-red = "#ee5396"
-green = "#42be65"
-yellow = "#ff6f00"
-cyan = "#673ab7"
-bg = "#f2f4f8"
-cursor = "#525252"
-cursor_text = "#f2f4f8"
-selection = "#dde1e6"
-black = "#dde1e6"
-white = "#525252"
-bright_black = "#161616"
-
 [palettes.nord-dark]
 fg = "#d8dee9"
 blue = "#81a1c1"
@@ -143,3 +127,19 @@ selection = "#434c5e"
 black = "#3b4252"
 white = "#eceff4"
 bright_black = "#4c566a"
+
+[palettes.mfd-lumon]
+fg = "#5AC8D8"
+blue = "#4DAEBE"
+magenta = "#83E0EB"
+red = "#3A8898"
+green = "#469FAE"
+yellow = "#73D7E3"
+cyan = "#5AC8D8"
+bg = "#0A1520"
+cursor = "#A0F0FF"
+cursor_text = "#0A1520"
+selection = "#122838"
+black = "#10212C"
+white = "#A0F0FF"
+bright_black = "#469FAE"
