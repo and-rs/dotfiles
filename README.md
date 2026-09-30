@@ -1,6 +1,6 @@
 # Dotfiles
 
-<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/515adecf-da7b-4a31-8d04-e94efae7008c" />
+<img width="2560" height="1600" alt="scarlet" src="https://github.com/user-attachments/assets/596a3662-165e-4da2-b39e-99d1e42586b9" />
 <img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/25f5b4ad-aa8c-4a95-9b67-d965fc502849" />
 <img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/bb92d0dd-922b-48fa-8cc1-88ff1ad8f3a6" />
 
