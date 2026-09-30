@@ -63,6 +63,7 @@ export-env {
     "--color=16,bg:-1,bg+:0,fg:8,fg+:4,pointer:4,marker:4,gutter:0,header:5,border:0,hl:6,hl+:6,info:6"
     "--preview-border=line"
     "--marker=':'"
+    "--gutter=' '"
   ] | str join " "
   let zoxide_opts = [
     $env.FZF_DEFAULT_OPTS
