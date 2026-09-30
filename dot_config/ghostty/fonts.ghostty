@@ -1,36 +1,37 @@
-font-size = 14
+font-size = 12.5
 #adjust-font-baseline = 0
 #adjust-underline-thickness = 1
 #adjust-underline-position = 2
 
-# always use TTF version
-font-family = OCR-X TTF
-font-feature = +ss02
-font-feature = +ss04
-font-feature = -ss03
-font-style-bold = Regular
-font-style-italic = Regular
-font-style-bold-italic = Regular
-adjust-underline-thickness = 1
-adjust-underline-position = 6
-adjust-box-thickness = 1
-adjust-cell-height = 6
-adjust-cursor-height = 6
-# emdash
-font-codepoint-map = U+2014=CommitMono
-# β π Δ λ
-font-codepoint-map = U+03B2,U+03C0,U+0394,U+03BB=Monaspace Krypton Medium
+## always use TTF version
+#font-family = OCR-X TTF
+#font-feature = +ss02
+#font-feature = +ss04
+#font-feature = -ss03
+#font-style-bold = Regular
+#font-style-italic = Regular
+#font-style-bold-italic = Regular
+#adjust-underline-thickness = 1
+#adjust-underline-position = 6
+#adjust-box-thickness = 1
+#adjust-cell-height = 6
+#adjust-cursor-height = 6
+## emdash
+#font-codepoint-map = U+2014=CommitMono
+## β π Δ λ
+#font-codepoint-map = U+03B2,U+03C0,U+0394,U+03BB=Monaspace Krypton Medium
 
 #font-family = JetBrains Mono
 #font-family = Maple Mono
 #font-family = CommitMono
-#font-family = Input
 # font-family = MD IO Trial
-# adjust-cell-height = 13
-# adjust-cursor-height = 13
-# adjust-underline-position = 9
-# adjust-underline-thickness = 0
-# freetype-load-flags = hinting,force-autohint
+
+font-family = Input
+adjust-cell-height = 11
+adjust-cursor-height = 11
+adjust-underline-position = 9
+adjust-underline-thickness = 0
+freetype-load-flags = hinting,force-autohint
 
 #font-family = Rec Mono Linear
 #font-family-bold = Rec Mono Linear

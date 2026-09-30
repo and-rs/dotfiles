@@ -1,18 +1,61 @@
 #!/usr/bin/env -S nu -n
 
-let selection = (
-  tmux list-sessions -F '#{session_name}'
-  | fzf
-  --reverse
-  --prompt='Session > '
-  --preview='tmux list-windows -t {} -F "#{window_index} #{window_name}  #{pane_current_path}"'
-  --preview-window='bottom,50%,border-top'
-  | complete
-)
+def main [] {
+  let preview_cmd = '
+        let preview_width = ($env.FZF_PREVIEW_COLUMNS | into int)
+        let column_width = (($preview_width - 4) / 3 | math floor | into int)
+        let fit = {|value|
+          let value = ($value | ansi strip)
+          let length = ($value | str length --grapheme-clusters)
+          let clipped = if $length > $column_width {
+            $"…($value | str substring --grapheme-clusters ($length - $column_width + 1)..)"
+          } else { $value }
+          $clipped | fill --width $column_width
+        }
+        tmux list-windows -t {1} -F "#{window_name}\t#{pane_current_command}\t#{pane_current_path}"
+        | from tsv --noheaders
+        | rename name process dir
+        | upsert name {|row| do $fit $row.name }
+        | upsert process {|row| do $fit $row.process }
+        | upsert dir {|row| do $fit ($row.dir | str replace $env.HOME "~") }
+        | to tsv
+        | column -t -m -c $preview_width -s "\t"
+        | str replace --all "~" $"(ansi blue)~(ansi reset)"
+        | lines
+        | upsert 0 {|row| $"(ansi magenta)($row)(ansi reset)"}
+        | insert 1 ("" | fill --character $"(ansi black)─(ansi reset)" --width $preview_width)
+        | str join (char newline)
+        '
 
-if $selection.exit_code != 0 { exit 0 }
+  let list_sessions = '
+        tmux list-sessions -F "#{session_name}\t#{session_attached_list}"
+        | from tsv --noheaders 
+        | rename session attached 
+        | to tsv
+        '
 
-let session = ($selection.stdout | str trim)
-if ($session | is-empty) { exit 0 }
+  let kill_bind = "ctrl-k:execute-silent(tmux kill-session -t {1})+reload(" + $list_sessions + ")"
 
-tmux switch-client -t $session
+  let selection = (
+    nu -c $list_sessions
+    | fzf
+    -d '\t'
+    --reverse
+    --prompt=' > '
+    --accept-nth=1
+    --header-lines=1
+    --footer-border='top'
+    --footer='<enter: switch>  <ctrl-k: kill>  <esc: cancel>'
+    --bind $kill_bind
+    --preview $preview_cmd
+    --preview-window='bottom,50%'
+    | complete
+  )
+
+  if $selection.exit_code != 0 { exit 0 }
+
+  let session = ($selection.stdout | str trim)
+  if ($session | is-empty) { exit 0 }
+
+  tmux switch-client -t $session
+}
