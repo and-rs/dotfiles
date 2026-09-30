@@ -88,7 +88,7 @@ layout {
         fixed 830
     }
     border {
-        off
+        on
         width 2
         active-gradient from="{{ $c.surface4 }}" to="{{ $c.surface1 }}" angle=360
         urgent-color "{{ $c.red }}"
@@ -123,7 +123,7 @@ window-rule {
     open-maximized true
     open-focused true
     clip-to-geometry true
-    geometry-corner-radius 6
+    geometry-corner-radius {{ mul .radii.unit .radii.multiplier .radii.compact }}
     draw-border-with-background false
 }
 // windows without an app id

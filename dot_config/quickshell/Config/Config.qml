@@ -98,10 +98,12 @@ Singleton {
 		property int width
 	}
 	component Radius: JsonObject {
-		property int full
+		property int compact
 		property int large
+		property int multiplier
 		property int normal
 		property int small
+		property int tiny
 	}
 	component Sidebar: JsonObject {
 		property int borderWidth

@@ -39,7 +39,7 @@ Rectangle {
 		anchors.topMargin: SC.Config.padding.micro
 		color: SC.Config.colors.destructive
 		height: 14
-		radius: 2
+		radius: SC.Config.radius.tiny
 		visible: root.hasNotifications
 		width: Math.max(10, badgeText.implicitWidth + SC.Config.padding.micro * 2)
 

@@ -73,7 +73,6 @@ PanelWindow {
 			color: SC.Config.colors.bg
 			height: parent.height
 			opacity: root.open ? 1 : 0
-			radius: 0
 			width: root.panelWidth
 			x: root.open ? root.openPanelX : root.closedPanelX
 			y: 0

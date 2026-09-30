@@ -36,7 +36,7 @@ Rectangle {
 		border.width: 1
 		color: root.checked ? SC.Config.colors.primary : "transparent"
 		height: 12
-		radius: root.radio ? height / 2 : 2
+		radius: root.radio ? height / 2 * SC.Config.radius.multiplier : SC.Config.radius.tiny
 		visible: root.hasCheck
 		width: 12
 	}

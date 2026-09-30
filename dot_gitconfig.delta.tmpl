@@ -4,9 +4,9 @@
   {{- $_ := set $c $name $value -}}
 {{- end -}}
 [delta "general"]
-    minus-style                   = red "{{ $c.diff_red_bg }}"
-    minus-non-emph-style          = red "{{ $c.diff_red_bg }}"
-    minus-empty-line-marker-style = red "{{ $c.diff_red_bg }}"
+    minus-style                   = red underline "{{ $c.diff_red_bg }}"
+    minus-non-emph-style          = red underline "{{ $c.diff_red_bg }}"
+    minus-empty-line-marker-style = red underline "{{ $c.diff_red_bg }}"
     minus-emph-style              = red bold reverse "{{ $c.diff_red_bg }}"
 
     plus-style                    = green "{{ $c.diff_green_bg }}"

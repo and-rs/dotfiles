@@ -177,7 +177,7 @@ function fetchArgFields(
     sub = `sub=${args.subpages}`;
   let urlLabel: string | null = null;
   if (urlCount !== 0) urlLabel = `${urlCount} urls`;
-  return [theme.fg("toolTitle", theme.bold("web_fetch")), urlLabel, age, sub];
+  return [theme.fg("toolTitle", theme.bold(" web_fetch")), urlLabel, age, sub];
 }
 
 export function returnRawWebTools() {

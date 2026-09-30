@@ -115,7 +115,7 @@ Column {
 			anchors.verticalCenter: parent.verticalCenter
 			color: root.enabled ? SC.Config.colors.primary : SC.Config.colors.surface3
 			height: 24
-			radius: height / 2
+			radius: height / 2 * SC.Config.radius.multiplier
 			visible: root.adapter !== null
 			width: 44
 
@@ -123,7 +123,7 @@ Column {
 				anchors.verticalCenter: parent.verticalCenter
 				color: SC.Config.colors.bg
 				height: 18
-				radius: height / 2
+				radius: height / 2 * SC.Config.radius.multiplier
 				width: height
 				x: root.enabled ? parent.width - width - 3 : 3
 			}

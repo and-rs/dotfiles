@@ -21,7 +21,6 @@ Item {
 	readonly property int mapHeight: SC.Config.sizes.small + 2
 	readonly property int minColumnWidth: 8
 	readonly property int tileGap: 1
-	readonly property int tileRadius: Math.max(1, SC.Config.radius.small - 2)
 
 	function columnWidth(column) {
 		return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
@@ -145,7 +144,7 @@ Item {
 
 					color: root.isFocused(modelData) ? SC.Config.colors.primary : Qt.alpha(SC.Config.colors.primary, 0.3)
 					height: root.tileHeights(columnDelegate.modelData)[index]
-					radius: root.tileRadius
+					radius: SC.Config.radius.tiny
 					width: columnDelegate.width
 					x: 0
 					y: root.tileY(columnDelegate.modelData, index)

@@ -2,7 +2,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
-import qs.Bar
 import qs.Config as SC
 
 Scope {

@@ -192,13 +192,13 @@ Scope {
 					Rectangle {
 						color: SC.Config.colors.bg
 						height: SC.Config.spacing.small
-						radius: SC.Config.radius.full
+						radius: SC.Config.radius.large
 						width: parent.width
 
 						Rectangle {
 							color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.primary
 							height: parent.height
-							radius: SC.Config.radius.full
+							radius: SC.Config.radius.large
 							// Fix: Divide by dynamic maxLimit (100 or 140)
 							width: parent.width * Math.min(osdScope.currentValue / osdScope.maxLimit, 1)
 

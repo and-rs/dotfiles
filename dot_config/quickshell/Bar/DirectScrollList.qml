@@ -39,7 +39,7 @@ ListView {
 		height: Math.min(root.height, Math.max(SC.Config.padding.large * 2, root.height * root.height / (root.maximumContentY() - root.minimumContentY() + root.height)))
 		opacity: 0.8
 		parent: root
-		radius: width / 2
+		radius: width / 2 * SC.Config.radius.multiplier
 		visible: root.scrollable && !root.horizontal
 		width: SC.Config.padding.micro
 		y: {
@@ -58,7 +58,7 @@ ListView {
 		height: SC.Config.padding.micro
 		opacity: 0.8
 		parent: root
-		radius: height / 2
+		radius: height / 2 * SC.Config.radius.multiplier
 		visible: root.scrollable && root.horizontal
 		width: Math.min(root.width, Math.max(SC.Config.padding.large * 2, root.width * root.width / (root.maximumContentX() - root.minimumContentX() + root.width)))
 		x: {

@@ -97,7 +97,7 @@ Rectangle {
 
 				sourceComponent: Rectangle {
 					color: activateArea.containsMouse ? SC.Config.colors.surface3 : SC.Config.colors.surface1
-					radius: SC.Config.radius.full
+					radius: SC.Config.radius.large
 
 					MaterialIcon {
 						anchors.centerIn: parent

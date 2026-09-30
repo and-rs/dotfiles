@@ -148,7 +148,7 @@ Rectangle {
 		border.width: 1
 		color: box.checked ? SC.Config.colors.primary : "transparent"
 		height: 12
-		radius: 2
+		radius: SC.Config.radius.tiny
 		width: 12
 
 		MouseArea {

@@ -53,10 +53,12 @@
     "width": 240
   },
   "radius": {
-    "full": 1000,
-    "large": 16,
-    "normal": 8,
-    "small": 4
+    "multiplier": {{ .radii.multiplier }},
+    "tiny": {{ mul .radii.unit .radii.multiplier .radii.tiny }},
+    "small": {{ mul .radii.unit .radii.multiplier .radii.small }},
+    "compact": {{ mul .radii.unit .radii.multiplier .radii.compact }},
+    "normal": {{ mul .radii.unit .radii.multiplier .radii.normal }},
+    "large": {{ mul .radii.unit .radii.multiplier .radii.large }}
   },
   "sidebar": {
     "borderWidth": 2,

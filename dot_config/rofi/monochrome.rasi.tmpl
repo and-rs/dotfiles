@@ -28,7 +28,7 @@ element-text, element-icon {
 
 window {
     border: 2px;
-    border-radius: 6px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
     border-color: @surface3;
 }
 
@@ -39,7 +39,7 @@ mainbox {
 inputbar {
     children: [prompt,entry];
     background-color: transparent;
-    border-radius: 6px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
     padding: 1px;
 }
 
@@ -47,7 +47,7 @@ prompt {
     background-color: @fg;
     text-color: @bg;
     padding: 6px;
-    border-radius: 6px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
     margin: 10px 0px 0px 10px;
 }
 
@@ -74,7 +74,7 @@ element {
 }
 
 element selected {
-    border-radius: 6px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
     background-color:  @fg;
     text-color: @bg;
 }
@@ -90,7 +90,7 @@ button {
     background-color: transparent;
     text-color: @fg;
 
-    border-radius: 4px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.small }}px;
     vertical-align: 0.5; 
     horizontal-align: 0.5;
 }
@@ -105,7 +105,7 @@ message {
     margin: 10px 10px 0 10px;
     padding: 6px;
     border: 1px;
-    border-radius: 4px;
+    border-radius: {{ mul .radii.unit .radii.multiplier .radii.small }}px;
     border-color: @surface3;
 }
 

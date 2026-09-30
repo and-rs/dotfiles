@@ -1,4 +1,15 @@
-theme = "mfd-paper"
+theme = "mfd-flir-bh"
+
+[radii]
+unit = 2
+# final multiplier
+multiplier = 0
+# scale values
+tiny = 1
+small = 2
+compact = 3
+normal = 4
+large = 8
 
 [palettes.tokyo-night-day]
 fg = "#3760bf"

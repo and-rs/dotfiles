@@ -45,7 +45,7 @@ input-field {
     shadow_size = $shadow_size
     shadow_color = $shadow_color
     shadow_boost = $shadow_boost
-    rounding = -1
+    rounding = {{ mul .radii.unit .radii.multiplier .radii.large }}
     fade_on_empty = false
     placeholder_text = Enter Password
     check_text = Authenticating...
