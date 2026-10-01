@@ -3,8 +3,6 @@ configuration {
     show-icons: false;
     terminal: "ghostty";
 
-
-
     kb-element-next: "";
     kb-mode-next: "Tab";
 

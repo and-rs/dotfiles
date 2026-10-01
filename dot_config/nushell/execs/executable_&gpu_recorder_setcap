@@ -1,0 +1,7 @@
+#!/usr/bin/env -S nu -n
+
+def main [] {
+  let server = readlink (^which gsr-kms-server)
+  sudo setcap cap_sys_admin+ep $server
+  getcap $server
+}
