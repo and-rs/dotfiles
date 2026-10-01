@@ -316,7 +316,7 @@ binds {
         spawn-sh "nu -n -c 'source ~/.config/nushell/nushelter/screen.nu; display back'"
     }
     Mod+Space repeat=false {
-        spawn-sh "rofi -modes drun,calc -show"
+        spawn "~/.config/rofi/launch-rofi.nu"
     }
     Mod+Super+L repeat=false {
         spawn-sh "~/.config/hypr/hyprlock-launch"

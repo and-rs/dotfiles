@@ -1,0 +1,119 @@
+#!/usr/bin/env -S nu -n
+
+def main [
+  font: string
+  --uppercase (-u)
+  --lowercase (-l)
+  --both (-b)
+] {
+  let uppercase_letters = [
+    {char: "Α" hex: "0391"}
+    {char: "Β" hex: "0392"}
+    {char: "Γ" hex: "0393"}
+    {char: "Δ" hex: "0394"}
+    {char: "Ε" hex: "0395"}
+    {char: "Ζ" hex: "0396"}
+    {char: "Η" hex: "0397"}
+    {char: "Θ" hex: "0398"}
+    {char: "Ι" hex: "0399"}
+    {char: "Κ" hex: "039A"}
+    {char: "Λ" hex: "039B"}
+    {char: "Μ" hex: "039C"}
+    {char: "Ν" hex: "039D"}
+    {char: "Ξ" hex: "039E"}
+    {char: "Ο" hex: "039F"}
+    {char: "Π" hex: "03A0"}
+    {char: "Ρ" hex: "03A1"}
+    {char: "Σ" hex: "03A3"}
+    {char: "Τ" hex: "03A4"}
+    {char: "Υ" hex: "03A5"}
+    {char: "Φ" hex: "03A6"}
+    {char: "Χ" hex: "03A7"}
+    {char: "Ψ" hex: "03A8"}
+    {char: "Ω" hex: "03A9"}
+  ]
+  let lowercase_letters = [
+    {char: "α" hex: "03B1"}
+    {char: "β" hex: "03B2"}
+    {char: "γ" hex: "03B3"}
+    {char: "δ" hex: "03B4"}
+    {char: "ε" hex: "03B5"}
+    {char: "ζ" hex: "03B6"}
+    {char: "η" hex: "03B7"}
+    {char: "θ" hex: "03B8"}
+    {char: "ι" hex: "03B9"}
+    {char: "κ" hex: "03BA"}
+    {char: "λ" hex: "03BB"}
+    {char: "μ" hex: "03BC"}
+    {char: "ν" hex: "03BD"}
+    {char: "ξ" hex: "03BE"}
+    {char: "ο" hex: "03BF"}
+    {char: "π" hex: "03C0"}
+    {char: "ρ" hex: "03C1"}
+    {char: "τ" hex: "03C4"}
+    {char: "σ" hex: "03C3"}
+    {char: "φ" hex: "03C6"}
+    {char: "υ" hex: "03C5"}
+    {char: "ψ" hex: "03C8"}
+    {char: "χ" hex: "03C7"}
+    {char: "ω" hex: "03C9"}
+    {char: "ς" hex: "03C2"}
+  ]
+
+  let selected = if $both or (not $uppercase and not $lowercase) {
+    $uppercase_letters ++ $lowercase_letters
+  } else {
+    let upper = if $uppercase { $uppercase_letters } else { [] }
+    let lower = if $lowercase { $lowercase_letters } else { [] }
+    $upper ++ $lower
+  }
+
+  let font_file = if ($font | path exists) {
+    $font
+  } else {
+    fc-match --format '%{file}\n' $font | str trim
+  }
+
+  if not ($font_file | path exists) {
+    error make {msg: $"Could not resolve font: ($font)"}
+  }
+
+  let ranges = (
+    fc-query --format '%{charset}\n' $font_file
+    | lines
+    | each {|line| $line | split row ' ' }
+    | flatten
+    | where {|item| $item != '' }
+    | each {|item|
+      let parts = ($item | split row '-')
+      let start = ($parts | first | into int --radix 16)
+      let end = if ($parts | length) > 1 {
+        ($parts | last | into int --radix 16)
+      } else {
+        $start
+      }
+      {start: $start end: $end}
+    }
+  )
+
+  print $"Font: ($font_file)"
+  let results = (
+    $selected | each {|letter|
+      let code = ($letter.hex | into int --radix 16)
+      let present = ($ranges | any {|range| $code >= $range.start and $code <= $range.end })
+      {letter: $letter present: $present}
+    }
+  )
+  for result in $results {
+    let status = if $result.present { 'present' } else { '-' }
+    print $"($result.letter.char) U+($result.letter.hex): ($status)"
+  }
+
+  let missing = ($results | where {|result| not $result.present } | each {|result| $result.letter })
+  let missing_chars = ($missing | each {|letter| $letter.char } | str join '')
+  let missing_codes = ($missing | each {|letter| $"U+($letter.hex)" } | str join ',')
+  let missing_chars = if $missing_chars == '' { '(none)' } else { $missing_chars }
+  let missing_codes = if $missing_codes == '' { '(none)' } else { $missing_codes }
+  print $"Missing characters: ($missing_chars)"
+  print $"Missing codepoints: ($missing_codes)"
+}

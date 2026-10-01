@@ -45,7 +45,7 @@ def main [] {
     --ansi
     --cycle
     --reverse
-    --prompt=' > '
+    --prompt=' μ '
     --accept-nth=1
     --header-lines=1
     --footer-border='top'
