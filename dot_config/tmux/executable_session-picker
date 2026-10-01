@@ -28,18 +28,21 @@ def main [] {
         '
 
   let list_sessions = '
-        tmux list-sessions -F "#{session_name}\t#{session_attached_list}"
-        | from tsv --noheaders 
-        | rename session attached 
+        tmux list-sessions -F "#{session_name}\t#{window_name}\t#{session_attached_list}"
+        | from tsv --noheaders
+        | rename session attached window
         | to tsv
+        | column -t -s "\t" -o "\t"
         '
 
   let kill_bind = "ctrl-k:execute-silent(tmux kill-session -t {1})+reload(" + $list_sessions + ")"
 
+  let separator = $"(ansi black)│(ansi reset)"
   let selection = (
     nu -c $list_sessions
     | fzf
     -d '\t'
+    --ansi
     --cycle
     --reverse
     --prompt=' > '
@@ -47,6 +50,7 @@ def main [] {
     --header-lines=1
     --footer-border='top'
     --footer='<enter: switch>  <ctrl-k: kill>  <esc: cancel>'
+    --with-nth $"{1} ($separator) {2} ($separator) {3}"
     --bind $kill_bind
     --preview $preview_cmd
     --preview-window='bottom,50%'
