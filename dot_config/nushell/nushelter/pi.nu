@@ -53,14 +53,14 @@ def _ai_summarize_model [] {
   }
 
   if (_ai_has_provider_auth "openai-codex") or (_ai_has_provider_auth "openai") {
-    return "openai-codex/gpt-5.4-mini:off"
+    return "openai-codex/gpt-6-luna:off"
   }
 
   if (_ai_has_provider_auth "github-copilot") {
-    return "github-copilot/gpt-5.4-mini:off"
+    return "github-copilot/gpt-6-luna:off"
   }
 
-  "openai-codex/gpt-5.4-mini:off"
+  "openai-codex/gpt-6-luna:off"
 }
 
 def _ai_summarize_input [context: string prompt: string] {
@@ -110,11 +110,10 @@ def _ai_summarize [
   --prompt: string # Request prompt
   --context: string # Additional context
 ] {
-  let system_prompt = "You follow instructions to the letter with no failure. you don't
-  have to acknowledge that you understood the instructions. and your commit
-  message output is always less than 60 characters long per line, you
-  prioritize adding details to the commit message while staying true to the
-  commit style seen previously."
+  let system_prompt = "Generate commit messages from staged changes only. Follow the
+  requested Conventional Commits format; never use commit history. Output only
+  raw commit-message text, without Markdown, quotes, or explanation. Keep each
+  line under 60 characters."
 
   _ai_run $label $system_prompt (_ai_summarize_model) (_ai_summarize_input $context $prompt)
 }
@@ -139,12 +138,14 @@ export def "ai gs" [] {
     return
   }
 
-  let base_prompt = "Output ONLY the raw commit message text. No backticks. No
-  code fences. No markdown. No surrounding quotes. No preamble. No explanation.
-  Raw text only. Mimic the style and format of recent commits exactly. Do not
-  over-focus on one file or one narrow part of the diff. Prefer breadth across
-  staged files. Keep every line under 60 characters. Do not go deep into text
-  changes like READMEs, only a quick content description"
+  let base_prompt = "Output ONLY one Conventional Commit message based solely on
+  the staged diff. Format the header as <type>(<scope>): <imperative summary>;
+  scope is optional. Choose an accurate type such as feat, fix, refactor, perf,
+  docs, test, build, ci, chore, or revert. Keep every line under 60 characters.
+  Add a concise body only when needed to capture other meaningful changes. Mark
+  breaking changes with ! and a BREAKING CHANGE: footer. Cover staged changes
+  broadly, do not invent details, and never use commit history. Describe
+  documentation and text-only changes briefly."
 
   mut msg = (
     try {
