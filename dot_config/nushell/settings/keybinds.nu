@@ -123,5 +123,15 @@ $env.config.keybindings = (
       mode: ["emacs" "vi_insert" "vi_normal"]
       event: {edit: "Delete"}
     }
+    {
+      name: clear_current_line
+      modifier: control
+      keycode: char_u
+      mode: [emacs vi_insert vi_normal]
+      event: [
+        {edit: MoveToLineEnd}
+        {edit: CutFromLineStart}
+      ]
+    }
   ]
 )
