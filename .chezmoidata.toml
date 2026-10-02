@@ -1,4 +1,4 @@
-theme = "mfd-scarlet"
+theme = "mfd-lumon"
 
 [radii]
 unit = 2
@@ -140,13 +140,13 @@ white = "#eceff4"
 bright_black = "#4c566a"
 
 [palettes.mfd-lumon]
-fg = "#5AC8D8"
-blue = "#4DAEBE"
-magenta = "#83E0EB"
-red = "#3A8898"
-green = "#469FAE"
-yellow = "#73D7E3"
-cyan = "#5AC8D8"
+fg = "#79E8F4"
+blue = "#79E8F4"
+magenta = "#79E8F4"
+red = "#79E8F4"
+green = "#79E8F4"
+yellow = "#79E8F4"
+cyan = "#79E8F4"
 bg = "#0A1520"
 cursor = "#A0F0FF"
 cursor_text = "#0A1520"
