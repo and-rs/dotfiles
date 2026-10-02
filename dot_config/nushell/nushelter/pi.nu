@@ -1,11 +1,19 @@
 export def --wrapped "ai" [...args] { bun x --bun pi ...$args }
 
-export def "ai bootstrap" [manifest: path extensions_dir: path] {
-  let agent_dir = (
+def _ai_agent_dir [] {
+  (
     $env.PI_CODING_AGENT_DIR?
     | default ($env.HOME | path join ".pi" "agent")
     | path expand
   )
+}
+
+def _ai_summarize_model_path [] {
+  _ai_agent_dir | path join "commit-message-model"
+}
+
+export def "ai bootstrap" [manifest: path extensions_dir: path] {
+  let agent_dir = (_ai_agent_dir)
   let settings_path = ($agent_dir | path join "settings.json")
   mkdir $agent_dir
 
@@ -28,39 +36,86 @@ export def "ai bootstrap" [manifest: path extensions_dir: path] {
   }
 }
 
-def _ai_has_provider_auth [provider: string] {
-  let auth_path = ($env.HOME | path join ".pi" "agent" "auth.json")
-  if not ($auth_path | path exists) {
-    return false
+def _ai_select_summarize_model [] {
+  if (which bun | is-empty) {
+    error make {msg: "bun not found"}
   }
 
-  try {
-    let auth = (open $auth_path)
-    ($auth | columns | any {|name| $name == $provider })
-  } catch {
-    false
+  if (which fzf | is-empty) {
+    error make {msg: "fzf not found; commit model selection is required"}
   }
+
+  let model_list = (bun x --bun pi --list-models | complete)
+  if $model_list.exit_code != 0 {
+    let details = ($model_list.stderr | str trim)
+    if ($details | is-empty) {
+      error make {msg: $"Pi model listing failed with exit code ($model_list.exit_code)"}
+    }
+    error make {msg: $"Pi model listing failed: ($details)"}
+  }
+
+  let models = (
+    try {
+      $model_list.stdout | from ssv
+    } catch {|err|
+      error make {msg: $"Could not parse Pi model list: ($err.msg)"}
+    }
+  )
+  if ($models | is-empty) {
+    error make {msg: "Pi returned no available models"}
+  }
+
+  let columns = ($models | columns)
+  if not ("provider" in $columns) or not ("model" in $columns) {
+    error make {msg: "Pi model list must include provider and model columns"}
+  }
+
+  let selection = (
+    $models
+    | to tsv
+    | fzf --delimiter=(char tab) --header-lines=1 --prompt=" Commit model > " --padding=1,0,0,1 --height=100%
+    | complete
+  )
+  if $selection.exit_code != 0 {
+    if $selection.exit_code == 1 or $selection.exit_code == 130 {
+      error make {msg: "No commit model selected; selection is required"}
+    }
+    let details = ($selection.stderr | str trim)
+    error make {msg: $"fzf failed with exit code ($selection.exit_code): ($details)"}
+  }
+
+  let fields = ($selection.stdout | str trim | split row (char tab))
+  if ($fields | length) < 2 {
+    error make {msg: "Could not read provider and model from fzf selection"}
+  }
+
+  let provider = ($fields | get 0 | str trim)
+  let model = ($fields | get 1 | str trim)
+  if ($provider | is-empty) or ($model | is-empty) {
+    error make {msg: "Could not read provider and model from fzf selection"}
+  }
+
+  let selected_model = $"($provider)/($model):off"
+  let agent_dir = (_ai_agent_dir)
+  mkdir $agent_dir
+  $selected_model | save --force (_ai_summarize_model_path)
+  $selected_model
 }
 
 def _ai_summarize_model [] {
-  let override = ($env.PI_SUMMARIZE_MODEL? | default "")
-  if not ($override | is-empty) {
-    return $override
+  let model_path = (_ai_summarize_model_path)
+  if ($model_path | path exists) {
+    let selected_model = (open $model_path | str trim)
+    if not ($selected_model | is-empty) {
+      return $selected_model
+    }
   }
 
-  if (_ai_has_provider_auth "xai") {
-    return "xai/grok-4.3:off"
-  }
+  _ai_select_summarize_model
+}
 
-  if (_ai_has_provider_auth "openai-codex") or (_ai_has_provider_auth "openai") {
-    return "openai-codex/gpt-6-luna:off"
-  }
-
-  if (_ai_has_provider_auth "github-copilot") {
-    return "github-copilot/gpt-6-luna:off"
-  }
-
-  "openai-codex/gpt-6-luna:off"
+export def "ai summarize-model" [] {
+  _ai_select_summarize_model
 }
 
 def _ai_summarize_input [context: string prompt: string] {
@@ -111,9 +166,10 @@ def _ai_summarize [
   --context: string # Additional context
 ] {
   let system_prompt = "Generate commit messages from staged changes only. Follow the
-  requested Conventional Commits format; never use commit history. Output only
-  raw commit-message text, without Markdown, quotes, or explanation. Keep each
-  line under 60 characters."
+  requested Conventional Commits format; never use commit history. Output exactly
+  one commit message and nothing else. Do not add a preamble, label, alternatives,
+  explanation, Markdown, code fences, or quotation marks. Begin with the commit
+  header and keep every line under 60 characters."
 
   _ai_run $label $system_prompt (_ai_summarize_model) (_ai_summarize_input $context $prompt)
 }
@@ -138,14 +194,15 @@ export def "ai gs" [] {
     return
   }
 
-  let base_prompt = "Output ONLY one Conventional Commit message based solely on
-  the staged diff. Format the header as <type>(<scope>): <imperative summary>;
-  scope is optional. Choose an accurate type such as feat, fix, refactor, perf,
-  docs, test, build, ci, chore, or revert. Keep every line under 60 characters.
-  Add a concise body only when needed to capture other meaningful changes. Mark
-  breaking changes with ! and a BREAKING CHANGE: footer. Cover staged changes
-  broadly, do not invent details, and never use commit history. Describe
-  documentation and text-only changes briefly."
+  let base_prompt = "Output exactly one Conventional Commit message based solely on
+  the staged diff. Return only the message: no preamble, label, alternatives,
+  explanation, Markdown, code fences, or quotation marks. Format the header as
+  <type>(<scope>): <imperative summary>; scope is optional. Choose an accurate
+  type such as feat, fix, refactor, perf, docs, test, build, ci, chore, or revert.
+  Keep every line under 60 characters. Add a concise body only when needed to
+  capture other meaningful changes. Mark breaking changes with ! and a BREAKING
+  CHANGE: footer. Cover staged changes broadly, do not invent details, and never
+  use commit history. Describe documentation and text-only changes briefly."
 
   mut msg = (
     try {
