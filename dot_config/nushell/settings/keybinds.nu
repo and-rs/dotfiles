@@ -18,51 +18,53 @@ def _fzf_history [] {
 }
 
 $env.config.menus = (
-  $env.config.menus | append [{
-    name: file_menu
-    only_buffer_difference: false
-    input_mode: cursor_prefix
-    marker: "| "
-    type: {
-      layout: columnar
-      columns: 4
-      col_padding: 2
-      tab_traversal: vertical
-    }
-    style: {
-      text: green
-      selected_text: green_reverse
-      description_text: yellow
-      match_text: {attr: u}
-      selected_match_text: {attr: ur}
-    }
-    source: {|buffer, position|
-      let contextual = (
-        $buffer
-        | commandline complete --detailed
-        | where kind in [file directory]
-      )
+  $env.config.menus | append [
+    {
+      name: file_menu
+      only_buffer_difference: false
+      input_mode: cursor_prefix
+      marker: "| "
+      type: {
+        layout: columnar
+        columns: 4
+        col_padding: 2
+        tab_traversal: vertical
+      }
+      style: {
+        text: green
+        selected_text: green_reverse
+        description_text: yellow
+        match_text: {attr: u}
+        selected_match_text: {attr: ur}
+      }
+      source: {|buffer position|
+        let contextual = (
+          $buffer
+          | commandline complete --detailed
+          | where kind in [file directory]
+        )
 
-      if ($contextual | is-not-empty) {
-        $contextual
-      } else {
-        let path = ($buffer | str replace -r '^.*\s' '')
-        let path_start = (($buffer | str length) - ($path | str length))
+        if ($contextual | is-not-empty) {
+          $contextual
+        } else {
+          let path = ($buffer | str replace -r '^.*\s' '')
+          let path_start = (($buffer | str length) - ($path | str length))
 
-        $path
-        | commandline complete --detailed --type path
-        | each {|completion|
-          $completion
-          | update span {
-            {
-              start: ($in.start + $path_start)
-              end: ($in.end + $path_start)
+          $path
+          | commandline complete --detailed --type path
+          | each {|completion|
+            $completion
+            | update span {
+              {
+                start: ($in.start + $path_start)
+                end: ($in.end + $path_start)
+              }
             }
           }
         }
       }
     }
-  }]
+  ]
 )
 
 $env.config.keybindings = (
@@ -129,7 +131,6 @@ $env.config.keybindings = (
       keycode: char_u
       mode: [emacs vi_insert vi_normal]
       event: [
-        {edit: MoveToLineEnd}
         {edit: CutFromLineStart}
       ]
     }
