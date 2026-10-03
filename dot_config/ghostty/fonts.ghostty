@@ -1,4 +1,8 @@
 font-size = 14
+# ▣ I hate this little opencode square so much.
+font-codepoint-map = U+25A3=CommitMono
+
+
 #adjust-font-baseline = 0
 #adjust-underline-thickness = 1
 #adjust-underline-position = 2

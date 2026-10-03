@@ -12,11 +12,16 @@
     "messages_last_user": "ctrl+g",
     "messages_last": "ctrl+alt+g,end",
 
+    "agent_cycle": "alt+m",
+    "agent_cycle_reverse": "",
+
     "editor_open": "ctrl+o",
     "input_move_up": "ctrl+p",
     "input_move_down": "ctrl+n",
-    "history_previous": "ctrl+n",
-    "history_next": "ctrl+p",
+
+    "history_previous": "ctrl+p",
+    "history_next": "ctrl+n",
+
     "input_undo": "ctrl+z,ctrl+-",
     "input_redo": "ctrl+shift+z,ctrl+."
   }

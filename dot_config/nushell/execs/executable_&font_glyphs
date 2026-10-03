@@ -1,12 +1,13 @@
 #!/usr/bin/env -S nu -n
 
 def main [
-  font: string
+  font?: string
   --uppercase (-u)
   --lowercase (-l)
   --both (-b)
 ] {
   let uppercase_letters = [
+    {char: "▣" hex: "25A3"}
     {char: "Α" hex: "0391"}
     {char: "Β" hex: "0392"}
     {char: "Γ" hex: "0393"}
@@ -68,18 +69,24 @@ def main [
     $upper ++ $lower
   }
 
-  let font_file = if ($font | path exists) {
-    $font
-  } else {
-    fc-match --format '%{file}\n' $font | str trim
+  if (which fzf | is-empty) {
+    error make {msg: "fzf not found; font selection requires fzf"}
   }
-
-  if not ($font_file | path exists) {
-    error make {msg: $"Could not resolve font: ($font)"}
+  let selected_font = (
+    fc-list --format '%{family}\n'
+    | lines
+    | uniq
+    | to text
+    | fzf --tmux --prompt="Font > "
+  )
+  if ($selected_font | is-empty) {
+    print "Font selection cancelled."
+    return
   }
+  let font_path = fc-match --format '%{file}\n' $selected_font | str trim
 
   let ranges = (
-    fc-query --format '%{charset}\n' $font_file
+    fc-query --format '%{charset}\n' $font_path
     | lines
     | each {|line| $line | split row ' ' }
     | flatten
@@ -96,7 +103,6 @@ def main [
     }
   )
 
-  print $"Font: ($font_file)"
   let results = (
     $selected | each {|letter|
       let code = ($letter.hex | into int --radix 16)
@@ -108,6 +114,7 @@ def main [
     let status = if $result.present { 'present' } else { '-' }
     print $"($result.letter.char) U+($result.letter.hex): ($status)"
   }
+  print $"Font: ($font_path)"
 
   let missing = ($results | where {|result| not $result.present } | each {|result| $result.letter })
   let missing_chars = ($missing | each {|letter| $letter.char } | str join '')
