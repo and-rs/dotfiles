@@ -1,4 +1,18 @@
-export def --wrapped "ai" [...args] { bun x --bun pi ...$args }
+def _ai_without_aws_env [command: closure] {
+  with-env {
+    AWS_PROFILE: null
+    AWS_ACCESS_KEY_ID: null
+    AWS_SECRET_ACCESS_KEY: null
+    AWS_BEARER_TOKEN_BEDROCK: null
+    AWS_REGION: null
+  } {
+    do $command
+  }
+}
+
+export def --wrapped "ai" [...args] {
+  _ai_without_aws_env { bun x --bun pi ...$args }
+}
 
 def _ai_agent_dir [] {
   (
@@ -32,7 +46,7 @@ export def "ai bootstrap" [manifest: path extensions_dir: path] {
     | default []
   )
   for package in $packages {
-    bun x --bun pi install $package
+    ai install $package
   }
 }
 
@@ -45,7 +59,7 @@ def _ai_select_summarize_model [] {
     error make {msg: "fzf not found; commit model selection is required"}
   }
 
-  let model_list = (bun x --bun pi --list-models | complete)
+  let model_list = (ai --list-models | complete)
   if $model_list.exit_code != 0 {
     let details = ($model_list.stderr | str trim)
     if ($details | is-empty) {
@@ -142,11 +156,9 @@ def _ai_run [label: string system_prompt: string model: string prompt: string] {
   }
 
   let result = (
-    &spinner --structured --quiet-cancel --msg $label --
-    bun x --bun pi -ns -nt -nbt --no-session
-    --system-prompt $system_prompt
-    --model $model
-    -p $prompt
+    _ai_without_aws_env {
+      &spinner --structured --quiet-cancel --msg $label -- bun x --bun pi -ns -nt -nbt --no-session --system-prompt $system_prompt --model $model -p $prompt
+    }
   )
 
   let structured = (try { $result | from json } catch { null })
