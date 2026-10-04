@@ -10,13 +10,13 @@ cppfmt:
   nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"
 
 apply:
-    chezmoi apply -v --no-pager
+    chezmoi --source "{{ justfile_directory() }}" apply -v --no-pager
 
 diff:
-    chezmoi diff
+    chezmoi --source "{{ justfile_directory() }}" diff
 
 status:
-    chezmoi status
+    chezmoi --source "{{ justfile_directory() }}" status
 
 test-quickshell:
     bun test dot_config/quickshell/tests/network.test.js
