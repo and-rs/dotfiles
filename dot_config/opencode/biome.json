@@ -6,7 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["plugins/**/*.ts"]
+    "includes": ["plugins/**/*.ts", "cli-plugins/**/*.tsx"]
   },
   "formatter": {
     "enabled": true,

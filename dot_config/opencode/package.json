@@ -13,8 +13,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
+    "@opentui/core": "0.5.14",
+    "@opentui/solid": "0.5.14",
     "@types/node": "^26.1.1",
     "knip": "^6.37.0",
+    "solid-js": "1.9.15",
     "typescript": "^7.0.2"
   }
 }

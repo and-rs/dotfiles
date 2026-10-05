@@ -5,6 +5,8 @@
     "types": ["node"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "@opentui/solid",
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -18,5 +20,5 @@
     "resolveJsonModule": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["plugins/**/*.ts"]
+  "include": ["plugins/**/*.ts", "cli-plugins/**/*.tsx"]
 }
