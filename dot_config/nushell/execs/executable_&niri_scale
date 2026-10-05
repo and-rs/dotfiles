@@ -1,0 +1,7 @@
+#!/usr/bin/env -S nu -n
+
+def main [scale: string] {
+  niri msg output (
+    niri msg --json outputs | from json | echo ($in | columns | to text | fzf)
+  ) scale $scale
+}
