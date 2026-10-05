@@ -1,0 +1,20 @@
+{
+  "name": "opencode-config",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome check .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "knip": "knip",
+    "check": "biome ci . && tsc -p tsconfig.json --noEmit && knip"
+  },
+  "dependencies": {
+    "@opencode/plugin": "2.0.22"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "^26.1.1",
+    "knip": "^6.37.0",
+    "typescript": "^7.0.2"
+  }
+}

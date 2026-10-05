@@ -1,0 +1,2 @@
+- Standalone Nushell executables live in `dot_config/nushell/execs/` and follow the chezmoi filename convention `executable_&<name>` (for example, `executable_&ai_git_status`). They are invoked from Nushell as `&<name>` (for example, `&ai_git_status`).
+- When adding a standalone executable command, use that convention. Before declaring an external command missing, inspect `dot_config/nushell/execs/` for its `executable_&<name>` source.

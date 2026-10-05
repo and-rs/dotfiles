@@ -1,25 +1,57 @@
-import { mkdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
+import {
+  mkdir,
+  readFile,
+  realpath,
+  rename,
+  rm,
+  stat,
+  writeFile,
+} from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
-import { tool, type Plugin, type ToolContext } from "@opencode-ai/plugin";
-import { z } from "zod";
+import { promisify } from "node:util";
+import { Plugin } from "@opencode/plugin";
 
+const execFileAsync = promisify(execFile);
 const MAX_LOCATIONS = 50;
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 
-const quickfixLocationSchema = z.object({
-  path: z.string().min(1),
-  line: z.number().int().min(1),
-  column: z.number().int().min(1).optional(),
-  reason: z.string().min(1),
-});
-
 const quickfixArgsSchema = {
-  locations: z.array(quickfixLocationSchema).min(1).max(MAX_LOCATIONS),
-};
+  type: "object",
+  properties: {
+    locations: {
+      type: "array",
+      minItems: 1,
+      maxItems: MAX_LOCATIONS,
+      items: {
+        type: "object",
+        properties: {
+          path: { type: "string", minLength: 1 },
+          line: { type: "integer", minimum: 1 },
+          column: { type: "integer", minimum: 1 },
+          reason: { type: "string", minLength: 1 },
+        },
+        required: ["path", "line", "reason"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["locations"],
+  additionalProperties: false,
+} as const;
 
-export type QuickfixLocationInput = z.infer<typeof quickfixLocationSchema>;
+export interface QuickfixLocationInput {
+  path: string;
+  line: number;
+  column?: number;
+  reason: string;
+}
+
+interface QuickfixArgs {
+  locations: QuickfixLocationInput[];
+}
 
 export interface QuickfixEntry {
   filename: string;
@@ -55,6 +87,21 @@ function countLines(source: string): number {
   return lines.length;
 }
 
+async function worktreePath(directory: string): Promise<string> {
+  const resolvedDirectory = await realpath(directory);
+  try {
+    const result = await execFileAsync("git", [
+      "-C",
+      resolvedDirectory,
+      "rev-parse",
+      "--show-toplevel",
+    ]);
+    return await realpath(result.stdout.trim());
+  } catch {
+    return resolvedDirectory;
+  }
+}
+
 async function prepareLocation(
   root: string,
   directory: string,
@@ -62,7 +109,9 @@ async function prepareLocation(
 ): Promise<QuickfixEntry> {
   const reason = input.reason.trim();
   if (!reason) {
-    throw new Error(`Quickfix reason is required for ${input.path}:${input.line}.`);
+    throw new Error(
+      `Quickfix reason is required for ${input.path}:${input.line}.`,
+    );
   }
   if (/\r|\n/.test(reason)) {
     throw new Error(
@@ -98,7 +147,7 @@ async function prepareLocation(
 }
 
 export async function prepareQuickfix(
-  context: Pick<ToolContext, "directory" | "worktree">,
+  directory: string,
   inputs: QuickfixLocationInput[],
 ): Promise<PreparedQuickfix> {
   if (!inputs.length) {
@@ -108,11 +157,11 @@ export async function prepareQuickfix(
     throw new Error(`Quickfix supports at most ${MAX_LOCATIONS} locations.`);
   }
 
-  const root = await realpath(context.worktree);
+  const root = await worktreePath(directory);
   const entries: QuickfixEntry[] = [];
 
   for (const input of inputs) {
-    entries.push(await prepareLocation(root, context.directory, input));
+    entries.push(await prepareLocation(root, directory, input));
   }
 
   return {
@@ -153,31 +202,38 @@ async function saveQuickfixState(
   return target;
 }
 
-export default (async () => ({
-  tool: {
-    "quickfix-model": tool({
-      description:
-        "Validate source locations and store them as the latest model quickfix list for this worktree. Open it with the tmux quickfix binding.",
-      args: quickfixArgsSchema,
-      execute: async (args, context) => {
-        const prepared = await prepareQuickfix(context, args.locations);
-        const savedPath = await saveQuickfixState(
-          prepared.worktree,
-          prepared.entries,
-        );
+export default Plugin.define({
+  id: "quickfix",
+  async setup(ctx) {
+    await ctx.tool.transform((editor) => {
+      editor.add({
+        name: "quickfix-model",
+        description:
+          "Validate source locations and store them as the latest model quickfix list for this worktree. Open it with the tmux quickfix binding.",
+        input: quickfixArgsSchema,
+        async execute(input, context) {
+          const args = input as QuickfixArgs;
+          const session = await ctx.session.get({
+            sessionID: context.sessionID,
+          });
+          const prepared = await prepareQuickfix(
+            session.location.directory,
+            args.locations,
+          );
+          await saveQuickfixState(prepared.worktree, prepared.entries);
 
-        return {
-          title: "Quickfix state stored",
-          output: `Stored ${prepared.entries.length} location${prepared.entries.length === 1 ? "" : "s"}. Open the model quickfix list with the tmux quickfix binding.`,
-          metadata: {
-            statePath: savedPath,
-            worktree: prepared.worktree,
-            paths: prepared.entries.map((entry) =>
-              path.relative(prepared.worktree, entry.filename),
-            ),
-          },
-        };
-      },
-    }),
+          const count = prepared.entries.length;
+          let noun: string;
+          if (count === 1) {
+            noun = "location";
+          } else {
+            noun = "locations";
+          }
+          return {
+            content: `Stored ${count} ${noun}. Open the model quickfix list with the tmux quickfix binding.`,
+          };
+        },
+      });
+    });
   },
-})) satisfies Plugin;
+});

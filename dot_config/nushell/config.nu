@@ -100,8 +100,8 @@ source nushelter/aliases.nu
 source nushelter/grit.nu
 source completions/just_completions.nu
 
-# Pi setup
-use nushelter/pi.nu *
+# OpenCode helpers
+use nushelter/ai.nu *
 
 # Forgit & git completions 8ms
 use forgit *

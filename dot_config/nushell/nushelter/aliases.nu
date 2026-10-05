@@ -6,6 +6,7 @@ alias g = git
 alias gc = git commit
 alias gl = git log --oneline -n 10
 alias gs = git status
+alias gss = git diff --cached --name-only
 alias loadenv = open .env | from toml | load-env
 
 def gig [] { gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore }
@@ -72,14 +73,6 @@ alias ff = fastfetch --logo-color-1 cyan --file $"($env.DOTS)/utils/ascii/spider
 alias ffn = fastfetch --logo-color-1 red --file $"($env.DOTS)/utils/ascii/spider2.txt" --config neofetch
 
 def --env t [] { echo $env.TMP_CMD? }
-
-def --wrapped "oc" [...args] {
-  OPENCODE_ENABLE_EXA=1 opencode ...$args
-}
-
-def "oc sd" [s: string] {
-  opencode session delete $s
-}
 
 # --- KEEP THESE FUNCTIONS DEFINED HERE ---
 

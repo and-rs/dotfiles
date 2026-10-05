@@ -1,0 +1,65 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "current",
+    "mode": "system"
+  },
+  "keybinds": {
+    "app.exit": "none",
+    "terminal.suspend": "none",
+    "command.palette.show": "alt+p",
+
+    "prompt.editor": "ctrl+o",
+    "agent.cycle": "alt+m",
+    "agent.cycle.reverse": "none",
+
+    "session.half.page.up": "ctrl+alt+u",
+    "session.half.page.down": "ctrl+alt+d",
+    "session.first": "none",
+    "session.last": "ctrl+alt+g,end",
+    "session.messages_last_user": "ctrl+g",
+
+    "input.move.up": "ctrl+p",
+    "input.move.down": "ctrl+n",
+    "input.undo": "ctrl+z,ctrl+-",
+    "input.redo": "ctrl+shift+z,ctrl+.",
+    "prompt.history.previous": "ctrl+p",
+    "prompt.history.next": "ctrl+n"
+  },
+  "session": {
+    "sidebar": "hide",
+    "thinking": "hide",
+    "scrollbar": false,
+    "grouping": "none",
+    "verbosity": "medium",
+    "tps": true,
+    "new_location": "launch"
+  },
+  "mini": {
+    "work_spinner": "seed",
+    "thinking": "show",
+    "tools": "show",
+    "shell_output": "show",
+    "mono": true
+  },
+  "animations": true,
+  "tabs": {
+    "mode": "off",
+    "layout": "horizontal"
+  },
+  "scroll": {
+    "speed": 1
+  },
+  "attention": {
+    "sound": true,
+    "notifications": false,
+    "volume": 1
+  },
+  "prompt": {
+    "image_preview": false
+  },
+  "terminal": {
+    "title": false,
+    "copy": "select"
+  }
+}

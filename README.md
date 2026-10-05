@@ -14,7 +14,7 @@ My super baller dotfiles for Linux and macOS, with a strong bias toward a tiled,
   - Linux: Niri, Quickshell, Hypridle, Hyprlock, Rofi
   - macOS: Aerospace
 - File management: Yazi
-- CLI tooling: direnv, zoxide, pi, opencode, fastfetch, topiary
+- CLI tooling: direnv, zoxide, opencode, fastfetch, topiary
 - Themes and palettes: Neovim, Ghostty, Kitty, Alacritty, fastfetch, rofi, bat
 
 ## Structure
@@ -24,7 +24,6 @@ Chezmoi source tree (home-shaped):
 - `.chezmoiignore` - skip non-dotfile paths and OS-specific targets
 - `.chezmoitemplates/` - Linux vs Darwin kitty / ghostty / alacritty bodies
 - `dot_config/` - `~/.config`
-- `dot_pi/` - `~/.pi`
 - `dot_local/` - `~/.local`
 - `utils/` - scripts and tooling, not deployed
 - `wallpapers/` - not deployed
@@ -53,7 +52,7 @@ chezmoi apply
 ### Shell workflow
 
 - Nushell configuration with custom prompt, keybinds, history tooling, git helpers, and file utilities
-- Pi and shell LLM helpers
+- OpenCode and shell LLM helpers
 - Zoxide, direnv, and completion setup
 
 ### Terminal workflow

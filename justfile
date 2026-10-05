@@ -21,11 +21,8 @@ status:
 test-quickshell:
     bun test dot_config/quickshell/tests/network.test.js
 
-pi-bootstrap:
-    use dot_config/nushell/nushelter/pi.nu *; ai bootstrap dot_pi/agent/extensions/package.json dot_pi/agent/extensions
-
-pi-check: pi-bootstrap
-    bun run --cwd dot_pi/agent/extensions check
+opencode-check:
+    bun run --cwd dot_config/opencode check
 
 debug-capture target output_directory="":
     ./dot_config/quickshell/utils/debug-capture.sh "{{ target }}" "{{ output_directory }}"
