@@ -12,6 +12,10 @@ cppfmt:
 apply:
     chezmoi --source "{{ justfile_directory() }}" apply -v --no-pager
 
+opencode-setup: apply
+    bun install --cwd dot_config/opencode --frozen-lockfile
+    bun install --cwd $"($env.HOME)/.config/opencode" --frozen-lockfile
+
 diff:
     chezmoi --source "{{ justfile_directory() }}" diff
 

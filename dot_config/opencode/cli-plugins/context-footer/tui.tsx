@@ -5,10 +5,7 @@ export default Plugin.define({
   setup(context) {
     context.ui.slot({
       append: "prompt.footer.status",
-      render: ({ sessionID }) => {
-        let session: ReturnType<typeof context.data.session.get>;
-        if (sessionID) session = context.data.session.get(sessionID);
-
+      render: () => {
         const selected = context.ui.model.current();
         const location = context.location ?? context.data.location.default();
         let contextWindow: number | undefined;
