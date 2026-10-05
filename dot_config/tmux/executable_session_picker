@@ -19,7 +19,7 @@ def main [] {
         | upsert process {|row| do $fit $row.process }
         | upsert dir {|row| do $fit ($row.dir | str replace $env.HOME "~") }
         | to tsv
-        | column -t -m -c $preview_width -s "\t"
+        | qsv table --delimiter "\t" --pad 2
         | str replace --all "~" $"(ansi blue)~(ansi reset)"
         | lines
         | upsert 0 {|row| $"(ansi magenta)($row)(ansi reset)"}
@@ -32,7 +32,7 @@ def main [] {
         | from tsv --noheaders
         | rename session attached window
         | to tsv
-        | column -t -s "\t" -o "\t"
+        | qsv table --delimiter "\t" --align leftendtab --pad 1
         '
 
   let kill_bind = "ctrl-k:execute-silent(tmux kill-session -t {1})+reload(" + $list_sessions + ")"

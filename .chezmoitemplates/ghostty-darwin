@@ -1,5 +1,7 @@
+font-size = 18
 # start nushell from nix
 command = /run/current-system/sw/bin/nu
+config-file = fonts.ghostty
 
 fullscreen = false
 window-padding-y = 0
@@ -22,24 +24,18 @@ custom-shader-animation = false
 #custom-shader = shaders/dot_matrix.glsl
 #custom-shader = shaders/glow.glsl
 
-window-padding-x = 2
-window-padding-y = 4
+window-padding-x = 0
+window-padding-y = 0
 window-padding-balance = true
 
 adjust-icon-height = 8
 adjust-cell-height = 6
-adjust-font-baseline = 0
 adjust-cursor-height = 0
-adjust-underline-position = 8
 
 #--- KEYBINDS ---#
 keybind = opt+ctrl+f=text:\x1bf
 keybind = opt+ctrl+b=text:\x1bb
 
-font-size = 18.5
-#font-feature = +ss02
-#font-feature = +ss04
-
-font-thicken = true
-font-thicken-strength = 80
-font-family = Iosevka Custom
+keybind = super+m=text:\x1bm
+keybind = super+ctrl+u=text:\x1b\x15
+keybind = super+ctrl+d=text:\x1b\x04

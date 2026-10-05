@@ -1,3 +1,4 @@
+font-size = 14
 command = nu
 config-file = fonts.ghostty
 config-file = themes/current
