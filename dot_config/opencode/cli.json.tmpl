@@ -53,7 +53,15 @@
   "attention": {
     "sound": true,
     "notifications": false,
-    "volume": 1
+    "volume": 1,
+    "sounds": {
+      "default": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/chime.wav",
+      "question": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/sparkle.wav",
+      "permission": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/page.wav",
+      "error": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/error.wav",
+      "done": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/success.wav",
+      "subagent_done": "{{ .chezmoi.homeDir }}/.config/opencode/sounds/droplet.wav"
+    }
   },
   "prompt": {
     "image_preview": false
