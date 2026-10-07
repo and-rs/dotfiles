@@ -20,5 +20,10 @@
     "resolveJsonModule": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["plugins/**/*.ts", "cli-plugins/**/*.tsx"]
+  "include": [
+    "plugins/**/*.ts",
+    "plugins/**/*.tsx",
+    "cli-plugins/**/*.ts",
+    "cli-plugins/**/*.tsx"
+  ]
 }

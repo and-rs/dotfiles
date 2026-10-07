@@ -1,7 +1,15 @@
 import { Plugin } from "@opencode/plugin/tui";
-import { createSignal, onCleanup, Show } from "solid-js";
+import { useTerminalDimensions } from "@opentui/solid";
+import { createEffect, createSignal, onCleanup, Show } from "solid-js";
+import stringWidth from "string-width";
+import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch-marquee";
+import { compactPath } from "./text-width";
 
 const spinnerFrames = ["⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"];
+const pathWidthLimit = 24;
+const branchWidthLimit = 12;
+const branchScrollInterval = 200;
+const locationMinTerminalWidth = 70;
 
 function TurnSpinner() {
   const [frame, setFrame] = createSignal(0);
@@ -21,6 +29,89 @@ function formatTokens(tokens: number): string {
     return `${(tokens / 1_000).toFixed(1)}K`;
   }
   return tokens.toString();
+}
+
+function BranchTicker(props: { branch: string; maxWidth: number }) {
+  const [offset, setOffset] = createSignal(0);
+  const frame = () =>
+    branchMarqueeFrame(props.branch, props.maxWidth, offset());
+
+  createEffect(() => {
+    const branch = props.branch;
+    const width = props.maxWidth;
+    setOffset(0);
+    if (stringWidth(branch) <= width) return;
+
+    const cycleLength = branchMarqueeCycleLength(branch);
+    const timer = setInterval(() => {
+      setOffset((current) => (current + 1) % cycleLength);
+    }, branchScrollInterval);
+    onCleanup(() => clearInterval(timer));
+  });
+
+  return <>{frame()}</>;
+}
+
+function NoBranchLocation(props: {
+  path: string;
+  locationWidth: () => number;
+}) {
+  const fixedWidth = stringWidth(" Ρ ·  (no branch) ");
+  const pathWidth = () =>
+    Math.min(pathWidthLimit, Math.max(1, props.locationWidth() - fixedWidth));
+  return ` Ρ · ${compactPath(props.path, pathWidth())} (no branch) `;
+}
+
+function FooterLocation(props: {
+  path: string;
+  branch: string | undefined;
+  statsWidth: number;
+  statusWidth: number;
+  bg: string;
+  fg: string;
+}) {
+  const dimensions = useTerminalDimensions();
+  const locationWidth = () =>
+    Math.max(1, dimensions().width - props.statsWidth - props.statusWidth - 3);
+
+  return (
+    <Show when={dimensions().width >= locationMinTerminalWidth}>
+      <text bg={props.bg} fg={props.fg} wrapMode="none">
+        <Show
+          when={props.branch}
+          fallback={
+            <NoBranchLocation path={props.path} locationWidth={locationWidth} />
+          }
+        >
+          {(branch: () => string) => {
+            const fixedWidth = stringWidth(" Ρ ·  () ");
+            const maxPathWidth = () =>
+              Math.min(
+                pathWidthLimit,
+                Math.max(1, Math.floor((locationWidth() - fixedWidth) * 0.6)),
+              );
+            const path = () => compactPath(props.path, maxPathWidth());
+            const branchWidth = () =>
+              Math.max(
+                1,
+                Math.min(
+                  branchWidthLimit,
+                  locationWidth() - fixedWidth - stringWidth(path()),
+                ),
+              );
+
+            return (
+              <>
+                {` Ρ · ${path()} (`}
+                <BranchTicker branch={branch()} maxWidth={branchWidth()} />
+                {`) `}
+              </>
+            );
+          }}
+        </Show>
+      </text>
+    </Show>
+  );
 }
 
 export default Plugin.define({
@@ -49,19 +140,14 @@ export default Plugin.define({
             if (revertedMessage !== -1) end = revertedMessage;
           }
 
-          let lastCompaction = -1;
-          for (let index = 0; index < end; index++) {
+          for (let index = end - 1; index >= 0; index--) {
             const message = messages[index];
             if (
               message?.type === "compaction" &&
               message.status === "completed"
             ) {
-              lastCompaction = index;
+              break;
             }
-          }
-
-          for (let index = end - 1; index > lastCompaction; index--) {
-            const message = messages[index];
             if (message?.type !== "assistant" || !message.tokens) continue;
 
             const tokens =
@@ -89,61 +175,72 @@ export default Plugin.define({
           contextWindow = model?.limit.context;
         }
 
-        let window = "No max. tokens found";
-        if (contextWindow) window = formatTokens(contextWindow);
-
-        let current = "—";
-        let percentage = "—";
-        if (currentTokens !== undefined) {
-          current = formatTokens(currentTokens);
-          if (contextWindow) {
-            percentage = `${Math.round((currentTokens / contextWindow) * 100)}%`;
-          }
+        let stats: string | undefined;
+        if (currentTokens !== undefined && contextWindow && contextWindow > 0) {
+          const current = formatTokens(currentTokens);
+          const window = formatTokens(contextWindow);
+          const percentage = `${Math.round((currentTokens / contextWindow) * 100)}%`;
+          stats = ` Σ · ${current} / ${window} (${percentage}) `;
         }
 
         let directory = location.directory;
         if (session?.location.directory) directory = session.location.directory;
         const branch = context.data.location.vcs.info(location)?.branch.current;
-        let pathBranch = context.ui.format.path(directory);
-        if (branch) {
-          pathBranch += ` (${branch})`;
-        } else {
-          pathBranch += " (no branch)";
+        const path = context.ui.format.path(directory);
+        let isRunning = false;
+        if (sessionID) {
+          isRunning = context.data.session.status(sessionID) === "running";
         }
-        const isRunning = () => {
-          if (!sessionID) return false;
-          return context.data.session.status(sessionID) === "running";
-        };
+        let statsWidth = 0;
+        if (stats) statsWidth = stringWidth(stats);
+        let statusWidth = stringWidth(" β ");
+        if (isRunning) {
+          statusWidth += 1 + stringWidth("Working");
+        }
 
         return (
           <box flexDirection="row" justifyContent="space-between" width="100%">
-            <box flexGrow={1} flexShrink={1} minWidth={0}>
+            <box flexGrow={1} flexShrink={0} minWidth={0}>
               <box flexDirection="row" gap={1}>
                 <text
                   bg={context.theme.text.muted}
                   fg={context.theme.background.base}
+                  wrapMode="none"
                 >
                   {" "}
-                  <Show when={isRunning()} fallback="β">
+                  <Show when={isRunning} fallback="β">
                     <TurnSpinner />
                   </Show>{" "}
                 </text>
 
-                <Show when={isRunning()}>
-                  <text fg={context.theme.text.muted}>Working</text>
+                <Show when={isRunning}>
+                  <text fg={context.theme.text.muted} wrapMode="none">
+                    Working
+                  </text>
                 </Show>
               </box>
             </box>
 
             <box flexDirection="row" justifyContent="flex-end" gap={1}>
-              <text
+              <Show when={stats}>
+                {(value: () => string) => (
+                  <text
+                    bg={context.theme.text.muted}
+                    fg={context.theme.background.base}
+                    wrapMode="none"
+                  >
+                    {value()}
+                  </text>
+                )}
+              </Show>
+              <FooterLocation
+                path={path}
+                branch={branch}
+                statsWidth={statsWidth}
+                statusWidth={statusWidth}
                 bg={context.theme.text.muted}
                 fg={context.theme.background.base}
-              >{` Σ · ${current} / ${window} (${percentage}) `}</text>
-              <text
-                bg={context.theme.text.muted}
-                fg={context.theme.background.base}
-              >{` Ρ · ${pathBranch} `}</text>
+              />
             </box>
           </box>
         );

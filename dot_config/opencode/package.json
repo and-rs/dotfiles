@@ -6,10 +6,11 @@
     "lint": "biome check .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "knip": "knip",
-    "check": "biome ci . && tsc -p tsconfig.json --noEmit && knip"
+    "check": "biome ci . && tsc -p tsconfig.json --noEmit && knip && bun test && bun -e 'JSON.parse(await Bun.file(\"cli.json.tmpl\").text())'"
   },
   "dependencies": {
-    "@opencode/plugin": "2.0.22"
+    "@opencode/plugin": "2.0.22",
+    "string-width": "^7.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",

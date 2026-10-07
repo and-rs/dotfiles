@@ -5,7 +5,8 @@
     "./tui": "./tui.tsx"
   },
   "dependencies": {
-    "@opencode/plugin": "2.0.22"
+    "@opencode/plugin": "2.0.22",
+    "string-width": "^7.2.0"
   },
   "peerDependencies": {
     "@opentui/core": ">=0.5.14",

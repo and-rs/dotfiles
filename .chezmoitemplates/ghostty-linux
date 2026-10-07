@@ -15,6 +15,10 @@ window-padding-y = 0
 faint-opacity = 1.0
 # background-opacity = 0.7
 
+cursor-style = bar
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
 # Enabling this increases CPU usage
 custom-shader-animation = false
 # custom-shader = shaders/cursor_ripple.glsl

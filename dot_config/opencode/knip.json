@@ -5,5 +5,5 @@
     "plugins/quickfix/index.ts!",
     "cli-plugins/context-footer/tui.tsx!"
   ],
-  "project": ["plugins/**/*.ts", "cli-plugins/**/*.tsx"]
+  "project": ["plugins/**/*.ts", "cli-plugins/**/*.ts", "cli-plugins/**/*.tsx"]
 }

@@ -31,6 +31,8 @@ window-padding-balance = true
 adjust-icon-height = 8
 adjust-cell-height = 6
 adjust-cursor-height = 0
+adjust-cursor-thickness = 3
+cursor-style-blink = false
 
 #--- KEYBINDS ---#
 keybind = opt+ctrl+f=text:\x1bf

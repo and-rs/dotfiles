@@ -6,7 +6,16 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["plugins/**/*.ts", "cli-plugins/**/*.tsx"]
+    "includes": [
+      "*.json",
+      "*.jsonc",
+      "plugins/**/*.ts",
+      "plugins/**/*.tsx",
+      "plugins/**/package.json",
+      "cli-plugins/**/*.ts",
+      "cli-plugins/**/*.tsx",
+      "cli-plugins/**/package.json"
+    ]
   },
   "formatter": {
     "enabled": true,
