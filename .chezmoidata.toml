@@ -1,4 +1,4 @@
-theme = "mfd-paper"
+theme = "github-light"
 
 [radii]
 unit = 2
