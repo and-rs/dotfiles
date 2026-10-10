@@ -29,10 +29,10 @@ adjust-cursor-height = 6
 #font-codepoint-map = U+03B1-U+03C9,U+03C2=Input
 
 #font-family = JetBrains Mono
-font-family = Maple Mono
+#font-family = Maple Mono
 #font-family = CommitMono
 #font-family = MD IO Trial
-# font-family = Input
+#font-family = Input
 
 # adjust-cell-height = 11
 # adjust-cursor-height = 11
@@ -48,10 +48,10 @@ font-family = Maple Mono
 #font-style-italic = Italic
 #font-style-bold-italic = Bold Italic
 
-#font-family = Monaspace Neon
-#font-family-bold = Monaspace Neon
-#font-family-italic = Monaspace Argon
-#font-family-bold-italic = Monaspace Argon
-#font-style-bold = Bold
-#font-style-italic = Italic
-#font-style-bold-italic = Bold Italic
+font-family = Monaspace Neon
+font-family-bold = Monaspace Neon
+font-family-italic = Monaspace Argon
+font-family-bold-italic = Monaspace Argon
+font-style-bold = Bold
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic

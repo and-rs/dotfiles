@@ -35,6 +35,16 @@ adjust-cursor-thickness = 3
 cursor-style-blink = false
 
 #--- KEYBINDS ---#
+keybind = clear
+
+keybind = ctrl+==increase_font_size:1
+keybind = ctrl+-=decrease_font_size:1
+keybind = ctrl+0=reset_font_size
+
+keybind = super+shift+,=reload_config
+keybind = super+v=paste_from_clipboard
+keybind = super+c=copy_to_clipboard:mixed
+
 keybind = opt+ctrl+f=text:\x1bf
 keybind = opt+ctrl+b=text:\x1bb
 
