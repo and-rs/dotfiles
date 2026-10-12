@@ -5,7 +5,7 @@ import stringWidth from "string-width";
 import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch-marquee";
 import { compactPath } from "./text-width";
 
-const spinnerFrames = ["⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"];
+const spinnerFrames = ["🭶", "🭷", "🭸", "🭹", "🭺", "🭻", "🭺", "🭹", "🭸", "🭷"];
 const pathWidthLimit = 24;
 const branchWidthLimit = 12;
 const branchScrollInterval = 200;
@@ -15,7 +15,7 @@ function TurnSpinner() {
   const [frame, setFrame] = createSignal(0);
   const timer = setInterval(() => {
     setFrame((current) => (current + 1) % spinnerFrames.length);
-  }, 80);
+  }, 40);
   onCleanup(() => clearInterval(timer));
 
   return <>{spinnerFrames[frame()]}</>;
@@ -123,6 +123,9 @@ export default Plugin.define({
     context.ui.slot({
       replace: "prompt.footer",
       render: ({ sessionID }) => {
+        const textColor = context.theme.background.raised.high;
+        const backgroundColor = context.theme.text.feedback.info.base;
+
         let currentTokens: number | undefined;
         let assistantModel: { providerID: string; id: string } | undefined;
         let contextWindow: number | undefined;
@@ -203,8 +206,8 @@ export default Plugin.define({
             <box flexGrow={1} flexShrink={0} minWidth={0}>
               <box flexDirection="row" gap={1}>
                 <text
-                  bg={context.theme.text.muted}
-                  fg={context.theme.background.base}
+                  bg={textColor}
+                  fg={backgroundColor}
                   wrapMode="none"
                 >
                   {" "}
@@ -214,7 +217,7 @@ export default Plugin.define({
                 </text>
 
                 <Show when={isRunning}>
-                  <text fg={context.theme.text.muted} wrapMode="none">
+                  <text fg={backgroundColor} wrapMode="none">
                     Working
                   </text>
                 </Show>
@@ -225,8 +228,8 @@ export default Plugin.define({
               <Show when={stats}>
                 {(value: () => string) => (
                   <text
-                    bg={context.theme.text.muted}
-                    fg={context.theme.background.base}
+                    bg={textColor}
+                    fg={backgroundColor}
                     wrapMode="none"
                   >
                     {value()}
@@ -238,8 +241,8 @@ export default Plugin.define({
                 branch={branch}
                 statsWidth={statsWidth}
                 statusWidth={statusWidth}
-                bg={context.theme.text.muted}
-                fg={context.theme.background.base}
+                bg={textColor}
+                fg={backgroundColor}
               />
             </box>
           </box>
