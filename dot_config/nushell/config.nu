@@ -6,6 +6,7 @@ $env.PATH ++= [
   $"($env.HOME)/.bun/bin"
   $"($env.HOME)/.cargo/bin"
   $"($env.HOME)/.local/bin"
+  $"($env.HOME)/.opencode/bin"
   $"($env.HOME)/.nix-profile/bin"
   $"($env.HOME)/.config/nushell/execs"
   $"($env.HOME)/.config/nushell/forgit/helpers"
