@@ -26,6 +26,7 @@ custom-shader-animation = false
 # custom-shader = shaders/fire.glsl
 
 #--- KEYBINDS ---#
+keybind = clear
 keybind = super+ctrl+f=text:\x1bf
 keybind = super+ctrl+b=text:\x1bb
 
