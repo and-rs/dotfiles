@@ -12,6 +12,8 @@
 
 [delta]
   features = general
+  pager = less -R -S
+  wrap-max-lines = 0
   max-line-length = 0
   diff-so-fancy = true
   line-numbers = true
