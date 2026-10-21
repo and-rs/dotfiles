@@ -4,11 +4,11 @@ import qs.Config as SC
 Item {
 	id: root
 
-	required property var swapContent
 	property real cardOpacity: 1
 	property real contentHeight: 0
 	property real contentOpacity: 0
 	property bool heightReady: false
+	required property var swapContent
 
 	signal leaveFinished
 
@@ -17,6 +17,7 @@ Item {
 		contentHeightAnimation.stop();
 		leaveFade.restart();
 	}
+
 	function show(height) {
 		leaveFade.stop();
 		contentFade.stop();
@@ -26,9 +27,11 @@ Item {
 		heightReady = height > 0;
 		contentOpacity = height > 0 ? 1 : 0;
 	}
+
 	function switchContent() {
 		contentFade.restart();
 	}
+
 	function updateContentHeight(height) {
 		if (height <= 0)
 			return;
@@ -54,9 +57,11 @@ Item {
 			target: root
 			to: 0
 		}
+
 		ScriptAction {
 			script: root.swapContent()
 		}
+
 		NumberAnimation {
 			duration: SC.Config.durations.fast
 			easing.type: SC.Config.curve
@@ -65,6 +70,7 @@ Item {
 			to: 1
 		}
 	}
+
 	NumberAnimation {
 		id: contentHeightAnimation
 
@@ -73,6 +79,7 @@ Item {
 		property: "contentHeight"
 		target: root
 	}
+
 	NumberAnimation {
 		id: leaveFade
 

@@ -80,6 +80,7 @@ Singleton {
 
 		target: instance
 	}
+
 	Process {
 		id: initialFetch
 
@@ -99,6 +100,7 @@ Singleton {
 			}
 		}
 	}
+
 	Connections {
 		function onRawEventReceived(event) {
 			if (!event)

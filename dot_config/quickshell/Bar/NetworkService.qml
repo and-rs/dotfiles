@@ -10,6 +10,7 @@ Singleton {
 
 	property string _operation: ""
 	property string _output: ""
+	property int _scanPolls: 0
 	property bool _scanRequested: false
 	property string actionNetworkId: ""
 	property string actionState: "idle"
@@ -21,7 +22,6 @@ Singleton {
 	property string lastError: ""
 	property bool panelOpen: false
 	property string scanState: "idle"
-	property int _scanPolls: 0
 	property bool stale: false
 	property var wifiDevice: null
 	property bool wifiEnabled: false
@@ -44,11 +44,13 @@ Singleton {
 		stale = false;
 		lastError = next.error;
 	}
+
 	function closePanel() {
 		panelOpen = false;
 		_scanRequested = false;
 		scanPollTimer.stop();
 	}
+
 	function complete(exitCode) {
 		const operation = _operation;
 		_operation = "";
@@ -103,6 +105,7 @@ Singleton {
 			refresh();
 		}
 	}
+
 	function connect(network) {
 		if (!network || !network.known || !wifiDevice || networkProcess.running)
 			return;
@@ -110,6 +113,7 @@ Singleton {
 		actionNetworkId = network.id;
 		start("action", ["connect", wifiDevice.name, network.name]);
 	}
+
 	function disconnect() {
 		if (!wifiDevice || networkProcess.running)
 			return;
@@ -117,36 +121,43 @@ Singleton {
 		actionNetworkId = connectedNetwork ? connectedNetwork.id : "";
 		start("action", ["disconnect", wifiDevice.name]);
 	}
+
 	function fail(message) {
 		stale = available;
 		lastError = message || "Network status unavailable";
 	}
+
 	function openPanel() {
 		panelOpen = true;
 		refresh();
 		scan();
 	}
+
 	function refresh() {
 		if (!networkProcess.running)
 			start("status", []);
 	}
+
 	function scan() {
 		_scanRequested = true;
 		if (networkProcess.running || !wifiDevice)
 			return;
 		startScan();
 	}
+
 	function start(operation, args) {
 		_operation = operation;
 		_output = "";
 		networkProcess.command = ["bash", backendScript, operation].concat(args || []);
 		networkProcess.running = true;
 	}
+
 	function startScan() {
 		scanState = "scanning";
 		_scanRequested = false;
 		start("scan-request", []);
 	}
+
 	function toggleWifi(enabled) {
 		if (!wifiDevice || networkProcess.running)
 			return;
@@ -171,6 +182,7 @@ Singleton {
 				root.start("scan-results", []);
 		}
 	}
+
 	Timer {
 		interval: 3000
 		repeat: true
@@ -178,6 +190,7 @@ Singleton {
 
 		onTriggered: root.refresh()
 	}
+
 	Process {
 		id: networkProcess
 

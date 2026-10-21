@@ -16,6 +16,7 @@ Rectangle {
 		code: 0xE308
 		iconColor: SC.Config.colors.surface4
 	}
+
 	MouseArea {
 		anchors.fill: parent
 

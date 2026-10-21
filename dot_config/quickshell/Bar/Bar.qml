@@ -32,6 +32,7 @@ Scope {
 				right: true
 				top: true
 			}
+
 			Item {
 				id: barContent
 
@@ -86,13 +87,16 @@ Scope {
 						height: 2
 					}
 				}
+
 				Row {
 					padding: SC.Config.padding.micro
 					spacing: SC.Config.spacing.normal
 
 					Workspaces {}
+
 					WindowTitle {}
 				}
+
 				Row {
 					id: rightRect
 
@@ -108,19 +112,23 @@ Scope {
 						spacing: SC.Config.spacing.small
 
 						Recording {}
+
 						Caffeine {
 							id: caffeine
 
 							window: main
 						}
+
 						LockButton {
 							id: lockButton
 
 							window: main
 						}
+
 						NotificationButton {
 							window: main
 						}
+
 						Rectangle {
 							anchors.verticalCenter: parent.verticalCenter
 							color: SC.Config.colors.surface2
@@ -128,10 +136,12 @@ Scope {
 							// separator
 							width: 2
 						}
+
 						ControlCenterButton {
 							window: main
 						}
 					}
+
 					Item {
 						id: timeSlot
 
@@ -148,6 +158,7 @@ Scope {
 							font: timeText.font
 							text: "Wed 31 May 23:59"
 						}
+
 						Text {
 							id: timeText
 

@@ -15,7 +15,7 @@ PopupWindow {
 	required property Item anchorButton
 	readonly property Item batteryContent: batteryContentLoader.item
 	readonly property Item bluetoothContent: bluetoothContentLoader.item
-
+	property bool closeNotified: false
 	readonly property int contentHeight: {
 		if (activeTab.id === "network" && networkContentLoader.item)
 			return networkContentLoader.item.implicitHeight;
@@ -28,7 +28,6 @@ PopupWindow {
 		return 0;
 	}
 	property string contentTab: "tray"
-	property bool closeNotified: false
 	property bool leaving: false
 	readonly property Item networkContent: networkContentLoader.item
 	required property bool open
@@ -61,6 +60,7 @@ PopupWindow {
 		popup.pendingAction = action;
 		popup.dismiss();
 	}
+
 	function dismiss() {
 		if (popup.leaving)
 			return;
@@ -68,6 +68,7 @@ PopupWindow {
 		popup.leaving = true;
 		animations.hide();
 	}
+
 	function selectTab(id) {
 		if (id === selectedTab)
 			return;
@@ -122,6 +123,7 @@ PopupWindow {
 				action();
 		}
 	}
+
 	Item {
 		id: frame
 
@@ -135,6 +137,7 @@ PopupWindow {
 
 			onClicked: popup.dismiss()
 		}
+
 		MouseArea {
 			height: popup.anchorButton.height
 			width: popup.anchorButton.width
@@ -143,6 +146,7 @@ PopupWindow {
 
 			onClicked: popup.dismiss()
 		}
+
 		Rectangle {
 			id: card
 
@@ -158,6 +162,7 @@ PopupWindow {
 			MouseArea {
 				anchors.fill: parent
 			}
+
 			Column {
 				anchors.fill: parent
 				anchors.margins: SC.Config.padding.large
@@ -168,16 +173,19 @@ PopupWindow {
 
 					spacing: SC.Config.spacing.extraSmall
 					width: parent.width
+
 					Repeater {
 						model: popup.tabDefinitions
 
 						delegate: TabButton {
 							required property var modelData
+
 							tab: modelData
 							width: (tabs.width - tabs.spacing * 3) / 4
 						}
 					}
 				}
+
 				Item {
 					id: contentViewport
 
@@ -190,35 +198,42 @@ PopupWindow {
 
 						active: (popup.open || popup.leaving) && popup.contentTab === "tray"
 						anchors.fill: parent
+
 						sourceComponent: Component {
 							TrayContent.TrayContent {
 								deferAction: action => popup.deferAction(action)
 							}
 						}
 					}
+
 					Loader {
 						id: bluetoothContentLoader
 
 						active: (popup.open || popup.leaving) && popup.contentTab === "bluetooth"
 						anchors.fill: parent
+
 						sourceComponent: Component {
 							BluetoothContent.BluetoothContent {}
 						}
 					}
+
 					Loader {
 						id: networkContentLoader
 
 						active: (popup.open || popup.leaving) && popup.contentTab === "network"
 						anchors.fill: parent
+
 						sourceComponent: Component {
 							NetworkContent.NetworkContent {}
 						}
 					}
+
 					Loader {
 						id: batteryContentLoader
 
 						active: (popup.open || popup.leaving) && popup.contentTab === "battery"
 						anchors.fill: parent
+
 						sourceComponent: Component {
 							BatteryContent.BatteryContent {}
 						}
@@ -230,6 +245,7 @@ PopupWindow {
 
 	component TabButton: Rectangle {
 		id: tabButton
+
 		required property var tab
 
 		color: popup.selectedTab === tab.id ? SC.Config.colors.surface5 : SC.Config.colors.surface1
@@ -245,6 +261,7 @@ PopupWindow {
 			font.weight: Font.DemiBold
 			text: parent.tab.label
 		}
+
 		MouseArea {
 			anchors.fill: parent
 			cursorShape: Qt.PointingHandCursor

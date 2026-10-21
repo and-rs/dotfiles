@@ -24,6 +24,7 @@ Rectangle {
 		iconColor: caffeine.isActive ? SC.Config.colors.fg : SC.Config.colors.surface4
 		iconSize: 16
 	}
+
 	MouseArea {
 		anchors.fill: parent
 
@@ -31,6 +32,7 @@ Rectangle {
 			caffeine.isActive = !caffeine.isActive;
 		}
 	}
+
 	Process {
 		id: cmd
 

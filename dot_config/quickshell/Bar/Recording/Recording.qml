@@ -47,6 +47,7 @@ Row {
 	RecordingService {
 		id: svc
 	}
+
 	Item {
 		id: iconContainer
 
@@ -70,6 +71,7 @@ Row {
 					duration: SC.Config.durations.normal
 					to: 0.5
 				}
+
 				NumberAnimation {
 					duration: SC.Config.durations.normal
 					to: 1.0
@@ -77,6 +79,7 @@ Row {
 			}
 		}
 	}
+
 	Row {
 		id: statusDisplay
 
@@ -108,6 +111,7 @@ Row {
 				color: "white"
 				radius: parent.radius
 			}
+
 			ShaderEffectSource {
 				id: shellMaskSource
 
@@ -116,6 +120,7 @@ Row {
 				smooth: true
 				sourceItem: shellMask
 			}
+
 			Rectangle {
 				id: savingBackground
 
@@ -125,6 +130,7 @@ Row {
 				radius: parent.radius
 				visible: svc.status === svc.statusSaving
 			}
+
 			Item {
 				id: shimmerLayer
 
@@ -153,10 +159,12 @@ Row {
 							color: "transparent"
 							position: 0.0
 						}
+
 						GradientStop {
 							color: Qt.rgba(1, 1, 1, 0.4)
 							position: 0.5
 						}
+
 						GradientStop {
 							color: "transparent"
 							position: 1.0
@@ -171,6 +179,7 @@ Row {
 					}
 				}
 			}
+
 			Text {
 				id: label
 
@@ -182,6 +191,7 @@ Row {
 				text: recordingRoot.statusText
 				verticalAlignment: Text.AlignVCenter
 			}
+
 			MouseArea {
 				id: shellClickArea
 

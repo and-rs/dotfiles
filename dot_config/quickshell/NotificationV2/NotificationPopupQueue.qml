@@ -9,9 +9,11 @@ Singleton {
 			return queue;
 		return queue.concat([id]);
 	}
+
 	function indexOf(queue: var, id: int): int {
 		return queue.indexOf(id);
 	}
+
 	function remove(queue: var, id: int): var {
 		const index = indexOf(queue, id);
 		if (index === -1)
@@ -21,6 +23,7 @@ Singleton {
 		nextQueue.splice(index, 1);
 		return nextQueue;
 	}
+
 	function takeNext(queue: var, records: var): var {
 		const nextQueue = queue.slice();
 		while (nextQueue.length > 0) {

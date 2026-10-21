@@ -52,6 +52,7 @@ Rectangle {
 
 			onClicked: root.activate()
 		}
+
 		SquareButton {
 			code: 0xE4F6
 			enabled: !root.busy
@@ -61,6 +62,7 @@ Rectangle {
 			onClicked: root.device.forget()
 		}
 	}
+
 	Item {
 		id: info
 
@@ -83,6 +85,7 @@ Rectangle {
 			font.weight: root.device.connected ? Font.DemiBold : Font.Normal
 			text: root.device.name || root.device.deviceName || root.device.address
 		}
+
 		Item {
 			id: subtitle
 
@@ -102,6 +105,7 @@ Rectangle {
 
 				onToggled: root.device.trusted = !root.device.trusted
 			}
+
 			Text {
 				id: autoconnectLabel
 
@@ -113,6 +117,7 @@ Rectangle {
 				text: "Autoconnect"
 				visible: root.canAutoconnect
 			}
+
 			Text {
 				id: statusLabel
 
@@ -128,6 +133,7 @@ Rectangle {
 			}
 		}
 	}
+
 	Connections {
 		function onPairingChanged() {
 			if (!root.device.pairing && root.device.paired && !root.device.connected)
@@ -182,11 +188,13 @@ Rectangle {
 			iconSize: 16
 			visible: !button.busy
 		}
+
 		LoaderIcon {
 			iconColor: button.iconColor
 			iconSize: 16
 			visible: button.busy
 		}
+
 		MouseArea {
 			id: buttonMouse
 

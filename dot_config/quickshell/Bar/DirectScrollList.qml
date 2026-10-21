@@ -12,18 +12,23 @@ ListView {
 	function clampContentX(value: real): real {
 		return Math.max(root.minimumContentX(), Math.min(root.maximumContentX(), value));
 	}
+
 	function clampContentY(value: real): real {
 		return Math.max(root.minimumContentY(), Math.min(root.maximumContentY(), value));
 	}
+
 	function maximumContentX(): real {
 		return Math.max(root.minimumContentX(), root.originX + root.contentWidth - root.width + root.rightMargin);
 	}
+
 	function maximumContentY(): real {
 		return Math.max(root.minimumContentY(), root.originY + root.contentHeight - root.height + root.bottomMargin);
 	}
+
 	function minimumContentX(): real {
 		return root.originX - root.leftMargin;
 	}
+
 	function minimumContentY(): real {
 		return root.originY - root.topMargin;
 	}
@@ -51,6 +56,7 @@ ListView {
 		}
 		z: 2
 	}
+
 	Rectangle {
 		anchors.bottom: root.bottom
 		anchors.bottomMargin: SC.Config.padding.micro / 2
@@ -70,6 +76,7 @@ ListView {
 		}
 		z: 2
 	}
+
 	WheelHandler {
 		acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
 		blocking: true

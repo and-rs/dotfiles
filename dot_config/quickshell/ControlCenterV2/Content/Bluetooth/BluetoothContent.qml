@@ -35,15 +35,18 @@ Column {
 		const bn = (b.name || b.deviceName || b.address || "").toLowerCase();
 		return an.localeCompare(bn);
 	}
+
 	function detailText(label, value) {
 		return value ? label + "\n" + value : "";
 	}
+
 	function scan() {
 		if (!root.adapter || root.discovering || !root.enabled)
 			return;
 		root.adapter.discovering = true;
 		scanTimeout.restart();
 	}
+
 	function stopScan() {
 		scanTimeout.stop();
 		if (root.adapter && root.adapter.discovering)
@@ -63,6 +66,7 @@ Column {
 
 		onTriggered: root.stopScan()
 	}
+
 	Item {
 		id: hero
 
@@ -80,6 +84,7 @@ Column {
 			iconColor: root.connectedDevice ? SC.Config.colors.primary : SC.Config.colors.surface5
 			iconSize: 30
 		}
+
 		Text {
 			id: title
 
@@ -95,6 +100,7 @@ Column {
 			font.weight: Font.DemiBold
 			text: !root.adapter ? "Bluetooth unavailable" : root.connectedDevice ? root.connectedDevice.name || root.connectedDevice.deviceName : "Bluetooth"
 		}
+
 		Text {
 			id: status
 
@@ -108,6 +114,7 @@ Column {
 			font.weight: Font.Medium
 			text: !root.adapter ? "NO ADAPTER" : BluetoothAdapterState.toString(root.adapter.state).toUpperCase() + (root.adapter.adapterId ? " · " + root.adapter.adapterId.toUpperCase() : "")
 		}
+
 		Rectangle {
 			id: bluetoothToggle
 
@@ -127,6 +134,7 @@ Column {
 				width: height
 				x: root.enabled ? parent.width - width - 3 : 3
 			}
+
 			MouseArea {
 				anchors.fill: parent
 				cursorShape: Qt.PointingHandCursor
@@ -136,11 +144,13 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		width: parent.width
 	}
+
 	Grid {
 		columnSpacing: SC.Config.spacing.large
 		columns: 3
@@ -162,12 +172,14 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		visible: root.enabled
 		width: parent.width
 	}
+
 	Item {
 		height: visible ? root.sectionHeaderHeight : 0
 		visible: root.enabled
@@ -180,6 +192,7 @@ Column {
 			anchors.verticalCenter: parent.verticalCenter
 			text: root.discovering ? "SCANNING DEVICES" : "BLUETOOTH DEVICES"
 		}
+
 		Row {
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
@@ -192,6 +205,7 @@ Column {
 				centered: false
 				visible: root.discovering
 			}
+
 			Text {
 				id: scanLabel
 
@@ -212,6 +226,7 @@ Column {
 			}
 		}
 	}
+
 	DirectScrollList {
 		clip: true
 		height: visible ? root.deviceListHeight : 0
@@ -227,6 +242,7 @@ Column {
 			width: ListView.view.width
 		}
 	}
+
 	Item {
 		height: visible ? root.sectionHeaderHeight : 0
 		visible: root.enabled && otherModel.values.length > 0
@@ -238,6 +254,7 @@ Column {
 			text: "OTHER DEVICES"
 		}
 	}
+
 	DirectScrollList {
 		clip: true
 		height: visible ? root.deviceListHeight : 0
@@ -253,17 +270,20 @@ Column {
 			width: ListView.view.width
 		}
 	}
+
 	Text {
 		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: !root.adapter ? "No Bluetooth adapter found" : root.blocked ? "Bluetooth is blocked" : !root.enabled ? "Bluetooth is disabled" : !root.discovering && pairedModel.values.length === 0 && otherModel.values.length === 0 ? "No devices found" : ""
 		visible: text !== ""
 	}
+
 	ScriptModel {
 		id: pairedModel
 
 		values: root.devices.filter(device => device && (device.paired || device.bonded)).sort(root.compareDevices)
 	}
+
 	ScriptModel {
 		id: otherModel
 

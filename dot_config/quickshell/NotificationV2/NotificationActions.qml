@@ -54,6 +54,7 @@ Column {
 					text: root.visibleActions[index]?.text ?? "Action"
 					textFormat: Text.PlainText
 				}
+
 				MouseArea {
 					id: actionArea
 
@@ -65,6 +66,7 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface1
 		implicitHeight: replyIndicatorText.implicitHeight + SC.Config.padding.small * 2
@@ -83,6 +85,7 @@ Column {
 			textFormat: Text.PlainText
 		}
 	}
+
 	NotificationInlineReply {
 		id: inlineReply
 

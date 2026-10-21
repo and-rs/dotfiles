@@ -6,9 +6,7 @@ Row {
 	id: root
 
 	readonly property string borderColor: SC.Config.colors.surface3
-
 	readonly property int borderWidth: 2
-
 	readonly property bool charging: {
 		if (!device || !device.ready)
 			return false;
@@ -16,7 +14,6 @@ Row {
 		return state === UPowerDeviceState.Charging || state === UPowerDeviceState.PendingCharge;
 	}
 	readonly property var device: UPower.displayDevice
-
 	readonly property color fillColor: {
 		if (fillLevel < 0.2)
 			return SC.Config.colors.destructive;
@@ -29,8 +26,6 @@ Row {
 		const lightness = Math.min(1, success.hslLightness + 0.15);
 		return Qt.hsla(success.hslHue, saturation, lightness, 1);
 	}
-
-	readonly property real percentage: device && device.ready ? device.percentage : 0
 	readonly property real fillLevel: Math.max(0, Math.min(1, percentage))
 	readonly property bool hasBattery: {
 		const devices = UPower.devices.values ?? [];
@@ -40,6 +35,7 @@ Row {
 		}
 		return false;
 	}
+	readonly property real percentage: device && device.ready ? device.percentage : 0
 
 	anchors.verticalCenter: parent.verticalCenter
 	spacing: SC.Config.spacing.extraSmall
@@ -52,6 +48,7 @@ Row {
 		font.weight: 600
 		text: String(Math.round(root.fillLevel * 100)) + "%"
 	}
+
 	Row {
 		anchors.verticalCenter: parent.verticalCenter
 
@@ -77,6 +74,7 @@ Row {
 					width: parent.width * root.fillLevel
 				}
 			}
+
 			Rectangle {
 				anchors.fill: parent
 				border.color: root.borderColor
@@ -84,6 +82,7 @@ Row {
 				color: "transparent"
 				radius: SC.Config.radius.small
 			}
+
 			BatteryBoltIcon {
 				anchors.fill: parent
 				opacity: root.charging ? 1 : 0
@@ -96,6 +95,7 @@ Row {
 				}
 			}
 		}
+
 		Rectangle {
 			anchors.verticalCenter: parent.verticalCenter
 			bottomRightRadius: SC.Config.radius.small

@@ -23,6 +23,7 @@ Scope {
 			ffmpegProc.running = true;
 		}
 	}
+
 	function dismiss() {
 		status = statusIdle;
 		elapsedSeconds = 0;
@@ -31,11 +32,13 @@ Scope {
 		recProc.running = false;
 		ffmpegProc.running = false;
 	}
+
 	function getTimestamp() {
 		const d = new Date();
 		const pad = n => n.toString().padStart(2, '0');
 		return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "_" + pad(d.getHours()) + "-" + pad(d.getMinutes()) + "-" + pad(d.getSeconds());
 	}
+
 	function handlePrimaryAction() {
 		if (status === statusIdle)
 			start();
@@ -44,10 +47,12 @@ Scope {
 		else if (status === statusCompressPrompt)
 			compress();
 	}
+
 	function handleSecondaryAction() {
 		if (status === statusCompressPrompt)
 			dismiss();
 	}
+
 	function start() {
 		if (status !== statusIdle)
 			return;
@@ -57,6 +62,7 @@ Scope {
 		});
 		slurpWatcher.running = true;
 	}
+
 	function stop() {
 		if (status === statusRecording) {
 			recProc.running = false;
@@ -73,6 +79,7 @@ Scope {
 
 		onTriggered: root.elapsedSeconds++
 	}
+
 	IpcHandler {
 		function toggle() {
 			if (root.status === root.statusRecording) {
@@ -86,6 +93,7 @@ Scope {
 
 		target: "recorder"
 	}
+
 	Process {
 		id: slurpWatcher
 
@@ -93,6 +101,7 @@ Scope {
 
 		onExited: readGeoProc.running = true
 	}
+
 	Process {
 		id: readGeoProc
 
@@ -113,6 +122,7 @@ Scope {
 			}
 		}
 	}
+
 	Process {
 		id: recProc
 
@@ -124,6 +134,7 @@ Scope {
 			}
 		}
 	}
+
 	Process {
 		id: ffmpegProc
 

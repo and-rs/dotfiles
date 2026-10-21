@@ -62,6 +62,7 @@ Rectangle {
 				notificationImage: root.image
 				size: root.previewIconSize
 			}
+
 			Column {
 				spacing: SC.Config.spacing.extraSmall
 				width: parent.width - previewIcon.width - activateButtonLoader.width - parent.spacing * (1 + (activateButtonLoader.active ? 1 : 0))
@@ -76,6 +77,7 @@ Rectangle {
 					visible: text !== ""
 					width: parent.width
 				}
+
 				Text {
 					color: SC.Config.colors.fg
 					elide: Text.ElideRight
@@ -88,6 +90,7 @@ Rectangle {
 					wrapMode: Text.Wrap
 				}
 			}
+
 			Loader {
 				id: activateButtonLoader
 
@@ -105,6 +108,7 @@ Rectangle {
 						iconColor: activateArea.containsMouse ? SC.Config.colors.bg : SC.Config.colors.primary
 						iconSize: root.activateIconSize
 					}
+
 					MouseArea {
 						id: activateArea
 
@@ -116,6 +120,7 @@ Rectangle {
 				}
 			}
 		}
+
 		Text {
 			color: SC.Config.colors.fg
 			elide: Text.ElideRight
@@ -130,6 +135,7 @@ Rectangle {
 
 			onLinkActivated: link => root.linkActivated(link)
 		}
+
 		NotificationActions {
 			id: notificationActions
 
@@ -141,6 +147,7 @@ Rectangle {
 			onActionRequested: actionIndex => root.actionRequested(root.notificationId, actionIndex)
 			onInlineReplyRequested: text => root.inlineReplyRequested(root.notificationId, text)
 		}
+
 		Text {
 			color: SC.Config.colors.surface4
 			font.pixelSize: SC.Config.sizes.small

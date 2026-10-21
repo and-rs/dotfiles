@@ -40,6 +40,7 @@ Rectangle {
 		visible: root.hasCheck
 		width: 12
 	}
+
 	Item {
 		id: entryIcon
 
@@ -63,6 +64,7 @@ Rectangle {
 			sourceSize.width: SC.Config.sizes.normal
 			visible: status === Image.Ready && root.iconValid
 		}
+
 		MaterialIcon {
 			anchors.centerIn: parent
 			code: 0xE3E8
@@ -71,6 +73,7 @@ Rectangle {
 			visible: iconImage.status !== Image.Ready || !root.iconValid
 		}
 	}
+
 	MaterialIcon {
 		id: chevron
 
@@ -83,6 +86,7 @@ Rectangle {
 		iconSize: 16
 		visible: root.submenu
 	}
+
 	Text {
 		id: actionLabel
 
@@ -97,6 +101,7 @@ Rectangle {
 		font.weight: Font.Normal
 		text: root.label
 	}
+
 	MouseArea {
 		id: mouse
 

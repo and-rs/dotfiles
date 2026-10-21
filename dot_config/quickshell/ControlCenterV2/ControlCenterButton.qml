@@ -15,6 +15,7 @@ Rectangle {
 	function close() {
 		open = false;
 	}
+
 	function toggle() {
 		if (open)
 			popup.dismiss();
@@ -33,6 +34,7 @@ Rectangle {
 	HoverHandler {
 		id: hover
 	}
+
 	Row {
 		id: content
 
@@ -40,16 +42,21 @@ Rectangle {
 		spacing: SC.Config.spacing.large
 
 		TrayIndicator {}
+
 		BluetoothIndicator {}
+
 		NetworkIndicator {}
+
 		BatteryIndicator {}
 	}
+
 	MouseArea {
 		anchors.fill: parent
 		cursorShape: Qt.PointingHandCursor
 
 		onClicked: root.toggle()
 	}
+
 	ControlCenterPopup {
 		id: popup
 
@@ -59,6 +66,7 @@ Rectangle {
 
 		onCloseRequested: root.close()
 	}
+
 	QtObject {
 		id: networkDebugTarget
 
@@ -81,14 +89,17 @@ Rectangle {
 			];
 		}
 		property string name: "network"
+
 		function close() {
 			root.close();
 		}
+
 		function open() {
 			popup.selectedTab = "network";
 			root.open = true;
 		}
 	}
+
 	Loader {
 		active: SC.Config.debug.enabled
 

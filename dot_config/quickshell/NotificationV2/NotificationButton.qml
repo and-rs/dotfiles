@@ -16,6 +16,7 @@ Rectangle {
 		sidebarHost.finalizePendingRemovals();
 		open = false;
 	}
+
 	function toggle() {
 		if (open)
 			close();
@@ -32,6 +33,7 @@ Rectangle {
 		code: root.hasNotifications ? 0xE5E8 : 0xE0CE
 		iconColor: root.open ? SC.Config.colors.primary : root.hasNotifications ? SC.Config.colors.fg : SC.Config.colors.surface4
 	}
+
 	Rectangle {
 		anchors.right: parent.right
 		anchors.rightMargin: SC.Config.padding.micro
@@ -54,11 +56,13 @@ Rectangle {
 			textFormat: Text.PlainText
 		}
 	}
+
 	MouseArea {
 		anchors.fill: parent
 
 		onClicked: root.toggle()
 	}
+
 	SidebarHost {
 		id: sidebarHost
 

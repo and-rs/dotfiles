@@ -10,6 +10,13 @@ import IconValidation 1.0
 Column {
 	id: root
 
+	readonly property int actionListHeight: {
+		const count = root.actionRows.length;
+		if (count === 0)
+			return 0;
+		const height = count * 48 + Math.max(0, count - 1) * SC.Config.spacing.extraSmall;
+		return Math.min(height, SC.Config.networkPanel.listHeight);
+	}
 	readonly property var actionRows: {
 		const rows = [];
 		const selected = root.selectedItem;
@@ -61,13 +68,6 @@ Column {
 			return root.menuStack[root.menuStack.length - 1].menu;
 		return root.selectedItem && root.selectedItem.hasMenu ? root.selectedItem.menu : null;
 	}
-	readonly property int actionListHeight: {
-		const count = root.actionRows.length;
-		if (count === 0)
-			return 0;
-		const height = count * 48 + Math.max(0, count - 1) * SC.Config.spacing.extraSmall;
-		return Math.min(height, SC.Config.networkPanel.listHeight);
-	}
 	required property var deferAction
 	readonly property string menuKey: {
 		const titles = [];
@@ -110,14 +110,17 @@ Column {
 		root.selectedId = items[0].id;
 		root.menuStack = [];
 	}
+
 	function iconIsValid(icon, width, height) {
 		return !iconValidator.canValidate(icon) || iconValidator.isValid(icon, width, height);
 	}
+
 	function popMenu() {
 		if (root.menuStack.length === 0)
 			return;
 		root.menuStack = root.menuStack.slice(0, -1);
 	}
+
 	function pushMenu(entry) {
 		root.menuStack = root.menuStack.concat([
 			{
@@ -126,18 +129,21 @@ Column {
 			}
 		]);
 	}
+
 	function resolveIcon(icon) {
 		if (!icon || !icon.includes("?path="))
 			return icon ?? "";
 		const [name, path] = icon.split("?path=");
 		return Qt.resolvedUrl(`${path}/${name.slice(name.lastIndexOf("/") + 1)}`);
 	}
+
 	function selectItem(item) {
 		if (!item)
 			return;
 		root.selectedId = item.id;
 		root.menuStack = [];
 	}
+
 	function triggerRow(row) {
 		if (row.kind === "submenu" && row.entry) {
 			root.pushMenu(row.entry);
@@ -164,11 +170,13 @@ Column {
 	IconValidator {
 		id: iconValidator
 	}
+
 	QsMenuOpener {
 		id: menuOpener
 
 		menu: root.currentMenu
 	}
+
 	NumberAnimation {
 		id: menuFade
 
@@ -178,11 +186,12 @@ Column {
 		target: actionPane
 		to: 1
 	}
+
 	DirectScrollList {
 		clip: true
 		height: 40
-		orientation: ListView.Horizontal
 		model: SystemTray.items
+		orientation: ListView.Horizontal
 		spacing: SC.Config.spacing.extraSmall
 		visible: root.trayIds !== ""
 		width: parent.width
@@ -198,6 +207,7 @@ Column {
 			onDoubleClicked: modelData.activate()
 		}
 	}
+
 	Item {
 		id: actionPane
 
@@ -226,6 +236,7 @@ Column {
 					iconSize: 16
 					visible: root.menuStack.length > 0
 				}
+
 				MouseArea {
 					anchors.fill: backIcon
 					anchors.margins: -SC.Config.padding.small
@@ -235,6 +246,7 @@ Column {
 
 					onClicked: root.popMenu()
 				}
+
 				Text {
 					id: paneTitle
 
@@ -249,6 +261,7 @@ Column {
 					text: root.selectedTitle
 				}
 			}
+
 			Item {
 				height: root.actionListHeight
 				width: parent.width
@@ -280,12 +293,14 @@ Column {
 			}
 		}
 	}
+
 	Text {
 		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: "No tray items"
 		visible: root.trayIds === ""
 	}
+
 	ScriptModel {
 		id: actionModel
 

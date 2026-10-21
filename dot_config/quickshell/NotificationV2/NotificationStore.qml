@@ -33,6 +33,7 @@ Singleton {
 		popupQueueIds = nextPopup.queue;
 		popupId = nextPopup.id;
 	}
+
 	function addNotification(notification: var): var {
 		if (!notification)
 			return null;
@@ -48,6 +49,7 @@ Singleton {
 		activateNextPopup();
 		return nextEntry;
 	}
+
 	function cacheImage(image: var, cacheKey: string): string {
 		const sourcePath = localImagePath(image);
 		if (!sourcePath)
@@ -74,12 +76,14 @@ Singleton {
 			writer.destroy();
 		}
 	}
+
 	// Async Image decoding can outlive a record replacement, so cache files are session-lifetime assets.
 	function cleanupImageCacheDirectory(): void {
 		Quickshell.execDetached({
 			command: ["sh", "-c", "rm -f \"$1\"*", "sh", imageCachePrefix]
 		});
 	}
+
 	function clear(): void {
 		const currentEntries = records;
 		records = [];
@@ -97,6 +101,7 @@ Singleton {
 			delete connectedNotifications[entry.id];
 		}
 	}
+
 	function clearPopup(id: int): void {
 		if (popupId !== id)
 			return;
@@ -105,6 +110,7 @@ Singleton {
 		popupQueueIds = nextPopup.queue;
 		popupId = nextPopup.id;
 	}
+
 	function cloneObject(value: var): var {
 		const clone = {};
 		if (!value)
@@ -113,6 +119,7 @@ Singleton {
 			clone[key] = value[key];
 		return clone;
 	}
+
 	function connectNotification(notification: var): void {
 		if (connectedNotifications[notification.id] === notification)
 			return;
@@ -129,28 +136,34 @@ Singleton {
 		notification.hasInlineReplyChanged.connect(() => refreshNotification(notification));
 		notification.inlineReplyPlaceholderChanged.connect(() => refreshNotification(notification));
 	}
+
 	function enqueuePopupId(id: int): void {
 		popupQueueIds = NotificationPopupQueue.enqueue(popupQueueIds, id);
 	}
+
 	function expirePopup(id: int): void {
 		clearPopup(id);
 		const notification = getById(id)?.notification;
 		if (notification)
 			NotificationLifecycle.expire(notification);
 	}
+
 	function getById(id: int): var {
 		const index = indexOfId(id);
 		return index === -1 ? null : records[index];
 	}
+
 	function hideActivePopup(): void {
 		if (popupId !== -1)
 			clearPopup(popupId);
 	}
+
 	function imageExtension(path: string): string {
 		const cleanPath = path.split("?")[0].split("#")[0];
 		const match = cleanPath.match(/\.([A-Za-z0-9]{1,8})$/);
 		return match ? match[1].toLowerCase() : "image";
 	}
+
 	function indexOfId(id: int): int {
 		for (let index = 0; index < records.length; index++) {
 			if (records[index].id === id)
@@ -158,12 +171,14 @@ Singleton {
 		}
 		return -1;
 	}
+
 	function invokeAction(id: int, actionIndex: int): void {
 		const notification = getById(id)?.notification;
 		if (popupId === id)
 			clearPopup(id);
 		NotificationLifecycle.invoke(notification, actionIndex);
 	}
+
 	function invokeDefaultAction(id: int): void {
 		const notification = getById(id)?.notification;
 		if (!notification)
@@ -173,6 +188,7 @@ Singleton {
 		if (actionIndex !== -1)
 			invokeAction(id, actionIndex);
 	}
+
 	function localImagePath(image: var): string {
 		if (!image)
 			return "";
@@ -186,6 +202,7 @@ Singleton {
 			return value;
 		return "";
 	}
+
 	function markClosed(id: int, reason: var): void {
 		if (removingIds[id]) {
 			delete removingIds[id];
@@ -211,6 +228,7 @@ Singleton {
 		if (wasActive)
 			activateNextPopup();
 	}
+
 	function refreshNotification(notification: var): void {
 		if (!notification || !notification.tracked)
 			return;
@@ -221,6 +239,7 @@ Singleton {
 
 		upsertEntry(NotificationData.entryForNotification(notification, current));
 	}
+
 	function removeEntryOnly(id: int): void {
 		const index = indexOfId(id);
 		if (index === -1)
@@ -232,6 +251,7 @@ Singleton {
 		if (popupId === id)
 			popupId = -1;
 	}
+
 	function removeNotification(id: int): void {
 		const entry = getById(id);
 		if (!entry)
@@ -252,15 +272,18 @@ Singleton {
 		if (wasActive)
 			activateNextPopup();
 	}
+
 	function removeQueuedPopupId(id: int): void {
 		popupQueueIds = NotificationPopupQueue.remove(popupQueueIds, id);
 	}
+
 	function sendInlineReply(id: int, text: string): void {
 		const notification = getById(id)?.notification;
 		if (popupId === id)
 			clearPopup(id);
 		NotificationLifecycle.sendInlineReply(notification, text);
 	}
+
 	function trimToLimit(nextEntries: var): var {
 		while (nextEntries.length > SC.Config.notifications.historyLimit) {
 			const entry = nextEntries[nextEntries.length - 1];
@@ -276,9 +299,11 @@ Singleton {
 		}
 		return nextEntries;
 	}
+
 	function updateNotification(notification: var): var {
 		return addNotification(notification);
 	}
+
 	function upsertEntry(nextEntry: var): var {
 		const index = indexOfId(nextEntry.id);
 		const nextEntries = records.slice();

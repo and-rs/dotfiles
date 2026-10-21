@@ -49,12 +49,14 @@ PanelWindow {
 		right: true
 		top: true
 	}
+
 	margins {
 		bottom: 0
 		left: 0
 		right: 0
 		top: root.window.height
 	}
+
 	Item {
 		anchors.fill: parent
 
@@ -66,6 +68,7 @@ PanelWindow {
 
 			onClicked: root.closeRequested()
 		}
+
 		Rectangle {
 			id: panelFrame
 
@@ -104,12 +107,14 @@ PanelWindow {
 				color: SC.Config.colors.primary
 				width: 2
 			}
+
 			MouseArea {
 				acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
 				anchors.fill: parent
 				propagateComposedEvents: true
 				z: -1
 			}
+
 			Column {
 				anchors.fill: parent
 				anchors.margins: SC.Config.padding.large
@@ -130,6 +135,7 @@ PanelWindow {
 						width: parent.width - parent.spacing
 					}
 				}
+
 				Loader {
 					id: panelLoader
 

@@ -51,16 +51,19 @@ Rectangle {
 				color: SC.Config.colors.primary
 				position: 0.0
 			}
+
 			GradientStop {
 				color: SC.Config.colors.primary
 				position: 0.7
 			}
+
 			GradientStop {
 				color: Qt.lighter(SC.Config.colors.primary, 1.2)
 				position: 1.0
 			}
 		}
 	}
+
 	NumberAnimation {
 		id: progressAnimation
 

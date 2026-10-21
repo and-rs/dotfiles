@@ -43,6 +43,7 @@ Column {
 	function detailText(label, value) {
 		return value ? label + "\n" + value : "";
 	}
+
 	function formatDuration(seconds) {
 		const total = Math.max(0, Math.round(seconds || 0));
 		if (total <= 0)
@@ -76,6 +77,7 @@ Column {
 			iconColor: !root.hasBattery || !root.ready ? SC.Config.colors.surface5 : root.percentInt < 20 ? SC.Config.colors.destructive : root.charging ? SC.Config.colors.primary : SC.Config.colors.surface5
 			iconSize: 30
 		}
+
 		Text {
 			id: title
 
@@ -90,6 +92,7 @@ Column {
 			font.weight: Font.DemiBold
 			text: !root.hasBattery ? "No battery" : !root.ready ? "Battery" : root.percentInt + "%"
 		}
+
 		Text {
 			id: status
 
@@ -111,11 +114,13 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		width: parent.width
 	}
+
 	Grid {
 		columnSpacing: SC.Config.spacing.large
 		columns: 3
@@ -137,16 +142,19 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		visible: root.hasBattery && root.ready
 		width: parent.width
 	}
+
 	NetworkUi.NetworkSectionHeader {
 		text: "POWER MODE"
 		visible: root.hasBattery && root.ready
 	}
+
 	Column {
 		id: profileList
 
@@ -187,6 +195,7 @@ Column {
 			}
 		}
 	}
+
 	Text {
 		color: SC.Config.colors.surface4
 		font.pointSize: 8
@@ -195,6 +204,7 @@ Column {
 		width: parent.width
 		wrapMode: Text.Wrap
 	}
+
 	Text {
 		color: SC.Config.colors.surface3
 		font.pointSize: 9

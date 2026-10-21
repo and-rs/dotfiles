@@ -34,6 +34,7 @@ Row {
 
 			onClicked: replyInput.forceActiveFocus()
 		}
+
 		TextInput {
 			id: replyInput
 
@@ -67,6 +68,7 @@ Row {
 			}
 		}
 	}
+
 	Rectangle {
 		id: sendButton
 
@@ -94,6 +96,7 @@ Row {
 			text: "Send"
 			textFormat: Text.PlainText
 		}
+
 		MouseArea {
 			id: sendArea
 

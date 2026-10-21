@@ -26,6 +26,7 @@ Item {
 		target.open();
 		captureTimer.restart();
 	}
+
 	function captureItem(item: Item, name: string): void {
 		const text = item && item.text !== undefined ? String(item.text) : "";
 		const bounds = item ? Math.round(item.x) + "," + Math.round(item.y) + " " + Math.round(item.width) + "x" + Math.round(item.height) : "missing";
@@ -40,11 +41,13 @@ Item {
 				console.warn("[DebugCapture] Could not save " + name + ".png");
 		});
 	}
+
 	function close(): void {
 		if (activeTarget)
 			activeTarget.close();
 		activeTarget = null;
 	}
+
 	function targetFor(name: string): var {
 		for (let index = 0; index < targets.length; index++) {
 			if (targets[index].name === name)
@@ -73,10 +76,12 @@ Item {
 			}
 		}
 	}
+
 	IpcHandler {
 		function capture(name: string, directory: string): void {
 			root.capture(name, directory);
 		}
+
 		function close(): void {
 			root.close();
 		}

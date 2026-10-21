@@ -44,6 +44,7 @@ Column {
 			iconColor: NetworkService.connectivity === "Full" ? SC.Config.colors.primary : SC.Config.colors.surface4
 			iconSize: 30
 		}
+
 		Text {
 			id: title
 
@@ -59,6 +60,7 @@ Column {
 			font.weight: Font.DemiBold
 			text: !NetworkService.available ? "Network unavailable" : root.connectedNetwork ? root.connectedNetwork.name : root.wiredDevice && root.wiredDevice.hasLink ? "Ethernet" : root.wifiDevice ? "Wi-Fi" : "No network device"
 		}
+
 		Text {
 			id: status
 
@@ -72,6 +74,7 @@ Column {
 			font.weight: Font.Medium
 			text: (NetworkService.stale ? "STALE · " : "") + NetworkService.connectivity.toUpperCase() + " · " + NetworkService.backend.toUpperCase()
 		}
+
 		Rectangle {
 			id: wifiToggle
 
@@ -91,6 +94,7 @@ Column {
 				width: height
 				x: NetworkService.wifiEnabled ? parent.width - width - 3 : 3
 			}
+
 			MouseArea {
 				anchors.fill: parent
 				cursorShape: Qt.PointingHandCursor
@@ -100,11 +104,13 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		width: parent.width
 	}
+
 	Grid {
 		columnSpacing: SC.Config.spacing.large
 		columns: 3
@@ -126,12 +132,14 @@ Column {
 			}
 		}
 	}
+
 	Rectangle {
 		color: SC.Config.colors.surface2
 		height: 1
 		visible: root.wifiDevice !== null && NetworkService.wifiEnabled
 		width: parent.width
 	}
+
 	Item {
 		height: visible ? Math.max(scanHeader.implicitHeight, scanLabel.implicitHeight, scanLoader.iconSize) : 0
 		visible: root.wifiDevice !== null && NetworkService.wifiEnabled
@@ -144,6 +152,7 @@ Column {
 			anchors.verticalCenter: parent.verticalCenter
 			text: NetworkService.scanState === "scanning" ? "SCANNING WI-FI" : "WI-FI NETWORKS"
 		}
+
 		Row {
 			id: scanAction
 
@@ -158,6 +167,7 @@ Column {
 				centered: false
 				visible: NetworkService.scanState === "scanning"
 			}
+
 			Text {
 				id: scanLabel
 
@@ -178,6 +188,7 @@ Column {
 			}
 		}
 	}
+
 	Column {
 		id: networkList
 
@@ -200,10 +211,12 @@ Column {
 				width: ListView.view.width
 			}
 		}
+
 		NetworkSectionHeader {
 			text: "OTHER NETWORKS"
 			visible: root.otherNetworks.length > 0
 		}
+
 		DirectScrollList {
 			clip: true
 			height: visible ? Math.min(contentHeight, root.knownNetworks.length > 0 ? SC.Config.networkPanel.listHeight / 2 : SC.Config.networkPanel.listHeight) : 0
@@ -220,12 +233,14 @@ Column {
 			}
 		}
 	}
+
 	Text {
 		color: SC.Config.colors.surface3
 		font.pointSize: 9
 		text: root.wifiDevice === null ? "No Wi-Fi device found" : !NetworkService.wifiEnabled ? "Wi-Fi is disabled" : NetworkService.scanState === "idle" && NetworkService.wifiNetworks.length === 0 ? "No networks found" : ""
 		visible: text !== ""
 	}
+
 	Text {
 		color: SC.Config.colors.destructive
 		font.pointSize: 8

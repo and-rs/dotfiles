@@ -32,6 +32,7 @@ Singleton {
 
 		onFileChanged: reload()
 	}
+
 	JsonAdapter {
 		id: config
 

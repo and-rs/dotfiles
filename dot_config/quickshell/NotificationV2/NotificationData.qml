@@ -14,6 +14,7 @@ Singleton {
 			clone[key] = value[key];
 		return clone;
 	}
+
 	function defaultActionIndex(actions: var): int {
 		if (!actions)
 			return -1;
@@ -24,6 +25,7 @@ Singleton {
 		}
 		return -1;
 	}
+
 	function entryForClosedNotification(entry: var, notification: var, reason: string): var {
 		const nextEntry = cloneObject(entry);
 		nextEntry.closed = true;
@@ -39,6 +41,7 @@ Singleton {
 		}
 		return nextEntry;
 	}
+
 	function entryForNotification(notification: var, previousEntry: var): var {
 		const now = Date.now();
 		const image = notification?.image ?? "";
@@ -68,6 +71,7 @@ Singleton {
 			notification: notification ?? null
 		};
 	}
+
 	function isDefaultAction(action: var): bool {
 		if (!action)
 			return false;
@@ -75,6 +79,7 @@ Singleton {
 		const identifier = String(action.identifier || "").toLowerCase();
 		return identifier === "default" || identifier === "activate";
 	}
+
 	function popupDurationFromTimeout(expireTimeout: var): int {
 		if (expireTimeout === undefined || expireTimeout === null)
 			return SC.Config.notifications.popupDuration;
@@ -85,6 +90,7 @@ Singleton {
 
 		return Math.max(0, Math.round(timeout));
 	}
+
 	function visibleActions(actions: var): var {
 		const visible = [];
 		if (!actions)

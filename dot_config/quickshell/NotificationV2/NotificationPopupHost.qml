@@ -49,6 +49,7 @@ Scope {
 
 		target: NotificationStore
 	}
+
 	NotificationServer {
 		id: server
 
@@ -64,6 +65,7 @@ Scope {
 
 		onNotification: notification => NotificationStore.addNotification(notification)
 	}
+
 	PanelWindow {
 		id: popupWindow
 
@@ -123,6 +125,7 @@ Scope {
 					target: root
 					to: 0
 				}
+
 				NumberAnimation {
 					duration: SC.Config.durations.instant
 					easing.type: SC.Config.curve
@@ -130,6 +133,7 @@ Scope {
 					target: root
 					to: -SC.Config.spacing.normal
 				}
+
 				ScriptAction {
 					script: {
 						root.displayedNotification = root.pendingNotification;
@@ -137,6 +141,7 @@ Scope {
 						root.contentOffset = SC.Config.spacing.normal;
 					}
 				}
+
 				ParallelAnimation {
 					NumberAnimation {
 						duration: SC.Config.durations.extraFast
@@ -145,6 +150,7 @@ Scope {
 						target: root
 						to: 1
 					}
+
 					NumberAnimation {
 						duration: SC.Config.durations.extraFast
 						easing.type: SC.Config.curve
@@ -154,6 +160,7 @@ Scope {
 					}
 				}
 			}
+
 			Item {
 				id: popupContent
 
@@ -178,6 +185,7 @@ Scope {
 					onInlineReplyRequested: (notificationId, text) => NotificationStore.sendInlineReply(notificationId, text)
 					onLinkActivated: link => Qt.openUrlExternally(link)
 				}
+
 				MouseArea {
 					acceptedButtons: Qt.LeftButton
 					anchors.fill: popupCard
@@ -188,6 +196,7 @@ Scope {
 						mouse.accepted = false;
 					}
 				}
+
 				NotificationTimeoutBar {
 					id: timeoutBar
 

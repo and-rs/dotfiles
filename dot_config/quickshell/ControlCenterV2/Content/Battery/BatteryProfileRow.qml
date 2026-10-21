@@ -32,6 +32,7 @@ Rectangle {
 		iconColor: root.active ? SC.Config.colors.primary : SC.Config.colors.fg
 		iconSize: 18
 	}
+
 	Text {
 		id: actionLabel
 
@@ -43,6 +44,7 @@ Rectangle {
 		font.weight: Font.Medium
 		text: root.active ? "Active" : root.available ? "" : "Unavailable"
 	}
+
 	Item {
 		id: labels
 
@@ -65,6 +67,7 @@ Rectangle {
 			font.weight: root.active ? Font.DemiBold : Font.Normal
 			text: root.label
 		}
+
 		Text {
 			id: subtitle
 
@@ -78,6 +81,7 @@ Rectangle {
 			text: root.active ? "Selected" : root.available ? "Set power mode" : "Not available"
 		}
 	}
+
 	MouseArea {
 		id: mouse
 

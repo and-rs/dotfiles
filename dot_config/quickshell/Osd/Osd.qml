@@ -68,6 +68,7 @@ Scope {
 
 		onTriggered: osdScope.visible = false
 	}
+
 	Process {
 		id: osdExec
 
@@ -83,32 +84,38 @@ Scope {
 			}
 		}
 	}
+
 	IpcHandler {
 		function adjustBrightness(step: string): void {
 			osdScope.mode = "brightness";
 			osdExec.command = ["sh", "-c", "brightnessctl set " + step + " -q && brightnessctl -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
 			osdExec.running = true;
 		}
+
 		function adjustKbdBrightness(step: string): void {
 			osdScope.mode = "kbd";
 			osdExec.command = ["sh", "-c", "brightnessctl -d asus::kbd_backlight set " + step + " -q && brightnessctl -d asus::kbd_backlight -m | awk -F, '{printf \"%d\\n\", int($3/$5*100+0.5)}'"];
 			osdExec.running = true;
 		}
+
 		function adjustMic(step: string): void {
 			osdScope.mode = "mic";
 			osdExec.command = ["sh", "-c", "wpctl set-volume @DEFAULT_SOURCE@ " + step + " -l 1.4 && wpctl get-volume @DEFAULT_SOURCE@ | awk '{print $2 * 100, $3}'"];
 			osdExec.running = true;
 		}
+
 		function adjustVolume(step: string): void {
 			osdScope.mode = "volume";
 			osdExec.command = ["sh", "-c", "wpctl set-volume @DEFAULT_SINK@ " + step + " -l 1.0 && wpctl get-volume @DEFAULT_SINK@ | awk '{print $2 * 100, $3}'"];
 			osdExec.running = true;
 		}
+
 		function toggleMicMute(): void {
 			osdScope.mode = "mic";
 			osdExec.command = ["sh", "-c", "wpctl set-mute @DEFAULT_SOURCE@ toggle && wpctl get-volume @DEFAULT_SOURCE@ | awk '{print $2 * 100, $3}'"];
 			osdExec.running = true;
 		}
+
 		function toggleMute(): void {
 			osdScope.mode = "volume";
 			osdExec.command = ["sh", "-c", "wpctl set-mute @DEFAULT_SINK@ toggle && wpctl get-volume @DEFAULT_SINK@ | awk '{print $2 * 100, $3}'"];
@@ -117,6 +124,7 @@ Scope {
 
 		target: "osd"
 	}
+
 	Variants {
 		model: Quickshell.screens
 
@@ -152,6 +160,7 @@ Scope {
 				right: true
 				top: true
 			}
+
 			Rectangle {
 				anchors.centerIn: parent
 				border.color: SC.Config.colors.surface4
@@ -182,6 +191,7 @@ Scope {
 								color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.fg
 							}
 						}
+
 						Text {
 							color: osdScope.isMuted ? SC.Config.colors.surface2 : SC.Config.colors.fg
 							font.pixelSize: SC.Config.sizes.normal
@@ -189,6 +199,7 @@ Scope {
 							text: osdScope.label + ": " + (osdScope.isMuted ? "Muted" : osdScope.currentValue + "%")
 						}
 					}
+
 					Rectangle {
 						color: SC.Config.colors.bg
 						height: SC.Config.spacing.small

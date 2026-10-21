@@ -25,15 +25,18 @@ Item {
 	function columnWidth(column) {
 		return Math.max(minColumnWidth, Math.round(sourceColumnWidth(column) * scaleFactor()));
 	}
+
 	function columnX(index) {
 		let x = 0;
 		for (let i = 0; i < index; i++)
 			x += columnWidth(columns[i]) + columnGap;
 		return x;
 	}
+
 	function isFocused(win) {
 		return focusedWindow && win.id === focusedWindow.id;
 	}
+
 	function mapWidth() {
 		let total = 0;
 		for (let i = 0; i < columns.length; i++) {
@@ -43,21 +46,25 @@ Item {
 		}
 		return total;
 	}
+
 	function scaleFactor() {
 		return mapHeight / layoutHeight;
 	}
+
 	function sourceColumnHeight(column) {
 		let total = 0;
 		for (let win of column)
 			total += win.tile_size && win.tile_size.length > 1 ? win.tile_size[1] : 1;
 		return Math.max(1, total);
 	}
+
 	function sourceColumnWidth(column) {
 		let width = 1;
 		for (let win of column)
 			width = Math.max(width, win.tile_size && win.tile_size.length > 0 ? win.tile_size[0] : 1);
 		return width;
 	}
+
 	function tileHeights(column) {
 		let count = column.length;
 		if (count === 0)
@@ -104,6 +111,7 @@ Item {
 
 		return heights;
 	}
+
 	function tileY(column, index) {
 		let heights = tileHeights(column);
 		let columnHeight = heights.reduce((total, height) => total + height, 0) + tileGap * Math.max(0, heights.length - 1);

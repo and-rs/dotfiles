@@ -36,6 +36,7 @@ Rectangle {
 		visible: status === Image.Ready && root.iconValid
 		width: 24
 	}
+
 	MaterialIcon {
 		anchors.centerIn: parent
 		code: 0xE3E8
@@ -43,6 +44,7 @@ Rectangle {
 		iconSize: SC.Config.sizes.large
 		visible: trayIcon.status !== Image.Ready || !root.iconValid
 	}
+
 	MouseArea {
 		id: mouse
 

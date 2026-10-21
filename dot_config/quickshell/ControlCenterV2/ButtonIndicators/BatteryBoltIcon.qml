@@ -5,9 +5,9 @@ import qs.Config as SC
 Shape {
 	id: root
 
+	readonly property string glyph: String.fromCodePoint(0xE2DE)
 	readonly property int iconSize: 14
 	readonly property real outline: 1.8
-	readonly property string glyph: String.fromCodePoint(0xE2DE)
 	readonly property rect tight: metrics.tightBoundingRect(root.glyph)
 
 	function token(light) {

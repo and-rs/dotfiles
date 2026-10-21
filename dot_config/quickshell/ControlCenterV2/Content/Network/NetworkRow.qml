@@ -30,6 +30,7 @@ Rectangle {
 			iconSize: 18
 			opacity: 0.55
 		}
+
 		MaterialIcon {
 			id: signalFill
 
@@ -38,6 +39,7 @@ Rectangle {
 			iconSize: 18
 		}
 	}
+
 	Text {
 		id: actionLabel
 
@@ -49,6 +51,7 @@ Rectangle {
 		font.weight: Font.Medium
 		text: root.busy ? "…" : root.network.connected ? "Connected" : root.canConnect ? "Connect" : ""
 	}
+
 	Item {
 		id: labels
 
@@ -71,6 +74,7 @@ Rectangle {
 			font.weight: root.network.connected ? Font.DemiBold : Font.Normal
 			text: root.network.name
 		}
+
 		Text {
 			id: subtitle
 
@@ -84,6 +88,7 @@ Rectangle {
 			text: root.busy ? NetworkService.actionState + "…" : root.network.connected ? "Connected" : root.network.security + (root.network.known ? " · saved" : "")
 		}
 	}
+
 	MouseArea {
 		id: mouse
 

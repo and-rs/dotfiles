@@ -48,6 +48,7 @@ Item {
 		opacity: 0.55
 		visible: root.showWifiGhost
 	}
+
 	MaterialIcon {
 		code: root.iconCode
 		iconColor: root.iconColor

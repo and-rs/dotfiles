@@ -9,9 +9,11 @@ Scope {
 	property int height: 32
 
 	Osd {}
+
 	Bar {
 		mainHeight: height
 	}
+
 	NotificationPopupHost {
 		mainHeight: height
 	}

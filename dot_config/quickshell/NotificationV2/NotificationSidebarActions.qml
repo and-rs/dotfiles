@@ -28,6 +28,7 @@ Item {
 		root.clearingAll = true;
 		clearAllTimer.restart();
 	}
+
 	function beginRemoval(id: int): void {
 		if (root.clearingAll || root.pendingRemovals[id])
 			return;
@@ -39,6 +40,7 @@ Item {
 		root.pendingRemovals = nextRemovals;
 		root.scheduleNextRemoval();
 	}
+
 	function capturePrependViewportAnchor(): void {
 		if (root.prependAnchorId !== -1)
 			return;
@@ -53,6 +55,7 @@ Item {
 		root.prependAnchorId = item.notificationId;
 		root.prependAnchorOffset = item.y - listView.contentY;
 	}
+
 	function captureRemovalAnchor(index: int, id: int): bool {
 		const contentY = listView.contentY;
 		let item = listView.itemAtIndex(index);
@@ -69,6 +72,7 @@ Item {
 		root.removalAnchorOffset = item.y - contentY;
 		return true;
 	}
+
 	function captureViewportAnchor(removingIds: var): void {
 		if (root.removalAnchorId !== -1)
 			return;
@@ -90,6 +94,7 @@ Item {
 		}
 		root.removalFallbackId = firstItem.notificationId;
 	}
+
 	function finalizeDueRemovals(): void {
 		const now = Date.now();
 		const dueIds = [];
@@ -110,6 +115,7 @@ Item {
 		if (dueIds.length > 0)
 			restoreViewportTimer.restart();
 	}
+
 	function finalizePendingRemovals(): void {
 		const ids = Object.keys(root.pendingRemovals);
 		if (ids.length === 0)
@@ -122,6 +128,7 @@ Item {
 			root.closeRequested(Number(ids[index]));
 		restoreViewportTimer.restart();
 	}
+
 	function indexOfEntry(id: int): int {
 		for (let index = 0; index < NotificationStore.count; index++) {
 			if (NotificationStore.records[index].id === id)
@@ -129,11 +136,13 @@ Item {
 		}
 		return -1;
 	}
+
 	function resetViewportAnchor(): void {
 		root.removalAnchorId = -1;
 		root.removalFallbackId = -1;
 		root.removalAnchorOffset = 0;
 	}
+
 	function restorePrependViewport(): void {
 		const index = root.indexOfEntry(root.prependAnchorId);
 		if (index >= 0) {
@@ -146,6 +155,7 @@ Item {
 		root.prependAnchorId = -1;
 		root.prependAnchorOffset = 0;
 	}
+
 	function restoreViewport(): void {
 		let index = root.indexOfEntry(root.removalAnchorId);
 		if (index === -1)
@@ -162,6 +172,7 @@ Item {
 			listView.contentY = listView.clampContentY(item.y - root.removalAnchorOffset);
 		root.resetViewportAnchor();
 	}
+
 	function scheduleNextRemoval(): void {
 		let nextDeadline = 0;
 		const ids = Object.keys(root.pendingRemovals);
@@ -178,6 +189,7 @@ Item {
 		removalTimer.interval = Math.max(1, nextDeadline - Date.now());
 		removalTimer.restart();
 	}
+
 	function undoRemoval(id: int): void {
 		if (!root.pendingRemovals[id])
 			return;
@@ -194,6 +206,7 @@ Item {
 		function onEntriesPrepending(): void {
 			root.capturePrependViewportAnchor();
 		}
+
 		function onRecordsChanged(): void {
 			if (root.prependAnchorId !== -1)
 				restorePrependViewportTimer.restart();
@@ -201,6 +214,7 @@ Item {
 
 		target: NotificationStore
 	}
+
 	Column {
 		anchors.fill: parent
 		spacing: SC.Config.spacing.normal
@@ -223,6 +237,7 @@ Item {
 					textFormat: Text.PlainText
 					width: parent.width
 				}
+
 				Text {
 					color: SC.Config.colors.surface4
 					elide: Text.ElideRight
@@ -232,6 +247,7 @@ Item {
 					width: parent.width
 				}
 			}
+
 			PanelButton {
 				id: clearAllButton
 
@@ -242,6 +258,7 @@ Item {
 				onPress: () => root.beginClearAll()
 			}
 		}
+
 		Item {
 			height: parent.height - y
 			width: parent.width
@@ -257,6 +274,7 @@ Item {
 					root.clearingAll = false;
 				}
 			}
+
 			Timer {
 				id: removalTimer
 
@@ -265,6 +283,7 @@ Item {
 
 				onTriggered: root.finalizeDueRemovals()
 			}
+
 			Timer {
 				id: restoreViewportTimer
 
@@ -273,6 +292,7 @@ Item {
 
 				onTriggered: root.restoreViewport()
 			}
+
 			Timer {
 				id: restorePrependViewportTimer
 
@@ -281,6 +301,7 @@ Item {
 
 				onTriggered: root.restorePrependViewport()
 			}
+
 			DirectScrollList {
 				id: listView
 
@@ -346,6 +367,7 @@ Item {
 							}
 						}
 					}
+
 					Loader {
 						id: undoRow
 
@@ -390,6 +412,7 @@ Item {
 										verticalAlignment: Text.AlignVCenter
 										width: parent.width - undoButton.width - parent.spacing
 									}
+
 									Rectangle {
 										id: undoButton
 
@@ -408,6 +431,7 @@ Item {
 											text: "Undo"
 											textFormat: Text.PlainText
 										}
+
 										MouseArea {
 											id: undoArea
 
@@ -418,6 +442,7 @@ Item {
 										}
 									}
 								}
+
 								Rectangle {
 									color: SC.Config.colors.surface3
 									height: 2
@@ -456,6 +481,7 @@ Item {
 							property: "opacity"
 							to: 0
 						}
+
 						NumberAnimation {
 							duration: SC.Config.durations.fast
 							easing.type: SC.Config.curve
@@ -465,6 +491,7 @@ Item {
 					}
 				}
 			}
+
 			Text {
 				anchors.centerIn: parent
 				color: SC.Config.colors.surface4
@@ -474,6 +501,7 @@ Item {
 				textFormat: Text.PlainText
 				visible: NotificationStore.count === 0
 			}
+
 			Rectangle {
 				anchors.left: parent.left
 				anchors.right: parent.right
@@ -490,12 +518,14 @@ Item {
 						color: SC.Config.colors.bg
 						position: 0.0
 					}
+
 					GradientStop {
 						color: Qt.rgba(0, 0, 0, 0)
 						position: 1.0
 					}
 				}
 			}
+
 			Rectangle {
 				anchors.bottom: parent.bottom
 				anchors.left: parent.left
@@ -512,6 +542,7 @@ Item {
 						color: Qt.rgba(0, 0, 0, 0)
 						position: 0.0
 					}
+
 					GradientStop {
 						color: SC.Config.colors.bg
 						position: 1.0
@@ -545,6 +576,7 @@ Item {
 			text: buttonRoot.label
 			textFormat: Text.PlainText
 		}
+
 		MouseArea {
 			anchors.fill: parent
 			enabled: buttonRoot.enabled

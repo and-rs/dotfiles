@@ -34,6 +34,7 @@ ClippingRectangle {
 		text: root.fallbackText
 		visible: !root.imageReady
 	}
+
 	Image {
 		id: backgroundImage
 
@@ -45,6 +46,7 @@ ClippingRectangle {
 		sourceSize.width: root.size * 2
 		visible: false
 	}
+
 	MultiEffect {
 		anchors.fill: parent
 		autoPaddingEnabled: false
@@ -54,6 +56,7 @@ ClippingRectangle {
 		source: backgroundImage
 		visible: root.backgroundReady && root.hasNotificationImage
 	}
+
 	Image {
 		id: foregroundImage
 
@@ -66,6 +69,7 @@ ClippingRectangle {
 		sourceSize.width: root.size * 2
 		visible: root.imageReady
 	}
+
 	Rectangle {
 		anchors.fill: parent
 		color: Qt.alpha(SC.Config.colors.bg, 0.12)

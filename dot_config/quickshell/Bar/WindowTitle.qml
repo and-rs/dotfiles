@@ -20,6 +20,7 @@ Row {
 		text: root.focusedWindow ? root.focusedWindow.title : ""
 		width: Math.min(implicitWidth, 250)
 	}
+
 	Text {
 		anchors.verticalCenter: parent.verticalCenter
 		color: SC.Config.colors.surface5
