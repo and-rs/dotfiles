@@ -17,10 +17,12 @@ faint-opacity = 1.0
 
 cursor-style = block
 cursor-style-blink = false
+cursor-opacity = 0
 shell-integration-features = no-cursor
 
 # Enabling this increases CPU usage
-custom-shader-animation = false
+custom-shader-animation = true
+custom-shader = shaders/cursor_wire.glsl
 # custom-shader = shaders/cursor_ripple.glsl
 # custom-shader = shaders/cursor_slash.glsl
 # custom-shader = shaders/fire.glsl
