@@ -92,7 +92,9 @@ Scope {
 					padding: SC.Config.padding.micro
 					spacing: SC.Config.spacing.normal
 
-					Workspaces {}
+					Workspaces {
+						output: main.screen.name
+					}
 
 					WindowTitle {}
 				}

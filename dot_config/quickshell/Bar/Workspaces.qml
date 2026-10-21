@@ -7,6 +7,7 @@ Row {
 	id: mainRow
 
 	anchors.verticalCenter: parent.verticalCenter
+	required property string output
 	spacing: SC.Config.spacing.extraSmall - 3
 
 	Repeater {
@@ -21,6 +22,7 @@ Row {
 			required property int index
 			required property bool isFocused
 			required property bool isEmpty
+			required property string output
 			readonly property real collapsedWidth: SC.Config.sizes.extraLarge
 			readonly property real expandedWidth: Math.max(collapsedWidth, focusedContent.implicitWidth + SC.Config.padding.extraSmall * 2)
 			readonly property bool focused: rect.isFocused
@@ -81,6 +83,7 @@ Row {
 			color: rect.fillColor()
 			height: SC.Config.sizes.extraLarge
 			radius: SC.Config.radius.small
+			visible: rect.output === mainRow.output
 			width: rect.currentWidth()
 
 			Behavior on width {
