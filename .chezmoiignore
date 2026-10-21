@@ -18,6 +18,10 @@ wallpapers
 .local/bin/xremap-niri
 {{- end }}
 
+{{- if or (ne .chezmoi.os "linux") (ne .chezmoi.hostname "boglrnd3010") }}
+.config/fontconfig
+{{- end }}
+
 {{- if ne .chezmoi.os "darwin" }}
 .config/aerospace
 .cargo

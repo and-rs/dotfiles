@@ -1,0 +1,13 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "boglrnd3010") -}}
+#!/usr/bin/env bash
+# fonts hash: {{ include ".chezmoidata.toml" | sha256sum }}
+
+command -v gsettings >/dev/null || exit 0
+
+gsettings set org.gnome.desktop.interface font-name '{{ .fonts.ui }} {{ .fonts.ui_size }}'
+gsettings set org.gnome.desktop.interface document-font-name '{{ .fonts.ui }} {{ .fonts.ui_size }}'
+gsettings set org.gnome.desktop.interface monospace-font-name '{{ .fonts.mono }} {{ .fonts.mono_size }}'
+gsettings set org.gnome.desktop.interface font-antialiasing 'grayscale'
+gsettings set org.gnome.desktop.interface font-hinting 'none'
+gsettings set org.gnome.desktop.interface font-rgba-order 'rgb'
+{{- end }}

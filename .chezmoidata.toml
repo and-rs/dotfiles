@@ -1,4 +1,10 @@
-theme = "github-light"
+theme = "neovim-light"
+
+[fonts]
+ui = "Inter"
+ui_size = 10
+mono = "Rec Mono Linear"
+mono_size = 10
 
 [radii]
 unit = 2
@@ -19,7 +25,7 @@ red = "#c41c46"
 green = "#587539"
 yellow = "#a27629"
 cyan = "#007ea8"
-bg = "#dddde3"
+bg = "#e5e5e9"
 cursor = "#3760bf"
 cursor_text = "#ffffff"
 selection = "#b7c1e3"

@@ -2,6 +2,9 @@ alias &dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '
 alias &light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 alias &loc = tokei -r code -C
 
+# VERY IMPORTANT
+alias rm = rm -i --trash
+
 alias g = git
 alias gc = git commit
 alias gl = git log --oneline -n 10

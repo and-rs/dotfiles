@@ -1,8 +1,8 @@
 {{- $queryScript := joinPath .chezmoi.sourceDir "dot_config/hypr/executable_awww-query.sh" -}}
 {{- $wallpaper := output "bash" $queryScript | trim -}}
 {{- $c := index .palettes .theme -}}
-$font = SF Pro
-$font_clock = SF Pro:style=Expanded Semibold
+$font = {{ .fonts.ui }}
+$font_clock = {{ .fonts.ui }}:style=Semibold
 $shadow_passes = 1
 $shadow_size = 1
 $shadow_color = rgba(000000aa)
