@@ -89,14 +89,15 @@ layout {
     }
     border {
         on
-        width 2
-        active-gradient from="{{ $c.surface4 }}" to="{{ $c.surface1 }}" angle=360
+        width 3
+        active-gradient from="{{ $c.cyan }}" to="{{ $c.surface1 }}" angle=180
         urgent-color "{{ $c.red }}"
         inactive-color "{{ $c.surface3 }}"
     }
     focus-ring {
         off
-        active-gradient from="{{ $c.blue }}" to="{{ $c.magenta }}" angle=60
+        width 3
+        inactive-color "#00000000"
     }
     shadow {
         off

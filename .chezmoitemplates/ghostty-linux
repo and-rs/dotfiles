@@ -1,4 +1,4 @@
-font-size = 14
+font-size = 13
 command = nu
 config-file = fonts.ghostty
 config-file = themes/current
@@ -7,7 +7,7 @@ config-file = themes/current
 quit-after-last-window-closed = true
 window-padding-balance = true
 confirm-close-surface = false
-adjust-cursor-thickness = 3
+adjust-cursor-thickness = 2
 adjust-icon-height = 8
 window-decoration = none
 window-padding-x = 1

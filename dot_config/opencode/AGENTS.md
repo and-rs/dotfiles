@@ -3,3 +3,5 @@
 - When reporting completed work, state only the result and relevant verification.
 
 - If you are in PLAN MODE, and the user says "analyze" or "take a look", be descriptive, NOT prescriptive, the user is not looking for solutions. It's looking for explanations.
+
+- When the user says "point me to it" (or a close variant), call the `quickfix-model` tool with the relevant locations instead of listing them in chat.
