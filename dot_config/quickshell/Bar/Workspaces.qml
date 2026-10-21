@@ -6,38 +6,9 @@ import qs.Config as SC
 Row {
 	id: mainRow
 
-	// Incremented on windows model changes to trigger binding re-evaluation
-	property int windowsRevision: 0
-
-	function isWorkspaceEmpty(workspaceId: int): bool {
-		for (let i = 0; i < NiriService.instance.windows.count; i++) {
-			let item = NiriService.instance.windows.data(NiriService.instance.windows.index(i, 0), Qt.UserRole + 5);
-			if (item === workspaceId) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	anchors.verticalCenter: parent.verticalCenter
 	spacing: SC.Config.spacing.extraSmall - 3
 
-	Connections {
-		function onDataChanged() {
-			mainRow.windowsRevision++;
-		}
-		function onModelReset() {
-			mainRow.windowsRevision++;
-		}
-		function onRowsInserted() {
-			mainRow.windowsRevision++;
-		}
-		function onRowsRemoved() {
-			mainRow.windowsRevision++;
-		}
-
-		target: NiriService.instance.windows
-	}
 	Repeater {
 		id: repeater
 
@@ -49,20 +20,68 @@ Row {
 			required property int id
 			required property int index
 			required property bool isFocused
+			required property bool isEmpty
 			readonly property real collapsedWidth: SC.Config.sizes.extraLarge
-			readonly property bool empty: {
-				mainRow.windowsRevision;
-				return mainRow.isWorkspaceEmpty(rect.id);
-			}
 			readonly property real expandedWidth: Math.max(collapsedWidth, focusedContent.implicitWidth + SC.Config.padding.extraSmall * 2)
 			readonly property bool focused: rect.isFocused
 
-			border.color: focused ? Qt.alpha(SC.Config.colors.primary, 0.55) : empty ? SC.Config.colors.surface1 : SC.Config.colors.surface2
-			border.width: focused ? 2 : 1
-			color: focused ? Qt.alpha(SC.Config.colors.primary, 0.12) : empty ? SC.Config.colors.surface1 : SC.Config.colors.surface2
+			function borderColor(): color {
+				if (rect.focused)
+					return Qt.alpha(SC.Config.colors.primary, 0.55);
+
+				if (rect.isEmpty)
+					return SC.Config.colors.surface1;
+
+				return SC.Config.colors.surface2;
+			}
+
+			function fillColor(): color {
+				if (rect.focused)
+					return Qt.alpha(SC.Config.colors.primary, 0.12);
+
+				if (rect.isEmpty)
+					return SC.Config.colors.surface1;
+
+				return SC.Config.colors.surface2;
+			}
+
+			function textColor(): color {
+				if (rect.focused)
+					return SC.Config.colors.primary;
+
+				if (rect.isEmpty)
+					return SC.Config.colors.surface4;
+
+				return SC.Config.colors.fg;
+			}
+
+			function currentWidth(): real {
+				if (rect.focused && !rect.isEmpty)
+					return rect.expandedWidth;
+
+				return rect.collapsedWidth;
+			}
+
+			function labelWeight(): int {
+				if (rect.focused)
+					return 600;
+
+				return 500;
+			}
+
+			function borderWidth(): int {
+				if (rect.focused)
+					return 2;
+
+				return 1;
+			}
+
+			border.color: rect.borderColor()
+			border.width: rect.borderWidth()
+			color: rect.fillColor()
 			height: SC.Config.sizes.extraLarge
 			radius: SC.Config.radius.small
-			width: focused && !empty ? expandedWidth : collapsedWidth
+			width: rect.currentWidth()
 
 			Behavior on width {
 				NumberAnimation {
@@ -76,7 +95,7 @@ Row {
 
 				anchors.centerIn: parent
 				spacing: SC.Config.spacing.extraSmall - 1
-				visible: rect.focused && !rect.empty
+				visible: rect.focused && !rect.isEmpty
 
 				Rectangle {
 					color: "transparent"
@@ -103,9 +122,9 @@ Row {
 
 				anchors.centerIn: parent
 				anchors.verticalCenterOffset: 0.5
-				color: rect.focused ? SC.Config.colors.primary : rect.empty ? SC.Config.colors.surface4 : SC.Config.colors.fg
+				color: rect.textColor()
 				font.pointSize: 10
-				font.weight: rect.focused ? 600 : 500
+				font.weight: rect.labelWeight()
 				text: rect.index
 				visible: !focusedContent.visible
 			}

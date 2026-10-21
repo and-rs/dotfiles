@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/Niri">/home/jbautista/Documents/dotfiles/dot_config/quickshell/Niri</file>
+
+  </qresource>
+</RCC>

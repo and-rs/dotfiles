@@ -1,0 +1,5 @@
+BasedOnStyle: Chromium
+UseTab: ForIndentation
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 100

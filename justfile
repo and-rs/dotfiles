@@ -7,7 +7,7 @@ qmlfmt:
   ls -a **/*.qml -a | get name | each { try { qmlformat --single-line-empty-objects -n -w 4 -i $in }}
 
 cppfmt:
-  nix shell "nixpkgs#clang-tools" --command clang-format -i "utils/icon-validation/iconvalidator.cpp" "utils/icon-validation/iconvalidator.hpp" "utils/icon-validation/plugin.cpp"
+  clang-format -i ...(glob "utils/icon-validation/*.{cpp,hpp}") ...(glob "utils/niri-plugin/src/*.{cpp,h}")
 
 apply:
   chezmoi --source "{{ justfile_directory() }}" apply -v --no-pager
