@@ -2,11 +2,14 @@
 // Ghostty's own cursor must be hidden:
 //
 //     cursor-opacity = 0
-//     custom-shader  = "./shaders/cursor_glide.glsl"
+//     custom-shader  = "./shaders/cursor_wire.glsl"
 
 // --- CONFIGURATION ---
 const float DURATION = 0.1; // seconds for one glide
-const float BORDER = 3.0; // border thickness in pixels
+const float BORDER_RATIO = 0.08; // border thickness as a fraction of cell height
+const float MIN_BORDER = 2.0; // px; bar/underline cursors up to 2x this thick draw solid
+const float CURSOR_SCALE_X = 1.3; // cursor width multiplier, centered on the cell
+const float CURSOR_SCALE_Y = 1; // cursor height multiplier, centered on the cell
 
 // sRGB -> linear: uniforms arrive as sRGB, iChannel0 and the output are linear.
 vec3 sRGBToLinear(vec3 c) {
@@ -16,11 +19,6 @@ vec3 sRGBToLinear(vec3 c) {
 // EaseOutCubic — swap for any of the curves in cursor_sweep.glsl.
 float ease(float x) {
   return 1.0 - pow(1.0 - x, 3.0);
-}
-
-float sdfRect(vec2 p, vec2 center, vec2 halfSize) {
-  vec2 d = abs(p - center) - halfSize;
-  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
 // iCurrentCursor/iPreviousCursor are (left, top-edge, width, height) in
@@ -43,9 +41,21 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   float e = ease(t);
 
   vec2 center = mix(rectCenter(prev), rectCenter(cur), e);
-  vec2 halfSize = mix(prev.zw, cur.zw, e) * 0.5;
+  vec2 halfSize = mix(prev.zw, cur.zw, e) * 0.5 * vec2(CURSOR_SCALE_X, CURSOR_SCALE_Y);
   vec3 rgb = sRGBToLinear(mix(iPreviousCursorColor.rgb, iCurrentCursorColor.rgb, e));
 
-  float coverage = step(sdfRect(fragCoord, center, halfSize), 0.0) * step(0.0, sdfRect(fragCoord, center, halfSize - BORDER));
-  fragColor = mix(tex, vec4(rgb, 1.0), coverage);
+  // Snap edges to whole pixels so every side gets the same thickness.
+  vec2 lo = round(center - halfSize);
+  vec2 hi = round(center + halfSize);
+
+  // Based on cell height (bar/block rects) rather than the cursor's own
+  // height, which for an underline is just its thickness.
+  float border = max(MIN_BORDER, round(BORDER_RATIO * max(prev.w, cur.w)));
+
+  // Wire = inside the rect but outside the rect shrunk by `border`.
+  // A bar/underline is thinner than 2 * border, so the shrunk rect is empty
+  // and it comes out solid with no special case.
+  bool inside = all(greaterThan(fragCoord, lo)) && all(lessThan(fragCoord, hi));
+  bool hole = all(greaterThan(fragCoord, lo + border)) && all(lessThan(fragCoord, hi - border));
+  fragColor = mix(tex, vec4(rgb, 1.0), float(inside && !hole));
 }
