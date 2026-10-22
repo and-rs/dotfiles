@@ -7,6 +7,7 @@ def main [
   --both (-b)
 ] {
   let uppercase_letters = [
+    {char: "✱" hex: "2731"}
     {char: "▣" hex: "25A3"}
     {char: "Α" hex: "0391"}
     {char: "Β" hex: "0392"}

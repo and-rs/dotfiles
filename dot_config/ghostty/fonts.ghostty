@@ -1,53 +1,35 @@
-# ▣ I hate this little opencode square so much.
-font-codepoint-map = U+25A3=CommitMono
-
-#adjust-font-baseline = 0
-#adjust-underline-thickness = 1
-#adjust-underline-position = 2
-
-# font-family = OCR-X TTF
-# font-feature = +ss02
-# font-feature = +ss04
-# font-feature = +ss03
-# font-style-bold = Regular
-# font-style-italic = Regular
-# font-style-bold-italic = Regular
+### VALUES ###
+adjust-font-baseline = 1
 adjust-box-thickness = 1
 adjust-underline-thickness = 1
 adjust-strikethrough-thickness = 1
 
-adjust-underline-position = 4
+adjust-underline-position = 2
 adjust-strikethrough-position = -4
 adjust-cursor-height = 8
-adjust-cell-height = 8
-# # emdash
-# font-codepoint-map = U+2014=CommitMono
+adjust-cell-height = 6
 
-
+### OVERRIDES ###
 # Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ Ω
 #font-codepoint-map = U+0391-U+03A9=Input
 # α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω ς
 #font-codepoint-map = U+03B1-U+03C9,U+03C2=Input
+# ✱ ▣ I hate these little opencode fuckers so much.
+font-codepoint-map = U+25A3=Monaspace Krypton
+font-codepoint-map = U+2731=Monaspace Krypton
 
+### FONTS ###
 #font-family = JetBrains Mono
 #font-family = Maple Mono
 #font-family = CommitMono
-#font-family = MD IO Trial
-#font-family = Input
 
-# adjust-cell-height = 11
-# adjust-cursor-height = 11
-# adjust-underline-position = 9
-# adjust-underline-thickness = 0
-# freetype-load-flags = hinting,force-autohint
-
-font-family = Rec Mono Linear
-font-family-bold = Rec Mono Linear
-font-family-italic = Rec Mono Casual
-font-family-bold-italic = Rec Mono Casual
-font-style-bold = Bold
-font-style-italic = Italic
-font-style-bold-italic = Bold Italic
+# font-family = Rec Mono Linear
+# font-family-bold = Rec Mono Linear
+# font-family-italic = Rec Mono Casual
+# font-family-bold-italic = Rec Mono Casual
+# font-style-bold = Bold
+# font-style-italic = Italic
+# font-style-bold-italic = Bold Italic
 
 #font-family = Monaspace Neon
 #font-family-bold = Monaspace Neon
@@ -56,3 +38,14 @@ font-style-bold-italic = Bold Italic
 #font-style-bold = Bold
 #font-style-italic = Italic
 #font-style-bold-italic = Bold Italic
+
+#font-family = Input
+#font-family = MD IO Trial
+# font-family = OCR-X TTF
+# font-feature = +ss02
+# font-feature = +ss04
+# font-feature = +ss03
+# font-style-bold = Regular
+# font-style-italic = Regular
+# font-style-bold-italic = Regular
+# font-codepoint-map = U+2014=CommitMono
