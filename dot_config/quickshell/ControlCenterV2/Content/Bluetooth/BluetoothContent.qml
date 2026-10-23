@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Quickshell
 import Quickshell.Bluetooth
 import qs.Bar
 import qs.Config as SC
@@ -11,8 +10,9 @@ Column {
 	id: root
 
 	readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
-	readonly property bool blocked: root.adapter ? root.adapter.state === BluetoothAdapterState.Blocked : false
-	readonly property var connectedDevice: {
+	readonly property bool blocked: root.adapter !== null && root.adapter.state === BluetoothAdapterState.Blocked
+	readonly property bool canScan: root.enabled && !root.blocked && !root.toggling && !root.discovering
+	readonly property BluetoothDevice connectedDevice: {
 		const devices = root.devices;
 		for (let i = 0; i < devices.length; i++) {
 			if (devices[i] && devices[i].connected)
@@ -20,28 +20,97 @@ Column {
 		}
 		return null;
 	}
-	readonly property var details: [root.detailText("ADAPTER", root.adapter ? root.adapter.name || root.adapter.adapterId : ""), root.detailText("ID", root.adapter ? root.adapter.adapterId : ""), root.detailText("STATE", root.adapter ? BluetoothAdapterState.toString(root.adapter.state) : ""), root.detailText("CONNECTED", root.connectedDevice ? root.connectedDevice.name || root.connectedDevice.deviceName || "1" : root.adapter && root.adapter.enabled ? "0" : ""), root.detailText("BATTERY", root.connectedDevice && root.connectedDevice.batteryAvailable ? Math.round(root.connectedDevice.battery * 100) + "%" : "")].filter(text => text !== "")
-	readonly property int deviceListHeight: 48 * 3 + SC.Config.spacing.extraSmall * 2
-	readonly property var devices: root.adapter ? [...root.adapter.devices.values] : []
-	readonly property bool discovering: root.adapter ? root.adapter.discovering : false
+	readonly property var details: root.buildDetails()
+	readonly property int deviceRowHeight: 48
+	readonly property var devices: {
+		if (!root.adapter)
+			return [];
+
+		return root.adapter.devices.values.slice().sort(root.compareDevices);
+	}
+	readonly property bool discovering: root.adapter !== null && root.adapter.discovering
 	readonly property bool enabled: root.adapter && root.adapter.enabled
-	readonly property int sectionHeaderHeight: Math.max(scanHeader.implicitHeight, scanLabel.implicitHeight, scanLoader.iconSize)
 	readonly property bool toggling: root.adapter && (root.adapter.state === BluetoothAdapterState.Enabling || root.adapter.state === BluetoothAdapterState.Disabling)
 
+	function buildDetails() {
+		if (!root.adapter)
+			return [];
+
+		const values = [root.detail("ADAPTER", root.adapter.name || root.adapter.adapterId), root.detail("ID", root.adapter.adapterId), root.detail("STATE", BluetoothAdapterState.toString(root.adapter.state))];
+		if (root.connectedDevice) {
+			values.push(root.detail("CONNECTED", root.connectedDevice.name || root.connectedDevice.deviceName || "1"));
+			if (root.connectedDevice.batteryAvailable)
+				values.push(root.detail("BATTERY", Math.round(root.connectedDevice.battery * 100) + "%"));
+		} else if (root.enabled) {
+			values.push(root.detail("CONNECTED", "0"));
+		}
+
+		return values.filter(detail => {
+			return detail !== null;
+		});
+	}
+
 	function compareDevices(a, b) {
-		if (a.connected !== b.connected)
-			return a.connected ? -1 : 1;
+		if (root.isPaired(a) !== root.isPaired(b)) {
+			if (root.isPaired(a))
+				return -1;
+
+			return 1;
+		}
+		if (a.connected !== b.connected) {
+			if (a.connected)
+				return -1;
+
+			return 1;
+		}
 		const an = (a.name || a.deviceName || a.address || "").toLowerCase();
 		const bn = (b.name || b.deviceName || b.address || "").toLowerCase();
 		return an.localeCompare(bn);
 	}
 
-	function detailText(label, value) {
-		return value ? label + "\n" + value : "";
+	function detail(label, value) {
+		if (!value)
+			return null;
+
+		return {
+			label: label,
+			value: value
+		};
+	}
+
+	function deviceListHeight(limit) {
+		const count = Math.min(limit, root.devices.length);
+		let height = count * root.deviceRowHeight + Math.max(0, count - 1) * SC.Config.spacing.extraSmall;
+		for (let index = 0; index < count; index++) {
+			if (index === 0 || root.isPaired(root.devices[index]) !== root.isPaired(root.devices[index - 1]))
+				height += SC.Config.sizes.normal + SC.Config.spacing.extraSmall;
+		}
+
+		return height;
+	}
+
+	function emptyMessage() {
+		if (!root.adapter)
+			return "No Bluetooth adapter found";
+
+		if (root.blocked)
+			return "Bluetooth is blocked";
+
+		if (!root.enabled)
+			return "Bluetooth is disabled";
+
+		if (!root.discovering && root.devices.length === 0)
+			return "No devices found";
+
+		return "";
+	}
+
+	function isPaired(device) {
+		return device.paired || device.bonded;
 	}
 
 	function scan() {
-		if (!root.adapter || root.discovering || !root.enabled)
+		if (!root.canScan)
 			return;
 		root.adapter.discovering = true;
 		scanTimeout.restart();
@@ -54,7 +123,12 @@ Column {
 	}
 
 	spacing: SC.Config.spacing.small
-	width: parent ? parent.width : SC.Config.networkPanel.width - SC.Config.padding.large * 2
+	width: {
+		if (parent)
+			return parent.width;
+
+		return SC.Config.networkPanel.width - SC.Config.padding.large * 2;
+	}
 
 	Component.onDestruction: root.stopScan()
 
@@ -80,8 +154,21 @@ Column {
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
 			centered: false
-			code: root.enabled ? root.connectedDevice ? 0xE0DC : 0xE0DA : 0xE0DE
-			iconColor: root.connectedDevice ? SC.Config.colors.primary : SC.Config.colors.surface5
+			code: {
+				if (!root.enabled)
+					return 0xE0DE;
+
+				if (root.connectedDevice)
+					return 0xE0DC;
+
+				return 0xE0DA;
+			}
+			iconColor: {
+				if (root.connectedDevice)
+					return SC.Config.colors.primary;
+
+				return SC.Config.colors.surface5;
+			}
 			iconSize: 30
 		}
 
@@ -98,7 +185,15 @@ Column {
 			elide: Text.ElideRight
 			font.pointSize: 12
 			font.weight: Font.DemiBold
-			text: !root.adapter ? "Bluetooth unavailable" : root.connectedDevice ? root.connectedDevice.name || root.connectedDevice.deviceName : "Bluetooth"
+			text: {
+				if (!root.adapter)
+					return "Bluetooth unavailable";
+
+				if (root.connectedDevice)
+					return root.connectedDevice.name || root.connectedDevice.deviceName;
+
+				return "Bluetooth";
+			}
 		}
 
 		Text {
@@ -108,11 +203,25 @@ Column {
 			anchors.right: title.right
 			anchors.top: title.bottom
 			anchors.topMargin: SC.Config.padding.micro
-			color: root.blocked ? SC.Config.colors.destructive : SC.Config.colors.surface5
+			color: {
+				if (root.blocked)
+					return SC.Config.colors.destructive;
+
+				return SC.Config.colors.surface5;
+			}
 			elide: Text.ElideRight
 			font.pointSize: 8
 			font.weight: Font.Medium
-			text: !root.adapter ? "NO ADAPTER" : BluetoothAdapterState.toString(root.adapter.state).toUpperCase() + (root.adapter.adapterId ? " · " + root.adapter.adapterId.toUpperCase() : "")
+			text: {
+				if (!root.adapter)
+					return "NO ADAPTER";
+
+				let text = BluetoothAdapterState.toString(root.adapter.state).toUpperCase();
+				if (root.adapter.adapterId)
+					text += " · " + root.adapter.adapterId.toUpperCase();
+
+				return text;
+			}
 		}
 
 		Rectangle {
@@ -120,7 +229,12 @@ Column {
 
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.enabled ? SC.Config.colors.primary : SC.Config.colors.surface3
+			color: {
+				if (root.enabled)
+					return SC.Config.colors.primary;
+
+				return SC.Config.colors.surface3;
+			}
 			height: 24
 			radius: height / 2 * SC.Config.radius.multiplier
 			visible: root.adapter !== null
@@ -132,7 +246,12 @@ Column {
 				height: 18
 				radius: height / 2 * SC.Config.radius.multiplier
 				width: height
-				x: root.enabled ? parent.width - width - 3 : 3
+				x: {
+					if (root.enabled)
+						return parent.width - width - 3;
+
+					return 3;
+				}
 			}
 
 			MouseArea {
@@ -140,7 +259,9 @@ Column {
 				cursorShape: Qt.PointingHandCursor
 				enabled: root.adapter !== null && !root.toggling && !root.blocked
 
-				onClicked: root.adapter.enabled = !root.adapter.enabled
+				onClicked: {
+					root.adapter.enabled = !root.adapter.enabled;
+				}
 			}
 		}
 	}
@@ -162,13 +283,80 @@ Column {
 			model: root.details
 
 			delegate: Text {
-				required property string modelData
+				required property var modelData
 
 				color: SC.Config.colors.surface5
 				font.pointSize: 8
 				font.weight: Font.Medium
-				text: modelData
+				text: modelData.label + "\n" + modelData.value
 				width: (parent.width - parent.columnSpacing * 2) / 3
+			}
+		}
+
+		Column {
+			visible: root.adapter !== null
+			width: (parent.width - parent.columnSpacing * 2) / 3
+
+			Text {
+				id: scanHeading
+
+				color: SC.Config.colors.surface5
+				font.pointSize: 8
+				font.weight: Font.Medium
+				text: "DISCOVERY"
+			}
+
+			Item {
+				height: Math.max(scanLabel.implicitHeight, scanLoader.iconSize)
+				width: parent.width
+
+				Row {
+					id: scanAction
+
+					height: parent.height
+					opacity: {
+						if (root.canScan || root.discovering)
+							return 1;
+
+						return 0.5;
+					}
+					spacing: SC.Config.spacing.extraSmall
+
+					Item {
+						height: scanLoader.iconSize
+						visible: root.discovering
+						width: height
+
+						LoaderIcon {
+							id: scanLoader
+
+							iconColor: scanLabel.color
+							visible: root.discovering
+						}
+					}
+
+					Text {
+						id: scanLabel
+
+						anchors.verticalCenter: parent.verticalCenter
+						color: SC.Config.colors.primary
+						font: scanHeading.font
+						text: {
+							if (root.discovering)
+								return "Scanning…";
+
+							return "Scan";
+						}
+					}
+				}
+
+				MouseArea {
+					anchors.fill: scanAction
+					cursorShape: Qt.PointingHandCursor
+					enabled: root.canScan
+
+					onClicked: root.scan()
+				}
 			}
 		}
 	}
@@ -180,113 +368,57 @@ Column {
 		width: parent.width
 	}
 
-	Item {
-		height: visible ? root.sectionHeaderHeight : 0
-		visible: root.enabled
-		width: parent.width
-
-		NetworkUi.NetworkSectionHeader {
-			id: scanHeader
-
-			anchors.left: parent.left
-			anchors.verticalCenter: parent.verticalCenter
-			text: root.discovering ? "SCANNING DEVICES" : "BLUETOOTH DEVICES"
-		}
-
-		Row {
-			anchors.right: parent.right
-			anchors.verticalCenter: parent.verticalCenter
-			spacing: SC.Config.spacing.extraSmall
-
-			LoaderIcon {
-				id: scanLoader
-
-				anchors.verticalCenter: parent.verticalCenter
-				centered: false
-				visible: root.discovering
-			}
-
-			Text {
-				id: scanLabel
-
-				anchors.verticalCenter: parent.verticalCenter
-				color: SC.Config.colors.primary
-				font.pointSize: 8
-				font.weight: Font.DemiBold
-				text: root.discovering ? "SCANNING" : "SCAN"
-
-				MouseArea {
-					anchors.fill: parent
-					anchors.margins: -SC.Config.padding.small
-					cursorShape: Qt.PointingHandCursor
-					enabled: !root.discovering && !root.toggling
-
-					onClicked: root.scan()
-				}
-			}
-		}
-	}
-
 	DirectScrollList {
+		id: deviceList
+
 		clip: true
-		height: visible ? root.deviceListHeight : 0
-		model: pairedModel
+		height: root.deviceListHeight(3)
+		model: root.devices.map(device => {
+			let group = "OTHER DEVICES";
+			if (root.isPaired(device))
+				group = "PAIRED DEVICES";
+
+			return {
+				device: device,
+				group: group
+			};
+		})
+		section.property: "group"
 		spacing: SC.Config.spacing.extraSmall
-		visible: root.enabled && pairedModel.values.length > 0
+		visible: root.enabled && count > 0
 		width: parent.width
 
 		delegate: BluetoothRow {
-			required property BluetoothDevice modelData
+			required property var modelData
 
-			device: modelData
+			colors: SC.Config.colors
+			device: modelData.device
+			rowHeight: root.deviceRowHeight
 			width: ListView.view.width
 		}
-	}
+		section.delegate: Item {
+			id: deviceGroup
 
-	Item {
-		height: visible ? root.sectionHeaderHeight : 0
-		visible: root.enabled && otherModel.values.length > 0
-		width: parent.width
+			required property string section
 
-		NetworkUi.NetworkSectionHeader {
-			anchors.left: parent.left
-			anchors.verticalCenter: parent.verticalCenter
-			text: "OTHER DEVICES"
-		}
-	}
+			height: SC.Config.sizes.normal + SC.Config.spacing.extraSmall
+			width: deviceList.width
 
-	DirectScrollList {
-		clip: true
-		height: visible ? root.deviceListHeight : 0
-		model: otherModel
-		spacing: SC.Config.spacing.extraSmall
-		visible: root.enabled && otherModel.values.length > 0
-		width: parent.width
-
-		delegate: BluetoothRow {
-			required property BluetoothDevice modelData
-
-			device: modelData
-			width: ListView.view.width
+			NetworkUi.NetworkSectionHeader {
+				anchors.left: parent.left
+				anchors.leftMargin: SC.Config.padding.small
+				anchors.top: parent.top
+				height: SC.Config.sizes.normal
+				text: deviceGroup.section
+				verticalAlignment: Text.AlignVCenter
+			}
 		}
 	}
 
 	Text {
 		color: SC.Config.colors.surface3
 		font.pointSize: 9
-		text: !root.adapter ? "No Bluetooth adapter found" : root.blocked ? "Bluetooth is blocked" : !root.enabled ? "Bluetooth is disabled" : !root.discovering && pairedModel.values.length === 0 && otherModel.values.length === 0 ? "No devices found" : ""
+		text: root.emptyMessage()
 		visible: text !== ""
-	}
-
-	ScriptModel {
-		id: pairedModel
-
-		values: root.devices.filter(device => device && (device.paired || device.bonded)).sort(root.compareDevices)
-	}
-
-	ScriptModel {
-		id: otherModel
-
-		values: root.devices.filter(device => device && !device.paired && !device.bonded).sort(root.compareDevices)
 	}
 }

@@ -8,16 +8,38 @@ import qs.Config as SC
 Rectangle {
 	id: root
 
+	required property SC.Config.Colors colors
+	readonly property color actionColor: {
+		if (root.device.connected)
+			return root.colors.destructive;
+
+		return root.colors.surface5;
+	}
+	readonly property color nameColor: {
+		if (root.device.connected)
+			return root.colors.primary;
+
+		return root.colors.fg;
+	}
+
+	readonly property int actionSize: 32
+	readonly property int actionIconSize: 16
+	required property int rowHeight
+
 	readonly property bool busy: root.device.pairing || root.device.state === BluetoothDeviceState.Connecting || root.device.state === BluetoothDeviceState.Disconnecting
-	readonly property bool canAutoconnect: root.device.paired || root.device.bonded
-	readonly property bool canForget: root.canAutoconnect && !root.device.connected
+	readonly property bool paired: root.device.paired || root.device.bonded
+	readonly property bool canForget: root.paired && !root.device.connected
 	required property BluetoothDevice device
 	readonly property string statusTail: {
+		if (root.device.pairing)
+			return "Pairing…";
+
 		if (root.busy)
-			return root.device.pairing ? "Pairing…" : BluetoothDeviceState.toString(root.device.state) + "…";
+			return BluetoothDeviceState.toString(root.device.state) + "…";
+
 		if (root.device.connected && root.device.batteryAvailable)
 			return Math.round(root.device.battery * 100) + "%";
-		if (!root.canAutoconnect)
+		if (!root.paired)
 			return root.device.address || "Available";
 		return "";
 	}
@@ -31,10 +53,15 @@ Rectangle {
 			root.device.pair();
 	}
 
-	color: SC.Config.colors.surface1
-	height: 48
+	color: root.colors.surface1
+	height: root.rowHeight
 	radius: SC.Config.radius.small
-	width: parent ? parent.width : 0
+	width: {
+		if (parent)
+			return parent.width;
+
+		return 0;
+	}
 
 	Row {
 		id: actions
@@ -46,17 +73,31 @@ Rectangle {
 
 		SquareButton {
 			busy: root.busy
-			code: root.device.connected ? 0xE0DE : root.device.paired ? 0xEB56 : 0xE0DA
+			code: {
+				if (root.device.connected)
+					return 0xE0DE;
+
+				if (root.device.paired)
+					return 0xEB56;
+
+				return 0xE0DA;
+			}
+			colors: root.colors
 			enabled: !root.busy
-			iconColor: root.device.connected ? SC.Config.colors.destructive : SC.Config.colors.surface5
+			iconColor: root.actionColor
+			iconSize: root.actionIconSize
+			size: root.actionSize
 
 			onClicked: root.activate()
 		}
 
 		SquareButton {
 			code: 0xE4F6
+			colors: root.colors
 			enabled: !root.busy
-			iconColor: SC.Config.colors.surface5
+			iconColor: root.colors.surface5
+			iconSize: root.actionIconSize
+			size: root.actionSize
 			visible: root.canForget
 
 			onClicked: root.device.forget()
@@ -79,58 +120,29 @@ Rectangle {
 			anchors.left: parent.left
 			anchors.right: parent.right
 			anchors.top: parent.top
-			color: root.device.connected ? SC.Config.colors.primary : SC.Config.colors.fg
+			color: root.nameColor
 			elide: Text.ElideRight
 			font.pointSize: 9
-			font.weight: root.device.connected ? Font.DemiBold : Font.Normal
+			font.weight: {
+				if (root.device.connected)
+					return Font.DemiBold;
+
+				return Font.Normal;
+			}
 			text: root.device.name || root.device.deviceName || root.device.address
 		}
 
-		Item {
+		Text {
 			id: subtitle
 
 			anchors.left: parent.left
 			anchors.right: parent.right
 			anchors.top: deviceName.bottom
 			anchors.topMargin: 1
-			height: Math.max(autoconnectBox.height, autoconnectLabel.implicitHeight, statusLabel.implicitHeight)
-
-			AutoconnectBox {
-				id: autoconnectBox
-
-				anchors.left: parent.left
-				anchors.verticalCenter: parent.verticalCenter
-				checked: root.device.trusted
-				visible: root.canAutoconnect
-
-				onToggled: root.device.trusted = !root.device.trusted
-			}
-
-			Text {
-				id: autoconnectLabel
-
-				anchors.left: autoconnectBox.right
-				anchors.leftMargin: SC.Config.spacing.extraSmall
-				anchors.verticalCenter: parent.verticalCenter
-				color: SC.Config.colors.surface5
-				font.pointSize: 8
-				text: "Autoconnect"
-				visible: root.canAutoconnect
-			}
-
-			Text {
-				id: statusLabel
-
-				anchors.left: autoconnectLabel.visible ? autoconnectLabel.right : parent.left
-				anchors.leftMargin: autoconnectLabel.visible && root.statusTail !== "" ? SC.Config.spacing.extraSmall : 0
-				anchors.right: parent.right
-				anchors.verticalCenter: parent.verticalCenter
-				color: SC.Config.colors.surface5
-				elide: Text.ElideRight
-				font.pointSize: 8
-				text: root.statusTail
-				visible: root.statusTail !== ""
-			}
+			color: root.colors.surface5
+			elide: Text.ElideRight
+			font.pointSize: 8
+			text: root.statusTail
 		}
 	}
 
@@ -143,55 +155,45 @@ Rectangle {
 		target: root.device
 	}
 
-	component AutoconnectBox: Rectangle {
-		id: box
-
-		property bool checked: false
-
-		signal toggled
-
-		border.color: box.checked ? SC.Config.colors.primary : SC.Config.colors.surface4
-		border.width: 1
-		color: box.checked ? SC.Config.colors.primary : "transparent"
-		height: 12
-		radius: SC.Config.radius.tiny
-		width: 12
-
-		MouseArea {
-			anchors.fill: parent
-			anchors.margins: -SC.Config.padding.micro
-			cursorShape: Qt.PointingHandCursor
-
-			onClicked: box.toggled()
-		}
-	}
 	component SquareButton: Rectangle {
 		id: button
 
 		property bool busy: false
 		property int code: 0
-		property bool enabled: true
-		property color iconColor: SC.Config.colors.primary
+		required property SC.Config.Colors colors
+		required property color iconColor
+		required property int iconSize
+		required property int size
 
 		signal clicked
 
-		border.color: buttonMouse.containsMouse && button.enabled ? SC.Config.colors.surface5 : SC.Config.colors.surface2
+		border.color: {
+			if (buttonMouse.containsMouse && button.enabled)
+				return button.colors.surface5;
+
+			return button.colors.surface2;
+		}
 		border.width: 2
-		color: buttonMouse.containsMouse && button.enabled ? SC.Config.colors.surface1 : SC.Config.colors.surface2
-		height: 32
+		color: {
+			if (buttonMouse.containsMouse && button.enabled)
+				return button.colors.surface1;
+
+			return button.colors.surface2;
+		}
+		height: button.size
 		radius: SC.Config.radius.small
-		width: 32
+		width: button.size
 
 		MaterialIcon {
 			code: button.code
 			iconColor: button.iconColor
-			iconSize: 16
+			iconSize: button.iconSize
 			visible: !button.busy
 		}
 
 		LoaderIcon {
 			iconColor: button.iconColor
-			iconSize: 16
+			iconSize: button.iconSize
 			visible: button.busy
 		}
 
@@ -199,7 +201,12 @@ Rectangle {
 			id: buttonMouse
 
 			anchors.fill: parent
-			cursorShape: button.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+			cursorShape: {
+				if (button.enabled)
+					return Qt.PointingHandCursor;
+
+				return Qt.ArrowCursor;
+			}
 			enabled: button.enabled
 			hoverEnabled: true
 
