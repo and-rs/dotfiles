@@ -27,6 +27,8 @@
       "*": "allow",
       "*.env": "deny",
       "*.env.*": "deny",
+      "tmux kill-server": "deny",
+      "tmux kill-server *": "deny",
       "git commit": "deny",
       "git commit *": "deny",
       "gh": "deny",
