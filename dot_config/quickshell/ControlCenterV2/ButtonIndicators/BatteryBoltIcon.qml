@@ -11,10 +11,18 @@ Shape {
 	readonly property rect tight: metrics.tightBoundingRect(root.glyph)
 
 	function token(light) {
-		const bg = Qt.color(SC.Config.colors.bg);
-		const fg = Qt.color(SC.Config.colors.fg);
+		const bgValue = SC.Config.colors.bg;
+		const fgValue = SC.Config.colors.fg;
+		if (!bgValue || !fgValue)
+			return "transparent";
+
+		const bg = Qt.color(bgValue);
+		const fg = Qt.color(fgValue);
 		const bgIsLight = bg.hslLightness >= fg.hslLightness;
-		return light === bgIsLight ? bg : fg;
+		if (light === bgIsLight)
+			return bg;
+
+		return fg;
 	}
 
 	preferredRendererType: Shape.CurveRenderer

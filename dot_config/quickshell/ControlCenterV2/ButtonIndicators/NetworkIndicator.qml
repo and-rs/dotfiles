@@ -6,34 +6,46 @@ Item {
 	id: root
 
 	readonly property var connectedNetwork: NetworkService.connectedNetwork
-	readonly property var connectedWiredNetwork: wiredDevice && wiredDevice.hasLink ? wiredDevice.network : null
-	readonly property bool hasInternet: NetworkService.connectivity === "Full"
+	readonly property var connectedWiredNetwork: {
+		if (root.wiredDevice && root.wiredDevice.hasLink)
+			return root.wiredDevice.network;
+
+		return null;
+	}
 	readonly property int iconCode: {
-		if (connectedWiredNetwork)
-			return hasInternet ? 0xEDDE : 0xEDDA;
-		if (!connectedNetwork)
+		if (root.connectedWiredNetwork)
+			return 0xEDDE;
+
+		if (!root.connectedNetwork)
 			return 0xE4F2;
-		if (!hasInternet)
-			return 0xE4F4;
-		if (signalStrength > 0.75)
+
+		if (root.signalStrength > 0.75)
 			return 0xE4EA;
-		if (signalStrength > 0.50)
+
+		if (root.signalStrength > 0.50)
 			return 0xE4EE;
-		if (signalStrength > 0.25)
+
+		if (root.signalStrength > 0.25)
 			return 0xE4EC;
+
 		return 0xE4F0;
 	}
 	readonly property color iconColor: {
-		if (connectedWiredNetwork)
-			return hasInternet ? SC.Config.colors.fg : SC.Config.colors.destructive;
-		if (!wifiEnabled || !connectedNetwork)
+		if (root.connectedWiredNetwork)
+			return SC.Config.colors.fg;
+
+		if (!root.wifiEnabled || !root.connectedNetwork)
 			return SC.Config.colors.surface4;
-		if (!hasInternet)
-			return SC.Config.colors.destructive;
+
 		return SC.Config.colors.fg;
 	}
-	readonly property bool showWifiGhost: !connectedWiredNetwork && wifiDevice !== null
-	readonly property real signalStrength: connectedNetwork ? connectedNetwork.signalStrength : 0
+	readonly property bool showWifiGhost: !root.connectedWiredNetwork && root.wifiDevice !== null
+	readonly property real signalStrength: {
+		if (root.connectedNetwork)
+			return root.connectedNetwork.signalStrength;
+
+		return 0;
+	}
 	readonly property var wifiDevice: NetworkService.wifiDevice
 	readonly property bool wifiEnabled: NetworkService.wifiEnabled
 	readonly property var wiredDevice: NetworkService.wiredDevice

@@ -1,0 +1,7 @@
+module Iwd
+linktarget iwdplugin
+optional plugin iwdplugin
+classname IwdPlugin
+typeinfo iwdplugin.qmltypes
+prefer :/Iwd/
+

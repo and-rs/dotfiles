@@ -4,10 +4,10 @@ default:
   just --list
 
 qmlfmt:
-  ls -a **/*.qml -a | get name | each { try { qmlformat --single-line-empty-objects -n -w 4 -i $in }}
+  try { qmlformat --single-line-empty-objects -n -w 4 -i ...(fd | rg -e '\.qml$' | lines) }
 
 cppfmt:
-  clang-format -i ...(glob "utils/icon-validation/*.{cpp,hpp}") ...(glob "utils/niri-plugin/src/*.{cpp,h}")
+  clang-format -i ...(fd | rg -e '\.cpp' -e '\.h$' -e '\.hpp' | lines)
 
 apply:
   chezmoi --source "{{ justfile_directory() }}" apply -v --no-pager
@@ -21,9 +21,6 @@ diff:
 
 status:
   chezmoi --source "{{ justfile_directory() }}" status
-
-test-quickshell:
-  bun test dot_config/quickshell/tests/network.test.js
 
 opencode-check:
   bun run --cwd dot_config/opencode check

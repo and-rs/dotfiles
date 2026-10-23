@@ -39,6 +39,12 @@ These rules apply to `dot_config/quickshell/`.
 - Use `LoaderIcon` beside in-progress feedback text; do not create other spinners.
 - Reserve `LoaderIcon` size in layout height so showing or hiding it does not shift siblings.
 
+## Network
+
+- Use `Quickshell.Networking` as the network API. `Bar/NetworkService.qml` may expose its device and network objects directly and coordinate UI actions; do not copy them into a second snapshot/model.
+- The native iwd plugin is retained but is not imported or used by the current Quickshell setup. Its source lives in `utils/iwd-plugin/`; generated `Iwd/` module output in `dot_config/quickshell/Iwd/` remains committed.
+- Do not pass passwords or PSKs from the network UI. Connect only to saved networks; never call `connectWithPsk`.
+
 ## Performance
 
 - Lazy-load inactive panels with `Loader`; `visible: false` leaves bindings, timers, and models active.

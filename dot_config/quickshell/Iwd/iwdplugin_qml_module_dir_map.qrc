@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/Iwd">/home/jbautista/Documents/dotfiles/dot_config/quickshell/Iwd</file>
+
+  </qresource>
+</RCC>

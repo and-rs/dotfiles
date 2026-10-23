@@ -1,207 +1,107 @@
 pragma Singleton
+pragma ComponentBehavior: Bound
 
 import Quickshell
-import Quickshell.Io
+import Quickshell.Networking
 import QtQuick
-import "NetworkModel.js" as NetworkModel
+import QtQml.Models
 
 Singleton {
 	id: root
 
-	property string _operation: ""
-	property string _output: ""
-	property int _scanPolls: 0
-	property bool _scanRequested: false
-	property string actionNetworkId: ""
-	property string actionState: "idle"
-	property bool available: false
-	property string backend: "none"
-	readonly property string backendScript: Quickshell.shellDir + "/ControlCenterV2/Content/Network/NetworkBackend.sh"
-	property var connectedNetwork: null
-	property string connectivity: "Unknown"
+	readonly property bool available: Networking.backend !== NetworkBackendType.None
+	readonly property var connectedNetwork: root.connectedWifiNetwork()
 	property string lastError: ""
-	property bool panelOpen: false
-	property string scanState: "idle"
-	property bool stale: false
-	property var wifiDevice: null
-	property bool wifiEnabled: false
-	property var wifiNetworks: []
-	property var wiredDevice: null
+	readonly property var wifiDevice: root.findDevice(DeviceType.Wifi)
+	readonly property bool wifiEnabled: Networking.wifiEnabled
+	readonly property var wifiNetworks: root.sortedWifiNetworks()
+	readonly property var wiredDevice: root.findDevice(DeviceType.Wired)
 
-	function applySnapshot(next, preserveNetworks) {
-		if (!next)
-			return;
+	function canAct(network) {
+		if (!network || network.stateChanging)
+			return false;
 
-		backend = next.backend;
-		available = next.available;
-		connectivity = next.connectivity;
-		wifiEnabled = next.wifiEnabled;
-		wifiDevice = next.wifiDevice;
-		wiredDevice = next.wiredDevice;
-		connectedNetwork = next.connectedNetwork;
-		if (!preserveNetworks)
-			wifiNetworks = next.wifiNetworks;
-		stale = false;
-		lastError = next.error;
-	}
+		const device = network.device;
+		if (device.state === ConnectionState.Connecting || device.state === ConnectionState.Disconnecting)
+			return false;
 
-	function closePanel() {
-		panelOpen = false;
-		_scanRequested = false;
-		scanPollTimer.stop();
-	}
-
-	function complete(exitCode) {
-		const operation = _operation;
-		_operation = "";
-		const output = _output;
-		_output = "";
-
-		if (operation === "status") {
-			const next = NetworkModel.parseSnapshot(output);
-			if (exitCode === 0 && next)
-				applySnapshot(next, panelOpen && wifiNetworks.length > 0);
-			else
-				fail("Network status probe failed");
-			if (panelOpen && _scanRequested && wifiDevice)
-				startScan();
-			return;
-		}
-
-		const result = NetworkModel.parseResult(output);
-		if (!result) {
-			fail(operation === "scan" || operation === "scan-request" || operation === "scan-results" ? "Wi-Fi scan failed" : "Network action failed");
-		} else if (!result.ok) {
-			lastError = result.error || "Network action failed";
-		} else {
-			lastError = "";
-			if (result.snapshot)
-				applySnapshot(result.snapshot, operation === "scan" || operation === "scan-results");
-			if (operation === "scan" || operation === "scan-results") {
-				wifiNetworks = result.wifiNetworks.filter(function (network) {
-					return !connectedNetwork || network.name !== connectedNetwork.name;
-				});
-			}
-		}
-
-		if (operation === "scan-request") {
-			if (result && result.ok) {
-				_scanPolls = 0;
-				scanPollTimer.restart();
-			} else {
-				scanState = "idle";
-			}
-		} else if (operation === "scan-results") {
-			_scanPolls++;
-			if (_scanPolls >= 20 || !result || !result.ok) {
-				scanState = "idle";
-				scanPollTimer.stop();
-			}
-		} else if (operation === "scan") {
-			scanState = "idle";
-		} else {
-			actionState = "idle";
-			actionNetworkId = "";
-			refresh();
-		}
+		return !device.networks.values.some(candidate => {
+			return candidate.stateChanging;
+		});
 	}
 
 	function connect(network) {
-		if (!network || !network.known || !wifiDevice || networkProcess.running)
+		if (!root.canAct(network) || !network.known || network.connected)
 			return;
-		actionState = "connecting";
-		actionNetworkId = network.id;
-		start("action", ["connect", wifiDevice.name, network.name]);
+
+		root.lastError = "";
+		network.connect();
 	}
 
-	function disconnect() {
-		if (!wifiDevice || networkProcess.running)
+	function connectedWifiNetwork() {
+		for (const network of root.wifiNetworks) {
+			if (network.connected)
+				return network;
+		}
+
+		return null;
+	}
+
+	function disconnect(network) {
+		if (!root.canAct(network) || !network.connected)
 			return;
-		actionState = "disconnecting";
-		actionNetworkId = connectedNetwork ? connectedNetwork.id : "";
-		start("action", ["disconnect", wifiDevice.name]);
+
+		root.lastError = "";
+		network.disconnect();
 	}
 
-	function fail(message) {
-		stale = available;
-		lastError = message || "Network status unavailable";
+	function findDevice(type) {
+		for (const device of Networking.devices.values) {
+			if (device.type === type)
+				return device;
+		}
+
+		return null;
 	}
 
-	function openPanel() {
-		panelOpen = true;
-		refresh();
-		scan();
+	function sortedWifiNetworks() {
+		if (!root.wifiDevice)
+			return [];
+
+		const networks = root.wifiDevice.networks.values.slice();
+		networks.sort(function (left, right) {
+			if (left.connected && !right.connected)
+				return -1;
+
+			if (!left.connected && right.connected)
+				return 1;
+
+			if (left.known && !right.known)
+				return -1;
+
+			if (!left.known && right.known)
+				return 1;
+
+			if (left.signalStrength !== right.signalStrength)
+				return right.signalStrength - left.signalStrength;
+
+			return left.name.localeCompare(right.name);
+		});
+
+		return networks;
 	}
 
-	function refresh() {
-		if (!networkProcess.running)
-			start("status", []);
-	}
+	Instantiator {
+		model: root.wifiNetworks
 
-	function scan() {
-		_scanRequested = true;
-		if (networkProcess.running || !wifiDevice)
-			return;
-		startScan();
-	}
+		delegate: Connections {
+			required property WifiNetwork modelData
 
-	function start(operation, args) {
-		_operation = operation;
-		_output = "";
-		networkProcess.command = ["bash", backendScript, operation].concat(args || []);
-		networkProcess.running = true;
-	}
-
-	function startScan() {
-		scanState = "scanning";
-		_scanRequested = false;
-		start("scan-request", []);
-	}
-
-	function toggleWifi(enabled) {
-		if (!wifiDevice || networkProcess.running)
-			return;
-		actionState = "toggling";
-		start("action", [enabled ? "wifi-on" : "wifi-off", wifiDevice.name]);
-	}
-
-	Component.onCompleted: refresh()
-
-	Timer {
-		id: scanPollTimer
-
-		interval: 500
-		repeat: true
-
-		onTriggered: {
-			if (!root.panelOpen || root.scanState !== "scanning") {
-				stop();
-				return;
+			function onConnectionFailed(reason) {
+				root.lastError = modelData.name + ": " + ConnectionFailReason.toString(reason);
 			}
-			if (!networkProcess.running)
-				root.start("scan-results", []);
-		}
-	}
 
-	Timer {
-		interval: 3000
-		repeat: true
-		running: true
-
-		onTriggered: root.refresh()
-	}
-
-	Process {
-		id: networkProcess
-
-		stdout: StdioCollector {
-			waitForEnd: true
-
-			onStreamFinished: root._output = text
-		}
-
-		onExited: function (exitCode) {
-			root.complete(exitCode);
+			target: modelData
 		}
 	}
 }
