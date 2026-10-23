@@ -19,3 +19,12 @@ set_target_properties(iconvalidationplugin PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dot_config/quickshell/IconValidation"
   OUTPUT_NAME "iconvalidationplugin"
 )
+
+include(CTest)
+if(BUILD_TESTING)
+  qt_add_executable(iconvalidation-test tests.cpp iconvalidator.cpp iconvalidator.hpp)
+  target_compile_features(iconvalidation-test PRIVATE cxx_std_20)
+  target_link_libraries(iconvalidation-test PRIVATE Qt6::Gui)
+  add_test(NAME iconvalidation COMMAND iconvalidation-test)
+  set_tests_properties(iconvalidation PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()

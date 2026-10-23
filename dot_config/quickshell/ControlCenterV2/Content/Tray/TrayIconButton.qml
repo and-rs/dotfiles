@@ -30,7 +30,12 @@ Rectangle {
 		fillMode: Image.PreserveAspectFit
 		height: 24
 		smooth: true
-		source: root.iconSource
+		source: {
+			if (!root.iconValid)
+				return "";
+
+			return root.iconSource;
+		}
 		sourceSize.height: 32
 		sourceSize.width: 32
 		visible: status === Image.Ready && root.iconValid

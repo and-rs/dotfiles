@@ -59,7 +59,12 @@ Rectangle {
 			asynchronous: true
 			fillMode: Image.PreserveAspectFit
 			smooth: true
-			source: root.iconSource
+			source: {
+				if (!root.iconValid)
+					return "";
+
+				return root.iconSource;
+			}
 			sourceSize.height: SC.Config.sizes.normal
 			sourceSize.width: SC.Config.sizes.normal
 			visible: status === Image.Ready && root.iconValid
