@@ -4,8 +4,50 @@ export def --wrapped main [...args] {
   opencode ...$args
 }
 
-export def "ai sd" [s: string] {
-  opencode session delete $s
+export def "ai ss" [] {
+  let list_sessions = '
+        opencode session list --format json
+        | from json
+        | sort-by updated --reverse
+        | each {|session| {
+            id: $session.id
+            updated: ($session.updated * 1ms + 1970-01-01 | format date "%m/%d %H:%M")
+            title: $session.title
+            directory: ($session.directory | str replace $env.HOME "~")
+          }}
+        | to tsv
+        | qsv table --delimiter "\t" --align leftendtab --pad 1
+        '
+  let confirm_delete = '
+      ["no" "yes"]
+      | str join (char nl)
+      | fzf --prompt="delete session? " --border --reverse --no-sort --header="{1}"
+      | if ($in | str trim) == "yes" { opencode session delete {1} }
+      '
+  let delete_bind = "ctrl-d:execute(" + $confirm_delete + ")+reload(" + $list_sessions + ")"
+
+  let separator = $"(ansi black)│(ansi reset)"
+  let selection = (
+    nu -c $list_sessions
+    | fzf
+    -d '\t'
+    --ansi
+    --cycle
+    --reverse
+    --popup 80%,60%
+    --prompt=' air > '
+    --accept-nth=1
+    --header-lines=1
+    --footer-border='top'
+    --footer='<enter: open>  <ctrl-d: delete>  <esc: cancel>'
+    --with-nth $"{2} ($separator) {3} ($separator) {4}"
+    --bind $delete_bind
+    | complete
+  )
+  if $selection.exit_code != 0 { return }
+  let id = ($selection.stdout | str trim)
+  if ($id | is-empty) { return }
+  opencode --session $id
 }
 
 export def "ai 1s" [prompt: string] {
@@ -62,7 +104,7 @@ export def "ai gs" [] {
   only when needed to capture other meaningful changes. Mark breaking changes
   with ! and a BREAKING CHANGE: footer. Cover staged changes broadly, do not
   invent details, and never use commit history. Describe documentation and
-  text-only changes briefly." 
+  text-only changes briefly."
 
   let prompt = $"
   ($system_prompt)
@@ -73,15 +115,17 @@ export def "ai gs" [] {
   "
 
   let response = (
-    &spinner --structured --quiet-cancel --msg "Summarizing" -- opencode api post /api/rpc/commit-message/generate --data ({
-      input: {
-        model: {
-          providerID: ($model | get 0)
-          id: ($model | skip 1 | str join "/")
+    &spinner --structured --quiet-cancel --msg "Summarizing" -- opencode api post /api/rpc/commit-message/generate --data (
+      {
+        input: {
+          model: {
+            providerID: ($model | get 0)
+            id: ($model | skip 1 | str join "/")
+          }
+          prompt: $prompt
         }
-        prompt: $prompt
-      }
-    } | to json -r)
+      } | to json -r
+    )
     | from json
   )
   if ($response.cancelled? | default false) {
@@ -110,15 +154,17 @@ export def "ai gs" [] {
     let prompt = $"($system_prompt)\n\n($base_prompt)\n\nRevise this commit message using the requested change. Preserve accurate facts from the staged diff.\n\nStaged diff:\n($staged)\n\nCurrent commit message:\n($msg)\n\nRequested change:\n($revision)"
 
     let response = (
-      &spinner --structured --quiet-cancel --msg "Revising" -- opencode api post /api/rpc/commit-message/generate --data ({
-        input: {
-          model: {
-            providerID: ($model | get 0)
-            id: ($model | skip 1 | str join "/")
+      &spinner --structured --quiet-cancel --msg "Revising" -- opencode api post /api/rpc/commit-message/generate --data (
+        {
+          input: {
+            model: {
+              providerID: ($model | get 0)
+              id: ($model | skip 1 | str join "/")
+            }
+            prompt: $prompt
           }
-          prompt: $prompt
-        }
-      } | to json -r)
+        } | to json -r
+      )
       | from json
     )
     if ($response.cancelled? | default false) {
