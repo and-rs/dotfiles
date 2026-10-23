@@ -30,7 +30,11 @@
       "git commit": "deny",
       "git commit *": "deny",
       "gh": "deny",
-      "gh *": "deny"
+      "gh *": "deny",
+      "gh run view": "allow",
+      "gh run view *": "allow",
+      "gh run download": "allow",
+      "gh run download *": "allow"
     }
   }
 }

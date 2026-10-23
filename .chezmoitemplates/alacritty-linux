@@ -5,7 +5,7 @@ import = [ "~/.config/alacritty/themes/current.toml" ]
 TERM = "tmux-256color"
 
 [terminal]
-shell = "utop"
+shell = "nu"
 
 [cursor]
 style = { blinking = "Never" }
@@ -17,14 +17,13 @@ glyph_offset = { y = 5, x = 0 }
 
 #normal = { family = "MD IO Trial"}
 #normal = { family = "Maple Mono"}
-normal = { family = "Input"}
-#normal = { family = "CommitMono"}
+#normal = { family = "Input"}
 #normal = { family = "Monaspace Xenon"}
 
-# normal = { family = "Rec Mono Linear" }
-# bold = { family = "Rec Mono Linear" }
-# italic = { family = "Rec Mono Casual" }
-# bold_italic = { family = "Rec Mono Casual" }
+normal = { family = "Rec Mono Linear" }
+bold = { family = "Rec Mono Linear" }
+italic = { family = "Rec Mono Casual" }
+bold_italic = { family = "Rec Mono Casual" }
 
 [window]
 title = "Terminalino"

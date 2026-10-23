@@ -1,4 +1,6 @@
 font-size = 13
+# () very importnat check
+minimum-contrast = 2.4
 command = nu
 config-file = fonts.ghostty
 config-file = themes/current
