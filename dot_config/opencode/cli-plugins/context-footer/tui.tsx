@@ -205,11 +205,7 @@ export default Plugin.define({
           <box flexDirection="row" justifyContent="space-between" width="100%">
             <box flexGrow={1} flexShrink={0} minWidth={0}>
               <box flexDirection="row" gap={1}>
-                <text
-                  bg={textColor}
-                  fg={backgroundColor}
-                  wrapMode="none"
-                >
+                <text bg={textColor} fg={backgroundColor} wrapMode="none">
                   {" "}
                   <Show when={isRunning} fallback="β">
                     <TurnSpinner />
@@ -227,11 +223,7 @@ export default Plugin.define({
             <box flexDirection="row" justifyContent="flex-end" gap={1}>
               <Show when={stats}>
                 {(value: () => string) => (
-                  <text
-                    bg={textColor}
-                    fg={backgroundColor}
-                    wrapMode="none"
-                  >
+                  <text bg={textColor} fg={backgroundColor} wrapMode="none">
                     {value()}
                   </text>
                 )}
