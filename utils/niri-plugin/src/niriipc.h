@@ -16,6 +16,7 @@ class NiriIpc : public QObject {
 	using ReplyHandler = std::function<void(const QJsonObject& reply)>;
 
 	explicit NiriIpc(QObject* parent = nullptr);
+	~NiriIpc() override;
 
 	bool isConnected() const;
 	void start();

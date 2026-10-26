@@ -47,6 +47,11 @@ NiriIpc::NiriIpc(QObject* parent) : QObject(parent) {
 	});
 }
 
+NiriIpc::~NiriIpc() {
+	// The socket outlives the timer; do not reconnect during member destruction.
+	m_eventSocket.disconnect(this);
+}
+
 bool NiriIpc::isConnected() const {
 	return m_connected;
 }

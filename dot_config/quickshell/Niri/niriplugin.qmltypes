@@ -127,13 +127,13 @@ Module {
     }
     Component {
         file: "qabstractitemmodel.h"
-        lineNumber: 259
+        lineNumber: 261
         name: "QAbstractItemModel"
         accessSemantics: "reference"
         prototype: "QObject"
         Enum {
             name: "LayoutChangeHint"
-            lineNumber: 335
+            lineNumber: 337
             values: [
                 "NoLayoutChangeHint",
                 "VerticalSortHint",
@@ -143,7 +143,7 @@ Module {
         Enum {
             name: "CheckIndexOption"
             isScoped: true
-            lineNumber: 343
+            lineNumber: 345
             values: [
                 "NoOption",
                 "IndexIsValid",
@@ -153,7 +153,7 @@ Module {
         }
         Signal {
             name: "dataChanged"
-            lineNumber: 357
+            lineNumber: 359
             Parameter { name: "topLeft"; type: "QModelIndex" }
             Parameter { name: "bottomRight"; type: "QModelIndex" }
             Parameter { name: "roles"; type: "int"; isList: true }
@@ -161,104 +161,104 @@ Module {
         Signal {
             name: "dataChanged"
             isCloned: true
-            lineNumber: 357
+            lineNumber: 359
             Parameter { name: "topLeft"; type: "QModelIndex" }
             Parameter { name: "bottomRight"; type: "QModelIndex" }
         }
         Signal {
             name: "headerDataChanged"
-            lineNumber: 359
+            lineNumber: 361
             Parameter { name: "orientation"; type: "Qt::Orientation" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
             name: "layoutChanged"
-            lineNumber: 360
+            lineNumber: 362
             Parameter { name: "parents"; type: "QPersistentModelIndex"; isList: true }
             Parameter { name: "hint"; type: "QAbstractItemModel::LayoutChangeHint" }
         }
         Signal {
             name: "layoutChanged"
             isCloned: true
-            lineNumber: 360
+            lineNumber: 362
             Parameter { name: "parents"; type: "QPersistentModelIndex"; isList: true }
         }
-        Signal { name: "layoutChanged"; isCloned: true; lineNumber: 360 }
+        Signal { name: "layoutChanged"; isCloned: true; lineNumber: 362 }
         Signal {
             name: "layoutAboutToBeChanged"
-            lineNumber: 361
+            lineNumber: 363
             Parameter { name: "parents"; type: "QPersistentModelIndex"; isList: true }
             Parameter { name: "hint"; type: "QAbstractItemModel::LayoutChangeHint" }
         }
         Signal {
             name: "layoutAboutToBeChanged"
             isCloned: true
-            lineNumber: 361
+            lineNumber: 363
             Parameter { name: "parents"; type: "QPersistentModelIndex"; isList: true }
         }
-        Signal { name: "layoutAboutToBeChanged"; isCloned: true; lineNumber: 361 }
+        Signal { name: "layoutAboutToBeChanged"; isCloned: true; lineNumber: 363 }
         Signal {
             name: "rowsAboutToBeInserted"
-            lineNumber: 363
+            lineNumber: 365
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
             name: "rowsInserted"
-            lineNumber: 364
-            Parameter { name: "parent"; type: "QModelIndex" }
-            Parameter { name: "first"; type: "int" }
-            Parameter { name: "last"; type: "int" }
-        }
-        Signal {
-            name: "rowsAboutToBeRemoved"
             lineNumber: 366
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
-            name: "rowsRemoved"
-            lineNumber: 367
+            name: "rowsAboutToBeRemoved"
+            lineNumber: 368
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
-            name: "columnsAboutToBeInserted"
+            name: "rowsRemoved"
             lineNumber: 369
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
-            name: "columnsInserted"
-            lineNumber: 370
+            name: "columnsAboutToBeInserted"
+            lineNumber: 371
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
-            name: "columnsAboutToBeRemoved"
+            name: "columnsInserted"
             lineNumber: 372
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
         Signal {
-            name: "columnsRemoved"
-            lineNumber: 373
+            name: "columnsAboutToBeRemoved"
+            lineNumber: 374
             Parameter { name: "parent"; type: "QModelIndex" }
             Parameter { name: "first"; type: "int" }
             Parameter { name: "last"; type: "int" }
         }
-        Signal { name: "modelAboutToBeReset"; lineNumber: 375 }
-        Signal { name: "modelReset"; lineNumber: 376 }
+        Signal {
+            name: "columnsRemoved"
+            lineNumber: 375
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset"; lineNumber: 377 }
+        Signal { name: "modelReset"; lineNumber: 378 }
         Signal {
             name: "rowsAboutToBeMoved"
-            lineNumber: 378
+            lineNumber: 380
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceStart"; type: "int" }
             Parameter { name: "sourceEnd"; type: "int" }
@@ -267,7 +267,7 @@ Module {
         }
         Signal {
             name: "rowsMoved"
-            lineNumber: 379
+            lineNumber: 381
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceStart"; type: "int" }
             Parameter { name: "sourceEnd"; type: "int" }
@@ -276,7 +276,7 @@ Module {
         }
         Signal {
             name: "columnsAboutToBeMoved"
-            lineNumber: 381
+            lineNumber: 383
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceStart"; type: "int" }
             Parameter { name: "sourceEnd"; type: "int" }
@@ -285,21 +285,21 @@ Module {
         }
         Signal {
             name: "columnsMoved"
-            lineNumber: 382
+            lineNumber: 384
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceStart"; type: "int" }
             Parameter { name: "sourceEnd"; type: "int" }
             Parameter { name: "destinationParent"; type: "QModelIndex" }
             Parameter { name: "destinationColumn"; type: "int" }
         }
-        Method { name: "submit"; type: "bool"; lineNumber: 385 }
-        Method { name: "revert"; lineNumber: 386 }
-        Method { name: "resetInternalData"; lineNumber: 389 }
+        Method { name: "submit"; type: "bool"; lineNumber: 387 }
+        Method { name: "revert"; lineNumber: 388 }
+        Method { name: "resetInternalData"; lineNumber: 391 }
         Method {
             name: "hasIndex"
             type: "bool"
             isMethodConstant: true
-            lineNumber: 271
+            lineNumber: 273
             Parameter { name: "row"; type: "int" }
             Parameter { name: "column"; type: "int" }
             Parameter { name: "parent"; type: "QModelIndex" }
@@ -309,7 +309,7 @@ Module {
             type: "bool"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 271
+            lineNumber: 273
             Parameter { name: "row"; type: "int" }
             Parameter { name: "column"; type: "int" }
         }
@@ -317,7 +317,7 @@ Module {
             name: "index"
             type: "QModelIndex"
             isMethodConstant: true
-            lineNumber: 272
+            lineNumber: 274
             Parameter { name: "row"; type: "int" }
             Parameter { name: "column"; type: "int" }
             Parameter { name: "parent"; type: "QModelIndex" }
@@ -327,7 +327,7 @@ Module {
             type: "QModelIndex"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 272
+            lineNumber: 274
             Parameter { name: "row"; type: "int" }
             Parameter { name: "column"; type: "int" }
         }
@@ -335,14 +335,14 @@ Module {
             name: "parent"
             type: "QModelIndex"
             isMethodConstant: true
-            lineNumber: 274
+            lineNumber: 276
             Parameter { name: "child"; type: "QModelIndex" }
         }
         Method {
             name: "sibling"
             type: "QModelIndex"
             isMethodConstant: true
-            lineNumber: 276
+            lineNumber: 278
             Parameter { name: "row"; type: "int" }
             Parameter { name: "column"; type: "int" }
             Parameter { name: "idx"; type: "QModelIndex" }
@@ -351,15 +351,15 @@ Module {
             name: "rowCount"
             type: "int"
             isMethodConstant: true
-            lineNumber: 277
+            lineNumber: 279
             Parameter { name: "parent"; type: "QModelIndex" }
         }
-        Method { name: "rowCount"; type: "int"; isCloned: true; isMethodConstant: true; lineNumber: 277 }
+        Method { name: "rowCount"; type: "int"; isCloned: true; isMethodConstant: true; lineNumber: 279 }
         Method {
             name: "columnCount"
             type: "int"
             isMethodConstant: true
-            lineNumber: 278
+            lineNumber: 280
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
@@ -367,13 +367,13 @@ Module {
             type: "int"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 278
+            lineNumber: 280
         }
         Method {
             name: "hasChildren"
             type: "bool"
             isMethodConstant: true
-            lineNumber: 279
+            lineNumber: 281
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
@@ -381,13 +381,13 @@ Module {
             type: "bool"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 279
+            lineNumber: 281
         }
         Method {
             name: "data"
             type: "QVariant"
             isMethodConstant: true
-            lineNumber: 281
+            lineNumber: 283
             Parameter { name: "index"; type: "QModelIndex" }
             Parameter { name: "role"; type: "int" }
         }
@@ -396,13 +396,13 @@ Module {
             type: "QVariant"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 281
+            lineNumber: 283
             Parameter { name: "index"; type: "QModelIndex" }
         }
         Method {
             name: "setData"
             type: "bool"
-            lineNumber: 282
+            lineNumber: 284
             Parameter { name: "index"; type: "QModelIndex" }
             Parameter { name: "value"; type: "QVariant" }
             Parameter { name: "role"; type: "int" }
@@ -411,7 +411,7 @@ Module {
             name: "setData"
             type: "bool"
             isCloned: true
-            lineNumber: 282
+            lineNumber: 284
             Parameter { name: "index"; type: "QModelIndex" }
             Parameter { name: "value"; type: "QVariant" }
         }
@@ -419,7 +419,7 @@ Module {
             name: "headerData"
             type: "QVariant"
             isMethodConstant: true
-            lineNumber: 284
+            lineNumber: 286
             Parameter { name: "section"; type: "int" }
             Parameter { name: "orientation"; type: "Qt::Orientation" }
             Parameter { name: "role"; type: "int" }
@@ -429,7 +429,7 @@ Module {
             type: "QVariant"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 284
+            lineNumber: 286
             Parameter { name: "section"; type: "int" }
             Parameter { name: "orientation"; type: "Qt::Orientation" }
         }
@@ -437,7 +437,7 @@ Module {
             name: "insertRows"
             revision: 1540
             type: "bool"
-            lineNumber: 302
+            lineNumber: 304
             Parameter { name: "row"; type: "int" }
             Parameter { name: "count"; type: "int" }
             Parameter { name: "parent"; type: "QModelIndex" }
@@ -447,48 +447,12 @@ Module {
             revision: 1540
             type: "bool"
             isCloned: true
-            lineNumber: 302
-            Parameter { name: "row"; type: "int" }
-            Parameter { name: "count"; type: "int" }
-        }
-        Method {
-            name: "insertColumns"
-            revision: 1540
-            type: "bool"
-            lineNumber: 303
-            Parameter { name: "column"; type: "int" }
-            Parameter { name: "count"; type: "int" }
-            Parameter { name: "parent"; type: "QModelIndex" }
-        }
-        Method {
-            name: "insertColumns"
-            revision: 1540
-            type: "bool"
-            isCloned: true
-            lineNumber: 303
-            Parameter { name: "column"; type: "int" }
-            Parameter { name: "count"; type: "int" }
-        }
-        Method {
-            name: "removeRows"
-            revision: 1540
-            type: "bool"
-            lineNumber: 304
-            Parameter { name: "row"; type: "int" }
-            Parameter { name: "count"; type: "int" }
-            Parameter { name: "parent"; type: "QModelIndex" }
-        }
-        Method {
-            name: "removeRows"
-            revision: 1540
-            type: "bool"
-            isCloned: true
             lineNumber: 304
             Parameter { name: "row"; type: "int" }
             Parameter { name: "count"; type: "int" }
         }
         Method {
-            name: "removeColumns"
+            name: "insertColumns"
             revision: 1540
             type: "bool"
             lineNumber: 305
@@ -497,11 +461,47 @@ Module {
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
-            name: "removeColumns"
+            name: "insertColumns"
             revision: 1540
             type: "bool"
             isCloned: true
             lineNumber: 305
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Method {
+            name: "removeRows"
+            revision: 1540
+            type: "bool"
+            lineNumber: 306
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "removeRows"
+            revision: 1540
+            type: "bool"
+            isCloned: true
+            lineNumber: 306
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Method {
+            name: "removeColumns"
+            revision: 1540
+            type: "bool"
+            lineNumber: 307
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "removeColumns"
+            revision: 1540
+            type: "bool"
+            isCloned: true
+            lineNumber: 307
             Parameter { name: "column"; type: "int" }
             Parameter { name: "count"; type: "int" }
         }
@@ -509,7 +509,7 @@ Module {
             name: "moveRows"
             revision: 1540
             type: "bool"
-            lineNumber: 306
+            lineNumber: 308
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceRow"; type: "int" }
             Parameter { name: "count"; type: "int" }
@@ -520,7 +520,7 @@ Module {
             name: "moveColumns"
             revision: 1540
             type: "bool"
-            lineNumber: 308
+            lineNumber: 310
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceColumn"; type: "int" }
             Parameter { name: "count"; type: "int" }
@@ -531,7 +531,7 @@ Module {
             name: "insertRow"
             revision: 1540
             type: "bool"
-            lineNumber: 311
+            lineNumber: 313
             Parameter { name: "row"; type: "int" }
             Parameter { name: "parent"; type: "QModelIndex" }
         }
@@ -540,43 +540,11 @@ Module {
             revision: 1540
             type: "bool"
             isCloned: true
-            lineNumber: 311
-            Parameter { name: "row"; type: "int" }
-        }
-        Method {
-            name: "insertColumn"
-            revision: 1540
-            type: "bool"
-            lineNumber: 312
-            Parameter { name: "column"; type: "int" }
-            Parameter { name: "parent"; type: "QModelIndex" }
-        }
-        Method {
-            name: "insertColumn"
-            revision: 1540
-            type: "bool"
-            isCloned: true
-            lineNumber: 312
-            Parameter { name: "column"; type: "int" }
-        }
-        Method {
-            name: "removeRow"
-            revision: 1540
-            type: "bool"
-            lineNumber: 313
-            Parameter { name: "row"; type: "int" }
-            Parameter { name: "parent"; type: "QModelIndex" }
-        }
-        Method {
-            name: "removeRow"
-            revision: 1540
-            type: "bool"
-            isCloned: true
             lineNumber: 313
             Parameter { name: "row"; type: "int" }
         }
         Method {
-            name: "removeColumn"
+            name: "insertColumn"
             revision: 1540
             type: "bool"
             lineNumber: 314
@@ -584,18 +552,50 @@ Module {
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
-            name: "removeColumn"
+            name: "insertColumn"
             revision: 1540
             type: "bool"
             isCloned: true
             lineNumber: 314
+            Parameter { name: "column"; type: "int" }
+        }
+        Method {
+            name: "removeRow"
+            revision: 1540
+            type: "bool"
+            lineNumber: 315
+            Parameter { name: "row"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "removeRow"
+            revision: 1540
+            type: "bool"
+            isCloned: true
+            lineNumber: 315
+            Parameter { name: "row"; type: "int" }
+        }
+        Method {
+            name: "removeColumn"
+            revision: 1540
+            type: "bool"
+            lineNumber: 316
+            Parameter { name: "column"; type: "int" }
+            Parameter { name: "parent"; type: "QModelIndex" }
+        }
+        Method {
+            name: "removeColumn"
+            revision: 1540
+            type: "bool"
+            isCloned: true
+            lineNumber: 316
             Parameter { name: "column"; type: "int" }
         }
         Method {
             name: "moveRow"
             revision: 1540
             type: "bool"
-            lineNumber: 315
+            lineNumber: 317
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceRow"; type: "int" }
             Parameter { name: "destinationParent"; type: "QModelIndex" }
@@ -605,7 +605,7 @@ Module {
             name: "moveColumn"
             revision: 1540
             type: "bool"
-            lineNumber: 317
+            lineNumber: 319
             Parameter { name: "sourceParent"; type: "QModelIndex" }
             Parameter { name: "sourceColumn"; type: "int" }
             Parameter { name: "destinationParent"; type: "QModelIndex" }
@@ -613,27 +613,27 @@ Module {
         }
         Method {
             name: "fetchMore"
-            lineNumber: 320
+            lineNumber: 322
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
             name: "canFetchMore"
             type: "bool"
             isMethodConstant: true
-            lineNumber: 321
+            lineNumber: 323
             Parameter { name: "parent"; type: "QModelIndex" }
         }
         Method {
             name: "flags"
             type: "Qt::ItemFlags"
             isMethodConstant: true
-            lineNumber: 322
+            lineNumber: 324
             Parameter { name: "index"; type: "QModelIndex" }
         }
         Method {
             name: "sort"
             revision: 1540
-            lineNumber: 323
+            lineNumber: 325
             Parameter { name: "column"; type: "int" }
             Parameter { name: "order"; type: "Qt::SortOrder" }
         }
@@ -641,14 +641,14 @@ Module {
             name: "sort"
             revision: 1540
             isCloned: true
-            lineNumber: 323
+            lineNumber: 325
             Parameter { name: "column"; type: "int" }
         }
         Method {
             name: "match"
             type: "QModelIndexList"
             isMethodConstant: true
-            lineNumber: 325
+            lineNumber: 327
             Parameter { name: "start"; type: "QModelIndex" }
             Parameter { name: "role"; type: "int" }
             Parameter { name: "value"; type: "QVariant" }
@@ -660,7 +660,7 @@ Module {
             type: "QModelIndexList"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 325
+            lineNumber: 327
             Parameter { name: "start"; type: "QModelIndex" }
             Parameter { name: "role"; type: "int" }
             Parameter { name: "value"; type: "QVariant" }
@@ -671,7 +671,7 @@ Module {
             type: "QModelIndexList"
             isCloned: true
             isMethodConstant: true
-            lineNumber: 325
+            lineNumber: 327
             Parameter { name: "start"; type: "QModelIndex" }
             Parameter { name: "role"; type: "int" }
             Parameter { name: "value"; type: "QVariant" }
@@ -679,7 +679,7 @@ Module {
     }
     Component {
         file: "qabstractitemmodel.h"
-        lineNumber: 477
+        lineNumber: 495
         name: "QAbstractListModel"
         accessSemantics: "reference"
         prototype: "QAbstractItemModel"
@@ -805,4 +805,7 @@ Module {
         isCreatable: false
         exportMetaObjectRevisions: [0]
     }
+    Component { isTypeOpaque: true; name: "QModelIndex"; accessSemantics: "value" }
+    Component { isTypeOpaque: true; name: "QModelIndexList"; accessSemantics: "value" }
+    Component { isTypeOpaque: true; name: "QPersistentModelIndex"; accessSemantics: "value" }
 }

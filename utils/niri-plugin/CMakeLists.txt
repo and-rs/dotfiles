@@ -28,3 +28,13 @@ qt_add_qml_module(niriplugin
 target_compile_features(niriplugin PRIVATE cxx_std_20)
 target_include_directories(niriplugin PRIVATE src)
 target_link_libraries(niriplugin PRIVATE Qt6::Core Qt6::Network Qt6::Qml)
+
+include(CTest)
+if(BUILD_TESTING)
+  qt_add_executable(niriipc-test tests.cpp src/niriipc.cpp src/niriipc.h)
+  target_compile_features(niriipc-test PRIVATE cxx_std_20)
+  target_include_directories(niriipc-test PRIVATE src)
+  target_link_libraries(niriipc-test PRIVATE Qt6::Core Qt6::Network)
+  add_test(NAME niriipc COMMAND niriipc-test)
+  set_tests_properties(niriipc PROPERTIES TIMEOUT 15)
+endif()

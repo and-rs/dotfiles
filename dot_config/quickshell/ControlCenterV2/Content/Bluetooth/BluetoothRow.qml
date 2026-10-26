@@ -119,10 +119,10 @@ Rectangle {
 
 			anchors.left: parent.left
 			anchors.right: parent.right
-			anchors.top: parent.top
+			anchors.verticalCenter: parent.verticalCenter
 			color: root.nameColor
 			elide: Text.ElideRight
-			font.pointSize: 9
+			font.pointSize: 10
 			font.weight: {
 				if (root.device.connected)
 					return Font.DemiBold;

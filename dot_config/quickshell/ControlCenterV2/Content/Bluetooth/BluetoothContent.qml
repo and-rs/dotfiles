@@ -340,7 +340,8 @@ Column {
 
 						anchors.verticalCenter: parent.verticalCenter
 						color: SC.Config.colors.primary
-						font: scanHeading.font
+            font.underline: true
+
 						text: {
 							if (root.discovering)
 								return "Scanning…";
