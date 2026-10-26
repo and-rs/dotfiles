@@ -8,7 +8,7 @@
   diffFilter = delta --color-only
 
 [include]
-    path = ~/.gitconfig.delta
+    path = ~/.gitconfig_delta
 
 [delta]
   features = general
@@ -34,4 +34,4 @@
 	helper = !/usr/bin/env glab auth git-credential
 
 [includeIf "gitdir:~/Work/"]
-    path = ~/.gitconfig.work
+    path = ~/.gitconfig_work
