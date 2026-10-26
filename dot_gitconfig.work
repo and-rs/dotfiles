@@ -1,8 +1,0 @@
-[core]
- sshCommand = "ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
-
-[url "git@ssh.dev.azure.com:v3/"]
- insteadOf = ssh://git@ssh.dev.azure.com/v3/
-
-[include]
-    path = ~/.gitconfig.local

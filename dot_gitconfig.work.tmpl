@@ -1,0 +1,23 @@
+{{- $account := "pjbauti2_amadeus" -}}
+{{- $profile := output "sh" "-c" `token=$(gh auth token --hostname github.com --user "$1") && GH_TOKEN="$token" gh api --hostname github.com user` "sh" $account | fromJson -}}
+{{- if or (ne $profile.login $account) (not $profile.email) -}}
+{{- fail "GitHub work account must provide a matching login and email" -}}
+{{- end -}}
+[user]
+  name = {{ $account | quote }}
+  email = {{ $profile.email | quote }}
+
+[credential "https://github.com"]
+  username = {{ $account | quote }}
+  helper =
+  helper = "!f() { \
+    test \"$1\" = get || return 0; \
+    token=$(gh auth token --hostname github.com --user {{ $account }}) || { printf 'quit=1\\n'; return 1; }; \
+    printf 'username={{ $account }}\\npassword=%s\\n' \"$token\"; \
+  }; f"
+
+[core]
+ sshCommand = "ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
+
+[url "git@ssh.dev.azure.com:v3/"]
+ insteadOf = ssh://git@ssh.dev.azure.com/v3/
