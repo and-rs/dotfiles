@@ -1,18 +1,29 @@
 import QtQuick
 import QtQuick.Effects
 import Quickshell.Widgets
+import IconValidation 1.0
 import qs.Bar
 import qs.Config as SC
 
 ClippingRectangle {
 	id: root
 
-	readonly property string activeImage: notificationImage || appIcon
+	readonly property string activeImage: {
+		const source = root.notificationImage || root.appIcon;
+		if (!root.imageLooksLoadable(source))
+			return "";
+
+		if (iconValidator.canValidate(source) && !iconValidator.isValid(source, root.imageSize, root.imageSize))
+			return "";
+
+		return source;
+	}
 	required property string appIcon
 	readonly property bool backgroundReady: backgroundImage.status === Image.Ready && backgroundImage.implicitWidth > 2 && backgroundImage.implicitHeight > 2
 	required property string fallbackText
 	readonly property bool hasNotificationImage: imageLooksLoadable(notificationImage)
 	readonly property bool imageReady: foregroundImage.status === Image.Ready && foregroundImage.implicitWidth > 2 && foregroundImage.implicitHeight > 2
+	readonly property int imageSize: root.size * 2
 	required property string notificationImage
 	property int size: 56
 
@@ -25,6 +36,10 @@ ClippingRectangle {
 	height: size
 	radius: SC.Config.radius.normal
 	width: size
+
+	IconValidator {
+		id: iconValidator
+	}
 
 	Text {
 		anchors.centerIn: parent
@@ -40,10 +55,15 @@ ClippingRectangle {
 
 		asynchronous: true
 		cache: true
-		fillMode: root.hasNotificationImage ? Image.PreserveAspectCrop : Image.PreserveAspectFit
-		source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
-		sourceSize.height: root.size * 2
-		sourceSize.width: root.size * 2
+		fillMode: Image.PreserveAspectCrop
+		source: {
+			if (!root.hasNotificationImage)
+				return "";
+
+			return root.activeImage;
+		}
+		sourceSize.height: root.imageSize
+		sourceSize.width: root.imageSize
 		visible: false
 	}
 
@@ -63,10 +83,10 @@ ClippingRectangle {
 		anchors.fill: parent
 		asynchronous: true
 		cache: true
-		fillMode: root.hasNotificationImage ? Image.PreserveAspectFit : Image.PreserveAspectFit
-		source: root.imageLooksLoadable(root.activeImage) ? root.activeImage : ""
-		sourceSize.height: root.size * 2
-		sourceSize.width: root.size * 2
+		fillMode: Image.PreserveAspectFit
+		source: root.activeImage
+		sourceSize.height: root.imageSize
+		sourceSize.width: root.imageSize
 		visible: root.imageReady
 	}
 
