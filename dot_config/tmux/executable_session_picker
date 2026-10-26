@@ -1,6 +1,8 @@
 #!/usr/bin/env -S nu -n
 
 def main [] {
+  $env.TMUX_PICKER_CLIENT = (tmux display-message -p "#{client_name}")
+
   let preview_cmd = '
         let preview_width = ($env.FZF_PREVIEW_COLUMNS | into int)
         let column_width = (($preview_width - 4) / 3 | math floor | into int)
@@ -35,7 +37,33 @@ def main [] {
         | qsv table --delimiter "\t" --align leftendtab --pad 1
         '
 
-  let kill_bind = "ctrl-k:execute-silent(tmux kill-session -t {1})+reload(" + $list_sessions + ")"
+  let kill_cmd = '
+        let session = {1}
+        let current = (tmux display-message -p -c $env.TMUX_PICKER_CLIENT "#{client_session}" | complete)
+        if $current.exit_code != 0 { exit 0 }
+
+        if $session == ($current.stdout | str trim) {
+          let alternatives = (tmux list-sessions -F "#{session_name}" | lines | where {|name| $name != $session })
+          if ($alternatives | is-empty) { exit 0 }
+          let switched = (tmux switch-client -c $env.TMUX_PICKER_CLIENT -t $"=($alternatives.0)" | complete)
+          if $switched.exit_code != 0 { exit 0 }
+        }
+
+        tmux kill-session -t $"=($session)"
+        '
+
+  let create_cmd = '
+        let sessions = (tmux list-sessions -F "#{session_name}" | lines)
+        for session in [alpha beta delta gamma] {
+          if $session not-in $sessions {
+            tmux new-session -d -s $session -c $env.PWD
+            break
+          }
+        }
+        '
+
+  let kill_bind = "ctrl-k:execute-silent(" + $kill_cmd + ")+reload(" + $list_sessions + ")"
+  let create_bind = "ctrl-s:execute-silent(" + $create_cmd + ")+reload(" + $list_sessions + ")"
 
   let separator = $"(ansi black)│(ansi reset)"
   let selection = (
@@ -49,9 +77,10 @@ def main [] {
     --accept-nth=1
     --header-lines=1
     --footer-border='top'
-    --footer='<enter: switch>  <ctrl-k: kill>  <esc: cancel>'
+    --footer='<enter: switch>  <ctrl-k: kill>  <ctrl-s: create>  <esc: cancel>'
     --with-nth $"{1} ($separator) {2} ($separator) {3}"
     --bind $kill_bind
+    --bind $create_bind
     --preview $preview_cmd
     --preview-window='bottom,50%'
     | complete
@@ -62,5 +91,5 @@ def main [] {
   let session = ($selection.stdout | str trim)
   if ($session | is-empty) { exit 0 }
 
-  tmux switch-client -t $session
+  tmux switch-client -c $env.TMUX_PICKER_CLIENT -t $"=($session)"
 }

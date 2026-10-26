@@ -1,6 +1,6 @@
 font-size = 13
-# () very importnat check
-minimum-contrast = 2.4
+# () 	 very importnat check
+minimum-contrast = 1.1
 command = nu
 config-file = fonts.ghostty
 config-file = themes/current
@@ -31,6 +31,10 @@ custom-shader = shaders/cursor_wire.glsl
 
 #--- KEYBINDS ---#
 keybind = clear
+keybind = ctrl+==increase_font_size:1
+keybind = ctrl+-=decrease_font_size:1
+keybind = ctrl+0=reset_font_size
+
 keybind = super+ctrl+f=text:\x1bf
 keybind = super+ctrl+b=text:\x1bb
 
