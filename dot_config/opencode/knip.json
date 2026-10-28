@@ -4,6 +4,7 @@
     "plugins/commit-message/index.ts!",
     "plugins/quickfix/index.ts!",
     "cli-plugins/context-footer/tui.tsx!",
+    "cli-plugins/message-copy/tui.ts!",
     "cli-plugins/session-epilogue/tui.ts!"
   ],
   "project": ["plugins/**/*.ts", "cli-plugins/**/*.ts", "cli-plugins/**/*.tsx"]

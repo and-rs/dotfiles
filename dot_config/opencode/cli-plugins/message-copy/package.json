@@ -1,0 +1,13 @@
+{
+  "name": "opencode-message-copy",
+  "type": "module",
+  "exports": {
+    "./tui": "./tui.ts"
+  },
+  "dependencies": {
+    "@opencode/plugin": "2.0.22"
+  },
+  "peerDependencies": {
+    "@opentui/core": ">=0.5.14"
+  }
+}
