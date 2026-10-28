@@ -22,7 +22,8 @@ font-codepoint-map = U+2731=Monaspace Krypton
 ### FONTS ###
 #font-family = JetBrains Mono
 #font-family = Maple Mono
-font-family = CommitMono
+#font-family = CommitMono
+font-family = Fragment Mono
 
 # font-family = Rec Mono Linear
 # font-family-bold = Rec Mono Linear

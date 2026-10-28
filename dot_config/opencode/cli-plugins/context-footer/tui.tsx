@@ -5,20 +5,51 @@ import stringWidth from "string-width";
 import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch-marquee";
 import { compactPath } from "./text-width";
 
-const spinnerFrames = ["🭶", "🭷", "🭸", "🭹", "🭺", "🭻", "🭺", "🭹", "🭸", "🭷"];
+const spinnerWidth = 2;
+const runningWord = "Transposing";
+const runningLabel = `${runningWord}...`;
 const pathWidthLimit = 24;
 const branchWidthLimit = 12;
 const branchScrollInterval = 200;
 const locationMinTerminalWidth = 70;
 
+function randomSpinnerFrame() {
+  // Sample the Unicode box-drawing block (U+2500–U+257F).
+  return Array.from({ length: spinnerWidth }, () =>
+    String.fromCharCode(0x2500 + Math.floor(Math.random() * 128)),
+  ).join("");
+}
+
 function TurnSpinner() {
-  const [frame, setFrame] = createSignal(0);
+  const [frame, setFrame] = createSignal(randomSpinnerFrame());
   const timer = setInterval(() => {
-    setFrame((current) => (current + 1) % spinnerFrames.length);
-  }, 40);
+    setFrame(randomSpinnerFrame());
+  }, 90);
   onCleanup(() => clearInterval(timer));
 
-  return <>{spinnerFrames[frame()]}</>;
+  return <>{frame()}</>;
+}
+
+function RunningLabel() {
+  const [active, setActive] = createSignal(0);
+  const timer = setInterval(() => {
+    setActive((current) => (current + 1) % runningWord.length);
+  }, 150);
+  onCleanup(() => clearInterval(timer));
+  const start = () => Math.max(0, active() - 1);
+
+  return (
+    <>
+      {runningWord.slice(0, start())}
+      <i>
+        {runningWord.slice(start(), active())}
+        <b>{runningWord[active()]}</b>
+        {runningWord.slice(active() + 1, active() + 2)}
+      </i>
+      {runningWord.slice(active() + 2)}
+      {"..."}
+    </>
+  );
 }
 
 function formatTokens(tokens: number): string {
@@ -198,7 +229,7 @@ export default Plugin.define({
         if (stats) statsWidth = stringWidth(stats);
         let statusWidth = stringWidth(" β ");
         if (isRunning) {
-          statusWidth += 1 + stringWidth("Working");
+          statusWidth = spinnerWidth + 3 + stringWidth(runningLabel);
         }
 
         return (
@@ -214,7 +245,7 @@ export default Plugin.define({
 
                 <Show when={isRunning}>
                   <text fg={backgroundColor} wrapMode="none">
-                    Working
+                    <RunningLabel />
                   </text>
                 </Show>
               </box>
