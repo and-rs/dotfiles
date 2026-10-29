@@ -3,10 +3,15 @@ on   = "<Esc>"
 run  = "close"
 desc = "Cancel input"
 
-[[mgr.append_keymap]]
+[[mgr.prepend_keymap]]
 on   = "<C-a>"
 run  = "bulk_create"
 desc = "Create files in bulk"
+
+[[mgr.prepend_keymap]]
+on   = "<Enter>"
+run  = "plugin smart-enter"
+desc = "Enter directories or open files"
 
 [[mgr.prepend_keymap]]
 on   = "<C-c>"

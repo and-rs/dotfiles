@@ -4,6 +4,7 @@ minimum-contrast = 1.1
 command = nu
 config-file = fonts.ghostty
 config-file = themes/current
+async-backend = io_uring
 
 #--- WINDOW ---#
 quit-after-last-window-closed = true

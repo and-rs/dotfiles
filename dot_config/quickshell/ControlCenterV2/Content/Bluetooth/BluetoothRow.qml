@@ -114,35 +114,40 @@ Rectangle {
 		anchors.verticalCenter: parent.verticalCenter
 		height: deviceName.implicitHeight + subtitle.height + 1
 
-		Text {
-			id: deviceName
-
+		Row {
 			anchors.left: parent.left
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
-			color: root.nameColor
-			elide: Text.ElideRight
-			font.pointSize: 10
-			font.weight: {
-				if (root.device.connected)
-					return Font.DemiBold;
+			spacing: SC.Config.spacing.small
+			Text {
+				id: deviceName
 
-				return Font.Normal;
+				// anchors.left: parent.left
+				// anchors.right: parent.right
+				// anchors.verticalCenter: parent.verticalCenter
+				color: root.nameColor
+				elide: Text.ElideRight
+				font.pointSize: 10
+				font.weight: {
+					if (root.device.connected)
+						return Font.DemiBold;
+
+					return Font.Normal;
+				}
+				text: root.device.name || root.device.deviceName || root.device.address
 			}
-			text: root.device.name || root.device.deviceName || root.device.address
-		}
+			Text {
+				id: subtitle
 
-		Text {
-			id: subtitle
-
-			anchors.left: parent.left
-			anchors.right: parent.right
-			anchors.top: deviceName.bottom
-			anchors.topMargin: 1
-			color: root.colors.surface5
-			elide: Text.ElideRight
-			font.pointSize: 8
-			text: root.statusTail
+				// anchors.left: parent.left
+				// anchors.right: parent.right
+				// anchors.top: deviceName.bottom
+				// anchors.topMargin: 1
+				color: root.colors.surface5
+				elide: Text.ElideRight
+				font.pointSize: 10
+				text: root.statusTail
+			}
 		}
 	}
 

@@ -3,6 +3,28 @@ ratio = [2,2,0]
 sort_by = "natural"
 show_hidden = true
 
+[opener]
+image = [
+  { run = "imv %s", desc = "imv", orphan = true, for = "linux" },
+]
+annotate = [
+  { run = "satty --filename %s1", desc = "Satty", orphan = true, for = "linux" },
+]
+pdf = [
+  { run = "zathura %s", desc = "Zathura", orphan = true, for = "linux" },
+]
+media = [
+  { run = "mpv %s", desc = "mpv", orphan = true, for = "linux" },
+]
+
+[open]
+prepend_rules = [
+  { mime = "folder/*", use = [ "edit", "open", "image", "reveal" ] },
+  { mime = "image/*", use = [ "image", "annotate", "open", "reveal" ] },
+  { mime = "application/pdf", use = [ "pdf", "open", "reveal" ] },
+  { mime = "{audio,video}/*", use = [ "media", "play", "reveal" ] },
+]
+
 [plugin]
 preloaders = []
 previewers = []
