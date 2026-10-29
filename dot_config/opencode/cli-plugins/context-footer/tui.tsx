@@ -7,7 +7,7 @@ import { compactPath } from "./text-width";
 
 const spinnerWidth = 2;
 const runningWord = "Transposing";
-const runningLabel = `${runningWord}...`;
+const runningLabel = `${runningWord}···`;
 const pathWidthLimit = 24;
 const branchWidthLimit = 12;
 const branchScrollInterval = 200;
@@ -24,32 +24,10 @@ function TurnSpinner() {
   const [frame, setFrame] = createSignal(randomSpinnerFrame());
   const timer = setInterval(() => {
     setFrame(randomSpinnerFrame());
-  }, 90);
+  }, 50);
   onCleanup(() => clearInterval(timer));
 
   return <>{frame()}</>;
-}
-
-function RunningLabel() {
-  const [active, setActive] = createSignal(0);
-  const timer = setInterval(() => {
-    setActive((current) => (current + 1) % runningWord.length);
-  }, 150);
-  onCleanup(() => clearInterval(timer));
-  const start = () => Math.max(0, active() - 1);
-
-  return (
-    <>
-      {runningWord.slice(0, start())}
-      <i>
-        {runningWord.slice(start(), active())}
-        <b>{runningWord[active()]}</b>
-        {runningWord.slice(active() + 1, active() + 2)}
-      </i>
-      {runningWord.slice(active() + 2)}
-      {"..."}
-    </>
-  );
 }
 
 function formatTokens(tokens: number): string {
@@ -245,7 +223,7 @@ export default Plugin.define({
 
                 <Show when={isRunning}>
                   <text fg={backgroundColor} wrapMode="none">
-                    <RunningLabel />
+                    {runningWord}
                   </text>
                 </Show>
               </box>
