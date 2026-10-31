@@ -1,11 +1,11 @@
 ---
 name: code-deslopify
-description: Review or clean up existing code that adds avoidable correctness risk or maintenance cost, especially redundant wrappers, checks, and error handling.
+description: Critically simplify existing code by removing unnecessary implementation and maintenance surface, especially redundant wrappers, checks, layers, and speculative abstractions.
 ---
 
 # Code Deslopify
 
-Use this skill to review or clean up existing code. “Slop” is code that adds avoidable correctness risk or maintenance cost, even if it runs and looks plausible. Judge the code and its fit with the project, not whether AI wrote it. Verbosity, unfamiliar style, or a code smell alone is not proof; findings need concrete evidence and impact.
+Use this skill to find and remove code the project does not need. Default to the smallest maintained code surface that satisfies the request and real project contracts. Fewer lines, branches, files, dependencies, and concepts are legitimate goals because each adds maintenance and failure surface. Do not keep code merely because it works, is conventional, looks defensive, or might be useful someday. Be blunt about what can be skipped or deleted, with a concrete reason; do not pad with praise or style complaints.
 
 ## Scope
 
@@ -23,22 +23,22 @@ Use this skill to review or clean up existing code. “Slop” is code that adds
   - repeated validation, guards, or defensive checks that establish the same invariant without a new trust boundary, state change, or failure mode
   - duplicate helpers or parallel implementations where an existing project utility already does the job
 - **Avoidable correctness risk** — behavior that misses the request or project contract; swallowed or misrepresented errors; unverified APIs or integrations; unsafe shortcuts; or tests that mirror the implementation, mock away the behavior under test, or were weakened just to pass.
-- **Unnecessary structure or scope** — dead or stale code, speculative abstractions, layers that obscure control flow, misplaced responsibilities, and unrelated additions without a concrete benefit.
+- **Unnecessary structure or scope** — dead or stale code, speculative abstractions, layers that obscure control flow, misplaced responsibilities, unrequested features, and unrelated additions without a concrete benefit.
 - **Noise** — comments, documentation, or boilerplate that is redundant, misleading, or merely restates what the code does.
 
-For each suspected wrapper, catch, or check, ask what it contributes: adaptation, a stable boundary, policy, instrumentation, recovery, cleanup, or protection at a real trust boundary can justify it. Do not remove a check until its invariant and callers are understood. Keep deliberate duplication, useful abstractions, domain-specific names, and comments that preserve non-obvious rationale. A long function or extra line is a lead to inspect, not a finding by itself.
+For every extra construct, ask what breaks if it is removed. Check callers, invariants, and real trust boundaries before deciding. Keep it only when it serves a concrete requirement, caller contract, demonstrated failure mode, or material safety/correctness need. "Best practice," hypothetical reuse, and future-proofing are not enough. Prefer direct code; an abstraction must reduce total maintenance surface, not just move lines elsewhere. Small deliberate duplication can be cheaper than another helper. Preserve meaningful tests and safeguards, but remove ceremony that verifies no meaningful behavior.
 
 ## Cleanup workflow
 
 1. Inspect the target, repository conventions, relevant callers, invariants, tests, and working-tree changes. Preserve unrelated user edits.
-2. Identify concrete evidence and its cost. Prioritize redundant wrappers, rethrows, checks, and repeated implementations; do not optimize for fewer lines alone.
-3. Protect intended behavior. Check the narrowest relevant existing tests or verification before editing when practical. If behavior or an invariant is unclear, do not make a speculative cleanup; explain the uncertainty.
-4. Make the smallest focused change. Prefer removing genuinely redundant work; do not add dependencies, abstractions, or unrelated cleanup. Never weaken tests or safeguards just to make cleanup pass.
-5. Run proportionate verification for the touched behavior, then inspect the final diff for behavior changes and scope creep.
+2. Find the minimum implementation that satisfies the request and real contracts. First ask what can be skipped entirely, then what existing code can be reused, simplified, or deleted.
+3. Remove code without a concrete job, including unnecessary wrappers, rethrows, guards, layers, configurability, and test ceremony. Optimize the final maintained surface, not merely the patch size; simplify touched code when that makes the result smaller and clearer.
+4. Preserve required behavior, real boundary protections, and meaningful verification. If behavior or an invariant is unclear, investigate; do not guess. Never weaken a valuable test or safeguard just to reduce lines.
+5. Run proportionate verification for the touched behavior, then inspect the final diff for correctness and scope creep.
 
 ## Review-only output
 
-When asked to review without editing, report actionable findings with location, evidence, and impact. Separate correctness or security risks from avoidable maintenance cost. Mark uncertainty clearly; do not report a stylistic preference as a defect.
+When asked to review without editing, report only actionable removals or simplifications, with location, evidence, and the maintenance/correctness impact. Mark uncertainty clearly; do not report a stylistic preference as a defect.
 
 ## Completion
 

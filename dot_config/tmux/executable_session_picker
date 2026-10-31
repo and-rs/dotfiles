@@ -33,7 +33,13 @@ def main [] {
         tmux list-sessions -F "#{session_name}\t#{window_name}\t#{session_attached_list}\t#{session_last_attached}"
         | from tsv --noheaders
         | rename session window attached last_attached
-        | into int last_attached
+        | update last_attached {|row|
+            if ($row.last_attached | is-empty) {
+              0
+            } else {
+              $row.last_attached | into int
+            }
+        }
         | sort-by last_attached --reverse
         | reject last_attached
         | to tsv

@@ -1,4 +1,5 @@
 import { Plugin } from "@opencode/plugin/tui";
+import type { ColorInput } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/solid";
 import { createEffect, createSignal, onCleanup, Show } from "solid-js";
 import stringWidth from "string-width";
@@ -76,8 +77,8 @@ function FooterLocation(props: {
   branch: string | undefined;
   statsWidth: number;
   statusWidth: number;
-  bg: string;
-  fg: string;
+  bg: ColorInput;
+  fg: ColorInput;
 }) {
   const dimensions = useTerminalDimensions();
   const locationWidth = () =>

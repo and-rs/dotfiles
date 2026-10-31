@@ -7,6 +7,10 @@ utils
 wallpapers
 **/node_modules
 
+{{ if ne (output "sh" "-c" `if gh auth token --hostname github.com --user pjbauti2_amadeus >/dev/null 2>&1; then printf available; else printf unavailable; fi`) "available" }}
+.gitconfig_work
+{{ end }}
+
 {{- if ne .chezmoi.os "linux" }}
 .config/hypr
 .config/rofi
