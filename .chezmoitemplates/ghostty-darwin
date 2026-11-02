@@ -15,11 +15,17 @@ confirm-close-surface = false
 macos-non-native-fullscreen = true
 quit-after-last-window-closed = true
 
-# ->theme
+cursor-style = block
+cursor-style-blink = false
+cursor-opacity = 0
+shell-integration-features = no-cursor
+
+# -> theme
 config-file = themes/current
 
-# ->only for darkmode
-custom-shader-animation = false
+# -> only for darkmode
+custom-shader-animation = true
+custom-shader = shaders/cursor_wire.glsl
 #custom-shader = shaders/crt.glsl
 #custom-shader = shaders/dot_matrix.glsl
 #custom-shader = shaders/glow.glsl

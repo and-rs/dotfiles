@@ -41,8 +41,8 @@ font-family = Kode Mono
 #font-style-italic = Italic
 #font-style-bold-italic = Bold Italic
 
-#font-family = Input
-#font-family = MD IO Trial
+# font-family = Input
+# font-family = MD IO Trial
 # font-family = OCR-X TTF
 # font-feature = +ss02
 # font-feature = +ss04
