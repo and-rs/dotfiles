@@ -19,5 +19,3 @@ app.log
 .DS_Store
 .qmlls.ini
 qml-niri
-
-**/yazi/plugins
