@@ -29,4 +29,5 @@ wallpapers
 {{- if ne .chezmoi.os "darwin" }}
 .config/aerospace
 .cargo
+Library/Application Support/bob/config.json
 {{- end }}
