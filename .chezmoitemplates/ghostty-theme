@@ -25,6 +25,6 @@ palette = 15={{ .white }}
 background = {{ .bg }}
 foreground = {{ .fg }}
 cursor-color = {{ .cursor }}
-cursor-text = {{ .cursor }}
+cursor-text = {{ .bg }}
 selection-background = {{ .selection }}
 selection-foreground = {{ .fg }}
