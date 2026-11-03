@@ -1,13 +1,13 @@
+import { readFile } from "node:fs/promises";
 import { Plugin } from "@opencode/plugin";
 import { Rpc } from "@opencode/plugin/rpc";
 
-interface GenerateInput {
+type GenerateInput = {
   model: {
     providerID: string;
     id: string;
   };
-  prompt: string;
-}
+} & ({ prompt: string } | { promptFile: string });
 
 const commitMessage = Rpc.define({
   id: "commit-message",
@@ -26,8 +26,10 @@ const commitMessage = Rpc.define({
             additionalProperties: false,
           },
           prompt: { type: "string" },
+          promptFile: { type: "string" },
         },
-        required: ["model", "prompt"],
+        required: ["model"],
+        oneOf: [{ required: ["prompt"] }, { required: ["promptFile"] }],
         additionalProperties: false,
       },
       output: {
@@ -46,8 +48,17 @@ export default Plugin.define({
   async setup(ctx) {
     await ctx.rpc.register(commitMessage, {
       generate: async (input, { signal }) => {
-        const { model, prompt } = input as GenerateInput;
-        return ctx.generate.text({ model, prompt }, { signal });
+        const request = input as GenerateInput;
+        let prompt: string;
+        if ("promptFile" in request) {
+          prompt = await readFile(request.promptFile, {
+            encoding: "utf8",
+            signal,
+          });
+        } else {
+          prompt = request.prompt;
+        }
+        return ctx.generate.text({ model: request.model, prompt }, { signal });
       },
     });
   },

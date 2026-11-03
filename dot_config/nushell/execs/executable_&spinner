@@ -12,6 +12,7 @@ def main [
   --msg: string
   --structured
   --quiet-cancel
+  --cleanup-file: path # Remove this temporary file after completion or cancellation.
   ...argv: string
 ] {
   if ($argv | is-empty) {
@@ -30,7 +31,8 @@ def main [
     }
   }
 
-  let result = if (is-terminal --stderr) {
+  let terminal = (is-terminal --stderr)
+  let result = do {
     let job_id = (
       job spawn {
         let result = (do $execute)
@@ -55,29 +57,37 @@ def main [
           break
         }
 
-        let frame = ($frames | get ($i mod ($frames | length)))
-        print -e -n $"\r\u{1b}[2K(ansi reset)($frame) ($msg)"
-        $i = $i + 1
+        if $terminal {
+          let frame = ($frames | get ($i mod ($frames | length)))
+          print -e -n $"\r\u{1b}[2K(ansi reset)($frame) ($msg)"
+          $i = $i + 1
+        }
       }
     } catch {|err|
       try { job kill $job_id } catch { }
-      print -e -n "\r\u{1b}[2K"
+      if $terminal {
+        print -e -n "\r\u{1b}[2K"
+      }
       if not $quiet_cancel {
         print $"(ansi red)Loading task was canceled(ansi reset)"
       }
-      if $structured {
-        return '{"cancelled":true}'
-      }
-      return
+      return {cancelled: true}
     }
-    print -e -n "\r\u{1b}[2K"
+    if $terminal {
+      print -e -n "\r\u{1b}[2K"
+    }
     $result
-  } else {
-    do $execute
+  }
+
+  if $cleanup_file != null {
+    rm --force $cleanup_file
   }
 
   if $structured {
     return ($result | to json -r)
+  }
+  if ($result.cancelled? | default false) {
+    return
   }
 
   if ($result.stderr | is-not-empty) {

@@ -35,6 +35,26 @@ export def "ai summarize-model" [] {
   $model
 }
 
+def generate-commit-message [model: list<string> prompt: string message: string] {
+  let prompt_file = (mktemp -t ai-commit.XXXXXXXXXX)
+  try {
+    $prompt | save --force $prompt_file
+    &spinner --structured --quiet-cancel --cleanup-file $prompt_file --msg $message -- opencode api post /api/rpc/commit-message/generate --data (
+      {
+        input: {
+          model: {
+            providerID: ($model | get 0)
+            id: ($model | skip 1 | str join "/")
+          }
+          promptFile: $prompt_file
+        }
+      } | to json -r
+    ) | from json
+  } finally {
+    rm --force $prompt_file
+  }
+}
+
 export def "ai gs" [] {
   let staged = (&ai_git_status | str trim)
   if ($staged | is-empty) {
@@ -72,20 +92,7 @@ export def "ai gs" [] {
   ($staged)
   "
 
-  let response = (
-    &spinner --structured --quiet-cancel --msg "Summarizing" -- opencode api post /api/rpc/commit-message/generate --data (
-      {
-        input: {
-          model: {
-            providerID: ($model | get 0)
-            id: ($model | skip 1 | str join "/")
-          }
-          prompt: $prompt
-        }
-      } | to json -r
-    )
-    | from json
-  )
+  let response = (generate-commit-message $model $prompt "Summarizing")
   if ($response.cancelled? | default false) {
     print $"(ansi red)response cancelled(ansi reset)"
     return
@@ -111,20 +118,7 @@ export def "ai gs" [] {
 
     let prompt = $"($system_prompt)\n\n($base_prompt)\n\nRevise this commit message using the requested change. Preserve accurate facts from the staged diff.\n\nStaged diff:\n($staged)\n\nCurrent commit message:\n($msg)\n\nRequested change:\n($revision)"
 
-    let response = (
-      &spinner --structured --quiet-cancel --msg "Revising" -- opencode api post /api/rpc/commit-message/generate --data (
-        {
-          input: {
-            model: {
-              providerID: ($model | get 0)
-              id: ($model | skip 1 | str join "/")
-            }
-            prompt: $prompt
-          }
-        } | to json -r
-      )
-      | from json
-    )
+    let response = (generate-commit-message $model $prompt "Revising")
     if ($response.cancelled? | default false) {
       print $"(ansi red)response cancelled(ansi reset)"
       return
