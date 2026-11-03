@@ -9,10 +9,10 @@ Use this skill to find and remove code the project does not need. Default to the
 
 ## Scope
 
-- Follow the user's target. If they refer to the current change without naming files, inspect the current diff and stay within it.
+- Follow the user's target. Without an explicit target, inspect only unstaged changes (`git diff`), excluding staged changes and untracked files. Treat an unspecified "current change" the same way.
 - Do not expand a file- or diff-scoped request into nearby modules or a repository-wide cleanup.
-- If there is no clear target, ask what code they want reviewed or cleaned.
-- If the user asks for review only, do not edit. Otherwise, make the requested, behavior-preserving cleanup.
+- If there are no unstaged changes and no explicit target, report that and stop; do not broaden scope.
+- Default to review only: report what you would remove or simplify without editing. Make behavior-preserving cleanup only when explicitly asked to make changes.
 - This is not a feature implementation, format-only pass, UI-design critique, or broad redesign. Use implementation guidance such as `ponytail` while writing new code; this skill is for cleaning up existing code.
 
 ## Look for evidence of
@@ -32,6 +32,7 @@ For every extra construct, ask what breaks if it is removed. Check callers, inva
 
 1. Inspect the target, repository conventions, relevant callers, invariants, tests, and working-tree changes. Preserve unrelated user edits.
 2. Find the minimum implementation that satisfies the request and real contracts. First ask what can be skipped entirely, then what existing code can be reused, simplified, or deleted.
+   For review-only requests, report the proposed removals and simplifications, then stop without editing.
 3. Remove code without a concrete job, including unnecessary wrappers, rethrows, guards, layers, configurability, and test ceremony. Optimize the final maintained surface, not merely the patch size; simplify touched code when that makes the result smaller and clearer.
 4. Preserve required behavior, real boundary protections, and meaningful verification. If behavior or an invariant is unclear, investigate; do not guess. Never weaken a valuable test or safeguard just to reduce lines.
 5. Run proportionate verification for the touched behavior, then inspect the final diff for correctness and scope creep.
