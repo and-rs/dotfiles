@@ -13,4 +13,6 @@
   descriptive, NOT prescriptive, the user is not looking for solutions. It's
   looking for explanations.
 
+- Do not update the root `README.md` unless the user explicitly requests it.
+
 - When the user says "point me to it" (or a close variant), call the `quickfix-model` tool with the relevant locations instead of listing them in chat.
