@@ -1,4 +1,4 @@
-theme = "neovim-light"
+theme = "mfd-lumon"
 
 [fonts]
 ui = "Inter"

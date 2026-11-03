@@ -13,8 +13,10 @@ adjust-cell-height = 6
 ### OVERRIDES ###
 # Α Β Γ Δ Ε Ζ Η Θ Ι Κ Λ Μ Ν Ξ Ο Π Ρ Σ Τ Υ Φ Χ Ψ Ω
 #font-codepoint-map = U+0391-U+03A9=Input
+font-codepoint-map = U+0391-U+03A9=Monaspace Krypton
 # α β γ δ ε ζ η θ ι κ λ μ ν ξ ο π ρ σ τ υ φ χ ψ ω ς
 #font-codepoint-map = U+03B1-U+03C9,U+03C2=Input
+font-codepoint-map = U+03B1-U+03C9,U+03C2=Monaspace Krypton
 # ✱ ▣ I hate these little opencode fuckers so much.
 font-codepoint-map = U+25A3=Monaspace Krypton
 font-codepoint-map = U+2731=Monaspace Krypton
@@ -23,7 +25,8 @@ font-codepoint-map = U+2731=Monaspace Krypton
 #font-family = JetBrains Mono
 #font-family = Maple Mono
 #font-family = CommitMono
-font-family = Spline Sans Mono
+#font-family = Spline Sans Mono
+font-family = Kode Mono
 
 # font-family = Rec Mono Linear
 # font-family-bold = Rec Mono Linear
@@ -37,6 +40,13 @@ font-family = Spline Sans Mono
 #font-family-bold = Monaspace Neon
 #font-family-italic = Monaspace Argon
 #font-family-bold-italic = Monaspace Argon
+#font-family = Monaspace Neon
+#font-family-bold = Monaspace Neon
+#font-family-italic = Monaspace Argon
+#font-family-bold-italic = Monaspace Argon
+#font-style-bold = Bold
+#font-style-italic = Italic
+#font-style-bold-italic = Bold Italic
 #font-style-bold = Bold
 #font-style-italic = Italic
 #font-style-bold-italic = Bold Italic
