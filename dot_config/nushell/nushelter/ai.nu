@@ -4,50 +4,8 @@ export def --wrapped main [...args] {
   opencode ...$args
 }
 
-export def "ai ss" [] {
-  let list_sessions = '
-        opencode session list --format json
-        | from json
-        | sort-by updated --reverse
-        | each {|session| {
-            id: $session.id
-            updated: ($session.updated * 1ms + 1970-01-01 | format date "%m/%d %H:%M")
-            title: $session.title
-            directory: ($session.directory | str replace $env.HOME "~")
-          }}
-        | to tsv
-        | qsv table --delimiter "\t" --align leftendtab --pad 1
-        '
-  let confirm_delete = '
-      ["no" "yes"]
-      | str join (char nl)
-      | fzf --prompt="delete session? " --border --reverse --no-sort --header="{1}"
-      | if ($in | str trim) == "yes" { opencode session delete {1} }
-      '
-  let delete_bind = "ctrl-d:execute(" + $confirm_delete + ")+reload(" + $list_sessions + ")"
-
-  let separator = $"(ansi black)│(ansi reset)"
-  let selection = (
-    nu -c $list_sessions
-    | fzf
-    -d '\t'
-    --ansi
-    --cycle
-    --reverse
-    --popup 80%,60%
-    --prompt=' air > '
-    --accept-nth=1
-    --header-lines=1
-    --footer-border='top'
-    --footer='<enter: open>  <ctrl-d: delete>  <esc: cancel>'
-    --with-nth $"{2} ($separator) {3} ($separator) {4}"
-    --bind $delete_bind
-    | complete
-  )
-  if $selection.exit_code != 0 { return }
-  let id = ($selection.stdout | str trim)
-  if ($id | is-empty) { return }
-  opencode --session $id
+export def aid [sesh: string] {
+  opencode session delete $sesh
 }
 
 export def "ai 1s" [prompt: string] {

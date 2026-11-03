@@ -11,6 +11,29 @@ alias gl = git log --oneline -n 10
 alias gs = git status
 alias gss = git diff --cached --name-only
 alias loadenv = open .env | from toml | load-env
+def gb-prune [] {
+  let branches = (
+    git branch --merged main | lines | each {|r|
+      (
+        if ($in | str starts-with "  ") {
+          $r | str trim
+        } else { return }
+      )
+    }
+  )
+  if ($branches | is-empty) {
+    print $"(ansi cyan)No branches to delete."
+    return
+  }
+  print $"(ansi red)Branches to delete merged to main:\n"
+  print $branches
+  print
+  let answer = (input $"(ansi cyan)prune branches? (ansi reset)[y]es / [n]o: ")
+  if ($answer in ["" "y" "yes"]) {
+    git branch -d ...($branches)
+    return
+  }
+}
 
 def gig [] { gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore }
 
