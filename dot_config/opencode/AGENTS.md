@@ -15,4 +15,6 @@
 
 - Do not update the root `README.md` unless the user explicitly requests it.
 
+- For independent parallel work, use Worktrunk (`wt`) to manage Git worktrees at `~/Worktrees/<repo>/<branch>` (branch names sanitized by Worktrunk). Reuse existing worktrees; don't create duplicate clones or switch branches beneath another active session.
+
 - When the user says "point me to it" (or a close variant), call the `quickfix-model` tool with the relevant locations instead of listing them in chat.
