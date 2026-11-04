@@ -8,80 +8,122 @@
 {{- end -}}
 {
   "$schema": "https://opencode.ai/theme.json",
-  "defs": {
-    "bg": "{{ $c.bg }}",
-    "fg": "{{ $c.fg }}",
-    "blue": "{{ $c.blue }}",
-    "magenta": "{{ $c.magenta }}",
-    "red": "{{ $c.red }}",
-    "green": "{{ $c.green }}",
-    "yellow": "{{ $c.yellow }}",
-    "cyan": "{{ $c.cyan }}",
-    "black": "{{ $c.black }}",
-    "surface0": "{{ $c.surface0 }}",
-    "surface1": "{{ $c.surface1 }}",
-    "surface2": "{{ $c.surface2 }}",
-    "surface3": "{{ $c.surface3 }}",
-    "surface4": "{{ $c.surface4 }}",
-    "surface5": "{{ $c.surface5 }}",
-    "diffRedBg": "{{ $c.diff_red_bg }}",
-    "diffGreenBg": "{{ $c.diff_green_bg }}"
+  "dark": {
+    "hue": {
+      "blue": {{ output "nu" $paletteScript "hue-scale" $c.blue $c.bg }},
+      "purple": {{ output "nu" $paletteScript "hue-scale" $c.magenta $c.bg }},
+      "neutral": "$hue.blue",
+      "accent": "$hue.purple",
+      "interactive": "$hue.blue"
+    }
   },
-  "theme": {
-    "primary": "cyan",
-    "secondary": "blue",
-    "accent": "magenta",
-    "error": "red",
-    "warning": "yellow",
-    "success": "cyan",
-    "info": "blue",
-    "text": "fg",
-    "textMuted": "surface5",
-
-    "background": "bg",
-    "backgroundElement": "surface0",
-    "backgroundPanel": "surface1",
-
-    "border": "surface3",
-    "borderSubtle": "surface3",
-    "borderActive": "surface4",
-
-    "diffAdded": "green",
-    "diffRemoved": "red",
-    "diffContext": "surface5",
-    "diffHunkHeader": "surface5",
-    "diffHighlightAdded": "green",
-    "diffHighlightRemoved": "red",
-    "diffAddedBg": "diffGreenBg",
-    "diffRemovedBg": "diffRedBg",
-    "diffContextBg": "surface1",
-    "diffLineNumber": "surface5",
-    "diffAddedLineNumberBg": "diffGreenBg",
-    "diffRemovedLineNumberBg": "diffRedBg",
-
-    "markdownText": "fg",
-    "markdownHeading": "magenta",
-    "markdownLink": "blue",
-    "markdownLinkText": "cyan",
-    "markdownCode": "green",
-    "markdownBlockQuote": "yellow",
-    "markdownEmph": "yellow",
-    "markdownStrong": "yellow",
-    "markdownHorizontalRule": "surface5",
-    "markdownListItem": "blue",
-    "markdownListEnumeration": "cyan",
-    "markdownImage": "blue",
-    "markdownImageText": "cyan",
-    "markdownCodeBlock": "fg",
-
-    "syntaxComment": "surface3",
-    "syntaxKeyword": "magenta",
-    "syntaxFunction": "blue",
-    "syntaxVariable": "red",
-    "syntaxString": "green",
-    "syntaxNumber": "yellow",
-    "syntaxType": "yellow",
-    "syntaxOperator": "cyan",
-    "syntaxPunctuation": "fg"
+  "base": {
+    "categorical": ["blue", "purple"],
+    "text": {
+      "base": "{{ $c.fg }}",
+      "muted": "{{ $c.surface5 }}",
+      "action": {
+        "primary": {
+          "base": "$text.base",
+          "$disabled": "$text.muted",
+          "$focused": "$background.base",
+          "$selected": "$hue.interactive.200"
+        },
+        "secondary": { "base": "$text.muted", "$hovered": "$text.base" },
+        "destructive": { "base": "$background.base", "$disabled": "$text.muted" }
+      },
+      "formfield": {
+        "base": "{{ $c.surface5 }}",
+        "$pressed": "$hue.interactive.200",
+        "$hovered": "$hue.interactive.100",
+        "$focused": "$hue.interactive.100",
+        "$selected": "$hue.interactive.100",
+        "$disabled": "$text.muted"
+      },
+      "feedback": {
+        "error": { "base": "{{ $c.red }}" },
+        "warning": { "base": "{{ $c.yellow }}" },
+        "success": { "base": "{{ $c.cyan }}" },
+        "info": { "base": "{{ $c.blue }}" }
+      }
+    },
+    "background": {
+      "base": "{{ $c.bg }}",
+      "raised": {
+        "base": "{{ $c.surface0 }}",
+        "high": "{{ $c.surface1 }}",
+        "max": "{{ $c.surface5 }}"
+      },
+      "action": {
+        "primary": {
+          "base": "transparent",
+          "$hovered": "$background.raised.base",
+          "$focused": "$hue.interactive.200",
+          "$selected": "transparent"
+        },
+        "secondary": { "base": "transparent" },
+        "destructive": { "base": "{{ $c.red }}" }
+      },
+      "formfield": { "base": "$background.base" },
+      "feedback": {
+        "error": { "base": "$background.base" },
+        "warning": { "base": "$background.base" },
+        "success": { "base": "$background.base" },
+        "info": { "base": "$background.base" }
+      }
+    },
+    "border": { "base": "{{ $c.surface3 }}" },
+    "scrollbar": { "base": "{{ $c.surface4 }}" },
+    "diff": {
+      "text": {
+        "added": "{{ $c.green }}",
+        "removed": "{{ $c.red }}",
+        "context": "{{ $c.surface5 }}",
+        "hunkHeader": "{{ $c.surface5 }}"
+      },
+      "background": {
+        "added": "{{ $c.diff_green_bg }}",
+        "removed": "{{ $c.diff_red_bg }}",
+        "context": "{{ $c.surface1 }}"
+      },
+      "highlight": { "added": "{{ $c.green }}", "removed": "{{ $c.red }}" },
+      "lineNumber": {
+        "text": "{{ $c.surface5 }}",
+        "background": { "added": "{{ $c.diff_green_bg }}", "removed": "{{ $c.diff_red_bg }}" }
+      }
+    },
+    "markdown": {
+      "text": "{{ $c.fg }}",
+      "heading": "{{ $c.magenta }}",
+      "link": "{{ $c.blue }}",
+      "linkText": "{{ $c.cyan }}",
+      "code": "{{ $c.green }}",
+      "blockQuote": "{{ $c.yellow }}",
+      "emphasis": "{{ $c.yellow }}",
+      "strong": "{{ $c.yellow }}",
+      "horizontalRule": "{{ $c.surface5 }}",
+      "listItem": "{{ $c.blue }}",
+      "listEnumeration": "{{ $c.cyan }}",
+      "image": "{{ $c.blue }}",
+      "imageText": "{{ $c.cyan }}",
+      "codeBlock": "{{ $c.fg }}"
+    },
+    "syntax": {
+      "comment": "{{ $c.surface3 }}",
+      "keyword": "{{ $c.magenta }}",
+      "function": "{{ $c.blue }}",
+      "variable": "{{ $c.red }}",
+      "string": "{{ $c.green }}",
+      "number": "{{ $c.yellow }}",
+      "type": "{{ $c.yellow }}",
+      "operator": "{{ $c.cyan }}",
+      "punctuation": "{{ $c.fg }}"
+    },
+    "@dialog": {
+      "background": {
+        "base": "$background.raised.base",
+        "action": { "primary": { "$hovered": "$background.raised.high" } }
+      }
+    }
   }
 }

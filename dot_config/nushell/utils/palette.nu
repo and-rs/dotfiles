@@ -10,6 +10,9 @@ const TUNING = {
   diff_tint: 0.25
   diff_lightness_step: 0.06
 
+  # Lift the brightest hue endpoint toward white (dark palettes) or black (light palettes).
+  hue_contrast: 0.35
+
   # Skip hue and saturation tinting for near-neutral backgrounds.
   achromatic_cutoff: 0.01
 
@@ -199,11 +202,40 @@ def color-vec4 [color: string] {
   "vec4(" + $channels + ", 1.0)"
 }
 
+# OpenCode hues use a high-contrast 100, the exact palette color at 200, and background at 900.
+def hue-scale [color: string bg: string] {
+  let rgb = (parse-color $color)
+  let background = (parse-color $bg)
+  let light = (($background.0 * $TUNING.luminance_weights.0) + ($background.1 * $TUNING.luminance_weights.1) + ($background.2 * $TUNING.luminance_weights.2)) > $TUNING.lightness_threshold
+  let target = if $light { 0.0 } else { 1.0 }
+  let endpoint = 0..2 | each {|channel|
+    let color = ($rgb | get $channel)
+    let bg = ($background | get $channel)
+    let extrapolated = $color + ($color - $bg) / 7
+    let brightest = if $extrapolated < 0 { 0.0 } else if $extrapolated > 1 { 1.0 } else { $extrapolated }
+    $brightest + ($target - $brightest) * $TUNING.hue_contrast
+  }
+  1..9 | reduce -f {} {|step scale|
+    let mixed = if $step == 1 {
+      $endpoint
+    } else {
+      let amount = ($step - 2) / 7
+      0..2 | each {|channel|
+        let start = ($rgb | get $channel)
+        let end = ($background | get $channel)
+        $start + ($end - $start) * $amount
+      }
+    }
+    $scale | upsert (($step * 100) | into string) (format-color $mixed)
+  }
+}
+
 def main [mode: string color?: string accent?: string green?: string] {
   match $mode {
     'surfaces' => (surface-colors $color $accent | to json -r)
     'diff-backgrounds' => (diff-backgrounds $color $accent $green | to json -r)
     'vec4' => (color-vec4 $color)
+    'hue-scale' => (hue-scale $color $accent | to json -r)
     _ => (error make {msg: $"unknown palette mode: ($mode)"})
   }
 }

@@ -1,10 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
-    "plugins/commit-message/index.ts!",
     "plugins/quickfix/index.ts!",
-    "cli-plugins/context-footer/tui.tsx!",
+    "plugins/commit-message/index.ts!",
     "cli-plugins/message-copy/tui.ts!",
+    "cli-plugins/question-focus/tui.ts!",
+    "cli-plugins/context-footer/tui.tsx!",
     "cli-plugins/session-epilogue/tui.ts!"
   ],
   "project": ["plugins/**/*.ts", "cli-plugins/**/*.ts", "cli-plugins/**/*.tsx"]
