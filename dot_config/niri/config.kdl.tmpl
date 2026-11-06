@@ -301,26 +301,17 @@ binds {
     XF86KbdBrightnessDown {
         spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"
     }
-    Mod+F12 allow-inhibiting=false hotkey-overlay-title="Take screenshot with Satty" {
-        spawn-sh "notify-send -a \"Satty\" \"Taking screenshot...\" && grim -t ppm - | satty -f -"
-    }
-    Mod+Super+U {
-        spawn-sh "quickshell ipc call recorder toggle"
-    }
     Mod+U allow-inhibiting=false {
         screenshot
-    }
-    Mod+Shift+U allow-inhibiting=false {
-        screenshot-window
-    }
-    Mod+Shift+F11 repeat=false {
-        spawn-sh "nu -n -c 'source ~/.config/nushell/nushelter/screen.nu; display back'"
     }
     Mod+Space repeat=false {
         spawn "~/.config/rofi/launch_rofi.nu"
     }
     Mod+Super+L repeat=false {
         spawn-sh "~/.config/hypr/hyprlock-launch"
+    }
+    Ctrl+Return repeat=false {
+        fullscreen-window
     }
     Mod+Return repeat=false {
         spawn "ghostty"
@@ -331,13 +322,10 @@ binds {
     Mod+Shift+Slash {
         show-hotkey-overlay
     }
-    Mod+Ctrl+G {
-        toggle-window-floating
-    }
-    Mod+G {
+    Mod+F {
         switch-focus-between-floating-and-tiling
     }
-    Mod+Ctrl+S {
+    Mod+Shift+S {
         switch-preset-window-height
     }
     Mod+S {
@@ -432,9 +420,6 @@ binds {
     }
     Mod+Shift+Equal {
         set-window-height "+2%"
-    }
-    Mod+F11 allow-inhibiting=false {
-        fullscreen-window
     }
     Mod+Escape allow-inhibiting=false {
         toggle-keyboard-shortcuts-inhibit
