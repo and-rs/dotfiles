@@ -132,6 +132,7 @@ $env.config.keybindings = (
       mode: [emacs vi_insert vi_normal]
       event: [
         {edit: CutFromLineStart}
+        {edit: Backspace}
       ]
     }
   ]
