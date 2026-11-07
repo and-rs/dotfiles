@@ -18,14 +18,14 @@
 # We anchor the label at its natural position (LABEL_RISE = 0) and shift the
 # icon down to meet the label's mixed-case center.
 const ICON_FONT = "Phosphor-Bold"
-const ICON_SIZE = 13
+const ICON_SIZE = 14
 const ICON_INK_CENTER = 0.4375 # (-64 + 960) / 2 / 1024
 const LABEL_SIZE = 11
 const LABEL_INK_CENTER = 0.2500 # mixed-case optical center of SF Pro
 
 const LABEL_FONT = $"SF Pro ($LABEL_SIZE)"
 const LABEL_RISE = "0pt"
-const ICON_RISE = $"(($LABEL_INK_CENTER * $LABEL_SIZE) - ($ICON_INK_CENTER * $ICON_SIZE))pt"
+const ICON_RISE = $"(($LABEL_INK_CENTER * $LABEL_SIZE) - ($ICON_INK_CENTER * $ICON_SIZE) + 0.5)pt"
 
 const ICONS = {
   screenshot: "E10E"

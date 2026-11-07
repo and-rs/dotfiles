@@ -4,20 +4,13 @@
   {{- $_ := set $c $name $value -}}
 {{- end -}}
 * {
-    bg:       {{ $c.bg }};
-    surface1: {{ $c.surface1 }};
-    surface2: {{ $c.surface2 }};
-    surface3: {{ $c.surface3 }};
-    surface4: {{ $c.surface4 }};
-    fg:       {{ $c.fg }};
-
     font: "SF Pro 11";
-    width: 500px;
-    height: 302px;
+    width: 700px;
+    height: 376px;
 }
 
 error-message {
-    background-color: @surface1;
+    background-color: {{ $c.surface1 }};
     padding: 10px;
 }
 
@@ -29,11 +22,11 @@ element-text, element-icon {
 window {
     border: 2px;
     border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
-    border-color: @surface3;
+    border-color: {{ $c.surface5 }};
 }
 
 mainbox {
-    background-color: @surface1;
+    background-color: {{ $c.surface1 }};
 }
 
 inputbar {
@@ -44,8 +37,8 @@ inputbar {
 }
 
 prompt {
-    background-color: @fg;
-    text-color: @bg;
+    background-color: {{ $c.fg }};
+    text-color: {{ $c.bg }};
     padding: 6px;
     border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
     margin: 10px 0px 0px 10px;
@@ -54,29 +47,35 @@ prompt {
 entry {
     padding: 6px 6px 6px 0px;
     margin: 10px 0px 0px 10px;
-    text-color: @fg;
+    text-color: {{ $c.fg }};
     background-color: transparent;
 }
 
 listview {
-    lines: 6;
+    lines: 10;
     columns: 1;
     margin: 10px 10px 9px 10px ;
     border: 0px 0px 1px 0px;
-    border-color: @surface2;
+    border-color: {{ $c.surface2 }};
     background-color: transparent;
 }
 
 element {
     padding: 6px;
     background-color: transparent;
-    text-color: @fg;
+    text-color: {{ $c.fg }};
 }
 
 element selected {
     border-radius: {{ mul .radii.unit .radii.multiplier .radii.compact }}px;
-    background-color:  @fg;
-    text-color: @bg;
+    background-color:  {{ $c.fg }};
+    text-color: {{ $c.bg }};
+}
+
+/* Niri uses active as a styling marker for disabled rows. */
+element selected.active {
+    background-color: {{ $c.surface3 }};
+    text-color: {{ $c.fg }};
 }
 
 mode-switcher {
@@ -88,7 +87,7 @@ button {
     margin: 0px 10px 10px 10px;
 
     background-color: transparent;
-    text-color: @fg;
+    text-color: {{ $c.fg }};
 
     border-radius: {{ mul .radii.unit .radii.multiplier .radii.small }}px;
     vertical-align: 0.5; 
@@ -96,8 +95,8 @@ button {
 }
 
 button selected {
-    background-color: @fg;
-    text-color: @bg;
+    background-color: {{ $c.fg }};
+    text-color: {{ $c.bg }};
 }
 
 message {
@@ -106,10 +105,10 @@ message {
     padding: 6px;
     border: 1px;
     border-radius: {{ mul .radii.unit .radii.multiplier .radii.small }}px;
-    border-color: @surface3;
+    border-color: {{ $c.surface3 }};
 }
 
 textbox {
-    text-color: @fg;
+    text-color: {{ $c.fg }};
     background-color: transparent;
 }
