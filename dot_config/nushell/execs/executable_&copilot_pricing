@@ -45,6 +45,9 @@ def main [] {
       $headers = $cells
       continue
     }
+    if not ("Output" in $headers) {
+      continue
+    }
 
     let base = {
       Provider: $provider
