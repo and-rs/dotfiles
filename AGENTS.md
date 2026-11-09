@@ -1,5 +1,6 @@
 - The repository `justfile` defines the OpenCode checks, including `opencode-check`.
 - `opencode-check` must pass before every commit that touches OpenCode; follow the configured Biome rules, do not weaken them to pass checks, and do not use ternaries.
 - Compiled Qt plugin binaries (e.g. `dot_config/quickshell/Niri/libniriplugin.so`) are committed to the repo. Rebuild and commit them alongside the C++ source changes that produce them.
+- Keep native plugins free of embedded build-machine paths and RPATH/RUNPATH entries, prune unused linked dependencies, and verify rebuilt binaries and plugin loading; keep the Rofi plugin free of a `libstdc++` dependency.
 - Quickshell has dedicated instructions in `dot_config/quickshell/AGENTS.md`; read them before working on Quickshell files.
 - Never user emdashes in dotfiles

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 project(NiriPlugin LANGUAGES CXX)
 
+set(CMAKE_SKIP_RPATH TRUE)
+# Also prevent the Nix compiler wrapper from adding store paths.
+set(CMAKE_CXX_LINKER_LAUNCHER "${CMAKE_COMMAND};-E;env;--unset=NIX_LDFLAGS;NIX_DONT_SET_RPATH=1")
+add_link_options("LINKER:--as-needed")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 6.11 REQUIRED COMPONENTS Core Network Qml)

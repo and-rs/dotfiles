@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 project(IconValidation LANGUAGES CXX)
 
+set(CMAKE_SKIP_RPATH TRUE)
+# Also prevent the Nix compiler wrapper from adding store paths.
+set(CMAKE_CXX_LINKER_LAUNCHER "${CMAKE_COMMAND};-E;env;--unset=NIX_LDFLAGS;NIX_DONT_SET_RPATH=1")
+add_link_options("LINKER:--as-needed")
+
 find_package(Qt6 6.9 REQUIRED COMPONENTS Gui Qml)
 
 qt_standard_project_setup()
