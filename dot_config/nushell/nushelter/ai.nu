@@ -37,7 +37,7 @@ export def "ai summarize-model" [] {
 
 def generate-commit-message [model: list<string> prompt: string message: string] {
   let prompt_file = (mktemp -t ai-commit.XXXXXXXXXX)
-  try {
+  let response = try {
     $prompt | save --force $prompt_file
     &spinner --structured --quiet-cancel --cleanup-file $prompt_file --msg $message -- opencode api post /api/rpc/commit-message/generate --data (
       {
@@ -53,6 +53,19 @@ def generate-commit-message [model: list<string> prompt: string message: string]
   } finally {
     rm --force $prompt_file
   }
+
+  if ($response.cancelled? | default false) {
+    return $response
+  }
+
+  let text = try { $response.stdout | from json | get output.text } catch { null }
+  if $response.exit_code != 0 or ($text | describe) != "string" {
+    error make {
+      msg: $"Commit message generation failed \(exit code ($response.exit_code)\).\nstdout:\n($response.stdout)\nstderr:\n($response.stderr)"
+    }
+  }
+
+  {text: ($text | str trim)}
 }
 
 export def "ai gs" [] {
@@ -97,7 +110,7 @@ export def "ai gs" [] {
     print $"(ansi red)response cancelled(ansi reset)"
     return
   }
-  mut msg = ($response.stdout | from json | get output | get text | str trim)
+  mut msg = $response.text
 
   loop {
     print ""
@@ -123,6 +136,6 @@ export def "ai gs" [] {
       print $"(ansi red)response cancelled(ansi reset)"
       return
     }
-    $msg = ($response.stdout | from json | get output | get text | str trim)
+    $msg = $response.text
   }
 }
