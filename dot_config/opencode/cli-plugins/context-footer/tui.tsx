@@ -152,6 +152,20 @@ export default Plugin.define({
         const session = createMemo(() => {
           if (props.sessionID) return context.data.session.get(props.sessionID);
         });
+        const sessionLocation = createMemo(
+          () => session()?.location ?? context.location ?? location,
+        );
+        createEffect(() => {
+          void context.data.location.model
+            .sync(sessionLocation())
+            .catch((error: unknown) => {
+              context.ui.toast.show({
+                title: "Context footer",
+                message: `Failed to load model limits: ${String(error)}`,
+                variant: "error",
+              });
+            });
+        });
         const title = () => session()?.title || "New session";
         const titleWidth = () =>
           Math.min(titleWidthReserve, stringWidth(title()));
@@ -199,7 +213,7 @@ export default Plugin.define({
 
           if (assistantModel) {
             const model = context.data.location.model
-              .list(location)
+              .list(sessionLocation())
               ?.find(
                 (entry) =>
                   entry.providerID === assistantModel.providerID &&

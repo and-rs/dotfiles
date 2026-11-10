@@ -1,4 +1,4 @@
-theme = "mfd-paper"
+theme = "mfd-flir-bh"
 
 [fonts]
 ui = "Inter"
