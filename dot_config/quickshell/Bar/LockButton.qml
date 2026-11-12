@@ -21,7 +21,7 @@ Rectangle {
 		anchors.fill: parent
 
 		onClicked: Quickshell.execDetached({
-			command: ["sh", "-c", "~/.config/hypr/hyprlock-launch"]
+			command: ["sh", "-c", "~/.config/hypr/hyprlock_launch"]
 		})
 	}
 }

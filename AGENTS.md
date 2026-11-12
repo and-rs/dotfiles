@@ -4,3 +4,6 @@
 - Keep native plugins free of embedded build-machine paths and RPATH/RUNPATH entries, prune unused linked dependencies, and verify rebuilt binaries and plugin loading; keep the Rofi plugin free of a `libstdc++` dependency.
 - Quickshell has dedicated instructions in `dot_config/quickshell/AGENTS.md`; read them before working on Quickshell files.
 - Never user emdashes in dotfiles
+- Use underscores instead of hyphens in all file and directory names unless a tool requires a specific name.
+- Preserve `xremap-niri` for compatibility with another machine's setup.
+- Yazi plugin names must use kebab-case; preserve names such as `smart-enter.yazi`.

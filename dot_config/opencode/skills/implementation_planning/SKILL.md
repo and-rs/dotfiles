@@ -1,5 +1,5 @@
 ---
-name: implementation-planning
+name: implementation_planning
 description: Create clear, code-grounded implementation plans for non-trivial software changes. Use before implementation when a task spans multiple surfaces, has meaningful risk, or contains unresolved design choices.
 ---
 

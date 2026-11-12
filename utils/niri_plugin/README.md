@@ -7,7 +7,7 @@ and provides focus and close actions.
 Build it against the same Qt installation used by Quickshell:
 
 ```sh
-cmake -S utils/niri-plugin -B build -G Ninja -DCMAKE_PREFIX_PATH="/path/to/qtbase;/path/to/qtdeclarative"
+cmake -S utils/niri_plugin -B build -G Ninja -DCMAKE_PREFIX_PATH="/path/to/qtbase;/path/to/qtdeclarative"
 cmake --build build
 ```
 

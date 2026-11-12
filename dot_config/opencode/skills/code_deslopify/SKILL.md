@@ -1,5 +1,5 @@
 ---
-name: code-deslopify
+name: code_deslopify
 description: Critically simplify existing code by removing unnecessary implementation and maintenance surface, especially redundant wrappers, checks, layers, and speculative abstractions.
 ---
 

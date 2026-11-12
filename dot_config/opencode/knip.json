@@ -2,11 +2,11 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "plugins/quickfix/index.ts!",
-    "plugins/commit-message/index.ts!",
-    "cli-plugins/message-copy/tui.ts!",
-    "cli-plugins/question-focus/tui.ts!",
-    "cli-plugins/context-footer/tui.tsx!",
-    "cli-plugins/session-epilogue/tui.ts!"
+    "plugins/commit_message/index.ts!",
+    "cli_plugins/message_copy/tui.ts!",
+    "cli_plugins/question_focus/tui.ts!",
+    "cli_plugins/context_footer/tui.tsx!",
+    "cli_plugins/session_epilogue/tui.ts!"
   ],
-  "project": ["plugins/**/*.ts", "cli-plugins/**/*.ts", "cli-plugins/**/*.tsx"]
+  "project": ["plugins/**/*.ts", "cli_plugins/**/*.ts", "cli_plugins/**/*.tsx"]
 }

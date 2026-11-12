@@ -23,7 +23,7 @@
   "include": [
     "plugins/**/*.ts",
     "plugins/**/*.tsx",
-    "cli-plugins/**/*.ts",
-    "cli-plugins/**/*.tsx"
+    "cli_plugins/**/*.ts",
+    "cli_plugins/**/*.tsx"
   ]
 }

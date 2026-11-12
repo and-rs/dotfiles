@@ -9,7 +9,7 @@ icons use the tray fallback without being loaded again by QML.
 Build it against the Qt installation used by Quickshell:
 
 ```sh
-cmake -S utils/icon-validation -B /tmp/iconvalidation-build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/qtbase/lib/cmake
+cmake -S utils/icon_validation -B /tmp/iconvalidation_build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/qtbase/lib/cmake
 cmake --build /tmp/iconvalidation-build
 ctest --test-dir /tmp/iconvalidation-build --output-on-failure
 ```

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import stringWidth from "string-width";
-import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch-marquee";
+import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch_marquee";
 
 describe("branch marquee", () => {
   it("leaves branches that fit unchanged", () => {

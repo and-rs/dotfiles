@@ -1,5 +1,5 @@
-alias &dark-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
-alias &light-mode-gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
+alias &dark_mode_gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'
+alias &light_mode_gnome = dconf write /org/gnome/desktop/interface/color-scheme '"prefer-light"'
 alias &loc = tokei -r code -C
 
 # VERY IMPORTANT

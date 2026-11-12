@@ -4,8 +4,8 @@ Build against the installed Rofi's headers and GLib/Cairo development files.
 Set `PKG_CONFIG_PATH` or `CMAKE_PREFIX_PATH` when needed, as with the Quickshell plugins.
 
 ```sh
-cmake -S utils/rofi-plugin -B utils/rofi-plugin/build -G Ninja
-cmake --build utils/rofi-plugin/build
+cmake -S utils/rofi_plugin -B utils/rofi_plugin/build -G Ninja
+cmake --build utils/rofi_plugin/build
 ```
 
 The build writes `libtabmemory.so` into `dot_config/rofi/plugins/` for deployment

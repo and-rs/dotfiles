@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import stringWidth from "string-width";
-import { compactPath, graphemes } from "./text-width";
+import { compactPath, graphemes } from "./text_width";
 
 describe("compact path", () => {
   it("preserves graphemes when clipping a path", () => {

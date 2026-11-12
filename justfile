@@ -10,7 +10,7 @@ qmldir:
   touch ~/.config/quickshell/.qmlls.ini
 
 debug-capture target output_directory="":
-  ./dot_config/quickshell/utils/debug-capture.sh "{{ target }}" "{{ output_directory }}"
+  bash ./dot_config/quickshell/utils/executable_debug_capture.sh "{{ target }}" "{{ output_directory }}"
 
 cppfmt:
   clang-format -i ...(fd | rg -e '\.cpp' -e '\.h$' -e '\.hpp' | lines)

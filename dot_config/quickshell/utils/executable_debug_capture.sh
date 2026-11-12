@@ -2,7 +2,7 @@
 
 set -eu
 
-target=${1:?"Usage: debug-capture.sh <target> [output-directory]"}
+target=${1:?"Usage: debug_capture.sh <target> [output-directory]"}
 requested_output=${2:-}
 capture_root=${QS_DEBUG_CAPTURE_DIR:-/tmp/quickshell-debug}
 retain=${QS_DEBUG_CAPTURE_RETAIN:-10}

@@ -1,5 +1,5 @@
 ---
-name: nu-syntax
+name: nu_syntax
 description: Nushell syntax reference and common patterns. Load when writing, editing, or debugging nushell scripts or config files, or when translating bash to nushell.
 ---
 

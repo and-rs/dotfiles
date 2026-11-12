@@ -3,7 +3,7 @@
 const script_dir = (path self | path dirname)
 
 # Fires a batch of test notifications to exercise the notification stack.
-# Usage: nu test-notifs.nu [--delay <ms>] [--img] [--count <notifications>] [--massive] [--persistent] [--timeouts] [--burst]
+# Usage: nu test_notifs.nu [--delay <ms>] [--img] [--count <notifications>] [--massive] [--persistent] [--timeouts] [--burst]
 
 def send [
   summary: string

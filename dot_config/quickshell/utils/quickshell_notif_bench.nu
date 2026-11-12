@@ -17,7 +17,7 @@ def main [--delay: int = 300, --log: string = ""] {
   print $"→ quickshell process group: ($pid)"
   sleep 1500ms
 
-  let test_script = ($script_dir | path join "test-notifs.nu")
+  let test_script = ($script_dir | path join "test_notifs.nu")
   nu $test_script --img --delay $delay
   sleep 1500ms
 

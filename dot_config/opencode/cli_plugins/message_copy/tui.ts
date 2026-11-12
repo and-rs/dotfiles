@@ -4,7 +4,7 @@ import {
   createHostClipboard,
   createRendererClipboardAdapter,
 } from "@opentui/core";
-import { copyResponse } from "./copy-response";
+import { copyResponse } from "./copy_response";
 
 export default Plugin.define({
   id: "message-copy",

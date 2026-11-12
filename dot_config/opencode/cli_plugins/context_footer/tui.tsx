@@ -8,8 +8,8 @@ import {
   Show,
 } from "solid-js";
 import stringWidth from "string-width";
-import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch-marquee";
-import { compactPath } from "./text-width";
+import { branchMarqueeCycleLength, branchMarqueeFrame } from "./branch_marquee";
+import { compactPath } from "./text_width";
 
 const spinnerWidth = 2;
 const titleWidthReserve = 24;

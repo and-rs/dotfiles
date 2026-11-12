@@ -1,5 +1,5 @@
 import stringWidth from "string-width";
-import { graphemes } from "./text-width";
+import { graphemes } from "./text_width";
 
 const separator = "   ";
 

@@ -1,14 +1,14 @@
 {
   "$schema": "https://opencode.ai/v2/cli.json",
   "theme": {
-    "name": "{{ .theme }}",
+    "name": "{{ .theme | replace `-` `_` }}",
     "mode": "system"
   },
   "plugins": [
-    "{{ .chezmoi.homeDir }}/.config/opencode/cli-plugins/context-footer",
-    "{{ .chezmoi.homeDir }}/.config/opencode/cli-plugins/message-copy",
-    "{{ .chezmoi.homeDir }}/.config/opencode/cli-plugins/question-focus",
-    "{{ .chezmoi.homeDir }}/.config/opencode/cli-plugins/session-epilogue"
+    "{{ .chezmoi.homeDir }}/.config/opencode/cli_plugins/context_footer",
+    "{{ .chezmoi.homeDir }}/.config/opencode/cli_plugins/message_copy",
+    "{{ .chezmoi.homeDir }}/.config/opencode/cli_plugins/question_focus",
+    "{{ .chezmoi.homeDir }}/.config/opencode/cli_plugins/session_epilogue"
   ],
   "keybinds": {
     "app.exit": "none",

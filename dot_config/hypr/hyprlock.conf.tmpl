@@ -1,4 +1,4 @@
-{{- $queryScript := joinPath .chezmoi.sourceDir "dot_config/hypr/executable_awww-query.sh" -}}
+{{- $queryScript := joinPath .chezmoi.sourceDir "dot_config/hypr/executable_awww_query.sh" -}}
 {{- $wallpaper := output "bash" $queryScript | trim -}}
 {{- $c := index .palettes .theme -}}
 $font = {{ .fonts.ui }}

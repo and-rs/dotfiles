@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { DialogSelectOptions } from "@opencode/plugin/tui/context";
-import { copyResponse } from "./copy-response";
+import { copyResponse } from "./copy_response";
 
 type CopyContext = Parameters<typeof copyResponse>[0];
 type Clipboard = Parameters<typeof copyResponse>[1];

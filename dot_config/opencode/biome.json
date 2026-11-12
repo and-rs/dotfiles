@@ -12,9 +12,9 @@
       "plugins/**/*.ts",
       "plugins/**/*.tsx",
       "plugins/**/package.json",
-      "cli-plugins/**/*.ts",
-      "cli-plugins/**/*.tsx",
-      "cli-plugins/**/package.json"
+      "cli_plugins/**/*.ts",
+      "cli_plugins/**/*.tsx",
+      "cli_plugins/**/package.json"
     ]
   },
   "formatter": {

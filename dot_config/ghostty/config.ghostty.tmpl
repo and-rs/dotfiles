@@ -1,5 +1,5 @@
 {{- if eq .chezmoi.os "darwin" -}}
-{{- template "ghostty-darwin" . -}}
+{{- template "ghostty_darwin" . -}}
 {{- else -}}
-{{- template "ghostty-linux" . -}}
+{{- template "ghostty_linux" . -}}
 {{- end -}}
