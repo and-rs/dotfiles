@@ -1,4 +1,4 @@
-theme = "mfd-scarlet"
+theme = "mfd-paper"
 
 [fonts]
 ui = "Inter"
