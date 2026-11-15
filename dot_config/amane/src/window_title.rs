@@ -1,7 +1,7 @@
-use amane::{Center, Parent, Rectangle, Start, Text};
+use amane::{Center, Parent, Rectangle, Start, Text, Weight};
 use niri_ipc::Window;
 
-use crate::{niri::Niri, theme::Theme};
+use crate::{design, niri::Niri, theme::Theme};
 
 fn label(window: Option<&Window>) -> &str {
     let Some(window) = window else {
@@ -22,7 +22,8 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Rectangle {
         .child(
             Text::new(label(niri.active_window(output)))
                 .font(&theme.font)
-                .size(theme.font_size)
+                .size(theme.font_size * design::BAR_TEXT_SCALE)
+                .weight(Weight::Medium)
                 .color(theme.fg)
                 .elide()
                 .max_lines(1),

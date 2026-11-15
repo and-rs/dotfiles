@@ -1,3 +1,5 @@
+mod bar_buttons;
+mod caffeine;
 mod design;
 mod minimap;
 mod niri;
@@ -10,7 +12,7 @@ use std::time::Duration;
 
 use amane::{
     App, Center, Full, Layer, LayerWindow, Monitor, Padding, Parent, Rectangle, Row, Service, Text,
-    Vertical, Zone, children,
+    Vertical, Weight, Zone, children,
 };
 use chrono::Local;
 use niri::Niri;
@@ -88,9 +90,11 @@ fn bar(monitor: &Monitor) -> LayerWindow {
                     Row::new(children![
                         workspaces::view(&niri, &monitor.name, theme),
                         window_title::view(&niri, &monitor.name, theme),
+                        bar_buttons::view(theme),
                         Text::new(&clock.0)
                             .font(&theme.font)
-                            .size(theme.font_size)
+                            .size(theme.font_size * design::BAR_TEXT_SCALE)
+                            .weight(Weight::Medium)
                             .color(theme.fg),
                     ])
                     .width(Parent)

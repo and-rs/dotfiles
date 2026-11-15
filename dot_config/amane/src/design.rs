@@ -4,9 +4,11 @@ use std::time::Duration;
 pub const ICON_FONT: &str = "Phosphor-Bold";
 pub const ICON_SIZE: f32 = size::NORMAL * 96.0 / 72.0;
 pub const BORDER_WIDTH: f32 = 2.0;
+pub const BAR_TEXT_SCALE: f32 = 1.05;
 
 pub mod size {
     pub const NORMAL: f32 = 16.0;
+    pub const BUTTON: f32 = 28.0;
 }
 
 pub mod padding {
@@ -14,6 +16,7 @@ pub mod padding {
 }
 
 pub mod spacing {
+    pub const EXTRA_SMALL: f32 = 4.0;
     pub const SMALL: f32 = 10.0;
 }
 
