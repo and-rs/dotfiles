@@ -30,7 +30,7 @@ bold_italic = { family = "Rec Mono Casual" }
 [window]
 title = "Terminalino"
 dynamic_padding = true
-opacity = 0.9
+#opacity = 0.9
 
 [window.padding]
 x = 0
