@@ -37,6 +37,12 @@ pkgs.rustPlatform.buildRustPackage {
 
   LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.linux-pam ];
 
+  preCheck = ''
+    export LD_LIBRARY_PATH="${
+      pkgs.lib.makeLibraryPath [ pkgs.wayland ]
+    }''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  '';
+
   postInstall = ''
     mv "$out/bin/amane_shell" "$out/bin/amane_shell_release"
     wrapProgram "$out/bin/amane_shell_release" \

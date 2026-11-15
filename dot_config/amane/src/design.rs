@@ -26,7 +26,7 @@ pub mod control_center {
     pub const TOP: f32 = BAR_HEIGHT + spacing::SMALL;
     pub const TAB_HEIGHT: f32 = BAR_HEIGHT;
     pub const PREVIEW_LINES: usize = 8;
-    pub const PROFILE_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
+    pub const ROW_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
 }
 
 pub mod indicator {

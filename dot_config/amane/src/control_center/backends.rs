@@ -12,7 +12,7 @@ use super::{
     indicators::{Battery, Bluetooth, Indicator, Network},
 };
 
-type Objects = HashMap<OwnedObjectPath, HashMap<String, HashMap<String, OwnedValue>>>;
+pub(super) type Objects = HashMap<OwnedObjectPath, HashMap<String, HashMap<String, OwnedValue>>>;
 
 pub(super) struct Status {
     pub readings: [Reading; 4],
@@ -31,6 +31,10 @@ impl Service for Status {
     fn listen() {
         thread::scope(|scope| {
             for (index, section) in Section::ALL.into_iter().enumerate() {
+                if section == Section::Bluetooth {
+                    drop(super::bluetooth::State::read());
+                    continue;
+                }
                 scope.spawn(move || {
                     let mut bus = None;
                     loop {
@@ -79,6 +83,7 @@ pub(super) struct Reading {
     pub indicator: Indicator,
     pub message: String,
     pub battery: Option<super::battery::Details>,
+    pub bluetooth: Option<super::bluetooth::Snapshot>,
 }
 
 impl Reading {
@@ -93,6 +98,7 @@ impl Reading {
             indicator,
             message: format!("{} backend unavailable\n{error}", section.label()),
             battery: None,
+            bluetooth: None,
         }
     }
 }
@@ -116,7 +122,7 @@ pub(super) fn owned(connection: &Connection, name: &str) -> zbus::Result<bool> {
     .call("NameHasOwner", &(name,))
 }
 
-fn objects(connection: &Connection, name: &str, path: &str) -> zbus::Result<Objects> {
+pub(super) fn objects(connection: &Connection, name: &str, path: &str) -> zbus::Result<Objects> {
     Proxy::new(connection, name, path, "org.freedesktop.DBus.ObjectManager")?
         .call("GetManagedObjects", &())
 }
@@ -124,7 +130,7 @@ fn objects(connection: &Connection, name: &str, path: &str) -> zbus::Result<Obje
 pub(super) fn read(connection: &Connection, section: Section) -> zbus::Result<Reading> {
     match section {
         Section::Tray => tray(connection),
-        Section::Bluetooth => bluetooth(connection),
+        Section::Bluetooth => super::bluetooth::read(connection),
         Section::Wifi => network(connection),
         Section::Battery => battery(connection),
     }
@@ -134,6 +140,7 @@ fn tray(connection: &Connection) -> zbus::Result<Reading> {
     if !owned(connection, "org.kde.StatusNotifierWatcher")? {
         return Ok(Reading {
             battery: None,
+            bluetooth: None,
             indicator: Indicator::Tray(0),
             message: "No tray watcher is running.\nAmane tray hosting is not implemented yet."
                 .into(),
@@ -148,6 +155,7 @@ fn tray(connection: &Connection) -> zbus::Result<Reading> {
     let items: Vec<String> = watcher.get_property("RegisteredStatusNotifierItems")?;
     Ok(Reading {
         battery: None,
+        bluetooth: None,
         indicator: Indicator::Tray(items.len()),
         message: format!(
             "StatusNotifier watcher reachable.\n{} registered tray items.",
@@ -156,42 +164,11 @@ fn tray(connection: &Connection) -> zbus::Result<Reading> {
     })
 }
 
-fn boolean(properties: &HashMap<String, OwnedValue>, name: &str) -> bool {
+pub(super) fn boolean(properties: &HashMap<String, OwnedValue>, name: &str) -> bool {
     properties
         .get(name)
         .and_then(|value| bool::try_from(value).ok())
         .unwrap_or(false)
-}
-
-fn bluetooth(connection: &Connection) -> zbus::Result<Reading> {
-    if !owned(connection, "org.bluez")? {
-        return Ok(Reading::unavailable(
-            Section::Bluetooth,
-            "BlueZ is not running.",
-        ));
-    }
-    let objects = objects(connection, "org.bluez", "/")?;
-    // Stable default adapter selection, with connected status across all devices.
-    let adapter = objects
-        .iter()
-        .filter_map(|(path, interfaces)| interfaces.get("org.bluez.Adapter1").map(|p| (path, p)))
-        .min_by_key(|(path, _)| path.as_str());
-    let Some((_, properties)) = adapter else {
-        return Ok(Reading::unavailable(
-            Section::Bluetooth,
-            "No Bluetooth adapter.",
-        ));
-    };
-    let enabled = boolean(properties, "Powered");
-    let connected = objects
-        .values()
-        .filter_map(|i| i.get("org.bluez.Device1"))
-        .any(|device| boolean(device, "Connected"));
-    Ok(Reading {
-        battery: None,
-        indicator: Indicator::Bluetooth(Bluetooth { enabled, connected }),
-        message: format!("BlueZ reachable.\nEnabled: {enabled}\nConnected devices: {connected}"),
-    })
 }
 
 fn network(connection: &Connection) -> zbus::Result<Reading> {
@@ -270,6 +247,7 @@ fn network(connection: &Connection) -> zbus::Result<Reading> {
     }
     Ok(Reading {
         battery: None,
+        bluetooth: None,
         indicator: Indicator::Network(state),
         message: format!(
             "{backend}\nWired link: {}\nWi-Fi enabled: {}\nConnected: {}\nSignal: {:.0}%",
@@ -386,6 +364,7 @@ fn battery(connection: &Connection) -> zbus::Result<Reading> {
     if !has_battery {
         return Ok(Reading {
             battery: None,
+            bluetooth: None,
             indicator: Indicator::Battery(None),
             message: "UPower reachable.\nNo system battery present.".into(),
         });
@@ -410,6 +389,7 @@ fn battery(connection: &Connection) -> zbus::Result<Reading> {
     };
     Ok(Reading {
         battery: Some(details),
+        bluetooth: None,
         indicator: Indicator::Battery(Some(battery)),
         message: format!(
             "UPower reachable.\nBattery: {:.0}%\nCharging: {}",

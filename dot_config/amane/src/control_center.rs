@@ -1,5 +1,6 @@
 mod backends;
 mod battery;
+mod bluetooth;
 mod indicators;
 
 use amane::{
@@ -53,10 +54,12 @@ impl ControlCenter {
     fn open(&mut self, monitor: &str, section: Section) {
         self.monitor = Some(monitor.into());
         self.section = section;
+        bluetooth::set_visible(section == Section::Bluetooth);
     }
 
     fn close(&mut self) {
         self.monitor = None;
+        bluetooth::set_visible(false);
     }
 }
 
@@ -142,10 +145,10 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
             ) as Box<dyn amane::Widget>
         })
         .collect();
-    let content = if state.section == Section::Battery {
-        battery::view(&status.readings[index], theme)
-    } else {
-        Column::new(children![
+    let content = match state.section {
+        Section::Battery => battery::view(&status.readings[index], theme),
+        Section::Bluetooth => bluetooth::view(&status.readings[index], theme),
+        _ => Column::new(children![
             text(state.section.label(), theme),
             text(message, theme)
                 .wrap()
@@ -154,7 +157,7 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
             text("Read-only backend preview", theme),
         ])
         .width(Parent)
-        .gap(spacing::SMALL)
+        .gap(spacing::SMALL),
     };
     LayerWindow::new()
         .width(Full)

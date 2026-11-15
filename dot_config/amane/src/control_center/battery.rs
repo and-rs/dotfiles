@@ -300,7 +300,7 @@ pub(super) fn view(reading: &Reading, theme: &Theme) -> Column {
                 }
                 let mut row = Rectangle::new()
                     .width(Parent)
-                    .height(design::control_center::PROFILE_HEIGHT)
+                    .height(design::control_center::ROW_HEIGHT)
                     .padding(padding::NORMAL)
                     .fill(theme.surface2)
                     .radius(theme.radius.normal)
