@@ -12,8 +12,22 @@ pub struct Theme {
     pub fg: Color,
     #[serde(deserialize_with = "color")]
     pub accent: Color,
+    #[serde(deserialize_with = "color")]
+    pub surface1: Color,
+    #[serde(deserialize_with = "color")]
+    pub surface2: Color,
+    #[serde(deserialize_with = "color")]
+    pub surface4: Color,
     pub font: String,
     pub font_size: f32,
+    pub radius: Radius,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct Radius {
+    pub normal: f32,
+    pub large: f32,
 }
 
 pub fn faded(color: Color, alpha: u8) -> Color {
@@ -29,6 +43,12 @@ impl Theme {
         }
         if !(8.0..=24.0).contains(&theme.font_size) {
             return Err("font_size must be between 8 and 24 pixels".into());
+        }
+        if [theme.radius.normal, theme.radius.large]
+            .iter()
+            .any(|radius| !radius.is_finite() || *radius < 0.0)
+        {
+            return Err("radii must be finite and nonnegative".into());
         }
         Ok(theme)
     }
@@ -110,8 +130,11 @@ impl Service for ThemeState {
 mod tests {
     use super::*;
 
-    const VALID: &str =
-        r##"{"bg":"#101820","fg":"#ffffff","accent":"#80c0ff","font":"Inter","font_size":14}"##;
+    const VALID: &str = r##"{
+        "bg":"#101820","fg":"#ffffff","accent":"#80c0ff",
+        "surface1":"#182028","surface2":"#202830","surface4":"#404850",
+        "font":"Inter","font_size":14,"radius":{"normal":0,"large":0}
+    }"##;
 
     #[test]
     fn parses_colors_and_typography() {
@@ -120,6 +143,15 @@ mod tests {
         assert_eq!(theme.fg, Color::WHITE);
         assert_eq!(theme.font, "Inter");
         assert_eq!(theme.font_size, 14.0);
+        assert_eq!(theme.surface1, Color::rgb(24, 32, 40));
+        assert_eq!(theme.surface2, Color::rgb(32, 40, 48));
+        assert_eq!(theme.surface4, Color::rgb(64, 72, 80));
+        assert_eq!(theme.radius.normal, 0.0);
+        assert_eq!(theme.radius.large, 0.0);
+        let rounded = VALID.replace("\"normal\":0,\"large\":0", "\"normal\":8,\"large\":16");
+        let rounded = Theme::parse(&rounded).unwrap();
+        assert_eq!(rounded.radius.normal, 8.0);
+        assert_eq!(rounded.radius.large, 16.0);
         let transparent = VALID.replace("#101820", "#10182080");
         assert_eq!(Theme::parse(&transparent).unwrap().bg.alpha(), 128);
     }
@@ -133,6 +165,9 @@ mod tests {
             VALID.replace(":14", ":0"),
             VALID.replace(":14", ":25"),
             VALID.replace("\"font_size\"", "\"font_szie\""),
+            VALID.replace("\"#182028\"", "\"invalid\""),
+            VALID.replace("\"normal\":0", "\"normal\":-1"),
+            VALID.replace("\"large\":0", "\"large\":1e100"),
             VALID[..VALID.len() - 1].to_string(),
         ] {
             assert!(Theme::parse(&json).is_err(), "accepted {json}");

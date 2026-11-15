@@ -1,6 +1,8 @@
-{ pkgs ? import <nixpkgs> { } }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 
-pkgs.mkShell {
+(pkgs.mkShell.override { stdenv = pkgs.useMoldLinker pkgs.stdenv; }) {
   nativeBuildInputs = with pkgs; [
     cargo
     rustc
@@ -8,6 +10,8 @@ pkgs.mkShell {
     clippy
     rust-analyzer
     pkg-config
+    watchexec
+    util-linux
   ];
 
   buildInputs = with pkgs; [
@@ -25,6 +29,7 @@ pkgs.mkShell {
     pkgs.wayland
   ];
   LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.linux-pam ];
+  CARGO_PROFILE_DEV_DEBUG = "line-tables-only";
 
   shellHook = ''
     export CARGO_TARGET_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/amane/target"

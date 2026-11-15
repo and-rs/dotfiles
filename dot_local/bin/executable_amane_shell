@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ ${1:-} == osd && -n ${XDG_RUNTIME_DIR:-} ]]; then
+    registration="$XDG_RUNTIME_DIR/amane_dev"
+    if [[ -f "$registration.lock" && -x "$registration" ]]; then
+        if flock --nonblock "$registration.lock" true; then
+            :
+        elif [[ $? == 1 ]]; then
+            exec "$registration" "$@"
+        fi
+    fi
+fi
+
+if ! command -v amane_shell_release >/dev/null; then
+    echo "Amane release is not installed. Install its Nix package, or run dev.sh for development OSD commands." >&2
+    exit 1
+fi
+
+exec amane_shell_release "$@"

@@ -1,4 +1,4 @@
-use amane::{Button, Center, Cursor, Fill, Gradient, Rectangle, Row, Text, Widget, children};
+use amane::{Button, Center, Cursor, Fill, Gradient, Rectangle, Row, Size, Text, Widget, children};
 
 use crate::{
     minimap::Minimap,
@@ -7,6 +7,8 @@ use crate::{
 };
 
 pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
+    const SPACING: f32 = 4.0;
+
     if !niri.ready() {
         return Row::new(children![
             Text::new("niri unavailable")
@@ -19,12 +21,7 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
     for workspace in niri.workspaces_on(output) {
         let mut map = Minimap::default();
         if workspace.is_active {
-            map = Minimap::layout(
-                niri.windows_on(workspace.id),
-                workspace.active_window_id,
-                180.0,
-                16.0,
-            );
+            map = Minimap::layout(niri.windows_on(workspace.id), 180.0, 16.0);
         }
         let occupied = niri.windows_on(workspace.id).next().is_some();
         let foreground = if workspace.is_active || workspace.is_urgent {
@@ -45,14 +42,13 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
             Fill::Gradient(Gradient::linear(
                 0.0,
                 [
-                    (0.0, faded(theme.accent, 50)),
+                    (0.0, faded(theme.accent, 40)),
                     (1.0, faded(theme.accent, 0)),
                 ],
             ))
         } else {
             Fill::Color(faded(theme.accent, 0))
         };
-        let mut width = 28.0;
         let mut content = children![
             Rectangle::new()
                 .width(24.0)
@@ -66,9 +62,13 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
                 ),
         ];
         if map.width > 0.0 {
-            width += map.width + 6.0;
             content.push(Box::new(map.view(theme, 16.0)));
         }
+        let content = Row::new(content).gap(SPACING).align(Center);
+        let width = match Widget::width(&content) {
+            Size::Fixed(width) => Size::Fixed(width + 2.0 * SPACING),
+            Size::Parent => Size::Parent,
+        };
         let id = workspace.id;
         buttons.push(Box::new(
             Rectangle::new()
@@ -83,8 +83,8 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
                         niri::focus_workspace(id);
                     }
                 })
-                .child(Row::new(content).gap(4.0).align(Center)),
+                .child(content),
         ));
     }
-    Row::new(buttons).gap(4.0).align(Center)
+    Row::new(buttons).gap(SPACING).align(Center)
 }

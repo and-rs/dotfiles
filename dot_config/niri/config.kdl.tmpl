@@ -8,7 +8,7 @@ spawn-sh-at-startup "pgrep -x hypridle >/dev/null || hypridle"
 spawn-sh-at-startup "globalprotect launch-ui"
 spawn-sh-at-startup "sudo ~/.local/bin/xremap-niri"
 spawn-sh-at-startup "~/.config/nushell/execs/&asus_defaults"
-spawn-sh-at-startup "~/.config/quickshell/launch.sh"
+spawn-at-startup "amane_shell"
 screenshot-path "~/Pictures/Screenshots/screenshot-at-%Y-%m-%d-%H-%M-%S.png"
 prefer-no-csd
 overview {
@@ -27,6 +27,7 @@ hotkey-overlay {
     hide-not-bound
 }
 environment {
+    PATH "{{ .chezmoi.homeDir }}/.local/bin:{{ env "PATH" }}"
     WAYLAND_DISPLAY "wayland-1"
     QT_QPA_PLATFORM "wayland"
     QT_QPA_PLATFORMTHEME "qt6ct"
@@ -254,10 +255,6 @@ layer-rule {
     }
 }
 layer-rule {
-    match namespace="quickshell-notification-popup"
-    block-out-from "screencast"
-}
-layer-rule {
     match namespace="awww-daemon"
     place-within-backdrop true
 }
@@ -272,34 +269,34 @@ binds {
         spawn "playerctl" "previous"
     }
     XF86AudioMicMute cooldown-ms=200 {
-        spawn-sh "quickshell ipc call osd toggleMicMute"
+        spawn "amane_shell" "osd" "mic_mute"
     }
     Mod+XF86AudioRaiseVolume cooldown-ms=200 {
-        spawn-sh "quickshell ipc call osd adjustMic '0.10+'"
+        spawn "amane_shell" "osd" "mic_up"
     }
     Mod+XF86AudioLowerVolume cooldown-ms=200 {
-        spawn-sh "quickshell ipc call osd adjustMic '0.10-'"
+        spawn "amane_shell" "osd" "mic_down"
     }
     XF86AudioMute cooldown-ms=200 {
-        spawn-sh "quickshell ipc call osd toggleMute"
+        spawn "amane_shell" "osd" "volume_mute"
     }
     XF86AudioRaiseVolume cooldown-ms=55 allow-when-locked=true {
-        spawn-sh "quickshell ipc call osd adjustVolume '0.05+'"
+        spawn "amane_shell" "osd" "volume_up"
     }
     XF86AudioLowerVolume cooldown-ms=55 allow-when-locked=true {
-        spawn-sh "quickshell ipc call osd adjustVolume '0.05-'"
+        spawn "amane_shell" "osd" "volume_down"
     }
     XF86MonBrightnessUp {
-        spawn-sh "quickshell ipc call osd adjustBrightness '+5%'"
+        spawn "amane_shell" "osd" "brightness_up"
     }
     XF86MonBrightnessDown {
-        spawn-sh "quickshell ipc call osd adjustBrightness '5%-'"
+        spawn "amane_shell" "osd" "brightness_down"
     }
     XF86KbdBrightnessUp {
-        spawn-sh "quickshell ipc call osd adjustKbdBrightness '+33%'"
+        spawn "amane_shell" "osd" "keyboard_up"
     }
     XF86KbdBrightnessDown {
-        spawn-sh "quickshell ipc call osd adjustKbdBrightness '33%-'"
+        spawn "amane_shell" "osd" "keyboard_down"
     }
     Mod+U allow-inhibiting=false {
         screenshot

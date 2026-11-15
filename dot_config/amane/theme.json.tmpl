@@ -1,8 +1,17 @@
 {{- $c := index .palettes .theme -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+{{- $surfaces := output "nu" $paletteScript "surfaces" $c.bg $c.blue | fromJson -}}
 {
   "bg": "{{ $c.bg }}",
   "fg": "{{ $c.fg }}",
   "accent": "{{ $c.blue }}",
+  "surface1": "{{ $surfaces.surface1 }}",
+  "surface2": "{{ $surfaces.surface2 }}",
+  "surface4": "{{ $surfaces.surface4 }}",
   "font": "{{ .fonts.ui }}",
-  "font_size": 14
+  "font_size": {{ divf (mulf .fonts.ui_size 96) 72 }},
+  "radius": {
+    "normal": {{ mul .radii.unit .radii.multiplier .radii.normal }},
+    "large": {{ mul .radii.unit .radii.multiplier .radii.large }}
+  }
 }

@@ -13,7 +13,6 @@ struct Tile {
     width: f32,
     height: f32,
     focused: bool,
-    active: bool,
 }
 
 #[derive(Debug, Default)]
@@ -25,7 +24,6 @@ pub struct Minimap {
 impl Minimap {
     pub fn layout<'a>(
         windows: impl Iterator<Item = &'a Window>,
-        active_id: Option<u64>,
         max_width: f32,
         height: f32,
     ) -> Self {
@@ -72,9 +70,13 @@ impl Minimap {
         if !total_width.is_finite() || !tallest.is_finite() {
             return Self::default();
         }
-        let scale = (f64::from(max_width) / total_width).min(f64::from(height) / tallest);
+        // Reserve gaps between columns, keeping room for tiles even in narrow maps.
+        let gap = 3.0_f64.min(f64::from(max_width) / (2.0 * columns.len() as f64));
+        let gaps_width = gap * (columns.len() - 1) as f64;
+        let scale =
+            ((f64::from(max_width) - gaps_width) / total_width).min(f64::from(height) / tallest);
         let mut map = Self {
-            width: (total_width * scale) as f32,
+            width: (total_width * scale + gaps_width) as f32,
             tiles: Vec::new(),
         };
         let mut x = 0.0;
@@ -83,20 +85,18 @@ impl Minimap {
             for window in windows {
                 let tile_width = column_width * scale;
                 let tile_height = window.layout.tile_size.1 * scale;
-                let gap_x = tile_width.min(1.0);
                 let gap_y = tile_height.min(1.0);
                 map.tiles.push(Tile {
                     id: window.id,
-                    x: (x + gap_x / 2.0) as f32,
+                    x: x as f32,
                     y: (y + gap_y / 2.0) as f32,
-                    width: (tile_width - gap_x) as f32,
+                    width: tile_width as f32,
                     height: (tile_height - gap_y) as f32,
                     focused: window.is_focused,
-                    active: active_id == Some(window.id),
                 });
                 y += tile_height;
             }
-            x += column_width * scale;
+            x += column_width * scale + gap;
         }
         map
     }
@@ -111,17 +111,11 @@ impl Minimap {
                 } else {
                     faded(theme.accent, 80)
                 };
-                let border = if tile.active {
-                    theme.accent
-                } else {
-                    faded(theme.accent, 120)
-                };
                 Box::new(
                     Rectangle::new()
                         .width(tile.width)
                         .height(tile.height)
                         .fill(fill)
-                        .border(1.0, border)
                         .translate(tile.x, tile.y),
                 ) as Box<dyn Widget>
             })
@@ -145,17 +139,19 @@ mod tests {
         third.layout.tile_size = (400.0, 900.0);
         third.is_focused = true;
         let windows = [third, second, first];
-        let map = Minimap::layout(windows.iter(), Some(2), 180.0, 18.0);
-        assert_eq!(map.width, 24.0);
+        let map = Minimap::layout(windows.iter(), 180.0, 18.0);
+        assert_eq!(map.width, 27.0);
         assert_eq!(
             map.tiles.iter().map(|tile| tile.id).collect::<Vec<_>>(),
             [1, 2, 3]
         );
         assert_eq!(map.tiles[0].height, 5.0);
         assert_eq!(map.tiles[1].height, 11.0);
-        assert_eq!(map.tiles[0].width, 15.0);
-        assert_eq!(map.tiles[2].width, 7.0);
-        assert!(map.tiles[1].active);
+        assert_eq!(map.tiles[0].width, 16.0);
+        assert_eq!(map.tiles[2].width, 8.0);
+        assert_eq!(map.tiles[0].x, 0.0);
+        assert_eq!(map.tiles[2].x, 19.0);
+        assert_eq!(map.tiles[2].x + map.tiles[2].width, map.width);
         assert!(!map.tiles[1].focused);
         assert!(map.tiles[2].focused);
     }
@@ -163,7 +159,7 @@ mod tests {
     #[test]
     fn caps_width_and_keeps_tiles_inside_bounds() {
         let windows: Vec<_> = (1..=30).map(|id| window(id, 1, id as usize, 1)).collect();
-        let map = Minimap::layout(windows.iter(), None, 100.0, 18.0);
+        let map = Minimap::layout(windows.iter(), 100.0, 18.0);
         assert_eq!(map.width, 100.0);
         for tile in &map.tiles {
             assert!(tile.x >= 0.0 && tile.y >= 0.0);
@@ -173,25 +169,37 @@ mod tests {
     }
 
     #[test]
+    fn single_column_has_no_horizontal_inset() {
+        let windows = [window(1, 1, 1, 1)];
+        let map = Minimap::layout(windows.iter(), 100.0, 18.0);
+        assert_eq!(map.tiles[0].x, 0.0);
+        assert_eq!(map.tiles[0].width, map.width);
+    }
+
+    #[test]
+    fn shrinks_gaps_to_keep_narrow_tiles_visible() {
+        let windows: Vec<_> = (1..=30).map(|id| window(id, 1, id as usize, 1)).collect();
+        let map = Minimap::layout(windows.iter(), 1.0, 18.0);
+        assert_eq!(map.width, 1.0);
+        assert_eq!(map.tiles[0].x, 0.0);
+        for pair in map.tiles.windows(2) {
+            assert!(pair[0].width > 0.0);
+            assert!(pair[0].x + pair[0].width < pair[1].x);
+        }
+        let last = map.tiles.last().unwrap();
+        assert!(last.width > 0.0);
+        assert!((last.x + last.width - map.width).abs() < f32::EPSILON);
+    }
+
+    #[test]
     fn ignores_floating_missing_and_invalid_geometry() {
         let mut windows: Vec<_> = (1..=4).map(|id| window(id, 1, 1, 1)).collect();
         windows[0].is_floating = true;
         windows[1].layout.pos_in_scrolling_layout = None;
         windows[2].layout.tile_size.0 = f64::NAN;
         windows[3].layout.tile_size.1 = 0.0;
-        assert_eq!(
-            Minimap::layout(windows.iter(), None, 100.0, 18.0).width,
-            0.0
-        );
-        assert!(
-            Minimap::layout([].iter(), None, 100.0, 18.0)
-                .tiles
-                .is_empty()
-        );
-        assert!(
-            Minimap::layout(windows.iter(), None, 0.0, 18.0)
-                .tiles
-                .is_empty()
-        );
+        assert_eq!(Minimap::layout(windows.iter(), 100.0, 18.0).width, 0.0);
+        assert!(Minimap::layout([].iter(), 100.0, 18.0).tiles.is_empty());
+        assert!(Minimap::layout(windows.iter(), 0.0, 18.0).tiles.is_empty());
     }
 }

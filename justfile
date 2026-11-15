@@ -3,14 +3,8 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
-qmlfmt:
-  try { qmlformat --single-line-empty-objects -n -w 4 -i ...(fd | rg -e '\.qml$' | lines) }
-
-qmldir:
-  touch ~/.config/quickshell/.qmlls.ini
-
-debug-capture target output_directory="":
-  bash ./dot_config/quickshell/utils/executable_debug_capture.sh "{{ target }}" "{{ output_directory }}"
+install-amane:
+  nix-env --install --file ./dot_config/amane/default.nix
 
 cppfmt:
   clang-format -i ...(fd | rg -e '\.cpp' -e '\.h$' -e '\.hpp' | lines)

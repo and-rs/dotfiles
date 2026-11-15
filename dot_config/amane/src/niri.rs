@@ -48,10 +48,13 @@ impl Niri {
     }
 
     pub fn active_window(&self, output: &str) -> Option<&Window> {
-        let workspace = self
-            .workspaces_on(output)
-            .into_iter()
-            .find(|workspace| workspace.is_active)?;
+        if !self.ready() {
+            return None;
+        }
+        let workspace =
+            self.workspaces.workspaces.values().find(|workspace| {
+                workspace.output.as_deref() == Some(output) && workspace.is_active
+            })?;
         let window = self.windows.windows.get(&workspace.active_window_id?)?;
         // Related events can briefly refer to a window that has already moved.
         if window.workspace_id != Some(workspace.id) {

@@ -1,5 +1,7 @@
+mod design;
 mod minimap;
 mod niri;
+mod osd;
 mod theme;
 mod window_title;
 mod workspaces;
@@ -36,9 +38,26 @@ impl Service for Clock {
 }
 
 fn main() {
+    let arguments: Vec<_> = std::env::args().skip(1).collect();
+    if let Some((command, rest)) = arguments.split_first() {
+        if command != "osd" {
+            eprintln!("usage: amane_shell [osd <action>]");
+            std::process::exit(1);
+        }
+        if let Err(error) = osd::client(rest) {
+            eprintln!("{error}");
+            std::process::exit(1);
+        }
+        return;
+    }
     // Load before opening any windows, so a bad initial config fails clearly.
     drop(ThemeState::read());
-    App::new().window_per_monitor(bar).run();
+    drop(osd::Osd::read());
+    App::new()
+        .ipc("osd", osd::handle)
+        .window_per_monitor(bar)
+        .window_per_monitor(osd::view)
+        .run();
 }
 
 fn bar(monitor: &Monitor) -> LayerWindow {
@@ -60,7 +79,7 @@ fn bar(monitor: &Monitor) -> LayerWindow {
                 .height(Parent)
                 .fill(theme.bg)
                 .padding(Padding {
-                    left: 12.0,
+                    left: 4.0,
                     right: 12.0,
                     top: 0.0,
                     bottom: 0.0,

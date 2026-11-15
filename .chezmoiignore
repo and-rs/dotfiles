@@ -21,6 +21,7 @@ wallpapers
 .config/xremap
 .config/xdg-desktop-portal
 .local/bin/xremap-niri
+.local/bin/amane_shell
 {{- end }}
 
 {{- if or (ne .chezmoi.os "linux") (ne .chezmoi.hostname "boglrnd3010") }}
