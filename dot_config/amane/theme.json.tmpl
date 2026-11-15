@@ -5,12 +5,16 @@
   "bg": "{{ $c.bg }}",
   "fg": "{{ $c.fg }}",
   "accent": "{{ $c.blue }}",
+  "success": "{{ $c.green }}",
+  "destructive": "{{ $c.red }}",
   "surface1": "{{ $surfaces.surface1 }}",
   "surface2": "{{ $surfaces.surface2 }}",
+  "surface3": "{{ $surfaces.surface3 }}",
   "surface4": "{{ $surfaces.surface4 }}",
   "font": "{{ .fonts.ui }}",
   "font_size": {{ divf (mulf .fonts.ui_size 96) 72 }},
   "radius": {
+    "small": {{ mul .radii.unit .radii.multiplier .radii.small }},
     "normal": {{ mul .radii.unit .radii.multiplier .radii.normal }},
     "large": {{ mul .radii.unit .radii.multiplier .radii.large }}
   }

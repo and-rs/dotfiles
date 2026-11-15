@@ -1,5 +1,6 @@
 mod bar_buttons;
 mod caffeine;
+mod control_center;
 mod design;
 mod minimap;
 mod niri;
@@ -59,6 +60,7 @@ fn main() {
         .ipc("osd", osd::handle)
         .window_per_monitor(bar)
         .window_per_monitor(osd::view)
+        .window_per_monitor(control_center::view)
         .run();
 }
 
@@ -70,7 +72,7 @@ fn bar(monitor: &Monitor) -> LayerWindow {
 
     LayerWindow::new()
         .width(Full)
-        .height(32.0)
+        .height(design::BAR_HEIGHT)
         .anchor_vertical(Vertical::Top)
         .layer(Layer::Top)
         .space(Zone::Reserve)
@@ -91,6 +93,7 @@ fn bar(monitor: &Monitor) -> LayerWindow {
                         workspaces::view(&niri, &monitor.name, theme),
                         window_title::view(&niri, &monitor.name, theme),
                         bar_buttons::view(theme),
+                        control_center::button(&monitor.name, theme),
                         Text::new(&clock.0)
                             .font(&theme.font)
                             .size(theme.font_size * design::BAR_TEXT_SCALE)

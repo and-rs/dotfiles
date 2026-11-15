@@ -1,6 +1,8 @@
 use std::{env, path::PathBuf, process::Command, thread};
 
-use amane::{Button, Center, Cursor, Rectangle, Row, Service, Text, children};
+use amane::{
+    Button, Center, Cursor, Padding, Rectangle, Row, Service, Size, Text, Widget, children,
+};
 
 use crate::{
     caffeine::{self, Caffeine},
@@ -8,13 +10,31 @@ use crate::{
     theme::Theme,
 };
 
-pub fn view(theme: &Theme) -> Row {
+pub fn frame(content: impl Widget + 'static, theme: &Theme) -> Rectangle {
+    let Size::Fixed(content_width) = content.width() else {
+        unreachable!("bar button content must have a measured width");
+    };
+    Rectangle::new()
+        .width(content_width + design::padding::NORMAL * 2.0)
+        .height(design::size::BUTTON)
+        .padding(Padding {
+            left: design::padding::NORMAL,
+            right: design::padding::NORMAL,
+            top: 0.0,
+            bottom: 0.0,
+        })
+        .align_child(Center, Center)
+        .radius(theme.radius.normal)
+        .child(content)
+}
+
+pub fn view(theme: &Theme) -> Rectangle {
     let active = Caffeine::read().active;
     let caffeine_icon = if active { '\u{e220}' } else { '\u{e224}' };
     let caffeine_color = if active { theme.accent } else { theme.surface4 };
-    Row::new(children![
+    let icons = Row::new(children![
         Rectangle::new()
-            .width(design::size::BUTTON)
+            .width(design::ICON_SIZE)
             .height(design::size::BUTTON)
             .align_child(Center, Center)
             .cursor(Cursor::Pointer)
@@ -31,7 +51,7 @@ pub fn view(theme: &Theme) -> Row {
                     .tight(),
             ),
         Rectangle::new()
-            .width(design::size::BUTTON)
+            .width(design::ICON_SIZE)
             .height(design::size::BUTTON)
             .align_child(Center, Center)
             .cursor(Cursor::Pointer)
@@ -49,7 +69,8 @@ pub fn view(theme: &Theme) -> Row {
             ),
     ])
     .align(Center)
-    .gap(design::spacing::EXTRA_SMALL)
+    .gap(design::spacing::MEDIUM);
+    frame(icons, theme)
 }
 
 fn lock() {

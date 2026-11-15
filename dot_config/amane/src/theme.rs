@@ -13,9 +13,15 @@ pub struct Theme {
     #[serde(deserialize_with = "color")]
     pub accent: Color,
     #[serde(deserialize_with = "color")]
+    pub success: Color,
+    #[serde(deserialize_with = "color")]
+    pub destructive: Color,
+    #[serde(deserialize_with = "color")]
     pub surface1: Color,
     #[serde(deserialize_with = "color")]
     pub surface2: Color,
+    #[serde(deserialize_with = "color")]
+    pub surface3: Color,
     #[serde(deserialize_with = "color")]
     pub surface4: Color,
     pub font: String,
@@ -26,6 +32,7 @@ pub struct Theme {
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct Radius {
+    pub small: f32,
     pub normal: f32,
     pub large: f32,
 }
@@ -44,7 +51,7 @@ impl Theme {
         if !(8.0..=24.0).contains(&theme.font_size) {
             return Err("font_size must be between 8 and 24 pixels".into());
         }
-        if [theme.radius.normal, theme.radius.large]
+        if [theme.radius.small, theme.radius.normal, theme.radius.large]
             .iter()
             .any(|radius| !radius.is_finite() || *radius < 0.0)
         {
@@ -132,8 +139,9 @@ mod tests {
 
     const VALID: &str = r##"{
         "bg":"#101820","fg":"#ffffff","accent":"#80c0ff",
-        "surface1":"#182028","surface2":"#202830","surface4":"#404850",
-        "font":"Inter","font_size":14,"radius":{"normal":0,"large":0}
+        "success":"#00ff00","destructive":"#ff0000",
+        "surface1":"#182028","surface2":"#202830","surface3":"#303840","surface4":"#404850",
+        "font":"Inter","font_size":14,"radius":{"small":0,"normal":0,"large":0}
     }"##;
 
     #[test]
@@ -145,7 +153,11 @@ mod tests {
         assert_eq!(theme.font_size, 14.0);
         assert_eq!(theme.surface1, Color::rgb(24, 32, 40));
         assert_eq!(theme.surface2, Color::rgb(32, 40, 48));
+        assert_eq!(theme.surface3, Color::rgb(48, 56, 64));
         assert_eq!(theme.surface4, Color::rgb(64, 72, 80));
+        assert_eq!(theme.success, Color::rgb(0, 255, 0));
+        assert_eq!(theme.destructive, Color::rgb(255, 0, 0));
+        assert_eq!(theme.radius.small, 0.0);
         assert_eq!(theme.radius.normal, 0.0);
         assert_eq!(theme.radius.large, 0.0);
         let rounded = VALID.replace("\"normal\":0,\"large\":0", "\"normal\":8,\"large\":16");
@@ -167,6 +179,7 @@ mod tests {
             VALID.replace("\"font_size\"", "\"font_szie\""),
             VALID.replace("\"#182028\"", "\"invalid\""),
             VALID.replace("\"normal\":0", "\"normal\":-1"),
+            VALID.replace("\"small\":0", "\"small\":-1"),
             VALID.replace("\"large\":0", "\"large\":1e100"),
             VALID[..VALID.len() - 1].to_string(),
         ] {
