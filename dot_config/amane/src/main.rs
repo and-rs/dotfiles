@@ -2,6 +2,7 @@ mod bar_buttons;
 mod caffeine;
 mod control_center;
 mod design;
+mod fullscreen;
 mod minimap;
 mod niri;
 mod osd;
@@ -13,7 +14,7 @@ use std::time::Duration;
 
 use amane::{
     App, Center, Full, Layer, LayerWindow, Monitor, Padding, Parent, Rectangle, Row, Service, Text,
-    Vertical, Weight, Zone, children,
+    Vertical, Weight, Widget, Zone, children,
 };
 use chrono::Local;
 use niri::Niri;
@@ -65,45 +66,60 @@ fn main() {
 }
 
 fn bar(monitor: &Monitor) -> LayerWindow {
-    let state = ThemeState::read();
-    let theme = &state.theme;
-    let clock = Clock::read();
-    let niri = Niri::read();
-
-    LayerWindow::new()
+    let window = LayerWindow::new()
         .width(Full)
         .height(design::BAR_HEIGHT)
         .anchor_vertical(Vertical::Top)
         .layer(Layer::Top)
         .space(Zone::Reserve)
-        .namespace("amane_shell")
-        .child(
-            Rectangle::new()
+        .namespace("amane_shell");
+    if fullscreen::Fullscreen::read().hidden_on(&monitor.name) {
+        // Keep the exclusive zone, but draw nothing and let pointer input through.
+        return window
+            .click_through()
+            .child(Rectangle::new().width(Parent).height(Parent));
+    }
+
+    let state = ThemeState::read();
+    let theme = &state.theme;
+    let clock = Clock::read();
+    let niri = Niri::read();
+    let clock_text = |text: &str| {
+        Text::new(text)
+            .font(&theme.font)
+            .size(theme.font_size * design::BAR_TEXT_SCALE)
+            .weight(Weight::Medium)
+            .color(theme.fg)
+    };
+    let clock_width = clock_text(design::CLOCK_WIDTH_REFERENCE).width();
+
+    window.child(
+        Rectangle::new()
+            .width(Parent)
+            .height(Parent)
+            .fill(theme.bg)
+            .padding(Padding {
+                left: 4.0,
+                right: 12.0,
+                top: 0.0,
+                bottom: 0.0,
+            })
+            .child(
+                Row::new(children![
+                    workspaces::view(&niri, &monitor.name, theme),
+                    window_title::view(&niri, &monitor.name, theme),
+                    bar_buttons::view(theme),
+                    control_center::button(&monitor.name, theme),
+                    Rectangle::new()
+                        .width(clock_width)
+                        .height(Parent)
+                        .align_child(Center, Center)
+                        .child(clock_text(&clock.0)),
+                ])
                 .width(Parent)
                 .height(Parent)
-                .fill(theme.bg)
-                .padding(Padding {
-                    left: 4.0,
-                    right: 12.0,
-                    top: 0.0,
-                    bottom: 0.0,
-                })
-                .child(
-                    Row::new(children![
-                        workspaces::view(&niri, &monitor.name, theme),
-                        window_title::view(&niri, &monitor.name, theme),
-                        bar_buttons::view(theme),
-                        control_center::button(&monitor.name, theme),
-                        Text::new(&clock.0)
-                            .font(&theme.font)
-                            .size(theme.font_size * design::BAR_TEXT_SCALE)
-                            .weight(Weight::Medium)
-                            .color(theme.fg),
-                    ])
-                    .width(Parent)
-                    .height(Parent)
-                    .align(Center)
-                    .gap(12.0),
-                ),
-        )
+                .align(Center)
+                .gap(12.0),
+            ),
+    )
 }

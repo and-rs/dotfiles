@@ -1,4 +1,5 @@
 mod backends;
+mod battery;
 mod indicators;
 
 use amane::{
@@ -141,6 +142,20 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
             ) as Box<dyn amane::Widget>
         })
         .collect();
+    let content = if state.section == Section::Battery {
+        battery::view(&status.readings[index], theme)
+    } else {
+        Column::new(children![
+            text(state.section.label(), theme),
+            text(message, theme)
+                .wrap()
+                .max_lines(layout::PREVIEW_LINES)
+                .elide(),
+            text("Read-only backend preview", theme),
+        ])
+        .width(Parent)
+        .gap(spacing::SMALL)
+    };
     LayerWindow::new()
         .width(Full)
         .height(Full)
@@ -179,27 +194,15 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
                         .child(
                             Column::new(children![
                                 Row::new(tabs).gap(spacing::SMALL),
-                                ScrollArea::new(
-                                    "control_center_content",
-                                    Column::new(children![
-                                        text(state.section.label(), theme),
-                                        text(message, theme)
-                                            .wrap()
-                                            .max_lines(layout::PREVIEW_LINES)
-                                            .elide(),
-                                        text("Read-only backend preview", theme),
-                                    ])
-                                    .width(Parent)
-                                    .gap(spacing::SMALL),
-                                )
-                                .width(content_width)
-                                .height(
-                                    (height
-                                        - padding::NORMAL * 2.0
-                                        - layout::TAB_HEIGHT
-                                        - spacing::SMALL)
-                                        .max(0.0),
-                                ),
+                                ScrollArea::new("control_center_content", content,)
+                                    .width(content_width)
+                                    .height(
+                                        (height
+                                            - padding::NORMAL * 2.0
+                                            - layout::TAB_HEIGHT
+                                            - spacing::SMALL)
+                                            .max(0.0),
+                                    ),
                             ])
                             .width(content_width)
                             .gap(spacing::SMALL),

@@ -44,6 +44,8 @@ dependencies = [
  "niri-ipc",
  "serde",
  "serde_json",
+ "wayland-client",
+ "wayland-protocols-wlr",
  "zbus",
 ]
 

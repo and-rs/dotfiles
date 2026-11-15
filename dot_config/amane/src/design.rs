@@ -6,6 +6,7 @@ pub const ICON_SIZE: f32 = size::NORMAL * 96.0 / 72.0;
 pub const BORDER_WIDTH: f32 = 2.0;
 pub const BAR_TEXT_SCALE: f32 = 1.05;
 pub const BAR_HEIGHT: f32 = 32.0;
+pub const CLOCK_WIDTH_REFERENCE: &str = "Wed 31 May 23:59";
 
 pub mod workspace {
     use super::{BORDER_WIDTH, spacing};
@@ -25,6 +26,7 @@ pub mod control_center {
     pub const TOP: f32 = BAR_HEIGHT + spacing::SMALL;
     pub const TAB_HEIGHT: f32 = BAR_HEIGHT;
     pub const PREVIEW_LINES: usize = 8;
+    pub const PROFILE_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
 }
 
 pub mod indicator {

@@ -78,6 +78,7 @@ impl Service for Status {
 pub(super) struct Reading {
     pub indicator: Indicator,
     pub message: String,
+    pub battery: Option<super::battery::Details>,
 }
 
 impl Reading {
@@ -91,6 +92,7 @@ impl Reading {
         Self {
             indicator,
             message: format!("{} backend unavailable\n{error}", section.label()),
+            battery: None,
         }
     }
 }
@@ -104,7 +106,7 @@ pub(super) fn connection(session: bool) -> zbus::Result<Connection> {
     builder.method_timeout(Duration::from_secs(2)).build()
 }
 
-fn owned(connection: &Connection, name: &str) -> zbus::Result<bool> {
+pub(super) fn owned(connection: &Connection, name: &str) -> zbus::Result<bool> {
     Proxy::new(
         connection,
         "org.freedesktop.DBus",
@@ -131,6 +133,7 @@ pub(super) fn read(connection: &Connection, section: Section) -> zbus::Result<Re
 fn tray(connection: &Connection) -> zbus::Result<Reading> {
     if !owned(connection, "org.kde.StatusNotifierWatcher")? {
         return Ok(Reading {
+            battery: None,
             indicator: Indicator::Tray(0),
             message: "No tray watcher is running.\nAmane tray hosting is not implemented yet."
                 .into(),
@@ -144,6 +147,7 @@ fn tray(connection: &Connection) -> zbus::Result<Reading> {
     )?;
     let items: Vec<String> = watcher.get_property("RegisteredStatusNotifierItems")?;
     Ok(Reading {
+        battery: None,
         indicator: Indicator::Tray(items.len()),
         message: format!(
             "StatusNotifier watcher reachable.\n{} registered tray items.",
@@ -184,6 +188,7 @@ fn bluetooth(connection: &Connection) -> zbus::Result<Reading> {
         .filter_map(|i| i.get("org.bluez.Device1"))
         .any(|device| boolean(device, "Connected"));
     Ok(Reading {
+        battery: None,
         indicator: Indicator::Bluetooth(Bluetooth { enabled, connected }),
         message: format!("BlueZ reachable.\nEnabled: {enabled}\nConnected devices: {connected}"),
     })
@@ -264,6 +269,7 @@ fn network(connection: &Connection) -> zbus::Result<Reading> {
         state.wired = wired_carrier();
     }
     Ok(Reading {
+        battery: None,
         indicator: Indicator::Network(state),
         message: format!(
             "{backend}\nWired link: {}\nWi-Fi enabled: {}\nConnected: {}\nSignal: {:.0}%",
@@ -354,6 +360,8 @@ fn battery(connection: &Connection) -> zbus::Result<Reading> {
     )?;
     let devices: Vec<OwnedObjectPath> = manager.call("EnumerateDevices", &())?;
     let mut has_battery = false;
+    let mut energy_full = 0.0;
+    let mut energy_design = 0.0;
     for path in devices {
         let device = Proxy::new(
             connection,
@@ -367,11 +375,17 @@ fn battery(connection: &Connection) -> zbus::Result<Reading> {
             && device.get_property::<bool>("IsPresent")?
         {
             has_battery = true;
-            break;
+            let full: f64 = device.get_property("EnergyFull")?;
+            let design: f64 = device.get_property("EnergyFullDesign")?;
+            if full.is_finite() && full > 0.0 && design.is_finite() && design > 0.0 {
+                energy_full += full;
+                energy_design += design;
+            }
         }
     }
     if !has_battery {
         return Ok(Reading {
+            battery: None,
             indicator: Indicator::Battery(None),
             message: "UPower reachable.\nNo system battery present.".into(),
         });
@@ -385,7 +399,17 @@ fn battery(connection: &Connection) -> zbus::Result<Reading> {
     let percent: f64 = device.get_property("Percentage")?;
     let state: u32 = device.get_property("State")?;
     let battery = Battery::from_upower(percent, state);
+    let details = super::battery::Details {
+        state,
+        time_to_full: device.get_property("TimeToFull")?,
+        time_to_empty: device.get_property("TimeToEmpty")?,
+        rate: device.get_property("EnergyRate")?,
+        energy: device.get_property("Energy")?,
+        energy_full: device.get_property("EnergyFull")?,
+        health: super::battery::health(energy_full, energy_design),
+    };
     Ok(Reading {
+        battery: Some(details),
         indicator: Indicator::Battery(Some(battery)),
         message: format!(
             "UPower reachable.\nBattery: {:.0}%\nCharging: {}",
