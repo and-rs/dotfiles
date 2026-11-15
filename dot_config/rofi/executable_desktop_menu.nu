@@ -51,6 +51,9 @@ def show-niri-actions [] {
   } else {
     emit-item "Float window" $"float|($window.id)" "window"
   }
+  if $window != null {
+    emit-item "Toggle fullscreen" $"fullscreen|($window.id)" "window"
+  }
 
   let other_monitors = (active-outputs | any {|output| $output.name != $workspace.output })
   let monitor_label = if $other_monitors { "Move workspace to monitor" } else { "Move workspace to monitor (no other monitors)" }
@@ -179,6 +182,9 @@ def main [...args: string] {
     }
     _ if ($selection | str starts-with "tile|") => {
       run-action ["move-window-to-tiling" "--id" ($selection | str replace "tile|" "")]
+    }
+    _ if ($selection | str starts-with "fullscreen|") => {
+      run-action ["fullscreen-window" "--id" ($selection | str replace "fullscreen|" "")]
     }
     "up" => { run-action ["move-workspace-up"] }
     "down" => { run-action ["move-workspace-down"] }
