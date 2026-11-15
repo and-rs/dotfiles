@@ -1,13 +1,16 @@
-use amane::{Button, Center, Cursor, Fill, Gradient, Rectangle, Row, Size, Text, Widget, children};
+use amane::{
+    Button, Center, Cursor, Fill, Gradient, Padding, Rectangle, Row, Size, Text, Widget, children,
+};
 
 use crate::{
+    design,
     minimap::Minimap,
     niri::{self, Niri},
     theme::{Theme, faded},
 };
 
 pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
-    const SPACING: f32 = 4.0;
+    const SPACING: f32 = design::spacing::EXTRA_SMALL;
 
     if !niri.ready() {
         return Row::new(children![
@@ -36,7 +39,7 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
         } else if workspace.is_active {
             faded(theme.accent, 150)
         } else {
-            faded(theme.fg, 50)
+            theme.surface2
         };
         let background = if workspace.is_active {
             Fill::Gradient(Gradient::linear(
@@ -51,8 +54,8 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
         };
         let mut content = children![
             Rectangle::new()
-                .width(24.0)
-                .height(24.0)
+                .width(design::workspace::CONTENT_HEIGHT)
+                .height(design::workspace::CONTENT_HEIGHT)
                 .align_child(Center, Center)
                 .child(
                     Text::new(workspace.idx.to_string())
@@ -65,17 +68,30 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
             content.push(Box::new(map.view(theme, 16.0)));
         }
         let content = Row::new(content).gap(SPACING).align(Center);
-        let width = match Widget::width(&content) {
-            Size::Fixed(width) => Size::Fixed(width + 2.0 * SPACING),
-            Size::Parent => Size::Parent,
+        let (width, left, right) = if workspace.is_active {
+            let left = design::workspace::INSET;
+            let right = design::workspace::RIGHT_INSET;
+            let width = match Widget::width(&content) {
+                Size::Fixed(width) => Size::Fixed(width + left + right),
+                Size::Parent => Size::Parent,
+            };
+            (width, left, right)
+        } else {
+            (Size::Fixed(design::workspace::HEIGHT), 0.0, 0.0)
         };
         let id = workspace.id;
         buttons.push(Box::new(
             Rectangle::new()
                 .width(width)
-                .height(24.0)
+                .height(design::workspace::HEIGHT)
                 .fill(background)
-                .border(1.0, border)
+                .border(design::BORDER_WIDTH, border)
+                .padding(Padding {
+                    left,
+                    right,
+                    top: 0.0,
+                    bottom: 0.0,
+                })
                 .align_child(Center, Center)
                 .cursor(Cursor::Pointer)
                 .on_click(move |button| {

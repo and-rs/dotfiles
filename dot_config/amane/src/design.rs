@@ -7,6 +7,15 @@ pub const BORDER_WIDTH: f32 = 2.0;
 pub const BAR_TEXT_SCALE: f32 = 1.05;
 pub const BAR_HEIGHT: f32 = 32.0;
 
+pub mod workspace {
+    use super::{BORDER_WIDTH, spacing};
+
+    pub const CONTENT_HEIGHT: f32 = 24.0;
+    pub const HEIGHT: f32 = CONTENT_HEIGHT;
+    pub const INSET: f32 = spacing::EXTRA_SMALL + BORDER_WIDTH;
+    pub const RIGHT_INSET: f32 = spacing::TINY + BORDER_WIDTH;
+}
+
 pub mod control_center {
     use super::{BAR_HEIGHT, padding, spacing};
 
@@ -47,6 +56,7 @@ pub mod padding {
 }
 
 pub mod spacing {
+    pub const TINY: f32 = 3.0;
     pub const EXTRA_SMALL: f32 = 4.0;
     pub const SMALL: f32 = 10.0;
     pub const MEDIUM: f32 = 16.0;

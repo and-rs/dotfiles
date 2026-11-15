@@ -3,7 +3,10 @@ use std::collections::BTreeMap;
 use amane::{Rectangle, Stack, Widget};
 use niri_ipc::Window;
 
-use crate::theme::{Theme, faded};
+use crate::{
+    design::spacing,
+    theme::{Theme, faded},
+};
 
 #[derive(Debug, PartialEq)]
 struct Tile {
@@ -71,7 +74,7 @@ impl Minimap {
             return Self::default();
         }
         // Reserve gaps between columns, keeping room for tiles even in narrow maps.
-        let gap = 3.0_f64.min(f64::from(max_width) / (2.0 * columns.len() as f64));
+        let gap = f64::from(spacing::TINY).min(f64::from(max_width) / (2.0 * columns.len() as f64));
         let gaps_width = gap * (columns.len() - 1) as f64;
         let scale =
             ((f64::from(max_width) - gaps_width) / total_width).min(f64::from(height) / tallest);
@@ -85,7 +88,7 @@ impl Minimap {
             for window in windows {
                 let tile_width = column_width * scale;
                 let tile_height = window.layout.tile_size.1 * scale;
-                let gap_y = tile_height.min(1.0);
+                let gap_y = tile_height.min(f64::from(spacing::TINY));
                 map.tiles.push(Tile {
                     id: window.id,
                     x: x as f32,
@@ -145,12 +148,16 @@ mod tests {
             map.tiles.iter().map(|tile| tile.id).collect::<Vec<_>>(),
             [1, 2, 3]
         );
-        assert_eq!(map.tiles[0].height, 5.0);
-        assert_eq!(map.tiles[1].height, 11.0);
+        assert_eq!(map.tiles[0].height, 3.0);
+        assert_eq!(map.tiles[1].height, 9.0);
         assert_eq!(map.tiles[0].width, 16.0);
         assert_eq!(map.tiles[2].width, 8.0);
         assert_eq!(map.tiles[0].x, 0.0);
         assert_eq!(map.tiles[2].x, 19.0);
+        assert_eq!(
+            map.tiles[1].y - (map.tiles[0].y + map.tiles[0].height),
+            spacing::TINY
+        );
         assert_eq!(map.tiles[2].x + map.tiles[2].width, map.width);
         assert!(!map.tiles[1].focused);
         assert!(map.tiles[2].focused);
