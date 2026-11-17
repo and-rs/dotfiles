@@ -10,7 +10,7 @@ cppfmt:
   clang-format -i ...(fd | rg -e '\.cpp' -e '\.h$' -e '\.hpp' | lines)
 
 unmanaged:
-  chezmoi --source ~/Vault/personal/dotfiles unmanaged -p absolute
+  chezmoi --source (pwd) unmanaged -p absolute
 
 apply:
   chezmoi --source "{{ justfile_directory() }}" apply -v --no-pager
