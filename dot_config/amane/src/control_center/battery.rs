@@ -1,39 +1,183 @@
+mod indicator;
+
 use std::{
     collections::HashMap,
     sync::{
         LazyLock, Mutex,
         mpsc::{self, Receiver, RecvTimeoutError, SyncSender},
     },
+    thread,
     time::Duration,
 };
 
 use amane::{
-    Button, Center, Column, Cursor, Parent, Rectangle, Row, Service, Text, Widget, children,
+    Animation, Button, Center, Column, Cursor, Parent, Rectangle, Row, Service, Text, Widget,
+    children,
 };
-use zbus::{blocking::Proxy, zvariant::OwnedValue};
+use zbus::{
+    blocking::{Connection, Proxy},
+    zvariant::{OwnedObjectPath, OwnedValue},
+};
 
-use super::{
-    backends::{self, Reading},
-    indicators::Indicator,
-    text,
-};
+use super::{dbus, ui::text};
 use crate::{
     design::{self, padding, spacing},
     theme::Theme,
 };
+use indicator::Battery;
 
 #[derive(Clone, Debug, PartialEq)]
-pub(super) struct Details {
-    pub state: u32,
-    pub time_to_full: i64,
-    pub time_to_empty: i64,
-    pub rate: f64,
-    pub energy: f64,
-    pub energy_full: f64,
-    pub health: Option<f64>,
+struct Details {
+    state: u32,
+    time_to_full: i64,
+    time_to_empty: i64,
+    rate: f64,
+    energy: f64,
+    energy_full: f64,
+    health: Option<f64>,
 }
 
-pub(super) fn health(full: f64, design: f64) -> Option<f64> {
+#[derive(Debug, PartialEq)]
+struct Reading {
+    battery: Option<Battery>,
+    details: Option<Details>,
+    message: String,
+}
+
+impl Reading {
+    fn unavailable(error: impl std::fmt::Display) -> Self {
+        Self {
+            battery: None,
+            details: None,
+            message: format!("Battery backend unavailable\n{error}"),
+        }
+    }
+}
+
+struct Status {
+    reading: Reading,
+    charge_opacity: Animation,
+}
+
+impl Service for Status {
+    fn new() -> Self {
+        Self {
+            reading: Reading::unavailable("Checking backend…"),
+            charge_opacity: Animation::new(0.0).duration(design::duration::NORMAL),
+        }
+    }
+
+    fn listen() {
+        let mut bus = None;
+        loop {
+            let result = (|| {
+                if bus.is_none() {
+                    bus = Some(dbus::connection(false)?);
+                }
+                read(bus.as_ref().expect("connected battery bus"))
+            })();
+            let fresh = match result {
+                Ok(reading) => reading,
+                Err(error) => {
+                    bus = None;
+                    Reading::unavailable(error)
+                }
+            };
+            if Self::read().reading != fresh {
+                let mut status = Self::write();
+                let opacity = if fresh.battery.is_some_and(|battery| battery.charging) {
+                    1.0
+                } else {
+                    0.0
+                };
+                status.charge_opacity.to(opacity);
+                status.reading = fresh;
+            }
+            thread::sleep(REFRESH);
+        }
+    }
+}
+
+fn read(connection: &Connection) -> zbus::Result<Reading> {
+    if !dbus::owned(connection, "org.freedesktop.UPower")? {
+        return Ok(Reading::unavailable("UPower is not running."));
+    }
+    let manager = Proxy::new(
+        connection,
+        "org.freedesktop.UPower",
+        "/org/freedesktop/UPower",
+        "org.freedesktop.UPower",
+    )?;
+    let devices: Vec<OwnedObjectPath> = manager.call("EnumerateDevices", &())?;
+    let mut has_battery = false;
+    let mut energy_full = 0.0;
+    let mut energy_design = 0.0;
+    for path in devices {
+        let device = Proxy::new(
+            connection,
+            "org.freedesktop.UPower",
+            path,
+            "org.freedesktop.UPower.Device",
+        )?;
+        // UPower type 2 is a battery; PowerSupply excludes peripheral batteries.
+        if device.get_property::<u32>("Type")? == 2
+            && device.get_property::<bool>("PowerSupply")?
+            && device.get_property::<bool>("IsPresent")?
+        {
+            has_battery = true;
+            let full: f64 = device.get_property("EnergyFull")?;
+            let design: f64 = device.get_property("EnergyFullDesign")?;
+            if full.is_finite() && full > 0.0 && design.is_finite() && design > 0.0 {
+                energy_full += full;
+                energy_design += design;
+            }
+        }
+    }
+    if !has_battery {
+        return Ok(Reading {
+            battery: None,
+            details: None,
+            message: "UPower reachable.\nNo system battery present.".into(),
+        });
+    }
+    let device = Proxy::new(
+        connection,
+        "org.freedesktop.UPower",
+        "/org/freedesktop/UPower/devices/DisplayDevice",
+        "org.freedesktop.UPower.Device",
+    )?;
+    let percent: f64 = device.get_property("Percentage")?;
+    let state: u32 = device.get_property("State")?;
+    let battery = Battery::from_upower(percent, state);
+    let details = Details {
+        state,
+        time_to_full: device.get_property("TimeToFull")?,
+        time_to_empty: device.get_property("TimeToEmpty")?,
+        rate: device.get_property("EnergyRate")?,
+        energy: device.get_property("Energy")?,
+        energy_full: device.get_property("EnergyFull")?,
+        health: health(energy_full, energy_design),
+    };
+    Ok(Reading {
+        battery: Some(battery),
+        details: Some(details),
+        message: format!(
+            "UPower reachable.\nBattery: {:.0}%\nCharging: {}",
+            battery.level * 100.0,
+            battery.charging
+        ),
+    })
+}
+
+pub(super) fn indicator(theme: &Theme) -> Option<Row> {
+    let status = Status::read();
+    status
+        .reading
+        .battery
+        .map(|battery| indicator::view(battery, theme, status.charge_opacity.value()))
+}
+
+fn health(full: f64, design: f64) -> Option<f64> {
     if full.is_finite() && full > 0.0 && design.is_finite() && design > 0.0 {
         return Some((full / design * 100.0).clamp(0.0, 100.0));
     }
@@ -166,7 +310,7 @@ impl Service for Profiles {
 
 fn proxy(connection: &zbus::blocking::Connection) -> Result<Proxy<'_>, String> {
     for (name, path) in ENDPOINTS {
-        if backends::owned(connection, name).map_err(|error| error.to_string())? {
+        if dbus::owned(connection, name).map_err(|error| error.to_string())? {
             return zbus::blocking::proxy::Builder::new(connection)
                 .destination(name)
                 .and_then(|builder| builder.path(path))
@@ -183,7 +327,7 @@ fn proxy(connection: &zbus::blocking::Connection) -> Result<Proxy<'_>, String> {
 }
 
 fn read_profiles() -> Result<ProfileState, String> {
-    let connection = backends::connection(false).map_err(|error| error.to_string())?;
+    let connection = dbus::connection(false).map_err(|error| error.to_string())?;
     let proxy = proxy(&connection)?;
     read_profile_state(&proxy).map_err(|error| error.to_string())
 }
@@ -217,7 +361,7 @@ fn value_string(values: &HashMap<String, OwnedValue>, key: &str) -> Option<Strin
 }
 
 fn set_profile(profile: &str) -> Result<(), String> {
-    let connection = backends::connection(false).map_err(|error| error.to_string())?;
+    let connection = dbus::connection(false).map_err(|error| error.to_string())?;
     let proxy = proxy(&connection)?;
     apply_profile(&proxy, profile)
 }
@@ -258,12 +402,12 @@ fn request_profile(profile: &str) {
     }
 }
 
-pub(super) fn view(reading: &Reading, theme: &Theme) -> Column {
+pub(super) fn view(theme: &Theme) -> Column {
+    let status = Status::read();
+    let reading = &status.reading;
     let profiles = Profiles::read();
     let mut content: Vec<Box<dyn Widget>> = Vec::new();
-    if let (Indicator::Battery(Some(battery)), Some(details)) =
-        (&reading.indicator, &reading.battery)
-    {
+    if let (Some(battery), Some(details)) = (&reading.battery, &reading.details) {
         content.push(Box::new(text(
             format!("Battery  {:.0}%", battery.level * 100.0),
             theme,
@@ -356,6 +500,14 @@ pub(super) fn view(reading: &Reading, theme: &Theme) -> Column {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[ignore = "read-only smoke check against the live system bus"]
+    fn live_backend() {
+        let reading = read(&dbus::connection(false).unwrap()).unwrap();
+        println!("{reading:?}");
+        assert!(!reading.message.is_empty());
+    }
 
     #[test]
     fn durations_omit_unknown_estimates() {
@@ -488,7 +640,7 @@ mod tests {
             .unwrap()
             .build()
             .unwrap();
-        let client = backends::connection(true).unwrap();
+        let client = dbus::connection(true).unwrap();
         // Address only this test connection, never a real power-profile service.
         let proxy = zbus::blocking::proxy::Builder::new(&client)
             .destination(server.unique_name().unwrap().as_str())

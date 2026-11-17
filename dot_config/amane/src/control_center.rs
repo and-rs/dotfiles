@@ -1,11 +1,13 @@
-mod backends;
 mod battery;
 mod bluetooth;
-mod indicators;
+mod dbus;
+mod tray;
+mod ui;
+mod wifi;
 
 use amane::{
     Button, Center, Column, Cursor, End, Full, Key, Keyboard, Layer, LayerWindow, Monitor, Padding,
-    Parent, Rectangle, Row, ScrollArea, Service, Start, Text, Weight, Zone, children,
+    Parent, Rectangle, Row, ScrollArea, Service, Start, Widget, Zone, children,
 };
 
 use crate::{
@@ -13,6 +15,7 @@ use crate::{
     design::{self, control_center as layout, padding, spacing},
     theme::{Theme, ThemeState},
 };
+use ui::text;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum Section {
@@ -34,6 +37,32 @@ impl Section {
             Self::Battery => "Battery",
         }
     }
+
+    fn set_active(self, active: bool) {
+        if self == Self::Bluetooth {
+            bluetooth::set_active(active);
+        }
+    }
+
+    fn content(self, theme: &Theme) -> Column {
+        match self {
+            Self::Tray => tray::view(theme),
+            Self::Bluetooth => bluetooth::view(theme),
+            Self::Wifi => wifi::view(theme),
+            Self::Battery => battery::view(theme),
+        }
+    }
+
+    fn indicator(self, theme: &Theme) -> Option<Box<dyn Widget>> {
+        match self {
+            Self::Tray => Some(Box::new(tray::indicator(theme))),
+            Self::Bluetooth => Some(Box::new(bluetooth::indicator(theme))),
+            Self::Wifi => Some(Box::new(wifi::indicator(theme))),
+            Self::Battery => {
+                battery::indicator(theme).map(|view| Box::new(view) as Box<dyn Widget>)
+            }
+        }
+    }
 }
 
 #[derive(Default)]
@@ -52,40 +81,29 @@ impl Service for ControlCenter {
 
 impl ControlCenter {
     fn open(&mut self, monitor: &str, section: Section) {
+        if self.monitor.is_some() && self.section != section {
+            self.section.set_active(false);
+        }
         self.monitor = Some(monitor.into());
         self.section = section;
-        bluetooth::set_visible(section == Section::Bluetooth);
+        self.section.set_active(true);
     }
 
     fn close(&mut self) {
         self.monitor = None;
-        bluetooth::set_visible(false);
+        self.section.set_active(false);
     }
-}
-
-fn text(value: impl Into<String>, theme: &Theme) -> Text {
-    Text::new(value)
-        .font(&theme.font)
-        .size(theme.font_size * design::BAR_TEXT_SCALE)
-        .weight(Weight::Medium)
-        .color(theme.fg)
 }
 
 pub fn button(monitor: &str, theme: &Theme) -> Rectangle {
     let state = ControlCenter::read();
     let active = state.monitor.as_deref() == Some(monitor);
     let monitor = monitor.to_owned();
-    let status = backends::Status::read();
-    let charge_opacity = status.charge_opacity.value();
-    let icons = Row::new(
-        status
-            .readings
-            .iter()
-            .filter_map(|reading| indicators::view(&reading.indicator, theme, charge_opacity))
-            .collect(),
-    )
-    .align(Center)
-    .gap(spacing::SMALL);
+    let icons = Section::ALL
+        .into_iter()
+        .filter_map(|section| section.indicator(theme))
+        .collect();
+    let icons = Row::new(icons).align(Center).gap(spacing::SMALL);
     let border = if active { theme.accent } else { theme.surface2 };
     bar_buttons::frame(icons, theme)
         .border(design::BORDER_WIDTH, border)
@@ -109,16 +127,11 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
     let theme = ThemeState::read();
     let theme = &theme.theme;
     let visible = state.monitor.as_deref() == Some(&monitor.name);
-    let status = backends::Status::read();
-    let index = Section::ALL
-        .iter()
-        .position(|section| *section == state.section)
-        .unwrap();
-    let message = &status.readings[index].message;
     let width = layout::WIDTH.min((monitor.width as f32 - layout::EDGE * 2.0).max(0.0));
     let height = layout::HEIGHT.min((monitor.height as f32 - layout::TOP - layout::EDGE).max(0.0));
     let content_width = (width - padding::NORMAL * 2.0).max(0.0);
-    let tab_width = (content_width - spacing::SMALL * 3.0).max(0.0) / 4.0;
+    let tab_count = Section::ALL.len() as f32;
+    let tab_width = (content_width - spacing::SMALL * (tab_count - 1.0)).max(0.0) / tab_count;
     let tabs = Section::ALL
         .into_iter()
         .map(|section| {
@@ -145,20 +158,7 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
             ) as Box<dyn amane::Widget>
         })
         .collect();
-    let content = match state.section {
-        Section::Battery => battery::view(&status.readings[index], theme),
-        Section::Bluetooth => bluetooth::view(&status.readings[index], theme),
-        _ => Column::new(children![
-            text(state.section.label(), theme),
-            text(message, theme)
-                .wrap()
-                .max_lines(layout::PREVIEW_LINES)
-                .elide(),
-            text("Read-only backend preview", theme),
-        ])
-        .width(Parent)
-        .gap(spacing::SMALL),
-    };
+    let content = state.section.content(theme);
     LayerWindow::new()
         .width(Full)
         .height(Full)

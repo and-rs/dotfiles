@@ -15,10 +15,8 @@ use zbus::{
 };
 
 use super::{
-    Section,
-    backends::{self, Objects, Reading, Status, boolean},
-    indicators::{Bluetooth, Indicator},
-    text,
+    dbus::{self, Objects, boolean},
+    ui::{icon, text},
 };
 use crate::{
     design::{control_center as layout, padding, spacing},
@@ -45,7 +43,7 @@ enum Request {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct Adapter {
+struct Adapter {
     path: OwnedObjectPath,
     name: String,
     powered: bool,
@@ -53,7 +51,7 @@ pub(super) struct Adapter {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct Device {
+struct Device {
     path: OwnedObjectPath,
     name: String,
     address: String,
@@ -63,9 +61,28 @@ pub(super) struct Device {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct Snapshot {
+struct Snapshot {
     adapter: Adapter,
     devices: Vec<Device>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+struct Reading {
+    enabled: bool,
+    connected: bool,
+    message: String,
+    snapshot: Option<Snapshot>,
+}
+
+impl Reading {
+    fn unavailable(error: impl std::fmt::Display) -> Self {
+        Self {
+            enabled: false,
+            connected: false,
+            message: format!("Bluetooth backend unavailable\n{error}"),
+            snapshot: None,
+        }
+    }
 }
 
 fn string(properties: &std::collections::HashMap<String, OwnedValue>, name: &str) -> String {
@@ -136,19 +153,13 @@ fn snapshot(objects: &Objects) -> Option<Snapshot> {
     Some(Snapshot { adapter, devices })
 }
 
-pub(super) fn read(connection: &Connection) -> zbus::Result<Reading> {
-    if !backends::owned(connection, BLUEZ)? {
-        return Ok(Reading::unavailable(
-            Section::Bluetooth,
-            "BlueZ is not running.",
-        ));
+fn read(connection: &Connection) -> zbus::Result<Reading> {
+    if !dbus::owned(connection, BLUEZ)? {
+        return Ok(Reading::unavailable("BlueZ is not running."));
     }
-    let objects = backends::objects(connection, BLUEZ, "/")?;
+    let objects = dbus::objects(connection, BLUEZ, "/")?;
     let Some(snapshot) = snapshot(&objects) else {
-        return Ok(Reading::unavailable(
-            Section::Bluetooth,
-            "No Bluetooth adapter.",
-        ));
+        return Ok(Reading::unavailable("No Bluetooth adapter."));
     };
     // Preserve the indicator's connected status across all adapters.
     let connected = objects
@@ -156,13 +167,10 @@ pub(super) fn read(connection: &Connection) -> zbus::Result<Reading> {
         .filter_map(|interfaces| interfaces.get(DEVICE))
         .any(|properties| boolean(properties, "Connected"));
     Ok(Reading {
-        indicator: Indicator::Bluetooth(Bluetooth {
-            enabled: snapshot.adapter.powered,
-            connected,
-        }),
+        enabled: snapshot.adapter.powered,
+        connected,
         message: format!("Bluetooth: {}", snapshot.adapter.name),
-        bluetooth: Some(snapshot),
-        battery: None,
+        snapshot: Some(snapshot),
     })
 }
 
@@ -203,8 +211,8 @@ impl Action {
     }
 }
 
-#[derive(Default)]
-pub(super) struct State {
+struct State {
+    reading: Reading,
     pending: Option<Action>,
     error: Option<String>,
     scanning: bool,
@@ -228,7 +236,12 @@ impl Discovery {
 
 impl Service for State {
     fn new() -> Self {
-        Self::default()
+        Self {
+            reading: Reading::unavailable("Checking backend…"),
+            pending: None,
+            error: None,
+            scanning: false,
+        }
     }
 
     fn listen() {
@@ -238,7 +251,7 @@ impl Service for State {
         loop {
             let result = (|| {
                 if bus.is_none() {
-                    bus = Some(backends::connection(false)?);
+                    bus = Some(dbus::connection(false)?);
                 }
                 let connection = bus.as_ref().expect("connected Bluetooth bus");
                 if scan.as_ref().is_some_and(|scan| {
@@ -259,7 +272,7 @@ impl Service for State {
                 Ok(reading) => {
                     if scan
                         .as_ref()
-                        .is_some_and(|scan| !scan.valid_for(reading.bluetooth.as_ref()))
+                        .is_some_and(|scan| !scan.valid_for(reading.snapshot.as_ref()))
                     {
                         // Power-off, adapter removal or daemon loss invalidates the lease.
                         // Close its connection rather than stopping another adapter's scan.
@@ -276,7 +289,7 @@ impl Service for State {
                     scan = None;
                     WANT_SCAN.store(false, Ordering::SeqCst);
                     Self::write().scanning = false;
-                    Reading::unavailable(Section::Bluetooth, error)
+                    Reading::unavailable(error)
                 }
             };
             publish(fresh);
@@ -289,7 +302,7 @@ impl Service for State {
                         }
                         let connection = bus.as_ref().ok_or("Bluetooth backend unavailable")?;
                         let objects =
-                            backends::objects(connection, BLUEZ, "/").map_err(|e| e.to_string())?;
+                            dbus::objects(connection, BLUEZ, "/").map_err(|e| e.to_string())?;
                         let snapshot = snapshot(&objects).ok_or("No Bluetooth adapter")?;
                         if !snapshot.adapter.powered {
                             return Err("Bluetooth is disabled".into());
@@ -319,7 +332,7 @@ impl Service for State {
     }
 }
 
-pub(super) fn set_visible(visible: bool) {
+pub(super) fn set_active(visible: bool) {
     VISIBLE.store(visible, Ordering::SeqCst);
     if !visible {
         WANT_SCAN.store(false, Ordering::SeqCst);
@@ -328,13 +341,9 @@ pub(super) fn set_visible(visible: bool) {
 }
 
 fn publish(reading: Reading) {
-    let index = Section::ALL
-        .iter()
-        .position(|section| *section == Section::Bluetooth)
-        .unwrap();
-    let changed = Status::read().readings[index] != reading;
+    let changed = State::read().reading != reading;
     if changed {
-        Status::write().readings[index] = reading;
+        State::write().reading = reading;
     }
 }
 
@@ -364,7 +373,7 @@ fn stop_discovery(
 }
 
 fn apply_action(connection: &Connection, destination: &str, action: &Action) -> Result<(), String> {
-    let objects = backends::objects(connection, destination, "/").map_err(|e| e.to_string())?;
+    let objects = dbus::objects(connection, destination, "/").map_err(|e| e.to_string())?;
     let snapshot = snapshot(&objects).ok_or("No Bluetooth adapter")?;
     if !action.allowed(&snapshot) {
         return Err("Device or adapter state changed; try again".into());
@@ -405,12 +414,9 @@ fn request(action: Action) {
         let _ = REQUESTS.0.send(Request::Wake);
         return;
     }
-    let index = Section::ALL
-        .iter()
-        .position(|section| *section == Section::Bluetooth)
-        .unwrap();
-    let allowed = Status::read().readings[index]
-        .bluetooth
+    let allowed = State::read()
+        .reading
+        .snapshot
         .as_ref()
         .is_some_and(|snapshot| action.allowed(snapshot));
     if !allowed || !VISIBLE.load(Ordering::SeqCst) {
@@ -480,10 +486,24 @@ fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangl
     button
 }
 
-pub(super) fn view(reading: &Reading, theme: &Theme) -> Column {
+pub(super) fn indicator(theme: &Theme) -> Rectangle {
     let state = State::read();
+    let reading = &state.reading;
+    let (glyph, color) = if !reading.enabled {
+        ('\u{e0de}', theme.surface4)
+    } else if reading.connected {
+        ('\u{e0dc}', theme.accent)
+    } else {
+        ('\u{e0da}', theme.fg)
+    };
+    icon(glyph, color)
+}
+
+pub(super) fn view(theme: &Theme) -> Column {
+    let state = State::read();
+    let reading = &state.reading;
     let mut content: Vec<Box<dyn Widget>> = Vec::new();
-    if let Some(snapshot) = &reading.bluetooth {
+    if let Some(snapshot) = &reading.snapshot {
         let adapter = &snapshot.adapter;
         let idle = state.pending.is_none();
         let power = Action::Power(adapter.path.clone(), !adapter.powered);
@@ -608,6 +628,14 @@ mod tests {
     use zbus::zvariant::Value;
 
     use super::*;
+
+    #[test]
+    #[ignore = "read-only smoke check against the live system bus"]
+    fn live_backend() {
+        let reading = read(&dbus::connection(false).unwrap()).unwrap();
+        println!("{reading:?}");
+        assert!(!reading.message.is_empty());
+    }
 
     fn path(path: &str) -> OwnedObjectPath {
         OwnedObjectPath::try_from(path).unwrap()
@@ -841,7 +869,7 @@ mod tests {
             .unwrap()
             .build()
             .unwrap();
-        let client = backends::connection(true).unwrap();
+        let client = dbus::connection(true).unwrap();
         let destination = server.unique_name().unwrap().as_str();
         let adapter = path("/org/bluez/hci0");
         let device = path("/org/bluez/hci0/dev_test");

@@ -1,26 +1,9 @@
-use amane::{
-    Canvas, Cap, Center, Color, Path, Rectangle, Row, Shape, Stack, Text, Widget, children,
-};
+use amane::{Canvas, Cap, Center, Color, Path, Rectangle, Row, Shape, Stack, Text, children};
 
 use crate::{
     design::{self, indicator as tokens, spacing},
     theme::{Theme, faded},
 };
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub(super) struct Bluetooth {
-    pub enabled: bool,
-    pub connected: bool,
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub(super) struct Network {
-    pub wired: bool,
-    pub present: bool,
-    pub enabled: bool,
-    pub connected: bool,
-    pub strength: f32,
-}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct Battery {
@@ -42,110 +25,7 @@ impl Battery {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub(super) enum Indicator {
-    Tray(usize),
-    Bluetooth(Bluetooth),
-    Network(Network),
-    Battery(Option<Battery>),
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Tone {
-    Muted,
-    Foreground,
-    Accent,
-}
-
-fn bluetooth_icon(state: Bluetooth) -> (char, Tone) {
-    if !state.enabled {
-        return ('\u{e0de}', Tone::Muted);
-    }
-    if state.connected {
-        return ('\u{e0dc}', Tone::Accent);
-    }
-    ('\u{e0da}', Tone::Foreground)
-}
-
-fn network_icon(state: Network) -> (char, Tone) {
-    if state.wired {
-        return ('\u{edde}', Tone::Foreground);
-    }
-    if !state.connected {
-        return ('\u{e4f2}', Tone::Muted);
-    }
-    let code = if state.strength > 0.75 {
-        '\u{e4ea}'
-    } else if state.strength > 0.50 {
-        '\u{e4ee}'
-    } else if state.strength > 0.25 {
-        '\u{e4ec}'
-    } else {
-        '\u{e4f0}'
-    };
-    if !state.enabled {
-        return (code, Tone::Muted);
-    }
-    (code, Tone::Foreground)
-}
-
-fn tray_icon(items: usize) -> (char, Tone) {
-    if items > 0 {
-        return ('\u{e136}', Tone::Foreground);
-    }
-    ('\u{ece0}', Tone::Muted)
-}
-
-fn color(tone: Tone, theme: &Theme) -> Color {
-    match tone {
-        Tone::Muted => theme.surface4,
-        Tone::Foreground => theme.fg,
-        Tone::Accent => theme.accent,
-    }
-}
-
-fn icon(code: char, color: Color) -> Rectangle {
-    Rectangle::new()
-        .width(design::ICON_SIZE)
-        .height(design::size::BUTTON)
-        .align_child(Center, Center)
-        .child(
-            Text::new(code.to_string())
-                .font(design::ICON_FONT)
-                .size(design::ICON_SIZE)
-                .color(color)
-                .tight(),
-        )
-}
-
-pub(super) fn view(
-    state: &Indicator,
-    theme: &Theme,
-    charge_opacity: f32,
-) -> Option<Box<dyn Widget>> {
-    let (code, tone) = match *state {
-        Indicator::Tray(items) => tray_icon(items),
-        Indicator::Bluetooth(state) => bluetooth_icon(state),
-        Indicator::Network(state) => {
-            let (code, tone) = network_icon(state);
-            let mut layers: Vec<Box<dyn Widget>> = Vec::new();
-            if !state.wired && state.present {
-                layers.push(Box::new(
-                    icon('\u{e4ea}', theme.surface4).opacity(tokens::GHOST_OPACITY),
-                ));
-            }
-            layers.push(Box::new(icon(code, color(tone, theme))));
-            return Some(Box::new(Stack::new(layers)));
-        }
-        Indicator::Battery(None) => return None,
-        Indicator::Battery(Some(battery)) => {
-            return Some(Box::new(battery_view(battery, theme, charge_opacity)));
-        }
-    };
-    Some(Box::new(icon(code, color(tone, theme))))
-}
-
-fn battery_view(battery: Battery, theme: &Theme, charge_opacity: f32) -> Row {
+pub(super) fn view(battery: Battery, theme: &Theme, charge_opacity: f32) -> Row {
     let fill = battery_color(
         battery,
         theme.bg,
@@ -321,49 +201,6 @@ mod tests {
         ] {
             assert_eq!(Battery::from_upower(percent, 2).level, expected);
         }
-    }
-
-    #[test]
-    fn bluetooth_and_tray_states_match_original_glyphs_and_tones() {
-        assert_eq!(tray_icon(0), ('\u{ece0}', Tone::Muted));
-        assert_eq!(tray_icon(2), ('\u{e136}', Tone::Foreground));
-        for (enabled, connected, expected) in [
-            (false, false, ('\u{e0de}', Tone::Muted)),
-            (false, true, ('\u{e0de}', Tone::Muted)),
-            (true, false, ('\u{e0da}', Tone::Foreground)),
-            (true, true, ('\u{e0dc}', Tone::Accent)),
-        ] {
-            assert_eq!(bluetooth_icon(Bluetooth { enabled, connected }), expected);
-        }
-    }
-
-    #[test]
-    fn network_thresholds_are_strict_and_wired_takes_precedence() {
-        let mut state = Network {
-            enabled: true,
-            present: true,
-            connected: true,
-            ..Network::default()
-        };
-        for (strength, glyph) in [
-            (0.0, '\u{e4f0}'),
-            (0.25, '\u{e4f0}'),
-            (0.251, '\u{e4ec}'),
-            (0.50, '\u{e4ec}'),
-            (0.501, '\u{e4ee}'),
-            (0.75, '\u{e4ee}'),
-            (0.751, '\u{e4ea}'),
-            (1.0, '\u{e4ea}'),
-        ] {
-            state.strength = strength;
-            assert_eq!(network_icon(state), (glyph, Tone::Foreground));
-        }
-        state.enabled = false;
-        assert_eq!(network_icon(state), ('\u{e4ea}', Tone::Muted));
-        state.connected = false;
-        assert_eq!(network_icon(state), ('\u{e4f2}', Tone::Muted));
-        state.wired = true;
-        assert_eq!(network_icon(state), ('\u{edde}', Tone::Foreground));
     }
 
     #[test]
