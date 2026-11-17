@@ -29,6 +29,25 @@ pub mod control_center {
     pub const ROW_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
 }
 
+pub mod typography {
+    use amane::Weight;
+
+    pub const HEADLINE_SCALE: f32 = 1.8;
+    pub const BODY_SCALE: f32 = 1.0;
+    pub const HEADLINE_WEIGHT: Weight = Weight::SemiBold;
+    pub const BODY_WEIGHT: Weight = Weight::Medium;
+    pub const SUPPORTING_WEIGHT: Weight = Weight::Regular;
+}
+
+pub mod battery {
+    use super::{padding, spacing};
+
+    pub const METER_HEIGHT: f32 = spacing::EXTRA_SMALL;
+    pub const MODE_HEIGHT: f32 = super::control_center::ROW_HEIGHT;
+    pub const MODE_PADDING: f32 = spacing::EXTRA_SMALL;
+    pub const DETAIL_LABEL_WIDTH: f32 = padding::NORMAL * 8.0;
+}
+
 pub mod indicator {
     use amane::Weight;
 

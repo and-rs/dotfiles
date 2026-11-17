@@ -38,18 +38,31 @@ export def "ai summarize-model" [] {
 def generate-commit-message [model: list<string> prompt: string message: string] {
   let prompt_file = (mktemp -t ai-commit.XXXXXXXXXX)
   let response = try {
-    $prompt | save --force $prompt_file
-    &spinner --structured --quiet-cancel --cleanup-file $prompt_file --msg $message -- opencode api post /api/rpc/commit-message/generate --data (
-      {
-        input: {
-          model: {
-            providerID: ($model | get 0)
-            id: ($model | skip 1 | str join "/")
+    mut result = {}
+    for attempt in 0..2 {
+      $prompt | save --force $prompt_file
+      $result = (&spinner --structured --quiet-cancel --cleanup-file $prompt_file --msg $message -- opencode api post /api/rpc/commit-message/generate --data (
+        {
+          input: {
+            model: {
+              providerID: ($model | get 0)
+              id: ($model | skip 1 | str join "/")
+            }
+            promptFile: $prompt_file
           }
-          promptFile: $prompt_file
-        }
-      } | to json -r
-    ) | from json
+        } | to json -r
+      ) | from json)
+
+      if ($result.cancelled? | default false) {
+        break
+      }
+      let rpc_error = try { $result.stdout | from json } catch { null }
+      if $result.exit_code == 0 or $rpc_error.type? != "rpc.unavailable" or $attempt == 2 {
+        break
+      }
+      sleep 250ms
+    }
+    $result
   } finally {
     rm --force $prompt_file
   }

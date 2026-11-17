@@ -7,7 +7,7 @@ mod wifi;
 
 use amane::{
     Button, Center, Column, Cursor, End, Full, Key, Keyboard, Layer, LayerWindow, Monitor, Padding,
-    Parent, Rectangle, Row, ScrollArea, Service, Start, Widget, Zone, children,
+    Parent, Rectangle, Row, ScrollArea, Service, Size, Start, Widget, Zone,
 };
 
 use crate::{
@@ -44,13 +44,18 @@ impl Section {
         }
     }
 
-    fn content(self, theme: &Theme) -> Column {
-        match self {
+    fn content(self, theme: &Theme, width: f32, height: f32) -> Box<dyn Widget> {
+        let content = match self {
             Self::Tray => tray::view(theme),
             Self::Bluetooth => bluetooth::view(theme),
             Self::Wifi => wifi::view(theme),
-            Self::Battery => battery::view(theme),
-        }
+            Self::Battery => return Box::new(battery::view(theme, width)),
+        };
+        Box::new(
+            ScrollArea::new("control_center_content", content)
+                .width(width)
+                .height(height),
+        )
     }
 
     fn indicator(self, theme: &Theme) -> Option<Box<dyn Widget>> {
@@ -158,7 +163,15 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
             ) as Box<dyn amane::Widget>
         })
         .collect();
-    let content = state.section.content(theme);
+    let content_height =
+        (height - padding::NORMAL * 2.0 - layout::TAB_HEIGHT - spacing::SMALL).max(0.0);
+    let content = state.section.content(theme, content_width, content_height);
+    let height = match content.height() {
+        Size::Fixed(content_height) => {
+            content_height + padding::NORMAL * 2.0 + layout::TAB_HEIGHT + spacing::SMALL
+        }
+        Size::Parent => height,
+    };
     LayerWindow::new()
         .width(Full)
         .height(Full)
@@ -195,17 +208,9 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
                         // Consume clicks in empty panel space, not the outside-click handler.
                         .on_click(|_| {})
                         .child(
-                            Column::new(children![
-                                Row::new(tabs).gap(spacing::SMALL),
-                                ScrollArea::new("control_center_content", content,)
-                                    .width(content_width)
-                                    .height(
-                                        (height
-                                            - padding::NORMAL * 2.0
-                                            - layout::TAB_HEIGHT
-                                            - spacing::SMALL)
-                                            .max(0.0),
-                                    ),
+                            Column::new(vec![
+                                Box::new(Row::new(tabs).gap(spacing::SMALL)),
+                                content,
                             ])
                             .width(content_width)
                             .gap(spacing::SMALL),

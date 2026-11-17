@@ -1,4 +1,7 @@
 mod indicator;
+mod view;
+
+pub(super) use view::view;
 
 use std::{
     collections::HashMap,
@@ -10,20 +13,14 @@ use std::{
     time::Duration,
 };
 
-use amane::{
-    Animation, Button, Center, Column, Cursor, Parent, Rectangle, Row, Service, Text, Widget,
-    children,
-};
+use amane::{Animation, Row, Service};
 use zbus::{
     blocking::{Connection, Proxy},
     zvariant::{OwnedObjectPath, OwnedValue},
 };
 
-use super::{dbus, ui::text};
-use crate::{
-    design::{self, padding, spacing},
-    theme::Theme,
-};
+use super::dbus;
+use crate::{design, theme::Theme};
 use indicator::Battery;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -38,19 +35,23 @@ struct Details {
 }
 
 #[derive(Debug, PartialEq)]
-struct Reading {
-    battery: Option<Battery>,
-    details: Option<Details>,
-    message: String,
+enum Reading {
+    Loading,
+    Ready { battery: Battery, details: Details },
+    Absent,
+    Unavailable(String),
 }
 
 impl Reading {
     fn unavailable(error: impl std::fmt::Display) -> Self {
-        Self {
-            battery: None,
-            details: None,
-            message: format!("Battery backend unavailable\n{error}"),
+        Self::Unavailable(error.to_string())
+    }
+
+    fn battery(&self) -> Option<Battery> {
+        if let Self::Ready { battery, .. } = self {
+            return Some(*battery);
         }
+        None
     }
 }
 
@@ -62,7 +63,7 @@ struct Status {
 impl Service for Status {
     fn new() -> Self {
         Self {
-            reading: Reading::unavailable("Checking backend…"),
+            reading: Reading::Loading,
             charge_opacity: Animation::new(0.0).duration(design::duration::NORMAL),
         }
     }
@@ -84,8 +85,11 @@ impl Service for Status {
                 }
             };
             if Self::read().reading != fresh {
+                if let Reading::Unavailable(error) = &fresh {
+                    eprintln!("battery: {error}");
+                }
                 let mut status = Self::write();
-                let opacity = if fresh.battery.is_some_and(|battery| battery.charging) {
+                let opacity = if fresh.battery().is_some_and(|battery| battery.charging) {
                     1.0
                 } else {
                     0.0
@@ -134,11 +138,7 @@ fn read(connection: &Connection) -> zbus::Result<Reading> {
         }
     }
     if !has_battery {
-        return Ok(Reading {
-            battery: None,
-            details: None,
-            message: "UPower reachable.\nNo system battery present.".into(),
-        });
+        return Ok(Reading::Absent);
     }
     let device = Proxy::new(
         connection,
@@ -158,22 +158,14 @@ fn read(connection: &Connection) -> zbus::Result<Reading> {
         energy_full: device.get_property("EnergyFull")?,
         health: health(energy_full, energy_design),
     };
-    Ok(Reading {
-        battery: Some(battery),
-        details: Some(details),
-        message: format!(
-            "UPower reachable.\nBattery: {:.0}%\nCharging: {}",
-            battery.level * 100.0,
-            battery.charging
-        ),
-    })
+    Ok(Reading::Ready { battery, details })
 }
 
 pub(super) fn indicator(theme: &Theme) -> Option<Row> {
     let status = Status::read();
     status
         .reading
-        .battery
+        .battery()
         .map(|battery| indicator::view(battery, theme, status.charge_opacity.value()))
 }
 
@@ -189,6 +181,9 @@ fn duration(seconds: i64) -> Option<String> {
         return None;
     }
     let minutes = seconds / 60;
+    if minutes == 0 {
+        return Some("<1m".into());
+    }
     let hours = minutes / 60;
     if hours == 0 {
         return Some(format!("{minutes}m"));
@@ -197,46 +192,6 @@ fn duration(seconds: i64) -> Option<String> {
         return Some(format!("{hours}h"));
     }
     Some(format!("{hours}h {}m", minutes % 60))
-}
-
-impl Details {
-    fn summary(&self) -> String {
-        let state = match self.state {
-            1 => "Charging",
-            2 => "Discharging",
-            3 => "Empty",
-            4 => "Fully charged",
-            5 => "Pending charge",
-            6 => "Pending discharge",
-            _ => "Unknown",
-        };
-        let mut lines = vec![state.to_string()];
-        let eta = match self.state {
-            1 | 5 => duration(self.time_to_full).map(|time| format!("{time} until full")),
-            2 | 6 => duration(self.time_to_empty).map(|time| format!("{time} remaining")),
-            _ => None,
-        };
-        if let Some(eta) = eta {
-            lines.push(eta);
-        }
-        if self.rate.is_finite() && self.rate.abs() > 0.0 {
-            lines.push(format!("Rate: {:.1} W", self.rate.abs()));
-        }
-        if self.energy.is_finite()
-            && self.energy >= 0.0
-            && self.energy_full.is_finite()
-            && self.energy_full > 0.0
-        {
-            lines.push(format!(
-                "Energy: {:.1} / {:.1} Wh",
-                self.energy, self.energy_full
-            ));
-        }
-        if let Some(health) = self.health {
-            lines.push(format!("Health: {health:.0}%"));
-        }
-        lines.join("\n")
-    }
 }
 
 const ENDPOINTS: [(&str, &str); 2] = [
@@ -270,7 +225,7 @@ impl ProfileState {
 }
 
 struct Profiles {
-    state: Result<ProfileState, String>,
+    state: Option<Result<ProfileState, String>>,
     pending: Option<String>,
     error: Option<String>,
 }
@@ -278,7 +233,7 @@ struct Profiles {
 impl Service for Profiles {
     fn new() -> Self {
         Self {
-            state: Err("Checking power profiles…".into()),
+            state: None,
             pending: None,
             error: None,
         }
@@ -287,15 +242,21 @@ impl Service for Profiles {
     fn listen() {
         let receiver = REQUESTS.1.lock().expect("power-profile receiver poisoned");
         loop {
-            let fresh = read_profiles();
+            let fresh = Some(read_profiles());
             let changed = Self::read().state != fresh;
             if changed {
+                if let Some(Err(error)) = &fresh {
+                    eprintln!("power profiles: {error}");
+                }
                 Self::write().state = fresh;
             }
             match receiver.recv_timeout(REFRESH) {
                 Ok(profile) => {
                     let result = set_profile(&profile);
-                    let fresh = read_profiles();
+                    if let Err(error) = &result {
+                        eprintln!("power profiles: {error}");
+                    }
+                    let fresh = Some(read_profiles());
                     let mut status = Self::write();
                     status.state = fresh;
                     status.pending = None;
@@ -387,10 +348,11 @@ fn apply_profile(proxy: &Proxy<'_>, profile: &str) -> Result<(), String> {
 
 fn request_profile(profile: &str) {
     let mut status = Profiles::write();
-    let selectable = status
-        .state
-        .as_ref()
-        .is_ok_and(|state| state.active != profile && state.can_select(profile));
+    let selectable = status.state.as_ref().is_some_and(|state| {
+        state
+            .as_ref()
+            .is_ok_and(|state| state.active != profile && state.can_select(profile))
+    });
     if status.pending.is_some() || !selectable {
         return;
     }
@@ -402,101 +364,6 @@ fn request_profile(profile: &str) {
     }
 }
 
-pub(super) fn view(theme: &Theme) -> Column {
-    let status = Status::read();
-    let reading = &status.reading;
-    let profiles = Profiles::read();
-    let mut content: Vec<Box<dyn Widget>> = Vec::new();
-    if let (Some(battery), Some(details)) = (&reading.battery, &reading.details) {
-        content.push(Box::new(text(
-            format!("Battery  {:.0}%", battery.level * 100.0),
-            theme,
-        )));
-        content.push(Box::new(text(details.summary(), theme).wrap()));
-    } else {
-        content.push(Box::new(text(&reading.message, theme).wrap()));
-    }
-    content.push(Box::new(text("Power mode", theme)));
-    match &profiles.state {
-        Ok(state) => {
-            for (profile, label, icon) in [
-                ("power-saver", "Power Saver", '\u{e32c}'),
-                ("balanced", "Balanced", '\u{e46e}'),
-                ("performance", "Performance", '\u{e3d6}'),
-            ] {
-                let active = state.active == profile;
-                let available = state.can_select(profile);
-                let clickable = available && !active && profiles.pending.is_none();
-                let color = if active {
-                    theme.accent
-                } else if available {
-                    theme.fg
-                } else {
-                    theme.surface4
-                };
-                let mut label = label.to_string();
-                if profiles.pending.as_deref() == Some(profile) {
-                    label.push_str(" (applying…)");
-                } else if active {
-                    label.push_str(" (active)");
-                } else if !available {
-                    label.push_str(" (unavailable)");
-                }
-                let mut row = Rectangle::new()
-                    .width(Parent)
-                    .height(design::control_center::ROW_HEIGHT)
-                    .padding(padding::NORMAL)
-                    .fill(theme.surface2)
-                    .radius(theme.radius.normal)
-                    .child(
-                        Row::new(children![
-                            Text::new(icon.to_string())
-                                .font(design::ICON_FONT)
-                                .size(design::ICON_SIZE)
-                                .color(color)
-                                .tight(),
-                            text(label, theme).color(color),
-                        ])
-                        .gap(spacing::SMALL)
-                        .align(Center),
-                    );
-                if clickable {
-                    row = row.cursor(Cursor::Pointer).on_click(move |button| {
-                        if button == Button::Left {
-                            request_profile(profile);
-                        }
-                    });
-                }
-                content.push(Box::new(row));
-            }
-            if !state.degraded.is_empty() {
-                content.push(Box::new(
-                    text(format!("Performance limited: {}", state.degraded), theme).wrap(),
-                ));
-            }
-            if !state.inhibited.is_empty() {
-                content.push(Box::new(
-                    text(
-                        format!("Performance unavailable: {}", state.inhibited),
-                        theme,
-                    )
-                    .wrap(),
-                ));
-            }
-            if !state.holds.is_empty() {
-                content.push(Box::new(
-                    text(format!("Held by: {}", state.holds.join(", ")), theme).wrap(),
-                ));
-            }
-        }
-        Err(error) => content.push(Box::new(text(error, theme).wrap())),
-    }
-    if let Some(error) = &profiles.error {
-        content.push(Box::new(text(error, theme).color(theme.destructive).wrap()));
-    }
-    Column::new(content).width(Parent).gap(spacing::SMALL)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -506,7 +373,7 @@ mod tests {
     fn live_backend() {
         let reading = read(&dbus::connection(false).unwrap()).unwrap();
         println!("{reading:?}");
-        assert!(!reading.message.is_empty());
+        assert!(!matches!(reading, Reading::Loading));
     }
 
     #[test]
@@ -514,6 +381,8 @@ mod tests {
         for (seconds, expected) in [
             (-1, None),
             (0, None),
+            (1, Some("<1m")),
+            (59, Some("<1m")),
             (60, Some("1m")),
             (3600, Some("1h")),
             (3660, Some("1h 1m")),
@@ -554,30 +423,6 @@ mod tests {
         state.inhibited = "lap-detected".into();
         assert!(!state.can_select("performance"));
         assert!(state.can_select("balanced"));
-    }
-
-    #[test]
-    fn summaries_use_state_specific_estimates_and_omit_invalid_readings() {
-        let mut details = Details {
-            state: 1,
-            time_to_full: 3600,
-            time_to_empty: 7200,
-            rate: -5.5,
-            energy: 30.0,
-            energy_full: 40.0,
-            health: Some(80.0),
-        };
-        assert_eq!(
-            details.summary(),
-            "Charging\n1h until full\nRate: 5.5 W\nEnergy: 30.0 / 40.0 Wh\nHealth: 80%"
-        );
-        details.state = 6;
-        assert!(details.summary().contains("2h remaining"));
-        details.state = 4;
-        details.rate = f64::NAN;
-        details.energy = f64::INFINITY;
-        details.health = None;
-        assert_eq!(details.summary(), "Fully charged");
     }
 
     struct FakeProfiles {

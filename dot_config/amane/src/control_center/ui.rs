@@ -23,3 +23,21 @@ pub(super) fn icon(code: char, color: Color) -> Rectangle {
                 .tight(),
         )
 }
+
+pub(super) fn headline(value: impl Into<String>, theme: &Theme) -> Text {
+    text(value, theme)
+        .size(theme.font_size * design::typography::HEADLINE_SCALE)
+        .weight(design::typography::HEADLINE_WEIGHT)
+}
+
+pub(super) fn body(value: impl Into<String>, theme: &Theme) -> Text {
+    text(value, theme)
+        .size(theme.font_size * design::typography::BODY_SCALE)
+        .weight(design::typography::BODY_WEIGHT)
+}
+
+pub(super) fn supporting(value: impl Into<String>, theme: &Theme) -> Text {
+    body(value, theme)
+        .weight(design::typography::SUPPORTING_WEIGHT)
+        .color(theme.surface4)
+}
