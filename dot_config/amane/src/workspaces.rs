@@ -16,7 +16,7 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
         return Row::new(children![
             Text::new("niri unavailable")
                 .font(&theme.font)
-                .size(theme.font_size)
+                .size(design::typography::BODY_SIZE)
                 .color(faded(theme.fg, 140)),
         ]);
     }
@@ -60,7 +60,7 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Row {
                 .child(
                     Text::new(workspace.idx.to_string())
                         .font(&theme.font)
-                        .size(theme.font_size)
+                        .size(design::typography::BODY_SIZE)
                         .color(foreground),
                 ),
         ];

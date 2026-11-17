@@ -4,7 +4,6 @@ use std::time::Duration;
 pub const ICON_FONT: &str = "Phosphor-Bold";
 pub const ICON_SIZE: f32 = size::NORMAL * 96.0 / 72.0;
 pub const BORDER_WIDTH: f32 = 2.0;
-pub const BAR_TEXT_SCALE: f32 = 1.05;
 pub const BAR_HEIGHT: f32 = 32.0;
 pub const CLOCK_WIDTH_REFERENCE: &str = "Wed 31 May 23:59";
 
@@ -29,11 +28,15 @@ pub mod control_center {
     pub const ROW_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
 }
 
+pub mod bluetooth {
+    pub const HEIGHT: f32 = 560.0;
+}
+
 pub mod typography {
     use amane::Weight;
 
-    pub const HEADLINE_SCALE: f32 = 1.8;
-    pub const BODY_SCALE: f32 = 1.0;
+    pub const BODY_SIZE: f32 = 14.0;
+    pub const HEADLINE_SIZE: f32 = 24.0;
     pub const HEADLINE_WEIGHT: Weight = Weight::SemiBold;
     pub const BODY_WEIGHT: Weight = Weight::Medium;
     pub const SUPPORTING_WEIGHT: Weight = Weight::Regular;

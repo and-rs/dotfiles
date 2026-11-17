@@ -22,7 +22,7 @@ pub fn view(niri: &Niri, output: &str, theme: &Theme) -> Rectangle {
         .child(
             Text::new(label(niri.active_window(output)))
                 .font(&theme.font)
-                .size(theme.font_size * design::BAR_TEXT_SCALE)
+                .size(design::typography::BODY_SIZE)
                 .weight(Weight::Medium)
                 .color(theme.fg)
                 .elide()

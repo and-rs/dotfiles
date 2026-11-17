@@ -87,7 +87,7 @@ fn bar(monitor: &Monitor) -> LayerWindow {
     let clock_text = |text: &str| {
         Text::new(text)
             .font(&theme.font)
-            .size(theme.font_size * design::BAR_TEXT_SCALE)
+            .size(design::typography::BODY_SIZE)
             .weight(Weight::Medium)
             .color(theme.fg)
     };

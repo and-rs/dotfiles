@@ -65,7 +65,7 @@ pub(super) fn view(battery: Battery, theme: &Theme, charge_opacity: f32) -> Row 
     Row::new(children![
         Text::new(format!("{:.0}%", battery.level * 100.0))
             .font(&theme.font)
-            .size(theme.font_size)
+            .size(design::typography::BODY_SIZE)
             .weight(tokens::BATTERY_WEIGHT)
             .color(theme.fg),
         Row::new(children![

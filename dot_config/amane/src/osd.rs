@@ -17,7 +17,7 @@ use amane::{
 };
 
 use crate::{
-    design::{self, duration, osd, size, spacing},
+    design::{self, duration, osd, spacing},
     theme::ThemeState,
 };
 
@@ -398,7 +398,7 @@ pub fn view(_monitor: &Monitor) -> LayerWindow {
                                 .tight(),
                             Text::new(text)
                                 .font(&theme.font)
-                                .size(size::NORMAL)
+                                .size(design::typography::BODY_SIZE)
                                 .weight(Weight::Medium)
                                 .color(foreground),
                         ])

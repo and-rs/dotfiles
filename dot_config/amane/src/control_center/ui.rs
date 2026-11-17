@@ -5,7 +5,7 @@ use crate::{design, theme::Theme};
 pub(super) fn text(value: impl Into<String>, theme: &Theme) -> Text {
     Text::new(value)
         .font(&theme.font)
-        .size(theme.font_size * design::BAR_TEXT_SCALE)
+        .size(design::typography::BODY_SIZE)
         .weight(Weight::Medium)
         .color(theme.fg)
 }
@@ -26,14 +26,12 @@ pub(super) fn icon(code: char, color: Color) -> Rectangle {
 
 pub(super) fn headline(value: impl Into<String>, theme: &Theme) -> Text {
     text(value, theme)
-        .size(theme.font_size * design::typography::HEADLINE_SCALE)
+        .size(design::typography::HEADLINE_SIZE)
         .weight(design::typography::HEADLINE_WEIGHT)
 }
 
 pub(super) fn body(value: impl Into<String>, theme: &Theme) -> Text {
-    text(value, theme)
-        .size(theme.font_size * design::typography::BODY_SCALE)
-        .weight(design::typography::BODY_WEIGHT)
+    text(value, theme).weight(design::typography::BODY_WEIGHT)
 }
 
 pub(super) fn supporting(value: impl Into<String>, theme: &Theme) -> Text {

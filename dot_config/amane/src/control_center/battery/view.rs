@@ -319,18 +319,22 @@ fn detail_content(
 ) -> Column {
     let mut content: Vec<Box<dyn Widget>> = Vec::new();
     if let Reading::Ready { details, .. } = reading {
-        let metrics = details.metrics();
+        let metrics: Vec<_> = details
+            .metrics()
+            .into_iter()
+            .map(|(label, value)| (ui::supporting(label, theme), ui::body(value, theme)))
+            .collect();
         let label_width = metrics
             .iter()
             .map(|(label, _)| {
-                let Size::Fixed(width) = Widget::width(&ui::supporting(*label, theme)) else {
+                let Size::Fixed(width) = Widget::width(label) else {
                     unreachable!("unwrapped detail labels have intrinsic widths");
                 };
                 width
             })
             .fold(layout::DETAIL_LABEL_WIDTH, f32::max);
         let stacked = metrics.iter().any(|(_, value)| {
-            let Size::Fixed(value_width) = Widget::width(&ui::body(value, theme)) else {
+            let Size::Fixed(value_width) = Widget::width(value) else {
                 unreachable!("unwrapped detail values have intrinsic widths");
             };
             label_width + spacing::SMALL + value_width > width
@@ -342,8 +346,8 @@ fn detail_content(
             if stacked {
                 content.push(Box::new(
                     Column::new(children![
-                        ui::supporting(label, theme).elide().max_lines(1),
-                        ui::body(value, theme).elide().max_lines(1),
+                        label.elide().max_lines(1),
+                        value.elide().max_lines(1),
                     ])
                     .width(Parent)
                     .gap(spacing::TINY),
@@ -354,15 +358,15 @@ fn detail_content(
                 Row::new(children![
                     Rectangle::new()
                         .width(label_width)
-                        .height(ui::supporting(label, theme).height_in(width))
+                        .height(label.height_in(width))
                         .clip()
-                        .child(ui::supporting(label, theme)),
+                        .child(label),
                     Rectangle::new()
                         .width(Parent)
-                        .height(ui::body(&value, theme).height_in(width))
+                        .height(value.height_in(width))
                         .clip()
                         .align_child(End, Start)
-                        .child(ui::body(value, theme)),
+                        .child(value),
                 ])
                 .width(Parent)
                 .align(Center)
@@ -453,7 +457,6 @@ mod tests {
             surface3: Color::rgb(90, 90, 90),
             surface4: Color::rgb(180, 180, 180),
             font: "sans-serif".into(),
-            font_size: 14.0,
             radius: crate::theme::Radius {
                 small: 2.0,
                 normal: 6.0,
@@ -574,8 +577,8 @@ mod tests {
     }
 
     #[test]
-    fn battery_states_and_large_fonts_have_intrinsic_content_heights() {
-        let mut theme = theme();
+    fn battery_states_have_intrinsic_content_heights() {
+        let theme = theme();
         let profiles = profiles();
         for reading in [
             Reading::Loading,
@@ -586,16 +589,13 @@ mod tests {
                 details: details(5),
             },
         ] {
-            for font_size in [8.0, 14.0, 24.0] {
-                theme.font_size = font_size;
-                for width in [380.0, 240.0] {
-                    let panel = content(&reading, &profiles, None, &theme, width);
-                    assert_eq!(Widget::width(&panel), Size::Fixed(width));
-                    let Size::Fixed(height) = Widget::height(&panel) else {
-                        panic!("battery content must request its full height");
-                    };
-                    assert!(height > 0.0);
-                }
+            for width in [380.0, 240.0] {
+                let panel = content(&reading, &profiles, None, &theme, width);
+                assert_eq!(Widget::width(&panel), Size::Fixed(width));
+                let Size::Fixed(height) = Widget::height(&panel) else {
+                    panic!("battery content must request its full height");
+                };
+                assert!(height > 0.0);
             }
         }
     }
@@ -631,9 +631,8 @@ mod tests {
     }
 
     #[test]
-    fn mode_controls_grow_to_fit_large_theme_fonts() {
-        let mut theme = theme();
-        theme.font_size = 24.0;
+    fn mode_controls_fit_labels_and_stack_on_narrow_layouts() {
+        let theme = theme();
         let button = mode_button("power-saver", "Power saver", &profiles(), None, &theme);
         let Size::Fixed(height) = Widget::height(&button) else {
             panic!("expected fixed control height")
@@ -643,7 +642,7 @@ mod tests {
             + spacing::TINY
             + layout::MODE_PADDING * 2.0;
         assert!(height >= required);
-        let selector = mode_selector(&profiles(), None, &theme, 240.0);
+        let selector = mode_selector(&profiles(), None, &theme, 160.0);
         let Size::Fixed(selector_height) = Widget::height(&selector) else {
             panic!("expected intrinsic selector height");
         };

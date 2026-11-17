@@ -241,14 +241,20 @@ impl Service for Profiles {
 
     fn listen() {
         let receiver = REQUESTS.1.lock().expect("power-profile receiver poisoned");
+        let mut action_result: Option<Result<(), String>> = None;
         loop {
             let fresh = Some(read_profiles());
             let changed = Self::read().state != fresh;
-            if changed {
-                if let Some(Err(error)) = &fresh {
+            if changed || action_result.is_some() {
+                if changed && let Some(Err(error)) = &fresh {
                     eprintln!("power profiles: {error}");
                 }
-                Self::write().state = fresh;
+                let mut status = Self::write();
+                status.state = fresh;
+                if let Some(result) = action_result.take() {
+                    status.pending = None;
+                    status.error = result.err();
+                }
             }
             match receiver.recv_timeout(REFRESH) {
                 Ok(profile) => {
@@ -256,11 +262,7 @@ impl Service for Profiles {
                     if let Err(error) = &result {
                         eprintln!("power profiles: {error}");
                     }
-                    let fresh = Some(read_profiles());
-                    let mut status = Self::write();
-                    status.state = fresh;
-                    status.pending = None;
-                    status.error = result.err();
+                    action_result = Some(result);
                 }
                 Err(RecvTimeoutError::Timeout) => {}
                 Err(RecvTimeoutError::Disconnected) => return,

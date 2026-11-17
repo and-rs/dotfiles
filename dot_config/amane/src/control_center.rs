@@ -47,8 +47,8 @@ impl Section {
     fn content(self, theme: &Theme, width: f32, height: f32) -> Box<dyn Widget> {
         let content = match self {
             Self::Tray => tray::view(theme),
-            Self::Bluetooth => bluetooth::view(theme),
-            Self::Wifi => wifi::view(theme),
+            Self::Bluetooth => return Box::new(bluetooth::view(theme, width, height)),
+            Self::Wifi => return Box::new(wifi::view(theme, width)),
             Self::Battery => return Box::new(battery::view(theme, width)),
         };
         Box::new(
@@ -133,7 +133,12 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
     let theme = &theme.theme;
     let visible = state.monitor.as_deref() == Some(&monitor.name);
     let width = layout::WIDTH.min((monitor.width as f32 - layout::EDGE * 2.0).max(0.0));
-    let height = layout::HEIGHT.min((monitor.height as f32 - layout::TOP - layout::EDGE).max(0.0));
+    let preferred_height = match state.section {
+        Section::Bluetooth => design::bluetooth::HEIGHT,
+        _ => layout::HEIGHT,
+    };
+    let height =
+        preferred_height.min((monitor.height as f32 - layout::TOP - layout::EDGE).max(0.0));
     let content_width = (width - padding::NORMAL * 2.0).max(0.0);
     let tab_count = Section::ALL.len() as f32;
     let tab_width = (content_width - spacing::SMALL * (tab_count - 1.0)).max(0.0) / tab_count;

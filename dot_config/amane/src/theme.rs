@@ -25,7 +25,6 @@ pub struct Theme {
     #[serde(deserialize_with = "color")]
     pub surface4: Color,
     pub font: String,
-    pub font_size: f32,
     pub radius: Radius,
 }
 
@@ -47,9 +46,6 @@ impl Theme {
         let theme: Self = serde_json::from_str(json).map_err(|error| error.to_string())?;
         if theme.font.trim().is_empty() {
             return Err("font must not be empty".into());
-        }
-        if !(8.0..=24.0).contains(&theme.font_size) {
-            return Err("font_size must be between 8 and 24 pixels".into());
         }
         if [theme.radius.small, theme.radius.normal, theme.radius.large]
             .iter()
@@ -141,7 +137,7 @@ mod tests {
         "bg":"#101820","fg":"#ffffff","accent":"#80c0ff",
         "success":"#00ff00","destructive":"#ff0000",
         "surface1":"#182028","surface2":"#202830","surface3":"#303840","surface4":"#404850",
-        "font":"Inter","font_size":14,"radius":{"small":0,"normal":0,"large":0}
+        "font":"Inter","radius":{"small":0,"normal":0,"large":0}
     }"##;
 
     #[test]
@@ -150,7 +146,6 @@ mod tests {
         assert_eq!(theme.bg, Color::rgb(16, 24, 32));
         assert_eq!(theme.fg, Color::WHITE);
         assert_eq!(theme.font, "Inter");
-        assert_eq!(theme.font_size, 14.0);
         assert_eq!(theme.surface1, Color::rgb(24, 32, 40));
         assert_eq!(theme.surface2, Color::rgb(32, 40, 48));
         assert_eq!(theme.surface3, Color::rgb(48, 56, 64));
@@ -174,9 +169,8 @@ mod tests {
             VALID.replace("#101820", "oops"),
             VALID.replace("#101820", "#１２３"),
             VALID.replace("\"Inter\"", "\" \""),
-            VALID.replace(":14", ":0"),
-            VALID.replace(":14", ":25"),
-            VALID.replace("\"font_size\"", "\"font_szie\""),
+            VALID.replace("\"font\"", "\"font_szie\""),
+            VALID.replace("\"font\":", "\"font_size\":14,\"font\":"),
             VALID.replace("\"#182028\"", "\"invalid\""),
             VALID.replace("\"normal\":0", "\"normal\":-1"),
             VALID.replace("\"small\":0", "\"small\":-1"),
