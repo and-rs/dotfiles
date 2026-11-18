@@ -65,7 +65,7 @@ def main [] {
         let sessions = (tmux list-sessions -F "#{session_name}" | lines)
         for session in [alpha beta delta gamma] {
           if $session not-in $sessions {
-            tmux new-session -d -s $session -c $env.PWD
+            tmux new-session -d -s $session -c $env.HOME
             break
           }
         }

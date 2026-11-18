@@ -37,7 +37,7 @@ $env.config.menus = (
         match_text: {attr: u}
         selected_match_text: {attr: ur}
       }
-      source: {|buffer position|
+      source: {|buffer|
         let contextual = (
           $buffer
           | commandline complete --detailed
