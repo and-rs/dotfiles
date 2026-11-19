@@ -1,0 +1,18 @@
+#!/usr/bin/env -S nu -n
+
+# Render piped Markdown in the browser for reading and formatted copying.
+def main [] {
+  let markdown = (^cat)
+  if ($markdown | str trim | is-empty) {
+    error make {msg: "Pipe Markdown into &markdown_open"}
+  }
+
+  let rendered = ($markdown | pandoc --from markdown-raw_html --to html5 --standalone --metadata title="Markdown preview" | complete)
+  if $rendered.exit_code != 0 {
+    error make {msg: $rendered.stderr}
+  }
+
+  let file = (mktemp --suffix .html)
+  $rendered.stdout | save --force $file
+  start $file
+}
