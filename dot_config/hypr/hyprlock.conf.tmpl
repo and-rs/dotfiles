@@ -1,6 +1,6 @@
-{{- $queryScript := joinPath .chezmoi.sourceDir "dot_config/hypr/executable_awww_query.sh" -}}
-{{- $wallpaper := output "bash" $queryScript | trim -}}
 {{- $c := index .palettes .theme -}}
+{{- $paletteScript := joinPath .chezmoi.sourceDir "dot_config/nushell/utils/palette.nu" -}}
+{{- $surfaces := output "nu" $paletteScript "surfaces" $c.bg $c.blue | fromJson -}}
 $font = {{ .fonts.ui }}
 $font_clock = {{ .fonts.ui }}:style=Semibold
 $shadow_passes = 1
@@ -18,14 +18,12 @@ animations {
     animation = fadeIn, 1, 5, linear
 }
 
-# Render current awww wallpaper, or a neutral lock surface when unavailable.
+# Load the current wallpaper at lock time, falling back to Niri's backdrop.
 background {
     monitor =
-{{- if $wallpaper }}
-    path = {{ $wallpaper }}
-{{- else }}
-    color = rgba(000000ff)
-{{- end }}
+    color = rgba({{ trimPrefix "#" $surfaces.surface3 }}ff)
+    reload_cmd = ~/.config/hypr/awww_query.sh
+    reload_time = -1
     blur_passes = 2
     blur_size = 8
 }
