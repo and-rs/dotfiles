@@ -12,10 +12,10 @@ use amane::{
 
 use crate::{
     bar_buttons,
+    components::{Button as UiButton, Variant},
     design::{self, control_center as layout, padding, spacing},
     theme::{Theme, ThemeState},
 };
-use ui::text;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum Section {
@@ -144,25 +144,23 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
         .into_iter()
         .map(|section| {
             let name = monitor.name.clone();
-            let fill = if state.section == section {
-                theme.surface2
-            } else {
-                theme.surface1
-            };
             Box::new(
-                Rectangle::new()
-                    .width(tab_width)
-                    .height(layout::TAB_HEIGHT)
-                    .fill(fill)
-                    .radius(theme.radius.normal)
-                    .align_child(Center, Center)
-                    .cursor(Cursor::Pointer)
-                    .on_click(move |button| {
-                        if button == Button::Left {
-                            ControlCenter::write().open(&name, section);
-                        }
-                    })
-                    .child(text(section.label(), theme)),
+                UiButton::new(
+                    format!("tab:{name}:{}", section.label()),
+                    section.label(),
+                    theme,
+                )
+                .variant(Variant::Ghost)
+                .selected(state.section == section)
+                .width(tab_width)
+                .height(layout::TAB_HEIGHT)
+                .padding(spacing::EXTRA_SMALL)
+                .on_click(move |button| {
+                    if button == Button::Left {
+                        ControlCenter::write().open(&name, section);
+                    }
+                })
+                .build(),
             ) as Box<dyn amane::Widget>
         })
         .collect();

@@ -215,6 +215,7 @@ impl FakeMenu {
 #[ignore = "run under dbus-run-session; owns fake tray services on the session bus"]
 fn fake_tray_lifecycle_actions_and_dynamic_menus() {
     let mut backend = Backend::new().unwrap();
+    backend.icons.halo_color = Some(amane::Color::WHITE);
     backend.refresh().unwrap();
     assert!(backend.items.is_empty());
     let host_name = backend.connection.unique_name().unwrap().to_string();
@@ -277,11 +278,9 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
     assert_eq!(item.tooltip, "Test application\nTest description");
     assert!(item.visible());
     if std::env::var_os("XDG_RUNTIME_DIR").is_some() {
-        assert!(item.icon.as_ref().unwrap().is_file());
+        let icon = item.icon.as_ref().unwrap();
+        assert!(icon.halo.as_ref().unwrap_or(&icon.source).is_file());
     }
-    backend
-        .command(Command::Action(item.id.clone(), items::Action::Activate))
-        .unwrap();
     backend
         .command(Command::Action(item.id.clone(), items::Action::Secondary))
         .unwrap();
@@ -292,8 +291,8 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
         ))
         .unwrap();
     assert_eq!(
-        &shared.lock().unwrap().events[..3],
-        ["activate:0:0", "secondary:0:0", "scroll:120:vertical"]
+        &shared.lock().unwrap().events[..2],
+        ["secondary:0:0", "scroll:120:vertical"]
     );
     backend.items[0].menu = None;
     backend.command(Command::Menu(item.id.clone())).unwrap();
@@ -312,6 +311,16 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
 
     backend.command(Command::Menu(item.id.clone())).unwrap();
     let menu = backend.menu.as_ref().unwrap();
+    assert_eq!(
+        shared
+            .lock()
+            .unwrap()
+            .events
+            .iter()
+            .filter(|event| *event == "activate:0:0")
+            .count(),
+        0
+    );
     assert_eq!(menu.entries.len(), 6);
     assert_eq!(menu.entries[0].label, "Open");
     assert!(menu.entries[1].separator);
@@ -393,7 +402,7 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
     assert!(backend.items[1].error.is_none());
     assert!(
         backend
-            .command(Command::Action(item.id.clone(), items::Action::Activate))
+            .command(Command::Action(item.id.clone(), items::Action::Secondary))
             .is_err()
     );
     shared.lock().unwrap().failed = false;
@@ -408,7 +417,7 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
     assert!(backend.menu.is_none());
     assert!(
         backend
-            .command(Command::Action(item.id.clone(), items::Action::Activate))
+            .command(Command::Action(item.id.clone(), items::Action::Secondary))
             .is_err()
     );
     assert!(
@@ -446,7 +455,7 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
     assert_ne!(backend.items[0].id.owner, item.id.owner);
     assert!(
         backend
-            .command(Command::Action(item.id, items::Action::Activate))
+            .command(Command::Action(item.id, items::Action::Secondary))
             .is_err()
     );
     drop(replacement_watcher);

@@ -148,7 +148,7 @@ impl Backend {
             )
         });
         self.icons
-            .retain(&items.iter().filter_map(|i| i.icon.clone()).collect());
+            .retain(items.iter().filter_map(|item| item.icon.as_ref()));
         self.items = items;
         if let Some(menu) = &mut self.menu {
             if let Some(item) = self
@@ -274,6 +274,7 @@ impl Service for State {
                     let _ = backend.close_menu();
                 }
                 menu_generation = generation;
+                backend.icons.halo_color = Some(crate::theme::ThemeState::read().theme.fg);
                 backend.refresh()?;
                 if let Some(menu) = &mut backend.menu
                     && let Err(error) = menu::read(&backend.connection, menu, false)

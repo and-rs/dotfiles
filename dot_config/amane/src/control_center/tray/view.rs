@@ -1,6 +1,5 @@
 use amane::{
-    Button, Center, Column, Cursor, Image, Parent, Rectangle, Row, ScrollArea, Service, Size,
-    Widget, children,
+    Button, Center, Column, Image, Parent, Rectangle, Row, Service, Size, Widget, children,
 };
 
 use super::{
@@ -10,6 +9,7 @@ use super::{
     request,
 };
 use crate::{
+    components::{Button as UiButton, Variant},
     control_center::ui,
     design::{self, control_center as layout, padding, spacing, typography},
     theme::Theme,
@@ -37,10 +37,22 @@ fn item_icon(item: &Item, theme: &Theme) -> Rectangle {
     let icon = Rectangle::new()
         .width(design::ICON_SIZE)
         .height(design::size::BUTTON);
-    if let Some(path) = &item.icon
-        && Image::loaded(path)
-    {
-        return icon.fill(Image::contain(path));
+    if let Some(image) = &item.icon {
+        match &image.halo {
+            Some(halo) if Image::loaded(halo) => {
+                let inset = design::tray::ICON_HALO_INSET;
+                return icon.align_child(Center, Center).child(
+                    Rectangle::new()
+                        .width(design::ICON_SIZE + inset * 2.0)
+                        .height(design::size::BUTTON + inset * 2.0)
+                        .fill(Image::contain(halo)),
+                );
+            }
+            None if Image::loaded(&image.source) => {
+                return icon.fill(Image::contain(&image.source));
+            }
+            _ => {}
+        }
     }
     ui::icon('\u{e136}', theme.surface4)
 }
@@ -95,28 +107,22 @@ fn item_row(item: &Item, theme: &Theme, width: f32) -> Rectangle {
     .width(Parent)
     .align(Center)
     .gap(spacing::SMALL);
-    let mut card = Rectangle::new()
+    let id = item.id.clone();
+    UiButton::new(format!("tray:{:?}", item.id), "", theme)
+        .variant(Variant::Secondary)
         .width(width)
         .height(
             height(&row).max(layout::ROW_HEIGHT - padding::NORMAL * 2.0) + padding::NORMAL * 2.0,
         )
         .padding(padding::NORMAL)
-        .fill(theme.surface2)
-        .radius(theme.radius.normal)
-        .child(row);
-    if item.error.is_none() {
-        let id = item.id.clone();
-        let menu_only = item.menu_only;
-        card = card
-            .cursor(Cursor::Pointer)
-            .on_click(move |button| match button {
-                Button::Left if menu_only => request(Command::Menu(id.clone())),
-                Button::Left => request(Command::Action(id.clone(), Action::Activate)),
-                Button::Middle => request(Command::Action(id.clone(), Action::Secondary)),
-                Button::Right => request(Command::Menu(id.clone())),
-            });
-    }
-    card
+        .content(row)
+        .disabled(item.error.is_some())
+        .on_click(move |button| match button {
+            Button::Left => request(Command::Menu(id.clone())),
+            Button::Middle => request(Command::Action(id.clone(), Action::Secondary)),
+            Button::Right => request(Command::Menu(id.clone())),
+        })
+        .build()
 }
 
 /// SNI wheel units are 120 per notch, with positive vertical values meaning up.
@@ -139,70 +145,50 @@ fn menu_row(entry: &Entry, menu: &Menu, theme: &Theme, width: f32) -> Rectangle 
             .height(design::BORDER_WIDTH)
             .fill(theme.surface3);
     }
-    let color = if entry.enabled {
-        theme.fg
-    } else {
-        theme.surface4
-    };
-    let mut content = children![
-        ui::body(&entry.label, theme)
-            .color(color)
-            .elide()
-            .max_lines(1),
-    ];
+    let mut label = entry.label.clone();
     if !entry.toggle.is_empty() {
-        let label = match (entry.toggle.as_str(), entry.toggle_state) {
+        let status = match (entry.toggle.as_str(), entry.toggle_state) {
             (_, -1) => "Mixed",
             ("radio", 1) => "Selected",
             ("radio", _) => "Not selected",
             (_, 1) => "On",
             _ => "Off",
         };
-        content.push(Box::new(ui::supporting(label, theme).color(color)));
+        label.push_str(&format!(" · {status}"));
     }
-    if entry.submenu {
-        content.push(Box::new(ui::icon('\u{e13a}', color)));
-    }
-    let content = Row::new(content)
-        .width(Parent)
-        .align(Center)
-        .gap(spacing::SMALL);
-    let mut row = Rectangle::new()
+    let id = menu.item.id.clone();
+    let entry_id = entry.id;
+    let mut button = UiButton::new(format!("tray_menu:{:?}:{}", id, entry_id), label, theme)
+        .variant(Variant::Secondary)
         .width(width)
-        .height(layout::ROW_HEIGHT.max(height(&content) + padding::NORMAL * 2.0))
+        .height(layout::ROW_HEIGHT)
         .padding(padding::NORMAL)
-        .fill(theme.surface2)
-        .radius(theme.radius.normal)
-        .child(content);
-    if entry.enabled {
-        let id = menu.item.id.clone();
-        let entry_id = entry.id;
-        row = row.cursor(Cursor::Pointer).on_click(move |button| {
+        .disabled(!entry.enabled)
+        .on_click(move |button| {
             if button == Button::Left {
                 request(Command::MenuClick(id.clone(), entry_id));
             }
         });
+    if entry.submenu {
+        button = button.trailing_icon('\u{e13a}');
     }
-    row
+    button.build()
 }
 
 fn header(state: &State, theme: &Theme, width: f32) -> Column {
     let mut content = children![ui::body("Tray", theme).weight(typography::HEADLINE_WEIGHT),];
     if let Some(menu) = &state.menu {
         content.push(Box::new(
-            Rectangle::new()
+            UiButton::new("tray_back", "Back", theme)
+                .variant(Variant::Secondary)
                 .width(Parent)
                 .height(layout::ROW_HEIGHT)
-                .padding(padding::NORMAL)
-                .fill(theme.surface2)
-                .radius(theme.radius.normal)
-                .cursor(Cursor::Pointer)
                 .on_click(|button| {
                     if button == Button::Left {
                         request(Command::Back);
                     }
                 })
-                .child(ui::body("Back", theme)),
+                .build(),
         ));
         content.push(Box::new(
             ui::body(&menu.item.title, theme).elide().max_lines(1),
@@ -268,9 +254,12 @@ fn content(state: &State, theme: &Theme, width: f32, budget: f32) -> Column {
             } else {
                 "tray_items"
             };
-            content.push(Box::new(
-                ScrollArea::new(key, list).width(width).height(available),
-            ));
+            let context = state.menu.as_ref().map_or_else(String::new, |menu| {
+                format!("{:?}:{:?}", menu.item.id, menu.stack)
+            });
+            content.push(Box::new(crate::components::scroll_area(
+                key, context, list, width, available,
+            )));
         } else {
             content.push(Box::new(list));
         }

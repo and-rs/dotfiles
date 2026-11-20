@@ -3,6 +3,7 @@
 - Compiled Qt plugin binaries (e.g. `dot_config/quickshell/Niri/libniriplugin.so`) are committed to the repo. Rebuild and commit them alongside the C++ source changes that produce them.
 - Keep native plugins free of embedded build-machine paths and RPATH/RUNPATH entries, prune unused linked dependencies, and verify rebuilt binaries and plugin loading; keep the Rofi plugin free of a `libstdc++` dependency.
 - Quickshell (`dot_config/quickshell/`) is deprecated. Do not modify it or use it for new shell work. Amane (`dot_config/amane/`) is the supported shell.
+- Reuse shared Amane UI components, such as buttons, whenever they fit. Do not build feature-local equivalents for behavior a shared component already provides.
 - Amane UI must use the shared values in `dot_config/amane/src/design.rs` and the theme. Shared icon fonts, icon sizes, dimensions, spacing, padding, borders, typography, and animation durations are mandatory, not optional defaults. Do not hardcode component-local replacements or duplicate existing tokens. Add genuinely new fixed design values to `design.rs`; keep palette, fonts, and radii in the theme.
 - Amane text must use only `design::typography::BODY_SIZE` (14px) or `design::typography::HEADLINE_SIZE` (24px, for prominent values such as the battery percentage). Do not add other text font sizes, theme-controlled sizes, scale factors, or component-local overrides. Icon glyphs must use the shared icon-size tokens instead.
 - Never user emdashes in dotfiles.

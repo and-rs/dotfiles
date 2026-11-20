@@ -8,8 +8,18 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use amane::Color;
+
+use crate::design::{self, tray as layout};
+
 pub(super) type Pixmap = (i32, i32, Vec<u8>);
 const MAX_DIMENSION: i32 = 512;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct Icon {
+    pub source: PathBuf,
+    pub halo: Option<PathBuf>,
+}
 
 /// SNI pixels are network-order ARGB, whereas PNG expects straight RGBA.
 pub(super) fn rgba(pixmap: &Pixmap) -> Option<Vec<u8>> {
@@ -40,6 +50,7 @@ pub(super) struct Icons {
     directory: Option<PathBuf>,
     files: HashMap<u64, PathBuf>,
     folders: Vec<PathBuf>,
+    pub(super) halo_color: Option<Color>,
 }
 
 impl Icons {
@@ -58,6 +69,7 @@ impl Icons {
             directory,
             files: HashMap::new(),
             folders: theme_folders(),
+            halo_color: None,
         }
     }
 
@@ -66,7 +78,46 @@ impl Icons {
         name: &str,
         theme_path: &str,
         pixmaps: &[Pixmap],
-    ) -> Option<PathBuf> {
+    ) -> Option<Icon> {
+        let source = self.source(name, theme_path, pixmaps)?;
+        let halo = self
+            .halo_color
+            .and_then(|color| self.with_halo(&source, color));
+        Some(Icon { source, halo })
+    }
+
+    fn with_halo(&mut self, source: &Path, color: Color) -> Option<PathBuf> {
+        let source = source.canonicalize().ok()?;
+        let metadata = fs::metadata(&source).ok()?;
+        let mut hash = DefaultHasher::new();
+        (
+            "halo",
+            &source,
+            metadata.len(),
+            metadata.modified().ok()?,
+            color.hex(),
+        )
+            .hash(&mut hash);
+        let key = hash.finish();
+        if let Some(path) = self.files.get(&key) {
+            return Some(path.clone());
+        }
+        let path = self.directory.as_ref()?.join(format!("halo_{key:x}.svg"));
+        let svg = halo_svg(&source, color)?;
+        let mut file = fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+            .ok()?;
+        if std::io::Write::write_all(&mut file, svg.as_bytes()).is_err() {
+            let _ = fs::remove_file(&path);
+            return None;
+        }
+        self.files.insert(key, path.clone());
+        Some(path)
+    }
+
+    fn source(&mut self, name: &str, theme_path: &str, pixmaps: &[Pixmap]) -> Option<PathBuf> {
         if let Some(path) = self.named(name, theme_path) {
             return Some(path);
         }
@@ -138,7 +189,11 @@ impl Icons {
         None
     }
 
-    pub(super) fn retain(&mut self, used: &HashSet<PathBuf>) {
+    pub(super) fn retain<'a>(&mut self, icons: impl IntoIterator<Item = &'a Icon>) {
+        let used: HashSet<_> = icons
+            .into_iter()
+            .flat_map(|icon| std::iter::once(&icon.source).chain(icon.halo.as_ref()))
+            .collect();
         self.files.retain(|_, path| {
             if used.contains(path) {
                 return true;
@@ -147,6 +202,36 @@ impl Icons {
             false
         });
     }
+}
+
+fn halo_svg(source: &Path, color: Color) -> Option<String> {
+    let source = source
+        .to_str()?
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;");
+    let inset = layout::ICON_HALO_INSET;
+    let width = design::ICON_SIZE + inset * 2.0;
+    let height = design::size::BUTTON + inset * 2.0;
+    let icon_width = design::ICON_SIZE;
+    let icon_height = design::size::BUTTON;
+    let blur = layout::ICON_HALO_BLUR;
+    let opacity = layout::ICON_HALO_OPACITY;
+    let color = color.hex();
+    Some(format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+<defs><filter id="halo" filterUnits="userSpaceOnUse" x="0" y="0" width="{width}" height="{height}" color-interpolation-filters="sRGB">
+<feGaussianBlur in="SourceAlpha" stdDeviation="{blur}" result="blur"/>
+<feFlood flood-color="{color}" flood-opacity="{opacity}" result="ink"/>
+<feComposite in="ink" in2="blur" operator="in" result="halo"/>
+<feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter></defs>
+<image x="{inset}" y="{inset}" width="{icon_width}" height="{icon_height}" xlink:href="{source}" filter="url(#halo)"/>
+</svg>"##
+    ))
 }
 
 impl Drop for Icons {
@@ -290,19 +375,106 @@ mod tests {
             directory: Some(directory.clone()),
             files: HashMap::new(),
             folders: vec![],
+            halo_color: None,
         };
         let pixmaps = vec![(1, 1, vec![128, 10, 20, 30])];
-        let path = icons.resolve("", "", &pixmaps).unwrap();
-        assert_eq!(icons.resolve("", "", &pixmaps), Some(path.clone()));
-        let decoder = png::Decoder::new(std::io::BufReader::new(fs::File::open(&path).unwrap()));
+        let icon = icons.resolve("", "", &pixmaps).unwrap();
+        assert_eq!(icons.resolve("", "", &pixmaps).as_ref(), Some(&icon));
+        let path = &icon.source;
+        let decoder = png::Decoder::new(std::io::BufReader::new(fs::File::open(path).unwrap()));
         let mut reader = decoder.read_info().unwrap();
         let mut bytes = vec![0; reader.output_buffer_size().unwrap()];
         reader.next_frame(&mut bytes).unwrap();
         assert_eq!(bytes, [10, 20, 30, 128]);
-        icons.retain(&HashSet::from([path.clone()]));
+        icons.halo_color = Some(Color::WHITE);
+        let light = icons.resolve("", "", &pixmaps).unwrap();
+        let halo = light.halo.as_ref().unwrap();
+        assert_eq!(icons.resolve("", "", &pixmaps).as_ref(), Some(&light));
+        let raster = rasterize(halo);
+        assert!(
+            raster
+                .pixel(raster.width() / 2, raster.height() / 2)
+                .unwrap()
+                .alpha()
+                >= 128,
+            "PNG sources must remain visible inside the SVG filter"
+        );
+        icons.retain([&light]);
+        assert!(path.is_file(), "a retained SVG must keep its source PNG");
+        assert!(halo.is_file());
+        icons.halo_color = Some(Color::BLACK);
+        let dark = icons.resolve("", "", &pixmaps).unwrap();
+        assert_ne!(dark.halo.as_ref().unwrap(), halo);
+        icons.retain([&dark]);
+        assert!(!halo.exists());
         assert!(path.is_file());
-        icons.retain(&HashSet::new());
+        icons.retain([&icon]);
+        assert!(path.is_file());
+        icons.retain([]);
         assert!(!path.exists());
+        drop(icons);
+        assert!(!directory.exists());
+    }
+
+    fn rasterize(path: &Path) -> resvg::tiny_skia::Pixmap {
+        let bytes = fs::read(path).unwrap();
+        let tree = resvg::usvg::Tree::from_data(&bytes, &resvg::usvg::Options::default()).unwrap();
+        let size = tree.size().to_int_size();
+        let mut raster = resvg::tiny_skia::Pixmap::new(size.width(), size.height()).unwrap();
+        resvg::render(
+            &tree,
+            resvg::tiny_skia::Transform::identity(),
+            &mut raster.as_mut(),
+        );
+        raster
+    }
+
+    #[test]
+    fn halo_follows_svg_silhouette_preserves_color_and_escapes_paths() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let directory =
+            env::temp_dir().join(format!("amane_halo_test_{}_{nonce}", std::process::id()));
+        fs::DirBuilder::new()
+            .mode(0o700)
+            .create(&directory)
+            .unwrap();
+        let source = directory.join("source_&'\".svg");
+        let source_svg = r##"<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="6" fill="#e12c38"/></svg>"##;
+        fs::write(&source, source_svg).unwrap();
+        let mut icons = Icons {
+            directory: Some(directory.clone()),
+            files: HashMap::new(),
+            folders: vec![],
+            halo_color: None,
+        };
+        for color in [Color::WHITE, Color::BLACK] {
+            let path = icons.with_halo(&source, color).unwrap();
+            let raster = rasterize(&path);
+            let center_x = raster.width() / 2;
+            let center_y = raster.height() / 2;
+            let center = raster.pixel(center_x, center_y).unwrap();
+            assert_eq!(
+                (center.red(), center.green(), center.blue(), center.alpha()),
+                (225, 44, 56, 255)
+            );
+            assert_eq!(
+                raster.pixel(0, 0).unwrap().alpha(),
+                0,
+                "no rectangular backing"
+            );
+            let edge = raster.pixel(center_x + 7, center_y).unwrap();
+            assert!(edge.alpha() > 0, "the silhouette has a soft outer halo");
+            if color == Color::WHITE {
+                assert!(edge.red() > 0);
+            } else {
+                assert_eq!(edge.red(), 0);
+            }
+        }
+        assert_eq!(fs::read_to_string(&source).unwrap(), source_svg);
+        fs::remove_file(&source).unwrap();
         drop(icons);
         assert!(!directory.exists());
     }

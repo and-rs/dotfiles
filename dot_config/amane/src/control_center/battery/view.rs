@@ -1,27 +1,14 @@
 use amane::{
-    Button, Center, Column, Cursor, End, Parent, Rectangle, Row, Service, Size, Start, Widget,
-    children,
+    Button, Center, Column, End, Parent, Rectangle, Row, Service, Size, Start, Widget, children,
 };
 
 use super::{Details, ProfileState, Profiles, Reading, Status, duration, request_profile};
 use crate::{
+    components::{Button as UiButton, Variant},
     control_center::ui,
-    design::{self, battery as layout, spacing},
+    design::{battery as layout, spacing},
     theme::Theme,
 };
-
-#[derive(Default)]
-struct Interaction {
-    hovered: Option<&'static str>,
-}
-
-impl Service for Interaction {
-    fn new() -> Self {
-        Self::default()
-    }
-
-    fn listen() {}
-}
 
 impl Details {
     fn status(&self) -> String {
@@ -183,7 +170,6 @@ fn mode_button(
     profile: &'static str,
     label: &str,
     profiles: &Profiles,
-    hovered: Option<&str>,
     theme: &Theme,
 ) -> Rectangle {
     let mode = Mode::new(profile, profiles);
@@ -194,12 +180,6 @@ fn mode_button(
     } else {
         theme.surface4
     };
-    let fill = if mode.clickable && hovered == Some(profile) {
-        theme.surface3
-    } else {
-        theme.surface2
-    };
-    let border = if mode.active { theme.accent } else { fill };
     let content = Column::new(children![
         ui::body(label, theme).color(color).elide().max_lines(1),
         ui::supporting(mode.status, theme)
@@ -212,36 +192,23 @@ fn mode_button(
     let Size::Fixed(content_height) = Widget::height(&content) else {
         unreachable!("power mode labels have intrinsic heights");
     };
-    let mut button = Rectangle::new()
+    UiButton::new(format!("power_mode:{profile}"), "", theme)
+        .variant(Variant::Secondary)
+        .selected(mode.active)
+        .disabled(!mode.clickable)
         .width(Parent)
         .height(layout::MODE_HEIGHT.max(content_height + layout::MODE_PADDING * 2.0))
         .padding(layout::MODE_PADDING)
-        .fill(fill)
-        .border(design::BORDER_WIDTH, border)
-        .radius(theme.radius.normal)
-        .align_child(Center, Center)
-        .child(content);
-    if mode.clickable {
-        button = button
-            .cursor(Cursor::Pointer)
-            .on_hover(move |inside| {
-                let mut interaction = Interaction::write();
-                if inside {
-                    interaction.hovered = Some(profile);
-                } else if interaction.hovered == Some(profile) {
-                    interaction.hovered = None;
-                }
-            })
-            .on_click(move |button| {
-                if button == Button::Left {
-                    request_profile(profile);
-                }
-            });
-    }
-    button
+        .content(content)
+        .on_click(move |button| {
+            if button == Button::Left {
+                request_profile(profile);
+            }
+        })
+        .build()
 }
 
-fn mode_selector(profiles: &Profiles, hovered: Option<&str>, theme: &Theme, width: f32) -> Column {
+fn mode_selector(profiles: &Profiles, theme: &Theme, width: f32) -> Column {
     let modes = [
         ("power-saver", "Power saver"),
         ("balanced", "Balanced"),
@@ -261,7 +228,7 @@ fn mode_selector(profiles: &Profiles, hovered: Option<&str>, theme: &Theme, widt
     let buttons = modes
         .into_iter()
         .map(|(profile, label)| {
-            Box::new(mode_button(profile, label, profiles, hovered, theme)) as Box<dyn Widget>
+            Box::new(mode_button(profile, label, profiles, theme)) as Box<dyn Widget>
         })
         .collect();
     if width < needed {
@@ -391,23 +358,10 @@ fn detail_content(
 pub fn view(theme: &Theme, width: f32) -> Column {
     let status = Status::read();
     let profiles = Profiles::read();
-    let interaction = Interaction::read();
-    content(
-        &status.reading,
-        &profiles,
-        interaction.hovered,
-        theme,
-        width,
-    )
+    content(&status.reading, &profiles, theme, width)
 }
 
-fn content(
-    reading: &Reading,
-    profiles: &Profiles,
-    hovered: Option<&str>,
-    theme: &Theme,
-    width: f32,
-) -> Column {
+fn content(reading: &Reading, profiles: &Profiles, theme: &Theme, width: f32) -> Column {
     let (feedback, failed) = feedback(profiles);
     let feedback_color = if failed {
         theme.destructive
@@ -418,7 +372,7 @@ fn content(
         summary(reading, theme, width),
         Column::new(children![
             ui::body("Power mode", theme),
-            mode_selector(profiles, hovered, theme, width),
+            mode_selector(profiles, theme, width),
             ui::supporting(feedback, theme)
                 .color(feedback_color)
                 .elide()
@@ -590,7 +544,7 @@ mod tests {
             },
         ] {
             for width in [380.0, 240.0] {
-                let panel = content(&reading, &profiles, None, &theme, width);
+                let panel = content(&reading, &profiles, &theme, width);
                 assert_eq!(Widget::width(&panel), Size::Fixed(width));
                 let Size::Fixed(height) = Widget::height(&panel) else {
                     panic!("battery content must request its full height");
@@ -608,8 +562,8 @@ mod tests {
             battery: super::super::Battery::from_upower(82.0, 5),
             details: details(5),
         };
-        let wide = content(&reading, &profiles, None, &theme, 380.0);
-        let narrow = content(&reading, &profiles, None, &theme, 160.0);
+        let wide = content(&reading, &profiles, &theme, 380.0);
+        let narrow = content(&reading, &profiles, &theme, 160.0);
         let Size::Fixed(wide_height) = Widget::height(&wide) else {
             panic!("expected intrinsic height");
         };
@@ -633,7 +587,7 @@ mod tests {
     #[test]
     fn mode_controls_fit_labels_and_stack_on_narrow_layouts() {
         let theme = theme();
-        let button = mode_button("power-saver", "Power saver", &profiles(), None, &theme);
+        let button = mode_button("power-saver", "Power saver", &profiles(), &theme);
         let Size::Fixed(height) = Widget::height(&button) else {
             panic!("expected fixed control height")
         };
@@ -642,7 +596,7 @@ mod tests {
             + spacing::TINY
             + layout::MODE_PADDING * 2.0;
         assert!(height >= required);
-        let selector = mode_selector(&profiles(), None, &theme, 160.0);
+        let selector = mode_selector(&profiles(), &theme, 160.0);
         let Size::Fixed(selector_height) = Widget::height(&selector) else {
             panic!("expected intrinsic selector height");
         };

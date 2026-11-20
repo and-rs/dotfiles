@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::collections::HashMap;
 
 use zbus::{
     blocking::{Connection, Proxy},
@@ -25,7 +25,7 @@ pub(super) struct Item {
     pub title: String,
     pub tooltip: String,
     pub status: String,
-    pub icon: Option<PathBuf>,
+    pub icon: Option<super::icons::Icon>,
     pub menu: Option<String>,
     pub menu_only: bool,
     pub error: Option<String>,
@@ -158,7 +158,6 @@ fn from_properties(id: Id, interface: &str, properties: &Properties, icons: &mut
 
 #[derive(Clone, Copy, Debug)]
 pub(super) enum Action {
-    Activate,
     Secondary,
     ContextMenu,
     Scroll(i32, bool),
@@ -174,7 +173,6 @@ pub(super) fn act(connection: &Connection, item: &Item, action: Action) -> zbus:
     // Wayland does not expose global pointer coordinates. DBusMenu is rendered
     // locally; applications requiring coordinates receive the protocol fallback.
     match action {
-        Action::Activate => proxy.call("Activate", &(0_i32, 0_i32)),
         Action::Secondary => proxy.call("SecondaryActivate", &(0_i32, 0_i32)),
         Action::ContextMenu => proxy.call("ContextMenu", &(0_i32, 0_i32)),
         Action::Scroll(delta, horizontal) => {

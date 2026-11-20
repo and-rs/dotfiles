@@ -1,5 +1,6 @@
 mod bar_buttons;
 mod caffeine;
+mod components;
 mod control_center;
 mod design;
 mod fullscreen;
@@ -108,7 +109,7 @@ fn bar(monitor: &Monitor) -> LayerWindow {
                 Row::new(children![
                     workspaces::view(&niri, &monitor.name, theme),
                     window_title::view(&niri, &monitor.name, theme),
-                    bar_buttons::view(theme),
+                    bar_buttons::view(&monitor.name, theme),
                     control_center::button(&monitor.name, theme),
                     Rectangle::new()
                         .width(clock_width)

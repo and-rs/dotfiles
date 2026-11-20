@@ -1,7 +1,4 @@
-use amane::{
-    Button, Center, Column, Cursor, Parent, Rectangle, Row, ScrollArea, Service, Size, Widget,
-    children,
-};
+use amane::{Button, Center, Column, Parent, Rectangle, Row, Service, Size, Widget, children};
 
 use super::{
     Action, Error, State,
@@ -100,27 +97,26 @@ fn paragraph(label: &str, theme: &Theme, width: f32, error: bool) -> Rectangle {
 }
 
 fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangle {
-    let color = if action.is_some() {
-        theme.fg
+    use crate::components::{Button as UiButton, Variant};
+
+    let variant = if matches!(action, Some(Action::Forget(_))) {
+        Variant::Destructive
     } else {
-        theme.surface4
+        Variant::Secondary
     };
-    let mut button = Rectangle::new()
+    UiButton::new(format!("bluetooth:{action:?}:{label}"), label, theme)
+        .variant(variant)
         .width(Parent)
         .height(layout::ROW_HEIGHT)
-        .padding(padding::NORMAL)
-        .fill(theme.surface3)
-        .radius(theme.radius.normal)
-        .align_child(Center, Center)
-        .child(ui::body(label, theme).color(color).elide().max_lines(1));
-    if let Some(action) = action {
-        button = button.cursor(Cursor::Pointer).on_click(move |button| {
-            if button == Button::Left {
+        .disabled(action.is_none())
+        .on_click(move |button| {
+            if button == Button::Left
+                && let Some(action) = &action
+            {
                 request(action.clone());
             }
-        });
-    }
-    button
+        })
+        .build()
 }
 
 fn controls(actions: Vec<(&str, Option<Action>)>, theme: &Theme, width: f32) -> Column {
@@ -355,11 +351,13 @@ fn content(state: &State, theme: &Theme, width: f32, height: f32) -> Column {
     if list_height > 0.0 {
         let available = (height - summary_height - spacing::SMALL).max(0.0);
         if list_height > available {
-            content.push(Box::new(
-                ScrollArea::new("bluetooth_devices", list)
-                    .width(width)
-                    .height(available),
-            ));
+            content.push(Box::new(crate::components::scroll_area(
+                "bluetooth_devices",
+                "",
+                list,
+                width,
+                available,
+            )));
         } else {
             content.push(Box::new(list));
         }

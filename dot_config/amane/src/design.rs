@@ -25,7 +25,7 @@ pub mod control_center {
     pub const EDGE: f32 = padding::NORMAL;
     pub const TOP: f32 = BAR_HEIGHT + spacing::SMALL;
     pub const TAB_HEIGHT: f32 = BAR_HEIGHT;
-    pub const ROW_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
+    pub const ROW_HEIGHT: f32 = super::button::HEIGHT;
 }
 
 pub mod typography {
@@ -69,6 +69,24 @@ pub mod indicator {
 pub mod size {
     pub const NORMAL: f32 = 16.0;
     pub const BUTTON: f32 = 28.0;
+}
+
+pub mod button {
+    pub const HEIGHT: f32 = super::size::BUTTON + super::padding::NORMAL * 2.0;
+    pub const HOVER_TINT: f32 = 0.06;
+    pub const PRESSED_TINT: f32 = 0.12;
+}
+
+pub mod scroll {
+    pub const STEP: f32 = super::button::HEIGHT;
+    pub const FRAME: super::Duration = super::Duration::from_millis(16);
+    pub const DURATION: super::Duration = super::Duration::from_millis(160);
+}
+
+pub mod tray {
+    pub const ICON_HALO_INSET: f32 = 5.0;
+    pub const ICON_HALO_BLUR: f32 = 1.4;
+    pub const ICON_HALO_OPACITY: f32 = 0.6;
 }
 
 pub mod padding {
