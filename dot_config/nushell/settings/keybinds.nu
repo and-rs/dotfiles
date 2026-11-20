@@ -1,20 +1,26 @@
-def _fzf_history [] {
+def _fzf_history [query: string] {
   let fzf_flags = [
     "--ansi"
     "--read0"
-    "--with-nth=1"
+    "--with-nth=1..-2"
     "--height=100%"
     "--delimiter=\t"
     "--scheme=history"
     "--layout=reverse"
     "--padding=1,0,0,1"
     "--prompt=History > "
+    $"--query=($query)"
     "--header=<C-d> Delete entry"
-    "--bind=ctrl-d:execute-silent(&fzf_drop_history {2})+reload(&fzf_fetch_history)"
+    "--bind=ctrl-d:execute-silent(&fzf_drop_history {-1})+reload(&fzf_fetch_history)"
   ]
-  let raw_selection = &fzf_fetch_history | fzf ...$fzf_flags
+  let raw_selection = try {
+    &fzf_fetch_history | fzf ...$fzf_flags
+  } catch {|err|
+    if $err.exit_code? in [1 130] { return }
+    error make $err
+  }
   if ($raw_selection | is-empty) { return }
-  ($raw_selection | split row -n 2 (char tab) | get 0)
+  $raw_selection | split row (char tab) | drop 1 | str join (char tab)
 }
 
 $env.config.menus = (
@@ -74,9 +80,13 @@ $env.config.keybindings = (
       modifier: control
       keycode: char_r
       mode: [emacs vi_normal vi_insert]
-      event: [
-        {send: ExecuteHostCommand cmd: "do { commandline edit --insert (_fzf_history) }"}
-      ]
+      event: {
+        send: ExecuteHostCommand
+        cmd: "
+          let selected = (_fzf_history (commandline))
+          if $selected != null { commandline edit --replace $selected }
+        "
+      }
     }
     {
       name: ctrl_f_hint_word_or_move
