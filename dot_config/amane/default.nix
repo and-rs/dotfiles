@@ -45,7 +45,11 @@ pkgs.rustPlatform.buildRustPackage {
 
   postInstall = ''
     mv "$out/bin/amane_shell" "$out/bin/amane_shell_release"
+    # On non-NixOS, prefer Mesa from the same package set while retaining host ICD discovery.
     wrapProgram "$out/bin/amane_shell_release" \
+      --run 'if [ ! -e /etc/NIXOS ]; then
+        export VK_ADD_DRIVER_FILES="${pkgs.mesa}/share/vulkan/icd.d''${VK_ADD_DRIVER_FILES:+:$VK_ADD_DRIVER_FILES}"
+      fi' \
       --prefix LD_LIBRARY_PATH : "${
         pkgs.lib.makeLibraryPath [
           pkgs.vulkan-loader
