@@ -19,11 +19,12 @@ if ! flock --nonblock 9; then
     echo "Amane development watcher is already running." >&2
     exit 1
 fi
-ln -sfn -- "$CARGO_TARGET_DIR/debug/amane_shell" "$registration"
+ln -sfn -- "$CARGO_TARGET_DIR/release/amane_shell" "$registration"
 trap 'rm -f -- "$registration"' EXIT
 trap 'kill "$watcher" 2>/dev/null || true; wait "$watcher" || true; exit 130' INT
 trap 'kill "$watcher" 2>/dev/null || true; wait "$watcher" || true; exit 143' TERM
 
-watchexec --restart --watch src --watch Cargo.toml --watch Cargo.lock -- cargo run --locked &
+# Use optimized rendering in the watcher so UI testing reflects normal frame times.
+watchexec --restart --watch src --watch Cargo.toml --watch Cargo.lock -- cargo run --release --locked &
 watcher=$!
 wait "$watcher"

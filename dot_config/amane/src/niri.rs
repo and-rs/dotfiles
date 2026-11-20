@@ -26,6 +26,15 @@ impl Niri {
         self.received_workspaces && self.received_windows
     }
 
+    pub fn focused_output(&self) -> Option<&str> {
+        self.workspaces
+            .workspaces
+            .values()
+            .find(|workspace| workspace.is_focused)?
+            .output
+            .as_deref()
+    }
+
     pub fn workspaces_on(&self, output: &str) -> Vec<&Workspace> {
         if !self.ready() {
             return Vec::new();

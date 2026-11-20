@@ -4,8 +4,10 @@ mod components;
 mod control_center;
 mod design;
 mod fullscreen;
+mod icon_theme;
 mod minimap;
 mod niri;
+mod notifications;
 mod osd;
 mod theme;
 mod window_title;
@@ -63,6 +65,9 @@ fn main() {
         .window_per_monitor(bar)
         .window_per_monitor(osd::view)
         .window_per_monitor(control_center::view)
+        .window_per_monitor(notifications::popup)
+        .window_per_monitor(notifications::sidebar_backdrop)
+        .window_per_monitor(notifications::sidebar)
         .run();
 }
 

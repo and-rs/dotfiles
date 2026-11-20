@@ -79,7 +79,6 @@ pub mod button {
 
 pub mod scroll {
     pub const STEP: f32 = super::button::HEIGHT;
-    pub const FRAME: super::Duration = super::Duration::from_millis(16);
     pub const DURATION: super::Duration = super::Duration::from_millis(160);
 }
 
@@ -87,6 +86,21 @@ pub mod tray {
     pub const ICON_HALO_INSET: f32 = 5.0;
     pub const ICON_HALO_BLUR: f32 = 1.4;
     pub const ICON_HALO_OPACITY: f32 = 0.6;
+}
+
+pub mod notifications {
+    use super::{Duration, padding, size, spacing};
+
+    pub const WIDTH: f32 = super::control_center::WIDTH;
+    pub const THUMBNAIL: f32 = size::BUTTON * 2.0;
+    pub const THUMBNAIL_PIXELS: u32 = THUMBNAIL as u32 * 2;
+    pub const ACTION_HEIGHT: f32 = size::BUTTON + spacing::EXTRA_SMALL * 2.0;
+    pub const ACTION_PADDING: f32 = spacing::EXTRA_SMALL;
+    pub const PROGRESS_HEIGHT: f32 = super::BORDER_WIDTH;
+    pub const EDGE: f32 = padding::NORMAL;
+    pub const TOP: f32 = super::BAR_HEIGHT + spacing::SMALL;
+    pub const POPUP_TIMEOUT: Duration = Duration::from_secs(5);
+    pub const UNDO: Duration = Duration::from_secs(4);
 }
 
 pub mod padding {

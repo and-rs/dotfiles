@@ -44,11 +44,14 @@ dependencies = [
  "niri-ipc",
  "png",
  "resvg",
+ "rustix",
  "serde",
  "serde_json",
+ "tempfile",
  "wayland-client",
  "wayland-protocols-wlr",
  "zbus",
+ "zune-jpeg",
 ]
 
 [[package]]

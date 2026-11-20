@@ -44,6 +44,20 @@ fn interaction(key: String) -> Rc<Cell<Interaction>> {
     })
 }
 
+pub fn icon_glyph(glyph: char, color: Color, width: f32) -> Rectangle {
+    Rectangle::new()
+        .width(width)
+        .height(design::size::BUTTON)
+        .align_child(Center, Center)
+        .child(
+            Text::new(glyph.to_string())
+                .font(design::ICON_FONT)
+                .size(design::ICON_SIZE)
+                .color(color)
+                .tight(),
+        )
+}
+
 pub struct Button<'a> {
     key: String,
     label: String,
@@ -77,6 +91,15 @@ impl<'a> Button<'a> {
             content: None,
             on_click: None,
         }
+    }
+
+    pub fn icon_only(key: impl Into<String>, glyph: char, theme: &'a Theme) -> Self {
+        Self::new(key, "", theme)
+            .variant(Variant::Ghost)
+            .icon(glyph)
+            .width(design::size::BUTTON)
+            .height(design::size::BUTTON)
+            .padding(0.0)
     }
 
     pub fn variant(mut self, variant: Variant) -> Self {
@@ -137,19 +160,7 @@ impl<'a> Button<'a> {
         }
         let (fill, foreground, border) = self.colors(state.get());
         let content = self.content.unwrap_or_else(|| {
-            let icon = |glyph: char| {
-                Rectangle::new()
-                    .width(design::ICON_SIZE)
-                    .height(design::size::BUTTON)
-                    .align_child(Center, Center)
-                    .child(
-                        Text::new(glyph.to_string())
-                            .font(design::ICON_FONT)
-                            .size(design::ICON_SIZE)
-                            .color(foreground)
-                            .tight(),
-                    )
-            };
+            let icon = |glyph| icon_glyph(glyph, foreground, design::ICON_SIZE);
             let mut children: Vec<Box<dyn Widget>> = Vec::new();
             if let Some(glyph) = self.icon {
                 children.push(Box::new(icon(glyph)));
