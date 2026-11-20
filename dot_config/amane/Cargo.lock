@@ -42,6 +42,7 @@ dependencies = [
  "amane",
  "chrono",
  "niri-ipc",
+ "png",
  "serde",
  "serde_json",
  "wayland-client",

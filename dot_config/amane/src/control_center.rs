@@ -7,7 +7,7 @@ mod wifi;
 
 use amane::{
     Button, Center, Column, Cursor, End, Full, Key, Keyboard, Layer, LayerWindow, Monitor, Padding,
-    Parent, Rectangle, Row, ScrollArea, Service, Size, Start, Widget, Zone,
+    Parent, Rectangle, Row, Service, Size, Start, Widget, Zone,
 };
 
 use crate::{
@@ -42,20 +42,18 @@ impl Section {
         if self == Self::Bluetooth {
             bluetooth::set_active(active);
         }
+        if self == Self::Tray {
+            tray::set_active(active);
+        }
     }
 
     fn content(self, theme: &Theme, width: f32, height: f32) -> Box<dyn Widget> {
-        let content = match self {
-            Self::Tray => tray::view(theme),
-            Self::Bluetooth => return Box::new(bluetooth::view(theme, width, height)),
-            Self::Wifi => return Box::new(wifi::view(theme, width)),
-            Self::Battery => return Box::new(battery::view(theme, width)),
-        };
-        Box::new(
-            ScrollArea::new("control_center_content", content)
-                .width(width)
-                .height(height),
-        )
+        match self {
+            Self::Tray => Box::new(tray::view(theme, width, height)),
+            Self::Bluetooth => Box::new(bluetooth::view(theme, width, height)),
+            Self::Wifi => Box::new(wifi::view(theme, width)),
+            Self::Battery => Box::new(battery::view(theme, width)),
+        }
     }
 
     fn indicator(self, theme: &Theme) -> Option<Box<dyn Widget>> {
@@ -134,7 +132,7 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
     let visible = state.monitor.as_deref() == Some(&monitor.name);
     let width = layout::WIDTH.min((monitor.width as f32 - layout::EDGE * 2.0).max(0.0));
     let preferred_height = match state.section {
-        Section::Bluetooth => design::bluetooth::HEIGHT,
+        Section::Bluetooth | Section::Tray => layout::LIST_HEIGHT,
         _ => layout::HEIGHT,
     };
     let height =
@@ -187,7 +185,10 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
         .visible(visible)
         .on_key(|key| {
             if key == Key::Escape {
-                ControlCenter::write().close();
+                let mut state = ControlCenter::write();
+                if state.section != Section::Tray || !tray::escape() {
+                    state.close();
+                }
             }
         })
         .child(

@@ -21,15 +21,11 @@ pub mod control_center {
 
     pub const WIDTH: f32 = 400.0;
     pub const HEIGHT: f32 = 280.0;
+    pub const LIST_HEIGHT: f32 = 560.0;
     pub const EDGE: f32 = padding::NORMAL;
     pub const TOP: f32 = BAR_HEIGHT + spacing::SMALL;
     pub const TAB_HEIGHT: f32 = BAR_HEIGHT;
-    pub const PREVIEW_LINES: usize = 8;
     pub const ROW_HEIGHT: f32 = super::size::BUTTON + padding::NORMAL * 2.0;
-}
-
-pub mod bluetooth {
-    pub const HEIGHT: f32 = 560.0;
 }
 
 pub mod typography {

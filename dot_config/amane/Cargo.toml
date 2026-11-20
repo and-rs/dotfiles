@@ -8,6 +8,7 @@ publish = false
 amane = { git = "https://github.com/MystiaFin/amane", rev = "544cbfc23af37f84ac237cd9bec53173981772b3" }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 niri-ipc = "=26.4.0"
+png = "0.18"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 wayland-client = "0.31"
