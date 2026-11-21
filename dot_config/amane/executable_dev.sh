@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd -- "$project_dir"
+script="$(realpath -- "${BASH_SOURCE[0]}")"
 
 if [[ ${1:-} != --watch ]]; then
-    export AMANE_DEV_SCRIPT
-    AMANE_DEV_SCRIPT="$(realpath -- "${BASH_SOURCE[0]}")"
-    # Expand the exported script path inside nix-shell.
-    # shellcheck disable=SC2016
-    exec nix-shell "$project_dir/shell.nix" \
-        --run 'exec bash "$AMANE_DEV_SCRIPT" --watch'
+    exec nix develop "${AMANE_NIX_FLAKE:-github:and-rs/nixed}#amane" --command bash "$script" --watch
 fi
+
+cd -- "$(dirname -- "$script")"
 
 registration="${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR must be set}/amane_dev"
 exec 9>"$registration.lock"

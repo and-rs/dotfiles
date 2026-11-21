@@ -3,9 +3,6 @@ set shell := ["nu", "-c"]
 default:
   just --list
 
-install-amane:
-  nix-env --install --file ./dot_config/amane/default.nix
-
 cppfmt:
   clang-format -i ...(fd | rg -e '\.cpp' -e '\.h$' -e '\.hpp' | lines)
 
