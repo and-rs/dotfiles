@@ -59,9 +59,9 @@ blocks:
       - type: text
         foreground: "darkGray"
         template: " "
-      - type: direnv
+      - type: text
         foreground: "darkGray"
-        template: "direnv "
+        template: '{{ if eq .Env.POSH_DIRENV "loading" }}<yellow>direnv…</> {{ else if eq .Env.POSH_DIRENV "ready" }}direnv {{ end }}'
       - type: python
         foreground: "darkGray"
         template: "{{ if .Venv }}venv {{ .Venv }} {{ end }}"

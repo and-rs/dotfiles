@@ -66,15 +66,6 @@ export-env {
   ] | str join " "
   $env.YAZI_ZOXIDE_OPTS = [$zoxide_opts "--padding=0,0,0,1"] | str join " "
   $env._ZO_FZF_OPTS = [$zoxide_opts "--padding=1,0,0,1"] | str join " "
-  $env.config.hooks.env_change.PWD = $env.config.hooks.env_change.PWD? | default []
-  $env.config.hooks.env_change.PWD ++= [
-    {||
-      if (which direnv | is-empty) { return }
-      direnv export json | from json | default {} | load-env
-      $env.PATH = do (env-conversions).path.from_string $env.PATH
-    }
-    {|| pin-gh }
-  ]
 }
 
 if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmux | is-empty) == false) {
@@ -83,6 +74,7 @@ if $nu.is-interactive and (($env.TMUX? | default "" | is-empty)) and ((which tmu
 
 # custom oh-my-posh setup & misc
 source settings/prompt.nu
+source settings/direnv.nu
 source settings/theme.nu
 source settings/keybinds.nu
 
