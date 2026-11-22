@@ -13,6 +13,8 @@ thickness = 0.3
 
 [font]
 size = 19
+offset = { y = 7, x = 0 }
+glyph_offset = { y = 5, x = 0 }
 
 normal = { family = "Rec Mono Linear" }
 bold = { family = "Rec Mono Linear" }
@@ -36,7 +38,10 @@ bindings = [
 #
   { key = "F", mods = "Option|Control", chars = "\u001bf" },
   { key = "B", mods = "Option|Control", chars = "\u001bb" },
-  { key = "Enter", mods = "Shift", chars = "\x1b[13;2u" },
+  { key = "Enter", mods = "Shift", chars = "\u001b[13;2u" },
+  { key = "M", mods = "Super", chars = "\u001bm" },
+  { key = "U", mods = "Super|Control", chars = "\u001b\u0015" },
+  { key = "D", mods = "Super|Control", chars = "\u001b\u0004" },
 #
 #   { key = "Backspace", mods = "Super", chars = "\u0017" },
 #   { key = "Backspace", mods = "Alt", chars = "\u0015" },
