@@ -20,6 +20,7 @@ wallpapers
 .config/launcher
 .config/xremap
 .config/xdg-desktop-portal
+.config/bob
 .local/bin/xremap-niri
 .local/bin/amane_shell
 {{- end }}
@@ -31,5 +32,5 @@ wallpapers
 {{- if ne .chezmoi.os "darwin" }}
 .config/aerospace
 .cargo
-Library/Application Support/bob/config.json
+Library/Application Support/bob
 {{- end }}

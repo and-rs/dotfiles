@@ -7,27 +7,23 @@ TERM = "alacritty"
 [terminal]
 shell = "/run/current-system/sw/bin/nu"
 
+[cursor]
+style = { blinking = "Never" }
+thickness = 0.3
+
 [font]
 size = 19
 
-# offset = { y = 10 }
-# glyph_offset = { y = 5 }
-# normal = { family = "CommitMonoFucker"}
-
-offset = { y = 10 }
-glyph_offset = { y = 2 }
-normal = { family = "OCR-X TTF"}
-
-# offset = { y = 10 }
-# glyph_offset = { y = 2 }
-# normal = { family = "Input Mono"}
+normal = { family = "Rec Mono Linear" }
+bold = { family = "Rec Mono Linear" }
+italic = { family = "Rec Mono Casual" }
+bold_italic = { family = "Rec Mono Casual" }
 
 [window]
 title = "Terminalino"
 dynamic_padding = true
 decorations = "Buttonless"
 option_as_alt = "Both"
-
 
 [window.padding]
 x = 8
@@ -40,6 +36,7 @@ bindings = [
 #
   { key = "F", mods = "Option|Control", chars = "\u001bf" },
   { key = "B", mods = "Option|Control", chars = "\u001bb" },
+  { key = "Enter", mods = "Shift", chars = "\x1b[13;2u" },
 #
 #   { key = "Backspace", mods = "Super", chars = "\u0017" },
 #   { key = "Backspace", mods = "Alt", chars = "\u0015" },

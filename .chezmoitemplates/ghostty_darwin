@@ -17,15 +17,15 @@ quit-after-last-window-closed = true
 
 cursor-style = block
 cursor-style-blink = false
-cursor-opacity = 0
+cursor-opacity = 1
 shell-integration-features = no-cursor
 
 # -> theme
 config-file = themes/current
 
 # -> only for darkmode
-custom-shader-animation = true
-custom-shader = shaders/cursor_wire.glsl
+custom-shader-animation = false
+#custom-shader = shaders/cursor_wire.glsl
 #custom-shader = shaders/crt.glsl
 #custom-shader = shaders/dot_matrix.glsl
 #custom-shader = shaders/glow.glsl

@@ -11,29 +11,20 @@ $env.PATH ++= [
   $"($env.HOME)/.config/nushell/execs"
   $"($env.HOME)/.config/nushell/forgit/helpers"
 ]
+$env.PATH = (
+  $env.PATH
+  | prepend ($env.HOME | path join ".local" "share" "bob" "nvim-bin")
+  | uniq
+)
 
 export-env {
   # Bob owns the active Neovim version through `bob use`.
-  let bob_nvim = ($env.HOME | path join ".local" "share" "bob" "nvim-bin" "nvim")
-  if not (which bob | is-empty) and ($bob_nvim | path exists) {
-    $env.config.buffer_editor = [$bob_nvim]
-    $env.EDITOR = $bob_nvim
-    $env.VISUAL = $bob_nvim
-    $env.SUDO_EDITOR = $bob_nvim
-    $env.MANPAGER = $"($bob_nvim) +Man!"
-  } else if not (which nvim | is-empty) {
-    $env.config.buffer_editor = "nvim"
-    $env.EDITOR = "nvim"
-    $env.VISUAL = "nvim"
-    $env.SUDO_EDITOR = "nvim"
-    $env.MANPAGER = "nvim +Man!"
-  } else {
-    $env.config.buffer_editor = "vim"
-    $env.EDITOR = "vim"
-    $env.VISUAL = "vim"
-    $env.SUDO_EDITOR = "vim"
-    $env.MANPAGER = "vim +Man!"
-  }
+  let editor = (which nvim | get -o 0.path | default "vim")
+  $env.config.buffer_editor = [$editor]
+  $env.EDITOR = $editor
+  $env.VISUAL = $editor
+  $env.SUDO_EDITOR = $editor
+  $env.MANPAGER = $"($editor) +Man!"
 }
 
 source settings/gh.nu
