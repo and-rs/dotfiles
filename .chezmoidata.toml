@@ -1,4 +1,4 @@
-theme = "tokyo-night-day"
+theme = "github-light"
 
 [fonts]
 ui = "Inter"
@@ -145,6 +145,7 @@ black = "#3b4252"
 white = "#eceff4"
 bright_black = "#4c566a"
 
+# mfd.nvim: monochrome terminal variants; ANSI accents share each theme's ink.
 [palettes.mfd-lumon]
 fg = "#79E8F4"
 blue = "#79E8F4"
@@ -161,7 +162,6 @@ black = "#10212C"
 white = "#A0F0FF"
 bright_black = "#469FAE"
 
-# mfd.nvim: monochrome terminal variants; ANSI accents share each theme's ink.
 [palettes.mfd-paper]
 fg = "#001A0B"
 blue = "#001A0B"

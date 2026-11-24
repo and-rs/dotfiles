@@ -12,7 +12,7 @@ alias gs = git status
 alias gss = git diff --cached --name-only
 alias loadenv = open .env | from toml | load-env
 def gb-prune [] {
-  let branches = (
+	let branches = (
     git branch --merged main | lines | each {|r|
       (
         if ($in | str starts-with "  ") {
@@ -21,41 +21,45 @@ def gb-prune [] {
       )
     }
   )
-  if ($branches | is-empty) {
-    print $"(ansi cyan)No branches to delete."
-    return
-  }
-  print $"(ansi red)Branches to delete merged to main:\n"
-  print $branches
-  print
-  let answer = (input $"(ansi cyan)prune branches? (ansi reset)[y]es / [n]o: ")
-  if ($answer in ["" "y" "yes"]) {
-    git branch -d ...($branches)
-    return
-  }
+	if ($branches | is-empty) {
+		print $"(ansi cyan)No branches to delete."
+		return
+	}
+	print $"(ansi red)Branches to delete merged to main:\n"
+	print $branches
+	print
+	let answer = (input $"(ansi cyan)prune branches? (ansi reset)[y]es / [n]o: ")
+	if $answer in ["" "y" "yes"] {
+		git branch -d ...($branches)
+		return
+	}
 }
 
-def gig [] { gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore }
+def gig [] {
+	gh repo gitignore list | fzf --tmux | gh repo gitignore view ($in) | save -f .gitignore
+}
 
 alias yz = yazi
 alias nv = neovide --neovim-bin $"(echo $env.EDITOR)" --chdir .
 
 alias md = table -t markdown
 alias c = clear --keep-scrollback
-def --env loadenv [] { open .env | from toml | load-env }
+def --env loadenv [] {
+	open .env | from toml | load-env
+}
 
 def ls [
-  --du (-d)
-  --long (-l)
-  --threads (-t)
-  --sortable (-s)
-  --mime-type (-m)
-  --directory (-D)
-  --full-paths (-f)
-  ...patterns: glob
+	--du(-d)
+	--long(-l)
+	--threads(-t)
+	--sortable(-s)
+	--mime-type(-m)
+	--directory(-D)
+	--full-paths(-f)
+	...patterns: glob
 ] {
-  let patterns = if ($patterns | is-empty) { ["."] } else { $patterns }
-  let results = (
+	let patterns = if ($patterns | is-empty) { ["."] } else { $patterns }
+	let results = (
     %ls
     --all
     --du=$du
@@ -67,13 +71,18 @@ def ls [
     ...$patterns
   )
 
-  if ($results | is-empty) {
-    return []
-  }
+	if ($results | is-empty) {
+		return []
+	}
 
-  let size_width = ($results | get size | each { into string | str length } | math max)
+	let size_width = (
+		$results
+		| get size
+		| each { into string | str length }
+		| math max
+	)
 
-  $results | sort-by type | each {|line|
+	$results | sort-by type | each {|line|
     return {
       name: (
         if $line.type == "dir" {
@@ -89,7 +98,7 @@ def ls [
       )
       modified: $line.modified
     }
-  } | if (not $sortable) { $in | table -i false } else { $in }
+  } | if not $sortable { $in | table -i false } else { $in }
 }
 
 alias ld = eza -lha --no-permissions --no-user --no-time
@@ -103,42 +112,49 @@ def --env t [] { echo $env.TMP_CMD? }
 # --- KEEP THESE FUNCTIONS DEFINED HERE ---
 
 export def --wrapped vi [...args] {
-  let editor = ($env.config.buffer_editor? | default $env.EDITOR)
-  if ($editor | describe) == "list<string>" {
-    run-external ($editor | first) ...($editor | skip 1) ...$args
-  } else {
-    run-external $editor ...$args
-  }
+	let editor = $env.config.buffer_editor? | default $env.EDITOR
+	if ($editor | describe) == "list<string>" {
+		run-external ($editor | first) ...($editor | skip 1) ...$args
+	} else {
+		run-external $editor ...$args
+	}
 }
 
 # Load opam env vars to the path (of course it isn't eval) (with oxcaml handling)
 def --env "opam eval" [switch?: string] {
-  if ($switch | is-empty) { $env.OPAMSWITCH = "5.2.0+ox" }
-  opam env --shell=powershell (if ($switch | is-empty) { "--switch=5.2.0+ox" })
-  | lines
-  | where ($it | str starts-with '$env:')
-  | parse "$env:{key} = '{value}'"
-  | transpose -rd
-  | update PATH {|r| $r.PATH | split row (char esep) }
-  | load-env
+	if ($switch | is-empty) { $env.OPAMSWITCH = "5.2.0+ox" }
+	opam env --shell=powershell (if ($switch | is-empty) { "--switch=5.2.0+ox" })
+	| lines
+	| where ($it | str starts-with '$env:')
+	| parse "$env:{key} = '{value}'"
+	| transpose -rd
+	| update PATH {|r| $r.PATH | split row (char esep) }
+	| load-env
 }
 
 # Interactive Directory Picker
 def --env f [] {
-  let excludes = [
-    node_module
-    .git
-    .cache
-    .npm
-    .mozilla
-    .meteor
-    .nv
-  ]
-  let cmd_args = $excludes | each {|it| ["--exclude" $it] } | flatten
-  let selected_dir = (
-    fd --type d --hidden ...$cmd_args
-    | fzf --prompt="choose directory > " --reverse --info="right" --padding="1,0,0,1"
-    | str trim
-  )
-  if ($selected_dir | is-not-empty) { cd $selected_dir } else { print "No directory selected." }
+	let excludes = [
+		node_module
+		.git
+		.cache
+		.npm
+		.mozilla
+		.meteor
+		.nv
+	]
+	let cmd_args = $excludes | each {|it| ["--exclude" $it] } | flatten
+	let selected_dir = (
+		fd --type d --hidden ...$cmd_args
+		| fzf --prompt="choose directory > " --reverse --info="right" --padding="1,0,0,1"
+		| str trim
+	)
+	if ($selected_dir | is-not-empty) { cd $selected_dir } else { print "No directory selected." }
+}
+
+# Snowflake type shit
+def sf [-c: string, -q: string, ...args] {
+	with-env { SF_OCSP_RESPONSE_CACHE_SERVER_URL: "http://ocsp.snowflakecomputing.com/ocsp_response_cache.json" } {
+		snow sql --format json --connection $c --query $q ...$args
+	}
 }
