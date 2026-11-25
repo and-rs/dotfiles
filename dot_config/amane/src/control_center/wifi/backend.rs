@@ -2,8 +2,20 @@ use std::fmt;
 
 use zbus::blocking::Connection;
 
-use super::{iwd, network_manager};
+use super::{State, iwd, network_manager, wired_status};
 use crate::control_center::dbus;
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(super) struct Adapter {
+    pub interface: Option<String>,
+    pub address: Option<String>,
+}
+
+#[derive(Debug, Default, PartialEq, Eq)]
+pub(super) struct Wired {
+    pub connected: bool,
+    pub link: Option<(Adapter, Option<u32>)>,
+}
 
 /// Aggregate Wi-Fi association status, not internet reachability.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -15,22 +27,27 @@ pub(super) struct Snapshot {
     pub network: Option<String>,
     /// Strongest known signal among connected devices, normalized to 0..=1.
     pub strength: Option<f32>,
+    pub adapter: Adapter,
+    pub security: Option<&'static str>,
 }
 
 impl Snapshot {
-    pub(super) fn record_connection(&mut self, name: String, strength: Option<f32>) {
+    pub(super) fn record_connection(&mut self, name: String, strength: Option<f32>) -> bool {
         let name = Some(name).filter(|name| !name.is_empty());
         let prefer_name = match (&name, &self.network) {
             (Some(name), Some(current)) => name < current,
             (Some(_), None) => true,
             _ => false,
         };
-        if !self.connected || strength > self.strength || (strength == self.strength && prefer_name)
-        {
+        let preferred = !self.connected
+            || strength > self.strength
+            || (strength == self.strength && prefer_name);
+        if preferred {
             self.network = name;
             self.strength = strength;
         }
         self.connected = true;
+        preferred
     }
 }
 
@@ -102,14 +119,18 @@ impl Backend {
         }
     }
 
-    pub fn read_snapshot(self, connection: &Connection) -> Result<Snapshot, Error> {
+    pub(super) fn read(self, connection: &Connection) -> Result<State, Error> {
         if !dbus::owned(connection, self.service())? {
             return Err(Error::Unavailable);
         }
         match self {
-            Self::NetworkManager => network_manager::read_snapshot(connection),
-            Self::Iwd => iwd::read_snapshot(connection),
+            Self::NetworkManager => Ok(network_manager::read(connection)?),
+            Self::Iwd => Ok(State {
+                wifi: iwd::read_snapshot(connection)?,
+                wired: wired_status(),
+                connectivity: None,
+                status: Some(Ok(self)),
+            }),
         }
-        .map_err(Error::from)
     }
 }

@@ -16,8 +16,8 @@ mod workspaces;
 use std::time::Duration;
 
 use amane::{
-    App, Center, Full, Layer, LayerWindow, Monitor, Padding, Parent, Rectangle, Row, Service, Text,
-    Vertical, Weight, Widget, Zone, children,
+    App, Center, Full, Layer, LayerWindow, Monitor, Padding, Parent, Rectangle, Row, Service, Size,
+    Text, Vertical, Weight, Widget, Zone, children,
 };
 use chrono::Local;
 use niri::Niri;
@@ -97,35 +97,50 @@ fn bar(monitor: &Monitor) -> LayerWindow {
             .weight(Weight::Medium)
             .color(theme.fg)
     };
-    let clock_width = clock_text(design::CLOCK_WIDTH_REFERENCE).width();
+    let panel_padding = Padding {
+        left: 4.0,
+        right: 12.0,
+        top: 0.0,
+        bottom: 0.0,
+    };
+    let gap = 12.0;
+    let workspaces = workspaces::view(&niri, &monitor.name, theme);
+    let buttons = bar_buttons::view(&monitor.name, theme);
+    let control = control_center::button(&monitor.name, theme);
+    let clock = Rectangle::new()
+        .width(clock_text(design::CLOCK_WIDTH_REFERENCE).width())
+        .height(Parent)
+        .align_child(Center, Center)
+        .child(clock_text(&clock.0));
+    let fixed_width = [&workspaces as &dyn Widget, &buttons, &control, &clock]
+        .into_iter()
+        .map(|widget| match widget.width() {
+            Size::Fixed(width) => width,
+            Size::Parent => unreachable!("bar controls have intrinsic width"),
+        })
+        .sum::<f32>();
+    let title_budget =
+        (monitor.width as f32 - fixed_width - panel_padding.left - panel_padding.right - 4.0 * gap)
+            .max(0.0);
 
     window.child(
         Rectangle::new()
             .width(Parent)
             .height(Parent)
             .fill(theme.bg)
-            .padding(Padding {
-                left: 4.0,
-                right: 12.0,
-                top: 0.0,
-                bottom: 0.0,
-            })
+            .padding(panel_padding)
             .child(
                 Row::new(children![
-                    workspaces::view(&niri, &monitor.name, theme),
-                    window_title::view(&niri, &monitor.name, theme),
-                    bar_buttons::view(&monitor.name, theme),
-                    control_center::button(&monitor.name, theme),
-                    Rectangle::new()
-                        .width(clock_width)
-                        .height(Parent)
-                        .align_child(Center, Center)
-                        .child(clock_text(&clock.0)),
+                    workspaces,
+                    window_title::view(&niri, &monitor.name, theme, title_budget),
+                    buttons,
+                    control,
+                    clock,
                 ])
                 .width(Parent)
                 .height(Parent)
                 .align(Center)
-                .gap(12.0),
+                .gap(gap),
             ),
     )
 }

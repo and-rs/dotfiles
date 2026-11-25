@@ -7,12 +7,12 @@ use zbus::{
 
 use super::*;
 
-fn notice(title: &str, timeout: Option<Duration>) -> Notice {
+pub(super) fn notice(title: &str, timeout: Option<Duration>) -> Notice {
     Notice {
         owner: OwnedUniqueName::try_from(":1.22").unwrap(),
         app: "Test".into(),
         title: title.into(),
-        body: String::new(),
+        body: body::Body::parse(String::new()),
         actions: vec![("open".into(), "Open".into())],
         reply: Some("Write a reply".into()),
         resident: false,
@@ -41,6 +41,36 @@ fn active_replacement_restarts_timeout_and_queue_advances_without_losing_history
     let entry = state.entry(first).unwrap();
     assert_eq!(entry.notice.title, "Updated");
     assert!(!entry.live);
+}
+
+#[test]
+fn hiding_popup_advances_queue_and_keeps_history_actions_live() {
+    let (sender, events) = mpsc::channel();
+    let mut state = Notifications {
+        events: Some(sender),
+        ..Notifications::default()
+    };
+    let now = Instant::now();
+    let mut first = notice("First", Some(Duration::from_secs(1)));
+    first.actions.push(("default".into(), "Open".into()));
+    let first = state.submit(0, first, now);
+    let second = state.submit(0, notice("Second", None), now);
+    state.hide_popup_from_ui(first, now);
+    assert_eq!(state.popup.unwrap().id, second);
+    let later = now + Duration::from_secs(2);
+    state.tick(later);
+    assert!(state.entry(first).unwrap().live);
+    assert!(
+        !events
+            .try_iter()
+            .any(|event| matches!(event, Event::Closed(..) | Event::Action(..)))
+    );
+    state.invoke(first, "default", later);
+    assert!(
+        events
+            .try_iter()
+            .any(|event| matches!(event, Event::Action(id, _) if id == first))
+    );
 }
 
 #[test]
@@ -157,6 +187,8 @@ fn fake_notification_session_expires_and_routes_actions_and_replies() {
     let caps: Vec<String> = proxy.call("GetCapabilities", &()).unwrap();
     assert!(caps.iter().any(|value| value == "inline-reply"));
     assert!(caps.iter().any(|value| value == "icon-static"));
+    assert!(caps.iter().any(|value| value == "body-markup"));
+    assert!(caps.iter().any(|value| value == "body-hyperlinks"));
     assert!(!caps.iter().any(|value| value == "body-images"));
 
     let mut closed = proxy.receive_signal("NotificationClosed").unwrap();
@@ -198,11 +230,15 @@ fn fake_notification_session_expires_and_routes_actions_and_replies() {
             assert!(Instant::now() < deadline, "the D-Bus image was not cached");
             thread::sleep(Duration::from_millis(5));
         };
-        Notifications::write().dismiss_popup(image, Instant::now());
+        Notifications::write().hide_popup_from_ui(image, Instant::now());
+        assert!(Notifications::read().entry(image).unwrap().live);
+        proxy
+            .call::<_, _, ()>("CloseNotification", &(image,))
+            .unwrap();
         let message = closed.next().unwrap();
         assert_eq!(
             message.body().deserialize::<(u32, u32)>().unwrap(),
-            (image, CloseReason::Dismissed as u32)
+            (image, CloseReason::Requested as u32)
         );
         assert!(!Notifications::read().entry(image).unwrap().live);
         assert!(

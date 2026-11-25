@@ -37,19 +37,15 @@ impl State {
         })
     }
 
-    fn guidance(&self) -> &'static str {
+    fn troubleshooting(&self) -> Option<&'static str> {
         match &self.status {
-            None => "Reading network status…",
             Some(Err(Error::Unavailable)) => {
-                "NetworkManager or iwd must be running to read Wi-Fi status."
-            }
-            Some(Err(Error::PermissionDenied(_))) => {
-                "The system did not allow access to network status."
+                Some("NetworkManager or iwd must be running to read Wi-Fi status.")
             }
             Some(Err(Error::ReadFailed(_))) => {
-                "Could not read network status. Retrying automatically."
+                Some("Could not read Wi-Fi status. Retrying automatically.")
             }
-            Some(Ok(_)) => "Read-only status. Connection controls are not available yet.",
+            _ => None,
         }
     }
 
@@ -67,7 +63,7 @@ impl State {
             Some(Ok(_)) => "Disabled",
         };
         let wired = match &self.status {
-            _ if self.wired => "Link detected",
+            _ if self.wired.link.is_some() => "Link detected",
             None => "Checking…",
             Some(Err(Error::PermissionDenied(_) | Error::ReadFailed(_))) => "Unknown",
             _ => "No link",
@@ -77,6 +73,30 @@ impl State {
             ("Wireless", wireless),
             ("Wired", wired),
         ]
+    }
+
+    fn diagnostics(&self) -> impl Iterator<Item = (&'static str, String)> {
+        let adapter = self
+            .wired
+            .link
+            .as_ref()
+            .map_or(&self.wifi.adapter, |(adapter, _)| adapter);
+        [
+            ("Interface", adapter.interface.clone()),
+            ("Adapter address", adapter.address.clone()),
+            ("Wi-Fi security", self.wifi.security.map(str::to_owned)),
+            (
+                "Ethernet speed",
+                self.wired
+                    .link
+                    .as_ref()
+                    .and_then(|(_, speed)| *speed)
+                    .map(|speed| format!("{speed} Mbps")),
+            ),
+            ("Host internet", self.connectivity.map(str::to_owned)),
+        ]
+        .into_iter()
+        .filter_map(|(label, value)| Some((label, value?)))
     }
 }
 
@@ -148,7 +168,9 @@ fn details(state: &State, theme: &Theme, width: f32) -> Column {
         state
             .detail_values()
             .into_iter()
-            .map(|(label, value)| detail_row(label, value, theme, inner_width))
+            .map(|(label, value)| (label, value.into()))
+            .chain(state.diagnostics())
+            .map(|(label, value)| detail_row(label, &value, theme, inner_width))
             .collect(),
     )
     .width(Parent)
@@ -156,9 +178,7 @@ fn details(state: &State, theme: &Theme, width: f32) -> Column {
     let Size::Fixed(rows_height) = Widget::height(&rows) else {
         unreachable!("detail rows have intrinsic height");
     };
-    let guidance = ui::supporting(state.guidance(), theme).wrap();
-    let guidance_height = guidance.height_in(width);
-    Column::new(children![
+    let mut content = children![
         ui::body("Details", theme).weight(typography::HEADLINE_WEIGHT),
         Rectangle::new()
             .width(Parent)
@@ -167,13 +187,17 @@ fn details(state: &State, theme: &Theme, width: f32) -> Column {
             .fill(theme.surface2)
             .radius(theme.radius.normal)
             .child(rows),
-        Rectangle::new()
-            .width(Parent)
-            .height(guidance_height)
-            .child(guidance),
-    ])
-    .width(Parent)
-    .gap(spacing::SMALL)
+    ];
+    if let Some(message) = state.troubleshooting() {
+        let guidance = ui::supporting(message, theme).wrap();
+        content.push(Box::new(
+            Rectangle::new()
+                .width(Parent)
+                .height(guidance.height_in(width))
+                .child(guidance),
+        ));
+    }
+    Column::new(content).width(Parent).gap(spacing::SMALL)
 }
 
 pub fn view(theme: &Theme, width: f32) -> Column {
@@ -226,8 +250,10 @@ mod tests {
                 connected: true,
                 network: Some("Home Wi-Fi".into()),
                 strength: Some(0.75),
+                ..Snapshot::default()
             },
-            wired: false,
+            wired: Default::default(),
+            connectivity: None,
             status: Some(Ok(backend)),
         }
     }
@@ -237,6 +263,7 @@ mod tests {
         let mut state = State::new();
         assert_eq!(state.connection_label(), "Checking Wi-Fi…");
         assert_eq!(state.signal_label(), None);
+        assert_eq!(state.troubleshooting(), None);
         state.status = Some(Ok(Backend::Iwd));
         assert_eq!(state.connection_label(), "No Wi-Fi adapter");
         state.wifi.present = true;
@@ -246,6 +273,7 @@ mod tests {
         for backend in [Backend::NetworkManager, Backend::Iwd] {
             let mut state = connected(backend);
             assert_eq!(state.connection_label(), "Connected");
+            assert_eq!(state.troubleshooting(), None);
             assert_eq!(state.network_label(), "Home Wi-Fi");
             assert_eq!(state.signal_label().as_deref(), Some("Signal 75%"));
             state.wifi.strength = None;
@@ -259,20 +287,58 @@ mod tests {
 
     #[test]
     fn errors_are_readable_and_do_not_expose_raw_bus_messages() {
-        for error in [
-            Error::Unavailable,
-            Error::PermissionDenied("raw D-Bus error".into()),
-            Error::ReadFailed("raw D-Bus error".into()),
+        for (error, label, guidance) in [
+            (
+                Error::Unavailable,
+                "Wi-Fi unavailable",
+                Some("NetworkManager or iwd must be running to read Wi-Fi status."),
+            ),
+            (
+                Error::PermissionDenied("raw D-Bus error".into()),
+                "Permission denied",
+                None,
+            ),
+            (
+                Error::ReadFailed("raw D-Bus error".into()),
+                "Wi-Fi unavailable",
+                Some("Could not read Wi-Fi status. Retrying automatically."),
+            ),
         ] {
             let state = State::unavailable(error);
-            assert!(!state.guidance().contains("raw D-Bus"));
+            assert_eq!(state.connection_label(), label);
+            assert_eq!(state.troubleshooting(), guidance);
             assert_eq!(state.signal_label(), None);
             assert_eq!(state.detail_values()[0], ("Backend", "Unavailable"));
         }
         let mut state = State::unavailable(Error::Unavailable);
-        state.wired = true;
+        state.wired.link = Some((Default::default(), None));
         assert_eq!(state.detail_values()[2], ("Wired", "Link detected"));
         assert_eq!(state.connection_label(), "Wi-Fi unavailable");
+    }
+
+    #[test]
+    fn diagnostics_only_show_known_values_and_keep_ethernet_details_together() {
+        let mut state = connected(Backend::NetworkManager);
+        assert_eq!(state.diagnostics().count(), 0);
+        state.wifi.adapter.interface = Some("wlan0".into());
+        state.wifi.security = Some("WPA2 Personal");
+        state.wired.link = Some((
+            super::super::backend::Adapter {
+                interface: Some("eth0".into()),
+                address: None,
+            },
+            Some(1000),
+        ));
+        state.connectivity = Some("Captive portal");
+        assert_eq!(
+            state.diagnostics().collect::<Vec<_>>(),
+            [
+                ("Interface", "eth0".into()),
+                ("Wi-Fi security", "WPA2 Personal".into()),
+                ("Ethernet speed", "1000 Mbps".into()),
+                ("Host internet", "Captive portal".into()),
+            ]
+        );
     }
 
     #[test]

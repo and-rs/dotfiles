@@ -82,7 +82,6 @@ pub mod button {
     };
     pub const HOVER_TINT: f32 = 0.06;
     pub const PRESSED_TINT: f32 = 0.12;
-    pub const SELECTED_TINT: f32 = 0.12;
 }
 
 pub mod scroll {
@@ -96,6 +95,10 @@ pub mod tray {
     pub const ICON_HALO_OPACITY: f32 = 0.6;
 }
 
+pub mod timer_bar {
+    pub const HEIGHT: f32 = super::BORDER_WIDTH;
+}
+
 pub mod notifications {
     use super::{Duration, padding, size, spacing};
 
@@ -104,7 +107,7 @@ pub mod notifications {
     pub const THUMBNAIL_PIXELS: u32 = THUMBNAIL as u32 * 2;
     pub const ACTION_HEIGHT: f32 = size::BUTTON + spacing::EXTRA_SMALL * 2.0;
     pub const ACTION_PADDING: f32 = spacing::EXTRA_SMALL;
-    pub const PROGRESS_HEIGHT: f32 = super::BORDER_WIDTH;
+    pub const LINK_UNDERLINE: f32 = super::BORDER_WIDTH / 2.0;
     pub const EDGE: f32 = padding::NORMAL;
     pub const TOP: f32 = super::BAR_HEIGHT + spacing::SMALL;
     pub const POPUP_TIMEOUT: Duration = Duration::from_secs(5);

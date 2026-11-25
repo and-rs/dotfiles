@@ -12,7 +12,7 @@ use std::{fs, thread, time::Duration};
 use amane::{Service, Stack, Widget};
 use zbus::blocking::Connection;
 
-use backend::{Backend, Error, Snapshot};
+use backend::{Adapter, Backend, Error, Snapshot, Wired};
 
 use super::{dbus, ui::icon};
 use crate::{design::indicator as tokens, theme::Theme};
@@ -20,7 +20,8 @@ use crate::{design::indicator as tokens, theme::Theme};
 #[derive(Debug, PartialEq)]
 struct State {
     wifi: Snapshot,
-    wired: bool,
+    wired: Wired,
+    connectivity: Option<&'static str>,
     status: Option<Result<Backend, Error>>,
 }
 
@@ -28,7 +29,8 @@ impl State {
     fn unavailable(error: Error) -> Self {
         Self {
             wifi: Snapshot::default(),
-            wired: false,
+            wired: Wired::default(),
+            connectivity: None,
             status: Some(Err(error)),
         }
     }
@@ -37,9 +39,8 @@ impl State {
 impl Service for State {
     fn new() -> Self {
         Self {
-            wifi: Snapshot::default(),
-            wired: false,
             status: None,
+            ..Self::unavailable(Error::Unavailable)
         }
     }
 
@@ -61,7 +62,7 @@ impl Service for State {
                     if unavailable {
                         bus = None;
                         backend = None;
-                        state.wired = wired_carrier();
+                        state.wired = wired_status();
                     }
                     state
                 }
@@ -86,29 +87,39 @@ fn read(connection: &Connection, selected: &mut Option<Backend>) -> Result<State
             backend
         }
     };
-    let wifi = backend.read_snapshot(connection)?;
-    let wired = match backend {
-        Backend::NetworkManager => network_manager::wired_connected(connection)?,
-        Backend::Iwd => wired_carrier(),
-    };
-    Ok(State {
-        wifi,
-        wired,
-        status: Some(Ok(backend)),
-    })
+    backend.read(connection)
 }
 
-fn wired_carrier() -> bool {
+fn wired_status() -> Wired {
     let Ok(entries) = fs::read_dir("/sys/class/net") else {
-        return false;
+        return Wired::default();
     };
-    entries.flatten().any(|entry| {
-        let path = entry.path();
-        path.join("device").exists()
-            && !path.join("wireless").exists()
-            && fs::read_to_string(path.join("type")).is_ok_and(|value| value.trim() == "1")
-            && fs::read_to_string(path.join("carrier")).is_ok_and(|value| value.trim() == "1")
-    })
+    let link = entries
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+            let carrier = path.join("device").exists()
+                && !path.join("wireless").exists()
+                && fs::read_to_string(path.join("type")).is_ok_and(|value| value.trim() == "1")
+                && fs::read_to_string(path.join("carrier")).is_ok_and(|value| value.trim() == "1");
+            if !carrier {
+                return None;
+            }
+            let interface = entry.file_name().into_string().ok();
+            let address = fs::read_to_string(path.join("address"))
+                .ok()
+                .map(|value| value.trim().to_owned());
+            let speed = fs::read_to_string(path.join("speed"))
+                .ok()
+                .and_then(|value| value.trim().parse::<u32>().ok())
+                .filter(|speed| *speed > 0);
+            Some((Adapter { interface, address }, speed))
+        })
+        .min_by(|(a, _), (b, _)| a.interface.cmp(&b.interface));
+    Wired {
+        connected: link.is_some(),
+        link,
+    }
 }
 
 fn glyph(state: &Snapshot, wired: bool) -> char {
@@ -134,17 +145,17 @@ fn glyph(state: &Snapshot, wired: bool) -> char {
 pub(super) fn indicator(theme: &Theme) -> Stack {
     let state = State::read();
     let wifi = &state.wifi;
-    let color = if state.wired || (wifi.connected && wifi.enabled) {
+    let color = if state.wired.connected || (wifi.connected && wifi.enabled) {
         theme.fg
     } else {
         theme.surface4
     };
     let mut layers: Vec<Box<dyn Widget>> = Vec::new();
-    if !state.wired && wifi.present {
+    if !state.wired.connected && wifi.present {
         layers.push(Box::new(
             icon('\u{e4ea}', theme.surface4).opacity(tokens::GHOST_OPACITY),
         ));
     }
-    layers.push(Box::new(icon(glyph(wifi, state.wired), color)));
+    layers.push(Box::new(icon(glyph(wifi, state.wired.connected), color)));
     Stack::new(layers)
 }

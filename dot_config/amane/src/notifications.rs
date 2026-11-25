@@ -1,3 +1,4 @@
+mod body;
 mod bus;
 mod images;
 #[cfg(test)]
@@ -23,7 +24,7 @@ struct Notice {
     owner: OwnedUniqueName,
     app: String,
     title: String,
-    body: String,
+    body: body::Body,
     actions: Vec<(String, String)>,
     reply: Option<String>,
     resident: bool,
@@ -164,9 +165,15 @@ impl Notifications {
         }
     }
 
-    fn dismiss_popup(&mut self, id: u32, now: Instant) {
-        if self.popup.is_some_and(|popup| popup.id == id) {
+    fn hide_popup_from_ui(&mut self, id: u32, now: Instant) {
+        if !self.popup.is_some_and(|popup| popup.id == id) {
+            return;
+        }
+        if self.entry(id).is_some_and(|entry| entry.notice.transient) {
+            // A transient notice has no history entry to return to.
             self.close(id, CloseReason::Dismissed, false, now);
+        } else {
+            self.hide_popup(id, now);
         }
     }
 

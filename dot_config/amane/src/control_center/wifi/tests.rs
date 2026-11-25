@@ -28,6 +28,7 @@ enum Fault {
     Denied,
     Failed,
     MissingDevice,
+    MissingWired,
 }
 
 fn check_fault(fault: Option<Fault>) -> zbus::fdo::Result<()> {
@@ -230,9 +231,10 @@ fn fixture(
                             kind: 1,
                         },
                     )
-                    .unwrap()
-                    .serve_at(wired_path, NmWired(carrier))
                     .unwrap();
+                if !matches!(fault, Some(Fault::MissingWired)) {
+                    builder = builder.serve_at(wired_path, NmWired(carrier)).unwrap();
+                }
             }
             builder = builder
                 .serve_at(
@@ -414,7 +416,7 @@ fn fake_backends_share_the_snapshot_contract() {
             let server = fixture(backend, stations, None, None);
             assert_eq!(Backend::detect(&client).unwrap(), backend);
             assert_eq!(
-                backend.read_snapshot(&client).unwrap(),
+                backend.read(&client).unwrap().wifi,
                 *expected,
                 "{backend:?}: {name}"
             );
@@ -422,7 +424,7 @@ fn fake_backends_share_the_snapshot_contract() {
         }
         for fault in [Fault::Denied, Fault::Failed, Fault::MissingDevice] {
             let server = fixture(backend, &[CONNECTED], Some(fault), None);
-            let error = backend.read_snapshot(&client).unwrap_err();
+            let error = backend.read(&client).unwrap_err();
             match fault {
                 Fault::Denied => assert!(matches!(error, Error::PermissionDenied(_)), "{error:?}"),
                 _ => assert!(matches!(error, Error::ReadFailed(_)), "{error:?}"),
@@ -430,16 +432,17 @@ fn fake_backends_share_the_snapshot_contract() {
             release(&server, backend);
         }
         let server = fixture(backend, &[CONNECTED], None, None);
-        assert_eq!(backend.read_snapshot(&client).unwrap(), connected);
+        assert_eq!(backend.read(&client).unwrap().wifi, connected);
         release(&server, backend);
-        assert_eq!(backend.read_snapshot(&client), Err(Error::Unavailable));
+        assert_eq!(backend.read(&client), Err(Error::Unavailable));
         assert_eq!(Backend::detect(&client), Err(Error::Unavailable));
         server.request_name(backend.service()).unwrap();
         assert_eq!(
             Backend::detect(&client)
                 .unwrap()
-                .read_snapshot(&client)
-                .unwrap(),
+                .read(&client)
+                .unwrap()
+                .wifi,
             connected
         );
         release(&server, backend);
@@ -466,13 +469,22 @@ fn fake_backends_share_the_snapshot_contract() {
         (true, true, true),
     ] {
         let server = fixture(Backend::NetworkManager, &[], None, Some((active, carrier)));
-        assert_eq!(
-            Backend::NetworkManager.read_snapshot(&client).unwrap(),
-            Snapshot::default()
-        );
-        assert_eq!(network_manager::wired_connected(&client).unwrap(), expected);
+        let state = Backend::NetworkManager.read(&client).unwrap();
+        assert_eq!(state.wifi, Snapshot::default());
+        assert_eq!(state.wired.connected, expected);
+        assert_eq!(state.wired.link.is_some(), carrier);
         release(&server, Backend::NetworkManager);
     }
+
+    let server = fixture(
+        Backend::NetworkManager,
+        &[CONNECTED],
+        Some(Fault::MissingWired),
+        Some((true, true)),
+    );
+    let state = Backend::NetworkManager.read(&client).unwrap();
+    assert_eq!(state.wifi, connected);
+    release(&server, Backend::NetworkManager);
 }
 
 #[test]

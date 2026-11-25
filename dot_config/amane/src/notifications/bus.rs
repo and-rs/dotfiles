@@ -14,7 +14,7 @@ use zbus::{
     zvariant::OwnedValue,
 };
 
-use super::{CloseReason, Event, Notice, Notifications, images};
+use super::{CloseReason, Event, Notice, Notifications, body::Body, images};
 use crate::design;
 
 pub(super) const NAME: &str = "org.freedesktop.Notifications";
@@ -38,6 +38,8 @@ impl Server {
         vec![
             "actions",
             "body",
+            "body-markup",
+            "body-hyperlinks",
             "persistence",
             "inline-reply",
             "icon-static",
@@ -101,7 +103,7 @@ impl Server {
             owner,
             app: app_name.chars().take(LABEL_LIMIT).collect(),
             title: summary.chars().take(LABEL_LIMIT).collect(),
-            body: body.chars().take(BODY_LIMIT).collect(),
+            body: Body::parse(body.chars().take(BODY_LIMIT).collect()),
             actions,
             reply,
             resident: hint_bool("resident"),

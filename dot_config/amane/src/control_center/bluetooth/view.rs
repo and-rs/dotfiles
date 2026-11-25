@@ -319,14 +319,6 @@ fn device_list(state: &State, theme: &Theme, width: f32) -> Column {
             for device in devices {
                 content.push(Box::new(device_card(device, snapshot, state, theme, width)));
             }
-            if !paired {
-                content.push(Box::new(paragraph(
-                    "Pair new devices in Bluetooth settings.",
-                    theme,
-                    width,
-                    false,
-                )));
-            }
         }
     }
     Column::new(content).width(Parent).gap(spacing::SMALL)

@@ -11,6 +11,7 @@ niri-ipc = "=26.4.0"
 png = "0.18"
 # SVG silhouette filters also wrap PNG tray icons.
 resvg = { version = "0.48.1", default-features = false, features = ["raster-images"] }
+roxmltree = "0.21"
 rustix = { version = "1.1", features = ["fs"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

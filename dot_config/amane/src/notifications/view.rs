@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     ops::Range,
     sync::{Arc, Weak},
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 use amane::{
@@ -16,6 +16,7 @@ use super::{Entry, Notice, Notifications};
 use crate::{
     components::{
         Button as UiButton, Variant, button::icon_glyph, scroll_area::anchored_scroll_area,
+        timer_bar::timer_bar,
     },
     design::{self, notifications as layout, padding, spacing, typography},
     niri::Niri,
@@ -126,7 +127,7 @@ fn card(
     theme: &Theme,
     width: f32,
     popup: bool,
-    progress: Option<f32>,
+    timer: Option<(Instant, Duration)>,
     replying: bool,
     show_image: bool,
 ) -> Rectangle {
@@ -135,13 +136,7 @@ fn card(
     let notice = &entry.notice;
     let available = (width - padding::NORMAL * 2.0).max(0.0);
     let badge_size = layout::THUMBNAIL.min(available / 3.0);
-    let close_width = if popup {
-        design::size::BUTTON + spacing::EXTRA_SMALL
-    } else {
-        0.0
-    };
-    let info_width = (available - close_width).max(0.0);
-    let text_width = (info_width - badge_size - spacing::SMALL).max(0.0);
+    let text_width = (available - badge_size - spacing::SMALL).max(0.0);
     let initial = notice
         .app
         .chars()
@@ -167,10 +162,6 @@ fn card(
         .wrap()
         .elide()
         .max_lines(2);
-    let body = text(&notice.body, theme)
-        .wrap()
-        .elide()
-        .max_lines(if popup { 4 } else { 6 });
     let mut labels = children![
         text(&notice.app, theme)
             .color(theme.surface4)
@@ -181,13 +172,11 @@ fn card(
             .height(title.height_in(text_width))
             .child(title),
     ];
-    if !notice.body.is_empty() {
-        labels.push(Box::new(
-            Rectangle::new()
-                .width(Parent)
-                .height(body.height_in(text_width))
-                .child(body),
-        ));
+    if let Some(body) = notice
+        .body
+        .view(theme, text_width, if popup { 4 } else { 6 })
+    {
+        labels.push(Box::new(body));
     }
     let info = Row::new(children![
         badge,
@@ -195,56 +184,19 @@ fn card(
             .width(text_width)
             .gap(spacing::EXTRA_SMALL)
     ])
-    .width(info_width)
+    .width(available)
     .align(Start)
     .gap(spacing::SMALL);
-    let has_default = entry.live && notice.actions.iter().any(|(key, _)| key == "default");
-    let mut heading = if popup || has_default {
-        children![
-            UiButton::new(format!("notification:{surface}:{id}:card"), "", theme)
-                .variant(Variant::Ghost)
-                .width(info_width)
-                .height(height(&info))
-                .padding(0.0)
-                .content(info)
-                .on_click(move |button| {
-                    if button == Button::Left {
-                        let mut state = Notifications::write();
-                        let now = Instant::now();
-                        if has_default {
-                            state.invoke(id, "default", now);
-                        } else {
-                            state.dismiss_popup(id, now);
-                        }
-                    }
-                })
-                .build()
-        ]
-    } else {
-        children![info]
-    };
-    if popup {
-        heading.push(Box::new(close_button(
-            format!("notification:{id}:close"),
-            theme,
-            move || {
-                Notifications::write().dismiss_popup(id, Instant::now());
-            },
-        )));
-    }
-    let mut content = children![
-        Row::new(heading)
-            .width(Parent)
-            .align(Start)
-            .gap(spacing::EXTRA_SMALL)
-    ];
+    let mut content = children![info];
 
     let mut buttons: Vec<Box<dyn Widget>> = Vec::new();
     if entry.live {
         for (index, (key, label)) in notice.actions.iter().enumerate() {
-            if key == "default" {
-                continue;
-            }
+            let label = if key == "default" && label.trim().is_empty() {
+                "Open"
+            } else {
+                label.as_str()
+            };
             let key = key.clone();
             buttons.push(Box::new(action(
                 format!("notification:{surface}:{id}:action:{index}"),
@@ -308,23 +260,11 @@ fn card(
         ));
         content.push(Box::new(text("Enter to send", theme).color(theme.surface4)));
     }
-    if let Some(progress) = progress {
-        content.push(Box::new(
-            Rectangle::new()
-                .width(Parent)
-                .height(layout::PROGRESS_HEIGHT)
-                .fill(theme.surface3)
-                .align_child(Start, Center)
-                .child(
-                    Rectangle::new()
-                        .width(available * progress)
-                        .height(Parent)
-                        .fill(theme.accent),
-                ),
-        ));
+    if let Some((deadline, duration)) = timer {
+        content.push(Box::new(timer_bar(available, deadline, duration, theme)));
     }
     let content = Column::new(content).width(Parent).gap(spacing::EXTRA_SMALL);
-    Rectangle::new()
+    let card = Rectangle::new()
         .width(width)
         .height(height(&content) + padding::NORMAL * 2.0)
         .padding(padding::NORMAL)
@@ -338,7 +278,15 @@ fn card(
                 theme.surface4
             },
         )
-        .child(content)
+        .child(content);
+    if popup {
+        return card.cursor(amane::Cursor::Pointer).on_click(move |button| {
+            if button == Button::Left {
+                Notifications::write().hide_popup_from_ui(id, Instant::now());
+            }
+        });
+    }
+    card
 }
 
 fn panel_width(monitor: &Monitor) -> f32 {
@@ -378,19 +326,9 @@ pub fn popup(monitor: &Monitor) -> LayerWindow {
     let Some((popup, entry)) = displayed else {
         return popup_window(width, 0.0).visible(false);
     };
-    let progress = popup
-        .deadline
-        .zip(entry.notice.timeout)
-        .map(|(deadline, duration)| {
-            amane::request_frame();
-            (deadline
-                .saturating_duration_since(Instant::now())
-                .as_secs_f32()
-                / duration.as_secs_f32())
-            .clamp(0.0, 1.0)
-        });
+    let timer = popup.deadline.zip(entry.notice.timeout);
     let theme = ThemeState::read();
-    let card = card(&entry, &theme.theme, width, true, progress, false, true);
+    let card = card(&entry, &theme.theme, width, true, timer, false, true);
     popup_window(width, height(&card)).child(card)
 }
 
@@ -419,6 +357,8 @@ thread_local! {
     static HISTORY_LAYOUT: RefCell<HistoryLayout> = RefCell::default();
 }
 
+const UNDO_ROW_HEIGHT: f32 = layout::ACTION_HEIGHT + spacing::TINY + design::timer_bar::HEIGHT;
+
 fn history_card(
     entry: &Entry,
     theme: &Theme,
@@ -427,14 +367,24 @@ fn history_card(
     images: bool,
 ) -> Rectangle {
     let id = entry.id;
-    if entry.undo_until.is_some() {
-        return action(
+    if let Some(deadline) = entry.undo_until {
+        let undo = action(
             format!("notification:{id}:undo"),
             "Dismissed · Undo",
             Variant::Secondary,
             theme,
             move || Notifications::write().undo(id),
         );
+        let content = Column::new(children![
+            undo,
+            timer_bar(width, deadline, layout::UNDO, theme)
+        ])
+        .width(Parent)
+        .gap(spacing::TINY);
+        return Rectangle::new()
+            .width(Parent)
+            .height(height(&content))
+            .child(content);
     }
     card(entry, theme, width, false, None, replying, images)
 }
@@ -461,7 +411,7 @@ fn history_geometry(
                 let offset = top;
                 let replying = reply_to == Some(entry.id);
                 let item_height = if entry.undo_until.is_some() {
-                    layout::ACTION_HEIGHT
+                    UNDO_ROW_HEIGHT
                 } else {
                     let notice = Arc::downgrade(&entry.notice);
                     let cached = cache.cards.get(&entry.id).filter(|measured| {
@@ -654,16 +604,20 @@ pub fn sidebar(monitor: &Monitor) -> LayerWindow {
 mod tests {
     use super::*;
 
-    #[test]
-    fn bell_button_grows_only_to_fit_the_visible_count() {
-        let theme: Theme = serde_json::from_value(serde_json::json!({
+    fn theme() -> Theme {
+        serde_json::from_value(serde_json::json!({
             "bg": "#ffffff", "fg": "#000000", "accent": "#0000ff",
             "success": "#008000", "destructive": "#ff0000",
             "surface1": "#eeeeee", "surface2": "#dddddd",
             "surface3": "#cccccc", "surface4": "#666666", "font": "sans-serif",
             "radius": { "small": 2.0, "normal": 4.0, "large": 6.0 }
         }))
-        .unwrap();
+        .unwrap()
+    }
+
+    #[test]
+    fn bell_button_grows_only_to_fit_the_visible_count() {
+        let theme = theme();
         let width = |count| {
             let Size::Fixed(width) = Widget::width(&bell_button("test", &theme, count, true))
             else {
@@ -676,6 +630,43 @@ mod tests {
         assert!(width(3) < width(99));
         assert!(width(99) < width(100));
         assert_eq!(width(100), width(101));
+    }
+
+    #[test]
+    fn timer_bars_are_counted_in_popup_and_undo_geometry() {
+        let theme = theme();
+        let mut state = Notifications::default();
+        let now = Instant::now();
+        let duration = Duration::from_secs(5);
+        let id = state.submit(
+            0,
+            super::super::tests::notice("Message", Some(duration)),
+            now,
+        );
+        let entry = state.entry(id).unwrap();
+        let width = 300.0;
+        let timeless = card(entry, &theme, width, true, None, false, false);
+        let timed = card(
+            entry,
+            &theme,
+            width,
+            true,
+            Some((now + duration, duration)),
+            false,
+            false,
+        );
+        assert_eq!(
+            height(&timed) - height(&timeless),
+            spacing::EXTRA_SMALL + design::timer_bar::HEIGHT
+        );
+
+        state.dismiss(id, now);
+        let entry = state.entry(id).unwrap();
+        let (measured, _) = history_geometry(&[entry], &theme, width, None);
+        assert_eq!(
+            height(&history_card(entry, &theme, width, false, false)),
+            measured
+        );
     }
 
     #[test]

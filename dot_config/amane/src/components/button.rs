@@ -262,7 +262,7 @@ impl<'a> Button<'a> {
             Variant::Destructive => (theme.surface2, theme.destructive),
         };
         if self.selected {
-            fill = tint(theme.surface2, theme.accent, design::button::SELECTED_TINT);
+            fill = theme.surface1;
             foreground = theme.accent;
         } else if self.disabled {
             fill = theme.surface2;
@@ -372,11 +372,7 @@ mod tests {
                     Color::TRANSPARENT
                 )
             );
-            let selected = (
-                tint(theme.surface2, theme.accent, design::button::SELECTED_TINT),
-                theme.accent,
-                theme.accent,
-            );
+            let selected = (theme.surface1, theme.accent, theme.accent);
             let button = button.selected(true);
             assert_eq!(button.colors(Interaction::default()), selected);
             assert_eq!(

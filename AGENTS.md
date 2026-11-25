@@ -5,6 +5,7 @@
 - Quickshell (`dot_config/quickshell/`) is deprecated. Do not modify it or use it for new shell work. Amane (`dot_config/amane/`) is the supported shell.
 - Never recommend forking dependencies. The ongoing maintenance cost outweighs the convenience; prefer existing APIs or changes accepted upstream.
 - Reuse shared Amane UI components, such as buttons, whenever they fit. Do not build feature-local equivalents for behavior a shared component already provides.
+- In Amane, do not narrate implementation progress or missing features in the UI (for example, "read-only for now" or "controls coming soon"). Keep useful, context-specific troubleshooting guidance for real problems, including what dependency to check or whether the shell will retry.
 - Amane UI must use the shared values in `dot_config/amane/src/design.rs` and the theme. Shared icon fonts, icon sizes, dimensions, spacing, padding, borders, typography, and animation durations are mandatory, not optional defaults. Do not hardcode component-local replacements or duplicate existing tokens. Add genuinely new fixed design values to `design.rs`; keep palette, fonts, and radii in the theme.
 - Amane text must use only `design::typography::BODY_SIZE` (14px) or `design::typography::HEADLINE_SIZE` (24px, for prominent values such as the battery percentage). Do not add other text font sizes, theme-controlled sizes, scale factors, or component-local overrides. Icon glyphs must use the shared icon-size tokens instead.
 - Never user emdashes in dotfiles.
