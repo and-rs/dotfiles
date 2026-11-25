@@ -92,16 +92,15 @@ fn height(widget: &impl Widget) -> f32 {
     }
 }
 
-fn action(
+fn action<'a>(
     key: String,
     label: &str,
     variant: Variant,
-    theme: &Theme,
+    theme: &'a Theme,
     on_click: impl Fn() + 'static,
-) -> Rectangle {
+) -> UiButton<'a> {
     UiButton::new(key, label, theme)
         .variant(variant)
-        .width(Parent)
         .height(layout::ACTION_HEIGHT)
         .padding(layout::ACTION_PADDING)
         .on_click(move |button| {
@@ -109,7 +108,23 @@ fn action(
                 on_click();
             }
         })
-        .build()
+}
+
+fn action_rows<'a>(buttons: Vec<UiButton<'a>>, width: f32) -> impl Iterator<Item = Row> + 'a {
+    let gap = spacing::EXTRA_SMALL;
+    let half = (width - gap).max(0.0) / 2.0;
+    let mut buttons = buttons.into_iter().peekable();
+    std::iter::from_fn(move || {
+        let first = buttons.next()?;
+        let row = if first.label_width() <= half
+            && let Some(second) = buttons.next_if(|button| button.label_width() <= half)
+        {
+            children![first.width(half).build(), second.width(half).build()]
+        } else {
+            children![first.width(width).build()]
+        };
+        Some(Row::new(row).gap(gap))
+    })
 }
 
 fn close_button(key: String, theme: &Theme, close: impl Fn() + 'static) -> Rectangle {
@@ -189,7 +204,7 @@ fn card(
     .gap(spacing::SMALL);
     let mut content = children![info];
 
-    let mut buttons: Vec<Box<dyn Widget>> = Vec::new();
+    let mut buttons = Vec::new();
     if entry.live {
         for (index, (key, label)) in notice.actions.iter().enumerate() {
             let label = if key == "default" && label.trim().is_empty() {
@@ -198,18 +213,18 @@ fn card(
                 label.as_str()
             };
             let key = key.clone();
-            buttons.push(Box::new(action(
+            buttons.push(action(
                 format!("notification:{surface}:{id}:action:{index}"),
                 label,
                 Variant::Secondary,
                 theme,
                 move || Notifications::write().invoke(id, &key, Instant::now()),
-            )));
+            ));
         }
     }
     if !popup {
         if entry.live && notice.reply.is_some() {
-            buttons.push(Box::new(action(
+            buttons.push(action(
                 format!("notification:{id}:reply"),
                 if replying { "Cancel reply" } else { "Reply" },
                 Variant::Secondary,
@@ -219,24 +234,17 @@ fn card(
                     let mut state = Notifications::write();
                     state.reply_to = (state.reply_to != Some(id)).then_some(id);
                 },
-            )));
+            ));
         }
-        buttons.push(Box::new(action(
+        buttons.push(action(
             format!("notification:{id}:dismiss"),
             "Dismiss",
             Variant::Ghost,
             theme,
             move || Notifications::write().dismiss(id, Instant::now()),
-        )));
-    }
-    let mut buttons = buttons.into_iter();
-    while let Some(first) = buttons.next() {
-        let mut row = vec![first];
-        row.extend(buttons.next());
-        content.push(Box::new(
-            Row::new(row).width(Parent).gap(spacing::EXTRA_SMALL),
         ));
     }
+    content.extend(action_rows(buttons, available).map(|row| Box::new(row) as Box<dyn Widget>));
     if replying && let Some(placeholder) = &notice.reply {
         let input = TextInput::new(REPLY_FIELD)
             .placeholder(placeholder)
@@ -374,7 +382,9 @@ fn history_card(
             Variant::Secondary,
             theme,
             move || Notifications::write().undo(id),
-        );
+        )
+        .width(width)
+        .build();
         let content = Column::new(children![
             undo,
             timer_bar(width, deadline, layout::UNDO, theme)
@@ -520,7 +530,9 @@ pub fn sidebar(monitor: &Monitor) -> LayerWindow {
                 Notifications::write().clear();
                 TextInput::set_text(REPLY_FIELD, "");
             }
-        ),
+        )
+        .width(inside)
+        .build(),
     ])
     .width(Parent)
     .gap(spacing::EXTRA_SMALL);
@@ -630,6 +642,30 @@ mod tests {
         assert!(width(3) < width(99));
         assert!(width(99) < width(100));
         assert_eq!(width(100), width(101));
+    }
+
+    #[test]
+    fn action_rows_wrap_in_order_before_clipping_labels_at_full_width() {
+        let theme = theme();
+        let button = |label: &str| action(label.into(), label, Variant::Secondary, &theme, || {});
+        let long = "Don't show this again";
+        let oversized = "Don't show this notification on this device again";
+        let width = button(long).label_width() + spacing::EXTRA_SMALL;
+        assert!(button(oversized).label_width() > width);
+        for (labels, count) in [
+            (["OK", "No", long], 2),
+            (["OK", long, "No"], 3),
+            ([long, "OK", "No"], 2),
+            ([oversized, "OK", "No"], 2),
+        ] {
+            let rows: Vec<_> =
+                action_rows(labels.into_iter().map(button).collect(), width).collect();
+            assert_eq!(rows.len(), count, "{labels:?}");
+            for row in rows {
+                assert_eq!(height(&row), layout::ACTION_HEIGHT);
+                assert_eq!(Widget::width(&row), Size::Fixed(width));
+            }
+        }
     }
 
     #[test]

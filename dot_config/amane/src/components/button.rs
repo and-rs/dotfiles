@@ -110,10 +110,14 @@ impl<'a> Button<'a> {
     }
 
     pub fn compact_label_width(label: &str, theme: &Theme) -> f32 {
-        let Size::Fixed(width) = label_text(label, theme).width() else {
-            unreachable!("unwrapped button labels have measured widths");
-        };
+        let width = measured_label_width(&label_text(label, theme));
         width + design::button::COMPACT_PADDING.left + design::button::COMPACT_PADDING.right
+    }
+
+    pub fn label_width(&self) -> f32 {
+        measured_label_width(&label_text(self.label.as_str(), self.theme))
+            + self.padding.left
+            + self.padding.right
     }
 
     pub fn variant(mut self, variant: Variant) -> Self {
@@ -182,9 +186,7 @@ impl<'a> Button<'a> {
             }
             if !self.label.is_empty() {
                 let label = label_text(self.label, self.theme).color(foreground);
-                let Size::Fixed(mut width) = label.width() else {
-                    unreachable!("unwrapped button labels have measured widths");
-                };
+                let mut width = measured_label_width(&label);
                 if let Some(Size::Fixed(available)) = self.width {
                     let icons = children.len() + usize::from(self.trailing_icon.is_some());
                     width = width.min(
@@ -289,6 +291,13 @@ fn label_text(label: impl Into<String>, theme: &Theme) -> Text {
         .font(&theme.font)
         .size(design::typography::BODY_SIZE)
         .weight(design::typography::BODY_WEIGHT)
+}
+
+fn measured_label_width(label: &Text) -> f32 {
+    let Size::Fixed(width) = label.width() else {
+        unreachable!("unwrapped button labels have measured widths");
+    };
+    width
 }
 
 fn tint(base: Color, foreground: Color, amount: f32) -> Color {
