@@ -1,3 +1,0 @@
-module IconValidation
-plugin iconvalidationplugin
-typeinfo IconValidation.qmltypes

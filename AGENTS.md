@@ -1,8 +1,8 @@
 - The repository `justfile` defines the OpenCode checks, including `opencode-check`.
 - `opencode-check` must pass before every commit that touches OpenCode; follow the configured Biome rules, do not weaken them to pass checks, and do not use ternaries.
-- Compiled Qt plugin binaries (e.g. `dot_config/quickshell/Niri/libniriplugin.so`) are committed to the repo. Rebuild and commit them alongside the C++ source changes that produce them.
+- The Rofi plugin binary (`dot_config/rofi/plugins/libtabmemory.so`) is committed. Rebuild and commit it alongside the C++ source changes that produce it.
 - Keep native plugins free of embedded build-machine paths and RPATH/RUNPATH entries, prune unused linked dependencies, and verify rebuilt binaries and plugin loading; keep the Rofi plugin free of a `libstdc++` dependency.
-- Quickshell (`dot_config/quickshell/`) is deprecated. Do not modify it or use it for new shell work. Amane (`dot_config/amane/`) is the supported shell.
+- Amane (`dot_config/amane/`) is the supported shell.
 - Never recommend forking dependencies. The ongoing maintenance cost outweighs the convenience; prefer existing APIs or changes accepted upstream.
 - Reuse shared Amane UI components, such as buttons, whenever they fit. Do not build feature-local equivalents for behavior a shared component already provides.
 - In Amane, do not narrate implementation progress or missing features in the UI (for example, "read-only for now" or "controls coming soon"). Keep useful, context-specific troubleshooting guidance for real problems, including what dependency to check or whether the shell will retry.

@@ -1,7 +1,7 @@
 # Rofi tab memory
 
 Build against the installed Rofi's headers and GLib/Cairo development files.
-Set `PKG_CONFIG_PATH` or `CMAKE_PREFIX_PATH` when needed, as with the Quickshell plugins.
+Set `PKG_CONFIG_PATH` or `CMAKE_PREFIX_PATH` when needed.
 
 ```sh
 cmake -S utils/rofi_plugin -B utils/rofi_plugin/build -G Ninja
