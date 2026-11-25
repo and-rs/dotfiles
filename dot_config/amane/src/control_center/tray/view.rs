@@ -34,27 +34,29 @@ fn paragraph(value: &str, theme: &Theme, width: f32, error: bool) -> Rectangle {
 }
 
 fn item_icon(item: &Item, theme: &Theme) -> Rectangle {
+    let Some(image) = item.icon.as_ref().filter(|image| Image::loaded(&image.source)) else {
+        return ui::icon('\u{e136}', theme.surface4);
+    };
     let icon = Rectangle::new()
         .width(design::ICON_SIZE)
-        .height(design::size::BUTTON);
-    if let Some(image) = &item.icon {
-        match &image.halo {
-            Some(halo) if Image::loaded(halo) => {
-                let inset = design::tray::ICON_HALO_INSET;
-                return icon.align_child(Center, Center).child(
-                    Rectangle::new()
-                        .width(design::ICON_SIZE + inset * 2.0)
-                        .height(design::size::BUTTON + inset * 2.0)
-                        .fill(Image::contain(halo)),
-                );
-            }
-            None if Image::loaded(&image.source) => {
-                return icon.fill(Image::contain(&image.source));
-            }
-            _ => {}
-        }
-    }
-    ui::icon('\u{e136}', theme.surface4)
+        .height(design::size::BUTTON)
+        .fill(Image::contain(&image.source));
+    let Some(halo) = image.halo.as_ref().filter(|halo| Image::loaded(*halo)) else {
+        return icon;
+    };
+    let inset = design::tray::ICON_HALO_INSET;
+    Rectangle::new()
+        .width(design::ICON_SIZE)
+        .height(design::size::BUTTON)
+        .align_child(Center, Center)
+        .child(
+            Rectangle::new()
+                .width(design::ICON_SIZE + inset * 2.0)
+                .height(design::size::BUTTON + inset * 2.0)
+                .fill(Image::contain(halo))
+                .align_child(Center, Center)
+                .child(icon),
+        )
 }
 
 fn item_row(item: &Item, theme: &Theme, width: f32) -> Rectangle {
@@ -120,7 +122,7 @@ fn item_row(item: &Item, theme: &Theme, width: f32) -> Rectangle {
         .on_click(move |button| match button {
             Button::Left => request(Command::Menu(id.clone())),
             Button::Middle => request(Command::Action(id.clone(), Action::Secondary)),
-            Button::Right => request(Command::Menu(id.clone())),
+            Button::Right => request(Command::Action(id.clone(), Action::Activate)),
         })
         .build()
 }

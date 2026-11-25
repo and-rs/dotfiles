@@ -221,8 +221,7 @@ width="{width}" height="{height}" viewBox="0 0 {width} {height}">
 <defs><filter id="halo" filterUnits="userSpaceOnUse" x="0" y="0" width="{width}" height="{height}" color-interpolation-filters="sRGB">
 <feGaussianBlur in="SourceAlpha" stdDeviation="{blur}" result="blur"/>
 <feFlood flood-color="{color}" flood-opacity="{opacity}" result="ink"/>
-<feComposite in="ink" in2="blur" operator="in" result="halo"/>
-<feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
+ <feComposite in="ink" in2="blur" operator="in"/>
 </filter></defs>
 <image x="{inset}" y="{inset}" width="{icon_width}" height="{icon_height}" xlink:href="{source}" filter="url(#halo)"/>
 </svg>"##
@@ -292,14 +291,9 @@ mod tests {
         let halo = light.halo.as_ref().unwrap();
         assert_eq!(icons.resolve("", "", &pixmaps).as_ref(), Some(&light));
         let raster = rasterize(halo);
-        assert!(
-            raster
-                .pixel(raster.width() / 2, raster.height() / 2)
-                .unwrap()
-                .alpha()
-                >= 128,
-            "PNG sources must remain visible inside the SVG filter"
-        );
+        let center = raster.pixel(raster.width() / 2, raster.height() / 2).unwrap();
+        assert!(center.alpha() > 0 && center.alpha() < 128);
+        assert_eq!(center.red(), center.alpha(), "only the white halo is drawn");
         icons.retain([&light]);
         assert!(path.is_file(), "a retained SVG must keep its source PNG");
         assert!(halo.is_file());
@@ -331,7 +325,7 @@ mod tests {
     }
 
     #[test]
-    fn halo_follows_svg_silhouette_preserves_color_and_escapes_paths() {
+    fn halo_follows_svg_silhouette_without_drawing_artwork() {
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -357,10 +351,9 @@ mod tests {
             let center_x = raster.width() / 2;
             let center_y = raster.height() / 2;
             let center = raster.pixel(center_x, center_y).unwrap();
-            assert_eq!(
-                (center.red(), center.green(), center.blue(), center.alpha()),
-                (225, 44, 56, 255)
-            );
+            assert!(center.alpha() > 0 && center.alpha() < 255);
+            let ink = if color == Color::WHITE { center.alpha() } else { 0 };
+            assert_eq!((center.red(), center.green(), center.blue()), (ink, ink, ink));
             assert_eq!(
                 raster.pixel(0, 0).unwrap().alpha(),
                 0,

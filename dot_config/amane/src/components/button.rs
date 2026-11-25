@@ -7,7 +7,8 @@ use std::{
 };
 
 use amane::{
-    Button as MouseButton, Center, Color, Cursor, Parent, Rectangle, Row, Size, Text, Widget,
+    Button as MouseButton, Center, Color, Cursor, Padding, Parent, Rectangle, Row, Size, Text,
+    Widget,
 };
 
 use crate::{design, theme::Theme};
@@ -69,7 +70,7 @@ pub struct Button<'a> {
     trailing_icon: Option<char>,
     width: Option<Size>,
     height: f32,
-    padding: f32,
+    padding: Padding,
     content: Option<Box<dyn Widget>>,
     on_click: Option<Box<dyn Fn(MouseButton)>>,
 }
@@ -87,7 +88,7 @@ impl<'a> Button<'a> {
             trailing_icon: None,
             width: None,
             height: design::button::HEIGHT,
-            padding: design::padding::NORMAL,
+            padding: design::padding::NORMAL.into(),
             content: None,
             on_click: None,
         }
@@ -100,6 +101,19 @@ impl<'a> Button<'a> {
             .width(design::size::BUTTON)
             .height(design::size::BUTTON)
             .padding(0.0)
+    }
+
+    pub fn compact(mut self) -> Self {
+        self.height = design::button::COMPACT_HEIGHT;
+        self.padding = design::button::COMPACT_PADDING;
+        self
+    }
+
+    pub fn compact_label_width(label: &str, theme: &Theme) -> f32 {
+        let Size::Fixed(width) = label_text(label, theme).width() else {
+            unreachable!("unwrapped button labels have measured widths");
+        };
+        width + design::button::COMPACT_PADDING.left + design::button::COMPACT_PADDING.right
     }
 
     pub fn variant(mut self, variant: Variant) -> Self {
@@ -138,7 +152,7 @@ impl<'a> Button<'a> {
     }
 
     pub fn padding(mut self, padding: f32) -> Self {
-        self.padding = padding;
+        self.padding = padding.into();
         self
     }
 
@@ -159,6 +173,7 @@ impl<'a> Button<'a> {
             state.set(Interaction::default());
         }
         let (fill, foreground, border) = self.colors(state.get());
+        let horizontal_padding = self.padding.left + self.padding.right;
         let content = self.content.unwrap_or_else(|| {
             let icon = |glyph| icon_glyph(glyph, foreground, design::ICON_SIZE);
             let mut children: Vec<Box<dyn Widget>> = Vec::new();
@@ -166,11 +181,7 @@ impl<'a> Button<'a> {
                 children.push(Box::new(icon(glyph)));
             }
             if !self.label.is_empty() {
-                let label = Text::new(self.label)
-                    .font(&self.theme.font)
-                    .size(design::typography::BODY_SIZE)
-                    .weight(design::typography::BODY_WEIGHT)
-                    .color(foreground);
+                let label = label_text(self.label, self.theme).color(foreground);
                 let Size::Fixed(mut width) = label.width() else {
                     unreachable!("unwrapped button labels have measured widths");
                 };
@@ -178,7 +189,7 @@ impl<'a> Button<'a> {
                     let icons = children.len() + usize::from(self.trailing_icon.is_some());
                     width = width.min(
                         (available
-                            - self.padding * 2.0
+                            - horizontal_padding
                             - icons as f32 * (design::ICON_SIZE + design::spacing::SMALL))
                             .max(0.0),
                     );
@@ -197,7 +208,7 @@ impl<'a> Button<'a> {
             Box::new(Row::new(children).align(Center).gap(design::spacing::SMALL))
         });
         let width = self.width.unwrap_or_else(|| match content.width() {
-            Size::Fixed(width) => Size::Fixed(width + self.padding * 2.0),
+            Size::Fixed(width) => Size::Fixed(width + horizontal_padding),
             Size::Parent => Parent,
         });
         let mut surface = Rectangle::new()
@@ -248,15 +259,21 @@ impl<'a> Button<'a> {
             Variant::Default => (theme.accent, theme.bg),
             Variant::Secondary => (theme.surface2, theme.fg),
             Variant::Ghost => (Color::TRANSPARENT, theme.fg),
-            Variant::Destructive => (theme.destructive, theme.bg),
+            Variant::Destructive => (theme.surface2, theme.destructive),
         };
-        if self.disabled {
+        if self.selected {
+            fill = tint(theme.surface2, theme.accent, design::button::SELECTED_TINT);
+            foreground = theme.accent;
+        } else if self.disabled {
             fill = theme.surface2;
             foreground = theme.surface4;
-        } else if interaction.pressed {
-            fill = tint(fill, foreground, design::button::PRESSED_TINT);
-        } else if interaction.hovered {
-            fill = tint(fill, foreground, design::button::HOVER_TINT);
+        }
+        if !self.disabled {
+            if interaction.pressed {
+                fill = tint(fill, foreground, design::button::PRESSED_TINT);
+            } else if interaction.hovered {
+                fill = tint(fill, foreground, design::button::HOVER_TINT);
+            }
         }
         let border = if self.selected {
             theme.accent
@@ -265,6 +282,13 @@ impl<'a> Button<'a> {
         };
         (fill, foreground, border)
     }
+}
+
+fn label_text(label: impl Into<String>, theme: &Theme) -> Text {
+    Text::new(label)
+        .font(&theme.font)
+        .size(design::typography::BODY_SIZE)
+        .weight(design::typography::BODY_WEIGHT)
 }
 
 fn tint(base: Color, foreground: Color, amount: f32) -> Color {
@@ -315,15 +339,17 @@ mod tests {
     #[test]
     fn variants_and_interaction_states_use_theme_colors() {
         let theme = theme();
-        for (variant, fill) in [
-            (Variant::Default, theme.accent),
-            (Variant::Secondary, theme.surface2),
-            (Variant::Ghost, Color::TRANSPARENT),
-            (Variant::Destructive, theme.destructive),
+        for (variant, fill, foreground) in [
+            (Variant::Default, theme.accent, theme.bg),
+            (Variant::Secondary, theme.surface2, theme.fg),
+            (Variant::Ghost, Color::TRANSPARENT, theme.fg),
+            (Variant::Destructive, theme.surface2, theme.destructive),
         ] {
             let button = Button::new("colors", "Button", &theme).variant(variant);
-            assert_eq!(button.colors(Interaction::default()).0, fill);
-            let foreground = button.colors(Interaction::default()).1;
+            assert_eq!(
+                button.colors(Interaction::default()),
+                (fill, foreground, Color::TRANSPARENT)
+            );
             assert_eq!(
                 button.colors(Interaction {
                     hovered: true,
@@ -346,13 +372,19 @@ mod tests {
                     Color::TRANSPARENT
                 )
             );
-            let button = button.selected(true).disabled(true);
+            let selected = (
+                tint(theme.surface2, theme.accent, design::button::SELECTED_TINT),
+                theme.accent,
+                theme.accent,
+            );
+            let button = button.selected(true);
+            assert_eq!(button.colors(Interaction::default()), selected);
             assert_eq!(
-                button.colors(Interaction {
+                button.disabled(true).colors(Interaction {
                     hovered: true,
                     pressed: true
                 }),
-                (theme.surface2, theme.surface4, theme.accent)
+                selected
             );
         }
     }
@@ -384,6 +416,23 @@ mod tests {
             assert_eq!(button.width(), Size::Fixed(160.0));
             assert_eq!(button.height(), Size::Fixed(design::button::HEIGHT));
         }
+    }
+
+    #[test]
+    fn compact_labels_fit_their_shared_height_and_measured_width() {
+        let theme = theme();
+        let label = "Power saver";
+        let button = Button::new("compact", label, &theme).compact().build();
+        assert_eq!(
+            button.width(),
+            Size::Fixed(Button::compact_label_width(label, &theme))
+        );
+        assert_eq!(button.height(), Size::Fixed(design::button::COMPACT_HEIGHT));
+        let Size::Fixed(label_height) = label_text(label, &theme).height() else {
+            panic!("expected intrinsic label height");
+        };
+        let padding = design::button::COMPACT_PADDING;
+        assert!(label_height + padding.top + padding.bottom <= design::button::COMPACT_HEIGHT);
     }
 
     #[test]

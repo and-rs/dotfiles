@@ -135,9 +135,7 @@ fn summary(reading: &Reading, theme: &Theme, width: f32) -> Column {
 
 struct Mode {
     active: bool,
-    available: bool,
     clickable: bool,
-    status: &'static str,
 }
 
 impl Mode {
@@ -148,20 +146,9 @@ impl Mode {
             .and_then(|state| state.as_ref().ok());
         let active = state.is_some_and(|state| state.active == profile);
         let available = state.is_some_and(|state| state.can_select(profile));
-        let status = if profiles.pending.as_deref() == Some(profile) {
-            "Applying…"
-        } else if active {
-            "✓ Selected"
-        } else if state.is_some() && !available {
-            "Unavailable"
-        } else {
-            ""
-        };
         Self {
             active,
-            available,
             clickable: available && !active && profiles.pending.is_none(),
-            status,
         }
     }
 }
@@ -173,33 +160,12 @@ fn mode_button(
     theme: &Theme,
 ) -> Rectangle {
     let mode = Mode::new(profile, profiles);
-    let color = if mode.active {
-        theme.accent
-    } else if mode.available {
-        theme.fg
-    } else {
-        theme.surface4
-    };
-    let content = Column::new(children![
-        ui::body(label, theme).color(color).elide().max_lines(1),
-        ui::supporting(mode.status, theme)
-            .color(color)
-            .elide()
-            .max_lines(1),
-    ])
-    .width(Parent)
-    .gap(spacing::TINY);
-    let Size::Fixed(content_height) = Widget::height(&content) else {
-        unreachable!("power mode labels have intrinsic heights");
-    };
-    UiButton::new(format!("power_mode:{profile}"), "", theme)
+    UiButton::new(format!("power_mode:{profile}"), label, theme)
         .variant(Variant::Secondary)
+        .compact()
         .selected(mode.active)
         .disabled(!mode.clickable)
         .width(Parent)
-        .height(layout::MODE_HEIGHT.max(content_height + layout::MODE_PADDING * 2.0))
-        .padding(layout::MODE_PADDING)
-        .content(content)
         .on_click(move |button| {
             if button == Button::Left {
                 request_profile(profile);
@@ -216,12 +182,7 @@ fn mode_selector(profiles: &Profiles, theme: &Theme, width: f32) -> Column {
     ];
     let minimum_width = modes
         .iter()
-        .map(|(_, label)| {
-            let Size::Fixed(width) = Widget::width(&ui::body(*label, theme)) else {
-                unreachable!("unwrapped mode labels have intrinsic widths");
-            };
-            width + layout::MODE_PADDING * 2.0
-        })
+        .map(|(_, label)| UiButton::compact_label_width(label, theme))
         .fold(0.0_f32, f32::max);
     let needed =
         minimum_width * modes.len() as f32 + spacing::EXTRA_SMALL * (modes.len() - 1) as f32;
@@ -265,6 +226,9 @@ fn feedback(profiles: &Profiles) -> (&str, bool) {
     if let Some(error) = &profiles.error {
         return (action_error(error), true);
     }
+    if profiles.pending.is_some() {
+        return ("Applying power mode…", false);
+    }
     match &profiles.state {
         None => ("Checking available power modes…", false),
         Some(Err(_)) => ("Power modes aren't available on this system.", false),
@@ -273,6 +237,9 @@ fn feedback(profiles: &Profiles) -> (&str, bool) {
         }
         Some(Ok(state)) if !state.degraded.is_empty() => {
             (restriction(&state.degraded, false), false)
+        }
+        Some(Ok(state)) if !state.can_select("performance") => {
+            ("Performance mode isn't available on this system.", false)
         }
         _ => ("", false),
     }
@@ -518,12 +485,12 @@ mod tests {
         assert!(!Mode::new("balanced", &profiles).clickable);
         profiles.pending = Some("power-saver".into());
         let pending = Mode::new("power-saver", &profiles);
-        assert_eq!(pending.status, "Applying…");
+        assert_eq!(feedback(&profiles), ("Applying power mode…", false));
         assert!(!pending.active);
         assert!(!pending.clickable);
         let confirmed = Mode::new("balanced", &profiles);
         assert!(confirmed.active);
-        assert_eq!(confirmed.status, "✓ Selected");
+        assert!(!confirmed.clickable);
         assert!(!Mode::new("performance", &profiles).clickable);
         profiles.pending = None;
         profiles.state = Some(Err("offline".into()));
@@ -579,7 +546,7 @@ mod tests {
         assert!(
             wide_height
                 >= ui::body("Power mode", &theme).height_in(380.0)
-                    + layout::MODE_HEIGHT
+                    + crate::design::button::COMPACT_HEIGHT
                     + details_height
         );
     }
@@ -587,19 +554,18 @@ mod tests {
     #[test]
     fn mode_controls_fit_labels_and_stack_on_narrow_layouts() {
         let theme = theme();
-        let button = mode_button("power-saver", "Power saver", &profiles(), &theme);
-        let Size::Fixed(height) = Widget::height(&button) else {
-            panic!("expected fixed control height")
-        };
-        let required = ui::body("Power saver", &theme).height_in(120.0)
-            + ui::supporting("Applying…", &theme).height_in(120.0)
-            + spacing::TINY
-            + layout::MODE_PADDING * 2.0;
-        assert!(height >= required);
-        let selector = mode_selector(&profiles(), &theme, 160.0);
-        let Size::Fixed(selector_height) = Widget::height(&selector) else {
-            panic!("expected intrinsic selector height");
-        };
-        assert!(selector_height >= height * 3.0);
+        let mut profiles = profiles();
+        let height = crate::design::button::COMPACT_HEIGHT;
+        for pending in [None, Some("performance".into())] {
+            profiles.pending = pending;
+            assert_eq!(
+                Widget::height(&mode_selector(&profiles, &theme, 380.0)),
+                Size::Fixed(height)
+            );
+            assert_eq!(
+                Widget::height(&mode_selector(&profiles, &theme, 160.0)),
+                Size::Fixed(height * 3.0 + spacing::EXTRA_SMALL * 2.0)
+            );
+        }
     }
 }

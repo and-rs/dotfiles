@@ -282,6 +282,9 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
         assert!(icon.halo.as_ref().unwrap_or(&icon.source).is_file());
     }
     backend
+        .command(Command::Action(item.id.clone(), items::Action::Activate))
+        .unwrap();
+    backend
         .command(Command::Action(item.id.clone(), items::Action::Secondary))
         .unwrap();
     backend
@@ -291,8 +294,8 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
         ))
         .unwrap();
     assert_eq!(
-        &shared.lock().unwrap().events[..2],
-        ["secondary:0:0", "scroll:120:vertical"]
+        &shared.lock().unwrap().events[..3],
+        ["activate:0:0", "secondary:0:0", "scroll:120:vertical"]
     );
     backend.items[0].menu = None;
     backend.command(Command::Menu(item.id.clone())).unwrap();
@@ -319,7 +322,7 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
             .iter()
             .filter(|event| *event == "activate:0:0")
             .count(),
-        0
+        1
     );
     assert_eq!(menu.entries.len(), 6);
     assert_eq!(menu.entries[0].label, "Open");

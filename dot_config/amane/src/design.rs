@@ -42,8 +42,6 @@ pub mod battery {
     use super::{padding, spacing};
 
     pub const METER_HEIGHT: f32 = spacing::EXTRA_SMALL;
-    pub const MODE_HEIGHT: f32 = super::control_center::ROW_HEIGHT;
-    pub const MODE_PADDING: f32 = spacing::EXTRA_SMALL;
     pub const DETAIL_LABEL_WIDTH: f32 = padding::NORMAL * 8.0;
 }
 
@@ -72,9 +70,19 @@ pub mod size {
 }
 
 pub mod button {
+    use amane::Padding;
+
     pub const HEIGHT: f32 = super::size::BUTTON + super::padding::NORMAL * 2.0;
+    pub const COMPACT_HEIGHT: f32 = 32.0;
+    pub const COMPACT_PADDING: Padding = Padding {
+        top: super::spacing::EXTRA_SMALL,
+        right: super::padding::NORMAL,
+        bottom: super::spacing::EXTRA_SMALL,
+        left: super::padding::NORMAL,
+    };
     pub const HOVER_TINT: f32 = 0.06;
     pub const PRESSED_TINT: f32 = 0.12;
+    pub const SELECTED_TINT: f32 = 0.12;
 }
 
 pub mod scroll {

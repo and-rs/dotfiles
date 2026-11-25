@@ -6,8 +6,9 @@ use super::{
     request,
 };
 use crate::{
+    components::{Button as UiButton, Variant},
     control_center::ui,
-    design::{self, control_center as layout, padding, spacing, typography},
+    design::{self, padding, spacing, typography},
     theme::Theme,
 };
 
@@ -97,8 +98,6 @@ fn paragraph(label: &str, theme: &Theme, width: f32, error: bool) -> Rectangle {
 }
 
 fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangle {
-    use crate::components::{Button as UiButton, Variant};
-
     let variant = if matches!(action, Some(Action::Forget(_))) {
         Variant::Destructive
     } else {
@@ -106,8 +105,8 @@ fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangl
     };
     UiButton::new(format!("bluetooth:{action:?}:{label}"), label, theme)
         .variant(variant)
+        .compact()
         .width(Parent)
-        .height(layout::ROW_HEIGHT)
         .disabled(action.is_none())
         .on_click(move |button| {
             if button == Button::Left
@@ -122,12 +121,7 @@ fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangl
 fn controls(actions: Vec<(&str, Option<Action>)>, theme: &Theme, width: f32) -> Column {
     let minimum_width = actions
         .iter()
-        .map(|(label, _)| {
-            let Size::Fixed(width) = Widget::width(&ui::body(*label, theme)) else {
-                unreachable!("button labels have intrinsic widths");
-            };
-            width + padding::NORMAL * 2.0
-        })
+        .map(|(label, _)| UiButton::compact_label_width(label, theme))
         .fold(0.0_f32, f32::max);
     let needed = minimum_width * actions.len() as f32
         + spacing::SMALL * actions.len().saturating_sub(1) as f32;
@@ -542,6 +536,23 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn actions_keep_parent_width_at_compact_height() {
+        let theme = theme();
+        let button = action_button("Connect", None, &theme);
+        assert_eq!(Widget::width(&button), Parent);
+        assert_eq!(fixed_height(&button), design::button::COMPACT_HEIGHT);
+        let actions = || vec![("Connect", None), ("Forget", None)];
+        assert_eq!(
+            fixed_height(&controls(actions(), &theme, 380.0)),
+            design::button::COMPACT_HEIGHT
+        );
+        assert_eq!(
+            fixed_height(&controls(actions(), &theme, 100.0)),
+            2.0 * design::button::COMPACT_HEIGHT + spacing::SMALL
+        );
     }
 
     #[test]

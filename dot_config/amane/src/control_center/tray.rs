@@ -274,7 +274,7 @@ impl Service for State {
                     let _ = backend.close_menu();
                 }
                 menu_generation = generation;
-                backend.icons.halo_color = Some(crate::theme::ThemeState::read().theme.fg);
+                backend.icons.halo_color = Some(crate::theme::ThemeState::read().theme.surface4);
                 backend.refresh()?;
                 if let Some(menu) = &mut backend.menu
                     && let Err(error) = menu::read(&backend.connection, menu, false)

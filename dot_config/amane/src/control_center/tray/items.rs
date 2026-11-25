@@ -158,6 +158,7 @@ fn from_properties(id: Id, interface: &str, properties: &Properties, icons: &mut
 
 #[derive(Clone, Copy, Debug)]
 pub(super) enum Action {
+    Activate,
     Secondary,
     ContextMenu,
     Scroll(i32, bool),
@@ -173,6 +174,7 @@ pub(super) fn act(connection: &Connection, item: &Item, action: Action) -> zbus:
     // Wayland does not expose global pointer coordinates. DBusMenu is rendered
     // locally; applications requiring coordinates receive the protocol fallback.
     match action {
+        Action::Activate => proxy.call("Activate", &(0_i32, 0_i32)),
         Action::Secondary => proxy.call("SecondaryActivate", &(0_i32, 0_i32)),
         Action::ContextMenu => proxy.call("ContextMenu", &(0_i32, 0_i32)),
         Action::Scroll(delta, horizontal) => {
