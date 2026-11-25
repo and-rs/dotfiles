@@ -4,7 +4,8 @@ set -euo pipefail
 script="$(realpath -- "${BASH_SOURCE[0]}")"
 
 if [[ ${1:-} != --watch ]]; then
-    exec nix develop "${AMANE_NIX_FLAKE:-github:and-rs/nixed}#amane" --command bash "$script" --watch
+    exec nix --extra-experimental-features 'nix-command flakes' \
+        develop "${AMANE_NIX_FLAKE:-github:and-rs/nixed}#amane" --command bash "$script" --watch
 fi
 
 cd -- "$(dirname -- "$script")"
