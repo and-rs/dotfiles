@@ -25,7 +25,6 @@ struct FakeState {
     status: String,
     failed: bool,
     disabled: bool,
-    menu_only: bool,
     revision: u32,
     events: Vec<String>,
 }
@@ -51,11 +50,6 @@ impl FakeItem {
             return Err(zbus::fdo::Error::Failed("Deliberately broken item".into()));
         }
         Ok(state.status.clone())
-    }
-
-    #[zbus(property)]
-    fn item_is_menu(&self) -> bool {
-        self.0.lock().unwrap().menu_only
     }
 
     #[zbus(property)]
@@ -308,9 +302,7 @@ fn fake_tray_lifecycle_actions_and_dynamic_menus() {
             .iter()
             .any(|e| e == "context:0:0")
     );
-    shared.lock().unwrap().menu_only = true;
     backend.refresh().unwrap();
-    assert!(backend.items[0].menu_only);
 
     backend.command(Command::Menu(item.id.clone())).unwrap();
     let menu = backend.menu.as_ref().unwrap();

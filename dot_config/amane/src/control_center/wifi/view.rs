@@ -218,29 +218,8 @@ mod tests {
     use super::*;
     use crate::{
         control_center::wifi::backend::{Backend, Snapshot},
-        theme::Radius,
+        theme::test_theme as theme,
     };
-    use amane::Color;
-
-    fn theme() -> Theme {
-        Theme {
-            bg: Color::BLACK,
-            fg: Color::WHITE,
-            accent: Color::BLUE,
-            success: Color::GREEN,
-            destructive: Color::RED,
-            surface1: Color::rgb(25, 25, 25),
-            surface2: Color::rgb(50, 50, 50),
-            surface3: Color::rgb(90, 90, 90),
-            surface4: Color::rgb(180, 180, 180),
-            font: "sans-serif".into(),
-            radius: Radius {
-                small: 2.0,
-                normal: 6.0,
-                large: 10.0,
-            },
-        }
-    }
 
     fn connected(backend: Backend) -> State {
         State {

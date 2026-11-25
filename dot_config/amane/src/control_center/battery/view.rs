@@ -362,29 +362,8 @@ fn content(reading: &Reading, profiles: &Profiles, theme: &Theme, width: f32) ->
 
 #[cfg(test)]
 mod tests {
-    use amane::Color;
-
     use super::*;
-
-    fn theme() -> Theme {
-        Theme {
-            bg: Color::BLACK,
-            fg: Color::WHITE,
-            accent: Color::BLUE,
-            success: Color::GREEN,
-            destructive: Color::RED,
-            surface1: Color::rgb(25, 25, 25),
-            surface2: Color::rgb(50, 50, 50),
-            surface3: Color::rgb(90, 90, 90),
-            surface4: Color::rgb(180, 180, 180),
-            font: "sans-serif".into(),
-            radius: crate::theme::Radius {
-                small: 2.0,
-                normal: 6.0,
-                large: 10.0,
-            },
-        }
-    }
+    use crate::theme::test_theme as theme;
 
     fn profiles() -> Profiles {
         Profiles {

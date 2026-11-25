@@ -86,17 +86,6 @@ fn fixed_height(widget: &impl Widget) -> f32 {
     height
 }
 
-fn paragraph(label: &str, theme: &Theme, width: f32, error: bool) -> Rectangle {
-    let mut text = ui::supporting(label, theme).wrap();
-    if error {
-        text = text.color(theme.destructive);
-    }
-    Rectangle::new()
-        .width(Parent)
-        .height(text.height_in(width))
-        .child(text)
-}
-
 fn action_button(label: &str, action: Option<Action>, theme: &Theme) -> Rectangle {
     let variant = if matches!(action, Some(Action::Forget(_))) {
         Variant::Destructive
@@ -193,7 +182,7 @@ fn summary(state: &State, theme: &Theme, width: f32) -> Column {
         )));
     }
     if let Some((label, error)) = state.feedback() {
-        content.push(Box::new(paragraph(label, theme, width, error)));
+        content.push(Box::new(ui::paragraph(label, theme, width, error)));
     }
     if let Some(snapshot) = &state.reading.snapshot
         && snapshot.devices.is_empty()
@@ -205,7 +194,7 @@ fn summary(state: &State, theme: &Theme, width: f32) -> Column {
         } else {
             "No saved devices. Scan to find nearby devices."
         };
-        content.push(Box::new(paragraph(label, theme, width, false)));
+        content.push(Box::new(ui::paragraph(label, theme, width, false)));
     }
     Column::new(content).width(Parent).gap(spacing::EXTRA_SMALL)
 }
@@ -356,30 +345,9 @@ mod tests {
     use super::*;
     use crate::{
         control_center::bluetooth::backend::{Adapter, Reading},
-        theme::Radius,
+        theme::test_theme as theme,
     };
-    use amane::Color;
     use zbus::zvariant::OwnedObjectPath;
-
-    fn theme() -> Theme {
-        Theme {
-            bg: Color::BLACK,
-            fg: Color::WHITE,
-            accent: Color::BLUE,
-            success: Color::GREEN,
-            destructive: Color::RED,
-            surface1: Color::rgb(25, 25, 25),
-            surface2: Color::rgb(50, 50, 50),
-            surface3: Color::rgb(90, 90, 90),
-            surface4: Color::rgb(180, 180, 180),
-            font: "sans-serif".into(),
-            radius: Radius {
-                small: 2.0,
-                normal: 6.0,
-                large: 10.0,
-            },
-        }
-    }
 
     fn device(name: &str, paired: bool, connected: bool) -> Device {
         Device {

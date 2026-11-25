@@ -27,8 +27,7 @@ pub fn find<'a>(name: &str, folders: impl IntoIterator<Item = &'a PathBuf>) -> O
     None
 }
 
-pub fn index_folders(root: &Path) -> Vec<PathBuf> {
-    let index = fs::read_to_string(root.join("index.theme")).unwrap_or_default();
+pub fn index_folders<'a>(root: &'a Path, index: &'a str) -> impl Iterator<Item = PathBuf> + 'a {
     index
         .lines()
         .filter_map(|line| line.split_once('='))
@@ -40,8 +39,7 @@ pub fn index_folders(root: &Path) -> Vec<PathBuf> {
                 && !Path::new(part).is_absolute()
                 && !part.split('/').any(|p| p == "..")
         })
-        .map(|part| root.join(part))
-        .collect()
+        .map(move |part| root.join(part))
 }
 
 pub fn theme_folders() -> Vec<PathBuf> {
@@ -92,8 +90,8 @@ pub fn theme_folders() -> Vec<PathBuf> {
         }
         for root in &data {
             let root = root.join(&theme);
-            folders.extend(index_folders(&root));
             if let Ok(index) = fs::read_to_string(root.join("index.theme")) {
+                folders.extend(index_folders(&root, &index));
                 for parents in index.lines().filter_map(|l| l.strip_prefix("Inherits=")) {
                     themes.extend(
                         parents
@@ -112,4 +110,21 @@ pub fn theme_folders() -> Vec<PathBuf> {
         }
     }
     folders
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn index_directories_keep_order_and_stay_under_the_theme_root() {
+        let root = Path::new("/icons/theme");
+        let index = "Directories=16/apps, /absolute, ../other, 32/apps,\n\
+                     ScaledDirectories=32@2/apps, 32/../other\n\
+                     Inherits=hicolor";
+        assert_eq!(
+            index_folders(root, index).collect::<Vec<_>>(),
+            ["16/apps", "32/apps", "32@2/apps"].map(|folder| root.join(folder))
+        );
+    }
 }

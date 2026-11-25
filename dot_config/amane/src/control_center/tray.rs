@@ -129,7 +129,6 @@ impl Backend {
                                     status: "Active".into(),
                                     icon: None,
                                     menu: None,
-                                    menu_only: false,
                                     error: None,
                                 });
                             item.error = Some("Could not read application status.".into());

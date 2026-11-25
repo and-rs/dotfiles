@@ -179,7 +179,9 @@ impl Icons {
         let mut folders = Vec::new();
         if extra.is_absolute() {
             folders.push(extra.to_path_buf());
-            folders.extend(index_folders(extra));
+            if let Ok(index) = fs::read_to_string(extra.join("index.theme")) {
+                folders.extend(index_folders(extra, &index));
+            }
         }
         icon_theme::find(name, folders.iter().chain(&self.folders))
     }

@@ -27,7 +27,6 @@ pub(super) struct Item {
     pub status: String,
     pub icon: Option<super::icons::Icon>,
     pub menu: Option<String>,
-    pub menu_only: bool,
     pub error: Option<String>,
 }
 
@@ -69,17 +68,17 @@ pub(super) fn read(connection: &Connection, entry: &str, icons: &mut Icons) -> z
         owner: watcher::owner(connection, service)?,
         path: path.into(),
     };
+    let proxy = Proxy::new(
+        connection,
+        id.owner.as_str(),
+        path,
+        "org.freedesktop.DBus.Properties",
+    )?;
     let mut last_error = None;
     for interface in [
         "org.kde.StatusNotifierItem",
         "org.freedesktop.StatusNotifierItem",
     ] {
-        let proxy = Proxy::new(
-            connection,
-            id.owner.as_str(),
-            path,
-            "org.freedesktop.DBus.Properties",
-        )?;
         match proxy.call::<_, _, Properties>("GetAll", &(interface,)) {
             Ok(properties) if !properties.is_empty() => {
                 if !matches!(
@@ -108,11 +107,6 @@ fn from_properties(id: Id, interface: &str, properties: &Properties, icons: &mut
     }
     let status = string(properties, "Status");
     let theme_path = string(properties, "IconThemePath");
-    let prefix = if status == "NeedsAttention" {
-        "AttentionIcon"
-    } else {
-        "Icon"
-    };
     let load_icon = |icons: &mut Icons, prefix: &str| {
         let pixmaps: Vec<Pixmap> = properties
             .get(&format!("{prefix}Pixmap"))
@@ -125,7 +119,12 @@ fn from_properties(id: Id, interface: &str, properties: &Properties, icons: &mut
             &pixmaps,
         )
     };
-    let icon = load_icon(icons, prefix).or_else(|| load_icon(icons, "Icon"));
+    let attention_icon = if status == "NeedsAttention" {
+        load_icon(icons, "AttentionIcon")
+    } else {
+        None
+    };
+    let icon = attention_icon.or_else(|| load_icon(icons, "Icon"));
     let tooltip = properties
         .get("ToolTip")
         .and_then(|v| v.try_clone().ok())
@@ -151,7 +150,6 @@ fn from_properties(id: Id, interface: &str, properties: &Properties, icons: &mut
         status,
         icon,
         menu,
-        menu_only: boolean(properties, "ItemIsMenu", false),
         error: None,
     }
 }

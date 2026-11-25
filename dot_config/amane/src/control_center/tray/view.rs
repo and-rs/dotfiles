@@ -22,19 +22,12 @@ fn height(widget: &impl Widget) -> f32 {
     height
 }
 
-fn paragraph(value: &str, theme: &Theme, width: f32, error: bool) -> Rectangle {
-    let mut text = ui::supporting(value, theme).wrap();
-    if error {
-        text = text.color(theme.destructive);
-    }
-    Rectangle::new()
-        .width(Parent)
-        .height(text.height_in(width))
-        .child(text)
-}
-
 fn item_icon(item: &Item, theme: &Theme) -> Rectangle {
-    let Some(image) = item.icon.as_ref().filter(|image| Image::loaded(&image.source)) else {
+    let Some(image) = item
+        .icon
+        .as_ref()
+        .filter(|image| Image::loaded(&image.source))
+    else {
         return ui::icon('\u{e136}', theme.surface4);
     };
     let icon = Rectangle::new()
@@ -212,7 +205,7 @@ fn header(state: &State, theme: &Theme, width: f32) -> Column {
         content.push(Box::new(ui::supporting(label, theme)));
     }
     if let Some(error) = state.error {
-        content.push(Box::new(paragraph(error.message(), theme, width, true)));
+        content.push(Box::new(ui::paragraph(error.message(), theme, width, true)));
     }
     Column::new(content).width(Parent).gap(spacing::EXTRA_SMALL)
 }
@@ -224,7 +217,7 @@ fn list(state: &State, theme: &Theme, width: f32) -> Column {
             content.push(Box::new(menu_row(entry, menu, theme, width)));
         }
         if content.is_empty() {
-            content.push(Box::new(paragraph(
+            content.push(Box::new(ui::paragraph(
                 "This menu is empty.",
                 theme,
                 width,
@@ -274,29 +267,8 @@ mod tests {
     use super::*;
     use crate::{
         control_center::tray::{Error, items::Id},
-        theme::Radius,
+        theme::test_theme as theme,
     };
-    use amane::Color;
-
-    fn theme() -> Theme {
-        Theme {
-            bg: Color::BLACK,
-            fg: Color::WHITE,
-            accent: Color::BLUE,
-            success: Color::GREEN,
-            destructive: Color::RED,
-            surface1: Color::rgb(25, 25, 25),
-            surface2: Color::rgb(50, 50, 50),
-            surface3: Color::rgb(90, 90, 90),
-            surface4: Color::rgb(180, 180, 180),
-            font: "sans-serif".into(),
-            radius: Radius {
-                small: 2.0,
-                normal: 6.0,
-                large: 10.0,
-            },
-        }
-    }
 
     fn item() -> Item {
         Item {
@@ -310,7 +282,6 @@ mod tests {
             status: "Active".into(),
             icon: None,
             menu: None,
-            menu_only: false,
             error: None,
         }
     }
