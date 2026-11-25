@@ -12,11 +12,11 @@ use amane::{
     Widget, Zone, children,
 };
 
-use super::{Entry, Notice, Notifications};
+use super::{Entry, Notice, Notifications, Popup};
 use crate::{
     components::{
-        Button as UiButton, Variant, button::icon_glyph, scroll_area::anchored_scroll_area,
-        timer_bar::timer_bar,
+        Button as UiButton, Variant, button::icon_glyph, reveal::Reveals,
+        scroll_area::anchored_scroll_area, timer_bar::timer_bar,
     },
     design::{self, notifications as layout, padding, spacing, typography},
     niri::Niri,
@@ -24,6 +24,11 @@ use crate::{
 };
 
 const REPLY_FIELD: &str = "notification_reply";
+
+thread_local! {
+    static POPUP_REVEAL: RefCell<Reveals<(Popup, Entry)>> = RefCell::default();
+    static SIDEBAR_REVEAL: RefCell<Reveals<Option<u32>>> = RefCell::default();
+}
 
 pub fn bell(monitor: &str, theme: &Theme) -> Rectangle {
     let state = Notifications::read();
@@ -319,25 +324,27 @@ fn popup_window(width: f32, height: f32) -> LayerWindow {
 
 pub fn popup(monitor: &Monitor) -> LayerWindow {
     let width = panel_width(monitor);
-    if Niri::read().focused_output() != Some(monitor.name.as_str()) {
-        return popup_window(width, 0.0).visible(false);
-    }
-    let displayed = {
+    let displayed = if Niri::read().focused_output() == Some(monitor.name.as_str()) {
         let state = Notifications::read();
         if state.monitor.is_some() {
-            return popup_window(width, 0.0).visible(false);
+            None
+        } else {
+            state
+                .popup
+                .and_then(|popup| Some((popup, state.entry(popup.id)?.clone())))
         }
-        state
-            .popup
-            .and_then(|popup| Some((popup, state.entry(popup.id)?.clone())))
+    } else {
+        None
     };
-    let Some((popup, entry)) = displayed else {
+    let Some(frame) = POPUP_REVEAL.with_borrow_mut(|reveal| reveal.frame(&monitor.name, displayed))
+    else {
         return popup_window(width, 0.0).visible(false);
     };
+    let (popup, entry) = &frame.content;
     let timer = popup.deadline.zip(entry.notice.timeout);
     let theme = ThemeState::read();
-    let card = card(&entry, &theme.theme, width, true, timer, false, true);
-    popup_window(width, height(&card)).child(card)
+    let card = card(entry, &theme.theme, width, true, timer, false, true).opacity(frame.opacity);
+    frame.window(popup_window(width, height(&card))).child(card)
 }
 
 fn close_sidebar() {
@@ -498,13 +505,17 @@ fn sidebar_window(width: f32, height: f32) -> LayerWindow {
 
 pub fn sidebar(monitor: &Monitor) -> LayerWindow {
     let width = panel_width(monitor);
-    let (entries, reply_to, running) = {
+    let (frame, entries, running) = {
         let state = Notifications::read();
-        if state.monitor.as_deref() != Some(&monitor.name) {
+        let replying = (state.monitor.as_deref() == Some(&monitor.name)).then_some(state.reply_to);
+        let Some(frame) =
+            SIDEBAR_REVEAL.with_borrow_mut(|reveal| reveal.frame(&monitor.name, replying))
+        else {
             return sidebar_window(width, 0.0).visible(false);
-        }
-        (state.entries.clone(), state.reply_to, state.running)
+        };
+        (frame, state.entries.clone(), state.running)
     };
+    let reply_to = frame.content;
     let theme = ThemeState::read();
     let theme = &theme.theme;
     let inside = (width - padding::NORMAL * 2.0).max(0.0);
@@ -594,7 +605,8 @@ pub fn sidebar(monitor: &Monitor) -> LayerWindow {
         .width(Parent)
         .gap(spacing::SMALL);
     let panel_height = height(&content) + padding::NORMAL * 2.0;
-    sidebar_window(width, panel_height)
+    frame
+        .window(sidebar_window(width, panel_height))
         .on_key(|key| {
             if key == Key::Escape {
                 close_sidebar();
@@ -604,6 +616,7 @@ pub fn sidebar(monitor: &Monitor) -> LayerWindow {
             Rectangle::new()
                 .width(Parent)
                 .height(Parent)
+                .opacity(frame.opacity)
                 .padding(padding::NORMAL)
                 .fill(theme.surface1)
                 .radius(theme.radius.normal)

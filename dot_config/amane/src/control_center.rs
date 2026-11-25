@@ -5,6 +5,8 @@ mod tray;
 mod ui;
 mod wifi;
 
+use std::cell::RefCell;
+
 use amane::{
     Button, Center, Column, Cursor, End, Full, Key, Keyboard, Layer, LayerWindow, Monitor, Padding,
     Parent, Rectangle, Row, Service, Size, Start, Widget, Zone,
@@ -12,7 +14,7 @@ use amane::{
 
 use crate::{
     bar_buttons,
-    components::{Button as UiButton, Variant},
+    components::{Button as UiButton, Variant, reveal::Reveals},
     design::{self, control_center as layout, padding, spacing},
     theme::{Theme, ThemeState},
 };
@@ -24,6 +26,10 @@ enum Section {
     Bluetooth,
     Wifi,
     Battery,
+}
+
+thread_local! {
+    static REVEAL: RefCell<Reveals<Section>> = RefCell::default();
 }
 
 impl Section {
@@ -126,12 +132,25 @@ pub fn button(monitor: &str, theme: &Theme) -> Rectangle {
 }
 
 pub fn view(monitor: &Monitor) -> LayerWindow {
-    let state = ControlCenter::read();
+    let window = LayerWindow::new()
+        .width(Full)
+        .height(Full)
+        .layer(Layer::Overlay)
+        .space(Zone::Ignore)
+        .keyboard(Keyboard::Exclusive)
+        .namespace("amane_control_center");
+    let section = {
+        let state = ControlCenter::read();
+        (state.monitor.as_deref() == Some(&monitor.name)).then_some(state.section)
+    };
+    let Some(frame) = REVEAL.with_borrow_mut(|reveal| reveal.frame(&monitor.name, section)) else {
+        return window.visible(false);
+    };
+    let section = frame.content;
     let theme = ThemeState::read();
     let theme = &theme.theme;
-    let visible = state.monitor.as_deref() == Some(&monitor.name);
     let width = layout::WIDTH.min((monitor.width as f32 - layout::EDGE * 2.0).max(0.0));
-    let preferred_height = match state.section {
+    let preferred_height = match section {
         Section::Bluetooth | Section::Tray => layout::LIST_HEIGHT,
         _ => layout::HEIGHT,
     };
@@ -142,45 +161,35 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
     let tab_width = (content_width - spacing::SMALL * (tab_count - 1.0)).max(0.0) / tab_count;
     let tabs = Section::ALL
         .into_iter()
-        .map(|section| {
+        .map(|tab| {
             let name = monitor.name.clone();
             Box::new(
-                UiButton::new(
-                    format!("tab:{name}:{}", section.label()),
-                    section.label(),
-                    theme,
-                )
-                .variant(Variant::Ghost)
-                .selected(state.section == section)
-                .width(tab_width)
-                .height(layout::TAB_HEIGHT)
-                .padding(spacing::EXTRA_SMALL)
-                .on_click(move |button| {
-                    if button == Button::Left {
-                        ControlCenter::write().open(&name, section);
-                    }
-                })
-                .build(),
+                UiButton::new(format!("tab:{name}:{}", tab.label()), tab.label(), theme)
+                    .variant(Variant::Ghost)
+                    .selected(section == tab)
+                    .width(tab_width)
+                    .height(layout::TAB_HEIGHT)
+                    .padding(spacing::EXTRA_SMALL)
+                    .on_click(move |button| {
+                        if button == Button::Left {
+                            ControlCenter::write().open(&name, tab);
+                        }
+                    })
+                    .build(),
             ) as Box<dyn amane::Widget>
         })
         .collect();
     let content_height =
         (height - padding::NORMAL * 2.0 - layout::TAB_HEIGHT - spacing::SMALL).max(0.0);
-    let content = state.section.content(theme, content_width, content_height);
+    let content = section.content(theme, content_width, content_height);
     let height = match content.height() {
         Size::Fixed(content_height) => {
             content_height + padding::NORMAL * 2.0 + layout::TAB_HEIGHT + spacing::SMALL
         }
         Size::Parent => height,
     };
-    LayerWindow::new()
-        .width(Full)
-        .height(Full)
-        .layer(Layer::Overlay)
-        .space(Zone::Ignore)
-        .keyboard(Keyboard::Exclusive)
-        .namespace("amane_control_center")
-        .visible(visible)
+    frame
+        .window(window)
         .on_key(|key| {
             if key == Key::Escape {
                 let mut state = ControlCenter::write();
@@ -205,6 +214,7 @@ pub fn view(monitor: &Monitor) -> LayerWindow {
                     Rectangle::new()
                         .width(width)
                         .height(height)
+                        .opacity(frame.opacity)
                         .fill(theme.surface1)
                         .border(design::BORDER_WIDTH, theme.surface4)
                         .radius(theme.radius.normal)

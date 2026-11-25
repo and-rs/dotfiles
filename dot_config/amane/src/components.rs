@@ -1,4 +1,5 @@
 pub mod button;
+pub mod reveal;
 pub mod scroll_area;
 pub mod timer_bar;
 

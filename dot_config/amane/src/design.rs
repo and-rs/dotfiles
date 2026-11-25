@@ -133,6 +133,11 @@ pub mod duration {
     pub const SLOW: Duration = Duration::from_millis(600);
 }
 
+pub mod reveal {
+    pub const DURATION: super::Duration = super::Duration::from_millis(150);
+    pub const EASING: amane::Easing = amane::Easing::Out;
+}
+
 pub mod osd {
     use super::padding;
 

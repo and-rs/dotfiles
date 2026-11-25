@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     io::Read,
     net::Shutdown,
     os::unix::net::UnixStream,
@@ -17,6 +18,7 @@ use amane::{
 };
 
 use crate::{
+    components::reveal::Reveals,
     design::{self, duration, osd, spacing},
     theme::ThemeState,
 };
@@ -24,6 +26,10 @@ use crate::{
 const COMMAND_TIMEOUT: Duration = Duration::from_secs(2);
 
 type Update = (Kind, Level);
+
+thread_local! {
+    static REVEAL: RefCell<Reveals<(Kind, Level, f32)>> = RefCell::default();
+}
 
 static UPDATES: LazyLock<(mpsc::Sender<Update>, Mutex<mpsc::Receiver<Update>>)> =
     LazyLock::new(|| {
@@ -348,20 +354,27 @@ pub fn client(arguments: &[String]) -> Result<(), String> {
     Ok(())
 }
 
-pub fn view(_monitor: &Monitor) -> LayerWindow {
-    let state = Osd::read();
+pub fn view(monitor: &Monitor) -> LayerWindow {
+    let window = LayerWindow::new()
+        .width(osd::WIDTH)
+        .height(osd::HEIGHT)
+        .layer(Layer::Overlay)
+        .space(Zone::Ignore)
+        .keyboard(Keyboard::None)
+        .click_through()
+        .namespace("amane_osd");
+    let content = {
+        let state = Osd::read();
+        state
+            .current
+            .map(|(kind, level, _)| (kind, level, state.progress.value()))
+    };
+    let Some(frame) = REVEAL.with_borrow_mut(|reveal| reveal.frame(&monitor.name, content)) else {
+        return window.visible(false);
+    };
+    let (kind, level, fraction) = frame.content;
     let theme = ThemeState::read();
     let theme = &theme.theme;
-    let (kind, level) = state
-        .current
-        .map(|(kind, level, _)| (kind, level))
-        .unwrap_or((
-            Kind::Volume,
-            Level {
-                percent: 0.0,
-                muted: false,
-            },
-        ));
     let mut text = format!("{}: {:.0}%", kind.label(), level.percent);
     let mut foreground = theme.fg;
     let mut progress = theme.accent;
@@ -370,57 +383,49 @@ pub fn view(_monitor: &Monitor) -> LayerWindow {
         foreground = theme.surface2;
         progress = foreground;
     }
-    LayerWindow::new()
-        .width(osd::WIDTH)
-        .height(osd::HEIGHT)
-        .layer(Layer::Overlay)
-        .space(Zone::Ignore)
-        .keyboard(Keyboard::None)
-        .click_through()
-        .namespace("amane_osd")
-        .visible(state.current.is_some())
-        .child(
-            Rectangle::new()
-                .width(Parent)
-                .height(Parent)
-                .fill(theme.surface1)
-                .border(design::BORDER_WIDTH, theme.surface4)
-                .radius(theme.radius.normal)
-                .padding(osd::PADDING)
-                .align_child(Center, Center)
-                .child(
-                    Column::new(children![
-                        Row::new(children![
-                            Text::new(kind.icon(level).to_string())
-                                .font(design::ICON_FONT)
-                                .size(design::ICON_SIZE)
-                                .color(foreground)
-                                .tight(),
-                            Text::new(text)
-                                .font(&theme.font)
-                                .size(design::typography::BODY_SIZE)
-                                .weight(Weight::Medium)
-                                .color(foreground),
-                        ])
-                        .gap(spacing::SMALL)
-                        .align(Center),
-                        Rectangle::new()
-                            .width(osd::CONTENT_WIDTH)
-                            .height(spacing::SMALL)
-                            .fill(theme.bg)
-                            .radius(theme.radius.large)
-                            .align_child(Start, Start)
-                            .child(
-                                Rectangle::new()
-                                    .width(osd::CONTENT_WIDTH * state.progress.value())
-                                    .height(spacing::SMALL)
-                                    .fill(progress)
-                                    .radius(theme.radius.large)
-                            ),
+    window.child(
+        Rectangle::new()
+            .width(Parent)
+            .height(Parent)
+            .opacity(frame.opacity)
+            .fill(theme.surface1)
+            .border(design::BORDER_WIDTH, theme.surface4)
+            .radius(theme.radius.normal)
+            .padding(osd::PADDING)
+            .align_child(Center, Center)
+            .child(
+                Column::new(children![
+                    Row::new(children![
+                        Text::new(kind.icon(level).to_string())
+                            .font(design::ICON_FONT)
+                            .size(design::ICON_SIZE)
+                            .color(foreground)
+                            .tight(),
+                        Text::new(text)
+                            .font(&theme.font)
+                            .size(design::typography::BODY_SIZE)
+                            .weight(Weight::Medium)
+                            .color(foreground),
                     ])
-                    .gap(spacing::SMALL),
-                ),
-        )
+                    .gap(spacing::SMALL)
+                    .align(Center),
+                    Rectangle::new()
+                        .width(osd::CONTENT_WIDTH)
+                        .height(spacing::SMALL)
+                        .fill(theme.bg)
+                        .radius(theme.radius.large)
+                        .align_child(Start, Start)
+                        .child(
+                            Rectangle::new()
+                                .width(osd::CONTENT_WIDTH * fraction)
+                                .height(spacing::SMALL)
+                                .fill(progress)
+                                .radius(theme.radius.large)
+                        ),
+                ])
+                .gap(spacing::SMALL),
+            ),
+    )
 }
 
 #[cfg(test)]
