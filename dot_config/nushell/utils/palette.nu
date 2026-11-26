@@ -40,6 +40,7 @@ def parse-color [color: string] {
   0..2 | each {|channel|
     $hex
     | str substring (($channel * 2)..(($channel * 2) + 1))
+    | $"0x($in)" # Keep hex bytes like 0b from being read as radix prefixes.
     | into int --radix 16
     | $in / 255
   }

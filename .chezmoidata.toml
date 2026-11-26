@@ -1,4 +1,4 @@
-theme = "nord-dark"
+theme = "flexoki-dark"
 
 [fonts]
 ui = "Inter"
@@ -144,6 +144,39 @@ selection = "#434c5e"
 black = "#3b4252"
 white = "#eceff4"
 bright_black = "#73829e"
+
+# Flexoki by Steph Ango: https://stephango.com/flexoki
+[palettes.flexoki-dark]
+fg = "#cecdc3"
+blue = "#4385be"
+magenta = "#ce5d97"
+red = "#d14d41"
+green = "#879a39"
+yellow = "#d0a215"
+cyan = "#3aa99f"
+bg = "#100f0f"
+cursor = "#cecdc3"
+cursor_text = "#100f0f"
+selection = "#403e3c"
+black = "#1c1b1a"
+white = "#cecdc3"
+bright_black = "#878580"
+
+[palettes.flexoki-light]
+fg = "#100f0f"
+blue = "#205ea6"
+magenta = "#a02f6f"
+red = "#af3029"
+green = "#66800b"
+yellow = "#ad8301"
+cyan = "#24837b"
+bg = "#fffcf0"
+cursor = "#100f0f"
+cursor_text = "#fffcf0"
+selection = "#cecdc3"
+black = "#f2f0e5"
+white = "#100f0f"
+bright_black = "#6f6e69"
 
 # mfd.nvim: monochrome terminal variants; ANSI accents share each theme's ink.
 [palettes.mfd-lumon]
